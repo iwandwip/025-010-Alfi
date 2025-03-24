@@ -21,6 +21,8 @@ void setup() {
       delay(500);
     }
     DateTime timeNow(dateTimeNTP.getISO8601Time().c_str());
+    // DateTime timeNow(dateTimeNTP.getDateString().c_str(), dateTimeNTP.getTimeString().c_str());
+    // DateTime timeNow(dateTimeNTP.unixtime());
     return new RTC_DS3231Sens(RTC_DS3231Sens::ALL, timeNow);
   });
   sensor.addModule("tcs", new TCS3200Sens(4, 2, 16));

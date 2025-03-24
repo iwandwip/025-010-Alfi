@@ -5,10 +5,12 @@
 #define ENABLE_MODULE_TIMER_TASK
 #define ENABLE_MODULE_SERIAL_HARD
 #define ENABLE_MODULE_DATETIME_NTP_V2
-#define ENABLE_MODULE_FIREBASE_RTDB_V2
-#define ENABLE_MODULE_FIREBASE_FIRESTORE_V2
-#define ENABLE_MODULE_FIREBASE_MESSAGING_V2
 #define ENABLE_MODULE_LCD_MENU
+
+#define ENABLE_MODULE_FIREBASE_APPLICATION_V3
+#define ENABLE_MODULE_FIREBASE_RTDB_V3
+#define ENABLE_MODULE_FIREBASE_FIRESTORE_V3
+#define ENABLE_MODULE_FIREBASE_MESSAGING_V3
 
 #define ENABLE_SENSOR_MODULE
 #define ENABLE_SENSOR_MODULE_UTILITY
@@ -36,9 +38,9 @@ const int daylightOffset_sec = 0;
 DateTimeNTPV2 dateTimeNTP(ntpServer, gmtOffset_sec, daylightOffset_sec);
 TaskHandle task;
 Preferences preferences;
-FirebaseV2RTDB firebase;
-FirebaseV2Firestore firestore;
-FirebaseV2Messaging messaging;
+FirebaseV3RTDB* firebase = nullptr;
+FirebaseV3Firestore* firestore = nullptr;
+FirebaseV3Messaging* messaging = nullptr;
 WiFiClientSecure client;
 
 ////////// Sensor //////////
