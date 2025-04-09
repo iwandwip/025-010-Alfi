@@ -93,7 +93,7 @@ FirebaseFirestoreState firebaseFirestoreState = FIRESTORE_IDE;
 FirebaseMessagingState firebaseMessagingState = MESSAGING_IDLE;
 
 bool isNTPClientInitialize = false;
-String clientName = "haikal";
+String clientName = "alfi";
 
 String buttonUpStr = "";
 String buttonDownStr = "";
