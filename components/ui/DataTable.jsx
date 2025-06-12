@@ -5,21 +5,43 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { Colors } from "../../constants/Colors";
 
 const DataTable = ({ headers, data, onEdit, onDelete, keyExtractor }) => {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case "sehat":
+      case "active":
+      case "completed":
         return Colors.success;
-      case "tidak sehat":
+      case "pending":
         return Colors.warning;
-      case "obesitas":
+      case "inactive":
+      case "error":
         return Colors.error;
       default:
         return Colors.gray700;
     }
+  };
+
+  const formatNumber = (value) => {
+    if (typeof value === "number") {
+      return value.toFixed(2);
+    }
+    return String(value);
+  };
+
+  const formatDateTime = (datetime) => {
+    if (!datetime) return "";
+    const date = new Date(datetime);
+    return date.toLocaleString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
   };
 
   const renderActionButtons = (item, rowIndex) => {
@@ -41,6 +63,48 @@ const DataTable = ({ headers, data, onEdit, onDelete, keyExtractor }) => {
           <Text style={styles.deleteButtonText}>🗑️</Text>
         </TouchableOpacity>
       </View>
+    );
+  };
+
+  const renderCell = (value, columnIndex, rowIndex) => {
+    if (columnIndex === headers.length - 1) {
+      return renderActionButtons(value, rowIndex);
+    }
+
+    if (columnIndex === 3) {
+      return (
+        <Text
+          style={[
+            styles.cellText,
+            styles.statusText,
+            { color: getStatusColor(value) },
+          ]}
+        >
+          {String(value)}
+        </Text>
+      );
+    }
+
+    if (columnIndex === 0) {
+      return (
+        <Text style={[styles.cellText, styles.dateTimeText]} numberOfLines={2}>
+          {formatDateTime(value)}
+        </Text>
+      );
+    }
+
+    if (columnIndex === 1 || columnIndex === 2) {
+      return (
+        <Text style={[styles.cellText, styles.numberText]} numberOfLines={1}>
+          {formatNumber(value)}
+        </Text>
+      );
+    }
+
+    return (
+      <Text style={styles.cellText} numberOfLines={2}>
+        {String(value)}
+      </Text>
     );
   };
 
@@ -68,27 +132,19 @@ const DataTable = ({ headers, data, onEdit, onDelete, keyExtractor }) => {
               ]}
             >
               <View style={[styles.dataCell, styles.column0]}>
-                <Text style={styles.cellText}>{row.dateTime}</Text>
+                {renderCell(row.datetime, 0, rowIndex)}
               </View>
               <View style={[styles.dataCell, styles.column1]}>
-                <Text style={styles.cellText}>{row.weight}</Text>
+                {renderCell(row.value1, 1, rowIndex)}
               </View>
               <View style={[styles.dataCell, styles.column2]}>
-                <Text style={styles.cellText}>{row.height}</Text>
+                {renderCell(row.value2, 2, rowIndex)}
               </View>
               <View style={[styles.dataCell, styles.column3]}>
-                <Text
-                  style={[
-                    styles.cellText,
-                    styles.statusText,
-                    { color: getStatusColor(row.nutritionStatus) },
-                  ]}
-                >
-                  {row.nutritionStatus}
-                </Text>
+                {renderCell(row.status, 3, rowIndex)}
               </View>
               <View style={[styles.dataCell, styles.column4]}>
-                {renderActionButtons(row, rowIndex)}
+                {renderCell(row, 4, rowIndex)}
               </View>
             </View>
           ))}
@@ -153,8 +209,18 @@ const styles = StyleSheet.create({
     color: Colors.gray700,
     textAlign: "center",
   },
+  dateTimeText: {
+    fontSize: 11,
+    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
+    lineHeight: 14,
+  },
+  numberText: {
+    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
+    fontWeight: "500",
+  },
   statusText: {
     fontWeight: "500",
+    textTransform: "capitalize",
   },
   actionButtons: {
     flexDirection: "row",
@@ -181,16 +247,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   column0: {
-    width: 140,
+    width: 120,
   },
   column1: {
-    width: 80,
+    width: 90,
   },
   column2: {
-    width: 80,
+    width: 90,
   },
   column3: {
-    width: 100,
+    width: 90,
   },
   column4: {
     width: 90,

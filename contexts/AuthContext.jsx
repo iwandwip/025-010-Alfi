@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { auth } from "../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { getUserProfile } from "../services/userService";
+import { paymentStatusManager } from "../services/paymentStatusManager";
 
 const AuthContext = createContext({});
 
@@ -30,7 +31,7 @@ export const AuthProvider = ({ children }) => {
   const checkAdminStatus = (user, profile) => {
     return (
       user?.email === "admin@gmail.com" ||
-      profile?.role === "teacher" ||
+      profile?.role === "admin" ||
       profile?.isAdmin
     );
   };
@@ -48,6 +49,23 @@ export const AuthProvider = ({ children }) => {
         const adminStatus = checkAdminStatus(user, result.profile);
         setIsAdmin(adminStatus);
         setUserProfile(result.profile);
+
+        if (!adminStatus && result.profile.role === "user") {
+          try {
+            await paymentStatusManager.handleUserLogin(user.uid);
+          } catch (error) {
+            console.warn("Error during payment status update on login:", error);
+          }
+        } else if (adminStatus) {
+          try {
+            await paymentStatusManager.handleUserLogin(null);
+          } catch (error) {
+            console.warn(
+              "Error during admin payment status update on login:",
+              error
+            );
+          }
+        }
       } else {
         const adminStatus = checkAdminStatus(user, null);
         setIsAdmin(adminStatus);
@@ -57,9 +75,18 @@ export const AuthProvider = ({ children }) => {
             id: user.uid,
             email: user.email,
             name: "Admin",
-            role: "teacher",
+            role: "admin",
             isAdmin: true,
           });
+
+          try {
+            await paymentStatusManager.handleUserLogin(null);
+          } catch (error) {
+            console.warn(
+              "Error during admin payment status update on login:",
+              error
+            );
+          }
         } else {
           console.warn("Failed to load user profile:", result.error);
           setUserProfile(null);
@@ -75,7 +102,7 @@ export const AuthProvider = ({ children }) => {
           id: user.uid,
           email: user.email,
           name: "Admin",
-          role: "teacher",
+          role: "admin",
           isAdmin: true,
         });
       } else {
@@ -96,6 +123,7 @@ export const AuthProvider = ({ children }) => {
 
     const initializeAuth = () => {
       if (!auth) {
+        console.warn("Firebase Auth not available, using fallback");
         if (mounted) {
           setCurrentUser(null);
           setUserProfile(null);
@@ -111,6 +139,10 @@ export const AuthProvider = ({ children }) => {
           auth,
           async (user) => {
             if (mounted) {
+              console.log(
+                "Auth state changed:",
+                user ? "User logged in" : "User logged out"
+              );
               setCurrentUser(user);
               await loadUserProfile(user);
               setLoading(false);
@@ -149,7 +181,7 @@ export const AuthProvider = ({ children }) => {
         setAuthInitialized(true);
         setIsAdmin(false);
       }
-    }, 10000);
+    }, 5000);
 
     initializeAuth();
 

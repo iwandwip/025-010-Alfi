@@ -1,60 +1,50 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
+import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-import { View, Text } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { Colors } from "../constants/Colors";
 
 export default function Index() {
-  const { currentUser, loading, authInitialized, isAdmin } = useAuth();
+  const { currentUser, loading, authInitialized, userProfile } = useAuth();
   const router = useRouter();
-  const redirectedRef = useRef(false);
 
   useEffect(() => {
-    if (authInitialized && !loading && !redirectedRef.current) {
-      redirectedRef.current = true;
-
-      const redirect = () => {
-        if (currentUser) {
-          if (isAdmin) {
-            router.replace("/(admin)");
-          } else {
-            router.replace("/(tabs)");
-          }
+    if (authInitialized && !loading) {
+      if (currentUser && userProfile) {
+        if (userProfile.role === "admin") {
+          router.replace("/(admin)");
+        } else if (userProfile.role === "user") {
+          router.replace("/(tabs)");
         } else {
-          router.replace("/(auth)/login");
+          router.replace("/role-selection");
         }
-      };
-
-      const timeoutId = setTimeout(redirect, 100);
-      return () => clearTimeout(timeoutId);
+      } else {
+        router.replace("/role-selection");
+      }
     }
-  }, [authInitialized, loading, currentUser, isAdmin, router]);
+  }, [currentUser, loading, authInitialized, userProfile]);
 
   if (!authInitialized || loading) {
     return (
       <View style={styles.container}>
-        <LoadingSpinner text="Loading app..." />
+        <LoadingSpinner text="Memuat..." />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Redirecting...</Text>
+      <LoadingSpinner text="Mengarahkan..." />
     </View>
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: Colors.background,
   },
-  text: {
-    fontSize: 16,
-    color: Colors.gray600,
-  },
-};
+});

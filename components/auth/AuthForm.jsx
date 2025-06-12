@@ -21,7 +21,6 @@ const AuthForm = ({ type = "login", onSubmit, loading = false }) => {
     password: "",
     confirmPassword: "",
     name: "",
-    parentName: "",
     birthdate: "",
     gender: "",
   });
@@ -61,11 +60,7 @@ const AuthForm = ({ type = "login", onSubmit, loading = false }) => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Child name is required";
-    }
-
-    if (!formData.parentName.trim()) {
-      newErrors.parentName = "Parent name is required";
+      newErrors.name = "Name is required";
     }
 
     if (!formData.birthdate) {
@@ -116,7 +111,6 @@ const AuthForm = ({ type = "login", onSubmit, loading = false }) => {
     if (isRegister && !isAdminEmail) {
       data.profileData = {
         name: formData.name,
-        parentName: formData.parentName,
         birthdate: formData.birthdate,
         gender: formData.gender,
       };
@@ -130,7 +124,7 @@ const AuthForm = ({ type = "login", onSubmit, loading = false }) => {
       if (isAdminEmail && step === 1) {
         return "Create Admin Account";
       }
-      return step === 1 ? "Create Account" : "Child Information";
+      return step === 1 ? "Create Account" : "Personal Information";
     }
     switch (type) {
       case "forgot-password":
@@ -161,7 +155,7 @@ const AuthForm = ({ type = "login", onSubmit, loading = false }) => {
     maxDate.setFullYear(today.getFullYear() - 3);
 
     const minDate = new Date();
-    minDate.setFullYear(today.getFullYear() - 18);
+    minDate.setFullYear(today.getFullYear() - 100);
 
     return { maxDate, minDate };
   };
@@ -238,21 +232,12 @@ const AuthForm = ({ type = "login", onSubmit, loading = false }) => {
           {isRegister && step === 2 && !isAdminEmail && (
             <>
               <Input
-                label="Child Name"
-                placeholder="Enter child's name"
+                label="Name"
+                placeholder="Enter your name"
                 value={formData.name}
                 onChangeText={(value) => updateFormData("name", value)}
                 autoCapitalize="words"
                 error={errors.name}
-              />
-
-              <Input
-                label="Parent Name"
-                placeholder="Enter parent's name"
-                value={formData.parentName}
-                onChangeText={(value) => updateFormData("parentName", value)}
-                autoCapitalize="words"
-                error={errors.parentName}
               />
 
               <DatePicker

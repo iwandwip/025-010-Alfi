@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
 import { Colors } from "../constants/Colors";
 
 class ErrorBoundary extends React.Component {
@@ -25,12 +24,12 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <Text style={styles.title}>Something went wrong</Text>
+          <Text style={styles.title}>Terjadi Kesalahan</Text>
           <Text style={styles.message}>
-            The app encountered an unexpected error. Please try again.
+            Aplikasi mengalami error tak terduga. Silakan coba lagi.
           </Text>
           <TouchableOpacity style={styles.button} onPress={this.handleRetry}>
-            <Text style={styles.buttonText}>Try Again</Text>
+            <Text style={styles.buttonText}>Coba Lagi</Text>
           </TouchableOpacity>
         </View>
       );

@@ -1,74 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Alert,
   ScrollView,
-  StatusBar,
-  TouchableWithoutFeedback,
-  Keyboard,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useAuth } from "../../contexts/AuthContext";
+import { useSettings } from "../../contexts/SettingsContext";
 import Input from "../../components/ui/Input";
-import DatePicker from "../../components/ui/DatePicker";
 import Button from "../../components/ui/Button";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import {
-  updateUserProfile,
-  startRfidPairing,
-  resetRfidPairing,
-  completeRfidPairing,
-  subscribeToUserProfile,
-} from "../../services/userService";
-import {
-  RFID_PAIRING_STATES,
-  isRfidPairingExpired,
-  getRfidPairingStatus,
-} from "../../utils/rfidPairing";
-import { Colors } from "../../constants/Colors";
+import { updateUserProfile } from "../../services/userService";
+import { getColors } from "../../constants/Colors";
 
 export default function EditProfile() {
   const { userProfile, refreshProfile } = useAuth();
+  const { theme, loading: settingsLoading } = useSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const colors = getColors(theme);
 
   const [loading, setLoading] = useState(false);
-  const [rfidPairing, setRfidPairing] = useState(false);
   const [formData, setFormData] = useState({
-    name: userProfile?.name || "",
-    parentName: userProfile?.parentName || "",
-    birthdate: userProfile?.birthdate || "",
-    gender: userProfile?.gender || "",
+    namaWali: userProfile?.namaWali || "",
+    noHpWali: userProfile?.noHpWali || "",
+    namaSantri: userProfile?.namaSantri || "",
   });
   const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    if (!userProfile?.id) return;
-
-    const unsubscribe = subscribeToUserProfile(userProfile.id, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-
-        if (data.rfidPairingState === RFID_PAIRING_STATES.WAITING) {
-          if (isRfidPairingExpired(data.rfidPairingTimestamp)) {
-            handleRfidTimeout();
-          } else {
-            setRfidPairing(true);
-          }
-        }
-
-        if (data.pendingRfid && data.pendingRfid.trim() !== "") {
-          handleRfidSuccess(data.pendingRfid);
-        }
-      }
-    });
-
-    return unsubscribe;
-  }, [userProfile?.id]);
 
   const updateFormData = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -80,20 +45,16 @@ export default function EditProfile() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Child name is required";
+    if (!formData.namaWali.trim()) {
+      newErrors.namaWali = "Nama wali wajib diisi";
     }
 
-    if (!formData.parentName.trim()) {
-      newErrors.parentName = "Parent name is required";
+    if (!formData.noHpWali.trim()) {
+      newErrors.noHpWali = "No HP wali wajib diisi";
     }
 
-    if (!formData.birthdate) {
-      newErrors.birthdate = "Birth date is required";
-    }
-
-    if (!formData.gender) {
-      newErrors.gender = "Gender is required";
+    if (!formData.namaSantri.trim()) {
+      newErrors.namaSantri = "Nama santri wajib diisi";
     }
 
     setErrors(newErrors);
@@ -111,8 +72,8 @@ export default function EditProfile() {
       if (result.success) {
         await refreshProfile();
         Alert.alert(
-          "Profile Updated",
-          "Your profile has been updated successfully!",
+          "Profil Berhasil Diperbarui",
+          "Perubahan profil telah disimpan!",
           [
             {
               text: "OK",
@@ -121,315 +82,254 @@ export default function EditProfile() {
           ]
         );
       } else {
-        Alert.alert("Update Failed", result.error);
+        Alert.alert("Gagal Memperbarui", result.error);
       }
     } catch (error) {
-      Alert.alert("Update Failed", "Something went wrong. Please try again.");
+      Alert.alert("Gagal Memperbarui", "Terjadi kesalahan. Silakan coba lagi.");
     }
 
     setLoading(false);
   };
 
-  const handleRfidPairing = async () => {
-    try {
-      setRfidPairing(true);
-      const result = await startRfidPairing(userProfile.id);
-
-      if (!result.success) {
-        Alert.alert("Pairing Failed", result.error);
-        setRfidPairing(false);
-      }
-    } catch (error) {
-      Alert.alert("Pairing Failed", "Something went wrong. Please try again.");
-      setRfidPairing(false);
-    }
-  };
-
-  const handleRfidSuccess = async (rfidData) => {
-    try {
-      const result = await completeRfidPairing(userProfile.id, rfidData);
-
-      if (result.success) {
-        await refreshProfile();
-        setRfidPairing(false);
-        Alert.alert(
-          "RFID Paired",
-          "Your RFID card has been successfully paired!",
-          [{ text: "OK" }]
-        );
-      }
-    } catch (error) {
-      console.error("RFID completion error:", error);
-      setRfidPairing(false);
-    }
-  };
-
-  const handleRfidTimeout = async () => {
-    try {
-      await resetRfidPairing(userProfile.id);
-      setRfidPairing(false);
-      Alert.alert(
-        "Pairing Timeout",
-        "RFID pairing timed out. Please try again.",
-        [{ text: "OK" }]
-      );
-    } catch (error) {
-      console.error("RFID timeout error:", error);
-      setRfidPairing(false);
-    }
-  };
-
-  const handleCancelRfidPairing = async () => {
-    try {
-      await resetRfidPairing(userProfile.id);
-      setRfidPairing(false);
-    } catch (error) {
-      console.error("Cancel RFID error:", error);
-      setRfidPairing(false);
-    }
-  };
-
-  const getDateLimits = () => {
-    const today = new Date();
-    const maxDate = new Date();
-    maxDate.setFullYear(today.getFullYear() - 3);
-
-    const minDate = new Date();
-    minDate.setFullYear(today.getFullYear() - 18);
-
-    return { maxDate, minDate };
-  };
-
-  const { maxDate, minDate } = getDateLimits();
+  if (settingsLoading) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.container,
+          { paddingTop: insets.top, backgroundColor: colors.background },
+        ]}
+      >
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.white,
+              borderBottomColor: colors.gray200,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>
+              ← Kembali
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
+            Edit Profil
+          </Text>
+        </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
+            Memuat profil...
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+    <SafeAreaView
+      style={[
+        styles.container,
+        { paddingTop: insets.top, backgroundColor: colors.background },
+      ]}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardContainer}
+      >
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.white,
+              borderBottomColor: colors.gray200,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>
+              ← Kembali
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
+            Edit Profil
+          </Text>
+        </View>
 
-      <View style={styles.header}>
-        <Text style={styles.title}>Edit Profile</Text>
-      </View>
-
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAwareScrollView
-          style={styles.scrollContainer}
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: insets.bottom + 20 },
+            { paddingBottom: insets.bottom + 32 },
           ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          enableOnAndroid={true}
-          enableAutomaticScroll={true}
-          extraScrollHeight={20}
-          bounces={false}
         >
-          <View style={styles.formContainer}>
-            <Input
-              label="Child Name"
-              placeholder="Enter child's name"
-              value={formData.name}
-              onChangeText={(value) => updateFormData("name", value)}
-              autoCapitalize="words"
-              error={errors.name}
-            />
+          <View style={styles.content}>
+            <View style={styles.section}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  { color: colors.gray900, borderBottomColor: colors.primary },
+                ]}
+              >
+                Informasi Wali Santri
+              </Text>
 
-            <Input
-              label="Parent Name"
-              placeholder="Enter parent's name"
-              value={formData.parentName}
-              onChangeText={(value) => updateFormData("parentName", value)}
-              autoCapitalize="words"
-              error={errors.parentName}
-            />
+              <Input
+                label="Nama Wali"
+                placeholder="Masukkan nama lengkap wali"
+                value={formData.namaWali}
+                onChangeText={(value) => updateFormData("namaWali", value)}
+                autoCapitalize="words"
+                error={errors.namaWali}
+              />
 
-            <DatePicker
-              label="Birth Date"
-              placeholder="Select birth date"
-              value={formData.birthdate}
-              onChange={(value) => updateFormData("birthdate", value)}
-              maximumDate={maxDate}
-              minimumDate={minDate}
-              error={errors.birthdate}
-            />
-
-            <View style={styles.genderContainer}>
-              <Text style={styles.genderLabel}>Gender</Text>
-              <View style={styles.genderButtons}>
-                <Button
-                  title="Male"
-                  onPress={() => updateFormData("gender", "male")}
-                  variant={formData.gender === "male" ? "primary" : "outline"}
-                  style={styles.genderButton}
-                />
-                <Button
-                  title="Female"
-                  onPress={() => updateFormData("gender", "female")}
-                  variant={formData.gender === "female" ? "primary" : "outline"}
-                  style={styles.genderButton}
-                />
-              </View>
-              {errors.gender && (
-                <Text style={styles.errorText}>{errors.gender}</Text>
-              )}
+              <Input
+                label="No HP Wali"
+                placeholder="Masukkan nomor HP wali"
+                value={formData.noHpWali}
+                onChangeText={(value) => updateFormData("noHpWali", value)}
+                keyboardType="phone-pad"
+                error={errors.noHpWali}
+              />
             </View>
 
-            <View style={styles.rfidContainer}>
-              <Text style={styles.rfidLabel}>RFID Card</Text>
-              <View style={styles.rfidInfo}>
-                <Text style={styles.rfidValue}>
-                  {userProfile?.rfid || "Not paired"}
+            <View style={styles.section}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  { color: colors.gray900, borderBottomColor: colors.primary },
+                ]}
+              >
+                Informasi Santri
+              </Text>
+
+              <Input
+                label="Nama Santri"
+                placeholder="Masukkan nama lengkap santri"
+                value={formData.namaSantri}
+                onChangeText={(value) => updateFormData("namaSantri", value)}
+                autoCapitalize="words"
+                error={errors.namaSantri}
+              />
+
+              <View
+                style={[
+                  styles.infoBox,
+                  { backgroundColor: colors.primary + "20" },
+                ]}
+              >
+                <Text style={[styles.infoText, { color: colors.primary }]}>
+                  ℹ️ RFID santri hanya dapat diatur oleh admin TPQ
                 </Text>
-                {userProfile?.rfid && (
-                  <Text style={styles.rfidConnected}>✓ Connected</Text>
-                )}
               </View>
+            </View>
 
-              {rfidPairing ? (
-                <View style={styles.rfidPairingContainer}>
-                  <LoadingSpinner
-                    size="small"
-                    text="Tap your RFID card on the device..."
-                  />
-                  <Button
-                    title="Cancel"
-                    onPress={handleCancelRfidPairing}
-                    variant="outline"
-                    style={styles.cancelRfidButton}
-                  />
-                </View>
-              ) : (
-                <Button
-                  title={userProfile?.rfid ? "Re-pair RFID" : "Pair RFID Card"}
-                  onPress={handleRfidPairing}
-                  variant="outline"
-                  style={styles.rfidButton}
-                />
-              )}
+            <View style={styles.buttonSection}>
+              <Button
+                title="Batal"
+                onPress={() => router.back()}
+                variant="outline"
+                style={[styles.cancelButton, { borderColor: colors.gray400 }]}
+                disabled={loading}
+              />
+
+              <Button
+                title={loading ? "Menyimpan..." : "Simpan Perubahan"}
+                onPress={handleSave}
+                disabled={loading}
+                style={[styles.saveButton, { backgroundColor: colors.success }]}
+              />
             </View>
           </View>
-
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Cancel"
-              onPress={() => router.back()}
-              variant="outline"
-              style={styles.cancelButton}
-              disabled={loading || rfidPairing}
-            />
-
-            <Button
-              title={loading ? "Saving..." : "Save Changes"}
-              onPress={handleSave}
-              style={styles.saveButton}
-              disabled={loading || rfidPairing}
-            />
-          </View>
-        </KeyboardAwareScrollView>
-      </TouchableWithoutFeedback>
-    </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+  },
+  keyboardContainer: {
+    flex: 1,
   },
   header: {
     paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.gray200,
-    backgroundColor: Colors.white,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: Colors.gray900,
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "600",
     textAlign: "center",
   },
-  scrollContainer: {
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  loadingText: {
+    fontSize: 16,
+    marginTop: 16,
+    textAlign: "center",
+  },
+  scrollView: {
     flex: 1,
   },
   scrollContent: {
-    flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingVertical: 24,
   },
-  formContainer: {
+  content: {
     flex: 1,
   },
-  genderContainer: {
-    marginBottom: 16,
+  section: {
+    marginBottom: 32,
   },
-  genderLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: Colors.gray700,
-    marginBottom: 8,
-  },
-  genderButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  genderButton: {
-    flex: 1,
-  },
-  errorText: {
-    fontSize: 12,
-    color: Colors.error,
-    marginTop: 4,
-  },
-  rfidContainer: {
-    marginBottom: 16,
-    backgroundColor: Colors.white,
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.gray200,
-  },
-  rfidLabel: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: "600",
-    color: Colors.gray900,
-    marginBottom: 8,
+    marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
   },
-  rfidInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  rfidValue: {
-    fontSize: 14,
-    color: Colors.gray600,
-    flex: 1,
-  },
-  rfidConnected: {
-    fontSize: 12,
-    color: Colors.success,
-    fontWeight: "500",
-  },
-  rfidPairingContainer: {
-    alignItems: "center",
-    paddingVertical: 8,
-  },
-  rfidButton: {
+  infoBox: {
+    padding: 12,
+    borderRadius: 8,
     marginTop: 8,
   },
-  cancelRfidButton: {
-    marginTop: 12,
-    minWidth: 100,
+  infoText: {
+    fontSize: 14,
+    lineHeight: 20,
   },
-  buttonContainer: {
-    marginTop: 32,
+  buttonSection: {
+    flexDirection: "row",
     gap: 12,
+    marginTop: 16,
+    marginBottom: 32,
   },
   cancelButton: {
-    marginBottom: 8,
+    flex: 1,
   },
   saveButton: {
-    marginBottom: 8,
+    flex: 1,
   },
 });

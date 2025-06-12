@@ -1,62 +1,55 @@
-import { doc, setDoc, getDoc, updateDoc, onSnapshot, collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  deleteDoc,
+  collection, 
+  getDocs, 
+  query, 
+  where 
+} from 'firebase/firestore';
 import { db } from './firebase';
-import { calculateAge } from '../utils/ageCalculator';
-import { RFID_PAIRING_STATES } from '../utils/rfidPairing';
-import { WEIGHING_STATES } from '../utils/weighingStates';
 
 export const createUserProfile = async (uid, profileData) => {
   try {
     if (!db) {
-      throw new Error('Firestore is not initialized');
+      console.warn('Firestore belum diinisialisasi, skip pembuatan profil');
+      return { 
+        success: true, 
+        profile: { 
+          id: uid, 
+          ...profileData,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        } 
+      };
     }
 
-    let userProfile;
+    const userProfile = {
+      id: uid,
+      email: profileData.email,
+      role: profileData.role,
+      deleted: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
 
-    if (profileData.role === 'teacher' || profileData.isAdmin) {
-      userProfile = {
-        id: uid,
-        email: profileData.email,
-        name: profileData.name || 'Admin',
-        role: 'teacher',
-        isAdmin: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-    } else {
-      const age = calculateAge(profileData.birthdate);
-
-      userProfile = {
-        id: uid,
-        email: profileData.email,
-        name: profileData.name,
-        parentName: profileData.parentName,
-        birthdate: profileData.birthdate,
-        gender: profileData.gender,
-        ageYears: age.years,
-        ageMonths: age.months,
-        rfid: '',
-        rfidPairingState: RFID_PAIRING_STATES.IDLE,
-        rfidPairingTimestamp: null,
-        pendingRfid: '',
-        weighingSession: {
-          state: WEIGHING_STATES.IDLE,
-          timestamp: null,
-          eatingPattern: '',
-          childResponse: '',
-          rfid: '',
-          resultData: null,
-        },
-        latestWeighing: null,
-        role: 'student',
-        isAdmin: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+    if (profileData.role === 'admin') {
+      userProfile.nama = profileData.nama;
+      userProfile.noHp = profileData.noHp;
+    } else if (profileData.role === 'user') {
+      userProfile.namaSantri = profileData.namaSantri;
+      userProfile.namaWali = profileData.namaWali;
+      userProfile.noHpWali = profileData.noHpWali;
+      userProfile.rfidSantri = profileData.rfidSantri || "";
     }
 
     await setDoc(doc(db, 'users', uid), userProfile);
+    console.log('Profil user berhasil dibuat');
     return { success: true, profile: userProfile };
   } catch (error) {
+    console.error('Error membuat profil user:', error);
     return { success: false, error: error.message };
   }
 };
@@ -64,7 +57,11 @@ export const createUserProfile = async (uid, profileData) => {
 export const getUserProfile = async (uid) => {
   try {
     if (!db) {
-      throw new Error('Firestore is not initialized');
+      console.warn('Firestore belum diinisialisasi, return fallback profil');
+      return { 
+        success: false, 
+        error: 'Firestore tidak tersedia' 
+      };
     }
 
     const docRef = doc(db, 'users', uid);
@@ -73,50 +70,16 @@ export const getUserProfile = async (uid) => {
     if (docSnap.exists()) {
       const profile = docSnap.data();
       
-      if (profile.role === 'teacher' || profile.isAdmin) {
-        return { success: true, profile };
-      }
-      
-      const age = calculateAge(profile.birthdate);
-      if (profile.ageYears !== age.years || profile.ageMonths !== age.months) {
-        await updateDoc(docRef, {
-          ageYears: age.years,
-          ageMonths: age.months,
-          updatedAt: new Date()
-        });
-        
-        profile.ageYears = age.years;
-        profile.ageMonths = age.months;
-      }
-      
-      if (!profile.weighingSession) {
-        await updateDoc(docRef, {
-          weighingSession: {
-            state: WEIGHING_STATES.IDLE,
-            timestamp: null,
-            eatingPattern: '',
-            childResponse: '',
-            rfid: '',
-            resultData: null,
-          },
-          updatedAt: new Date()
-        });
-        
-        profile.weighingSession = {
-          state: WEIGHING_STATES.IDLE,
-          timestamp: null,
-          eatingPattern: '',
-          childResponse: '',
-          rfid: '',
-          resultData: null,
-        };
+      if (profile.deleted) {
+        return { success: false, error: 'User telah dihapus' };
       }
       
       return { success: true, profile };
     } else {
-      return { success: false, error: 'User profile not found' };
+      return { success: false, error: 'Profil user tidak ditemukan' };
     }
   } catch (error) {
+    console.error('Error mengambil profil user:', error);
     return { success: false, error: error.message };
   }
 };
@@ -124,140 +87,189 @@ export const getUserProfile = async (uid) => {
 export const updateUserProfile = async (uid, updates) => {
   try {
     if (!db) {
-      throw new Error('Firestore is not initialized');
+      throw new Error('Firestore belum diinisialisasi');
     }
 
-    const updateData = { ...updates };
-    
-    if (updates.birthdate) {
-      const age = calculateAge(updates.birthdate);
-      updateData.ageYears = age.years;
-      updateData.ageMonths = age.months;
-    }
-    
-    updateData.updatedAt = new Date();
+    const updateData = { 
+      ...updates,
+      updatedAt: new Date()
+    };
 
     const userRef = doc(db, 'users', uid);
     await updateDoc(userRef, updateData);
 
+    console.log('Profil user berhasil diupdate');
     return { success: true };
   } catch (error) {
+    console.error('Error update profil user:', error);
     return { success: false, error: error.message };
   }
 };
 
-export const startRfidPairing = async (uid) => {
+export const getAllSantri = async () => {
   try {
     if (!db) {
-      throw new Error('Firestore is not initialized');
-    }
-
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, {
-      rfidPairingState: RFID_PAIRING_STATES.WAITING,
-      rfidPairingTimestamp: new Date(),
-      pendingRfid: '',
-      updatedAt: new Date()
-    });
-
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-};
-
-export const resetRfidPairing = async (uid) => {
-  try {
-    if (!db) {
-      throw new Error('Firestore is not initialized');
-    }
-
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, {
-      rfidPairingState: RFID_PAIRING_STATES.IDLE,
-      rfidPairingTimestamp: null,
-      pendingRfid: '',
-      updatedAt: new Date()
-    });
-
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-};
-
-export const completeRfidPairing = async (uid, rfidData) => {
-  try {
-    if (!db) {
-      throw new Error('Firestore is not initialized');
-    }
-
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, {
-      rfid: rfidData,
-      rfidPairingState: RFID_PAIRING_STATES.IDLE,
-      rfidPairingTimestamp: null,
-      pendingRfid: '',
-      updatedAt: new Date()
-    });
-
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-};
-
-export const subscribeToUserProfile = (uid, callback) => {
-  if (!db) {
-    console.error('Firestore is not initialized');
-    return () => {};
-  }
-
-  const userRef = doc(db, 'users', uid);
-  return onSnapshot(userRef, callback);
-};
-
-export const updateRFID = async (uid, rfid) => {
-  try {
-    if (!db) {
-      throw new Error('Firestore is not initialized');
-    }
-
-    const userRef = doc(db, 'users', uid);
-    await updateDoc(userRef, {
-      rfid: rfid,
-      updatedAt: new Date()
-    });
-
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-};
-
-export const getAllUsers = async () => {
-  try {
-    if (!db) {
-      throw new Error('Firestore is not initialized');
+      console.warn('Firestore belum diinisialisasi, return empty array');
+      return { success: true, data: [] };
     }
 
     const usersRef = collection(db, 'users');
-    const q = query(usersRef, orderBy('createdAt', 'desc'));
+    const q = query(
+      usersRef, 
+      where('role', '==', 'user'),
+      where('deleted', '==', false)
+    );
     const querySnapshot = await getDocs(q);
-
-    const users = [];
+    
+    const santriList = [];
     querySnapshot.forEach((doc) => {
-      const userData = doc.data();
-      if (userData.role === 'student') {
-        users.push({
-          id: doc.id,
-          ...userData
-        });
-      }
+      santriList.push({
+        id: doc.id,
+        ...doc.data()
+      });
     });
 
-    return { success: true, data: users };
+    santriList.sort((a, b) => a.namaSantri.localeCompare(b.namaSantri));
+
+    return { success: true, data: santriList };
   } catch (error) {
+    console.error('Error mengambil data santri:', error);
+    return { success: false, error: error.message, data: [] };
+  }
+};
+
+export const updateSantriRFID = async (santriId, rfidCode) => {
+  try {
+    if (!db) {
+      throw new Error('Firestore belum diinisialisasi');
+    }
+
+    const santriRef = doc(db, 'users', santriId);
+    await updateDoc(santriRef, {
+      rfidSantri: rfidCode,
+      updatedAt: new Date()
+    });
+
+    console.log('RFID santri berhasil diupdate');
+    return { success: true };
+  } catch (error) {
+    console.error('Error update RFID santri:', error);
     return { success: false, error: error.message };
+  }
+};
+
+export const deleteSantriRFID = async (santriId) => {
+  try {
+    if (!db) {
+      throw new Error('Firestore belum diinisialisasi');
+    }
+
+    const santriRef = doc(db, 'users', santriId);
+    await updateDoc(santriRef, {
+      rfidSantri: null,
+      updatedAt: new Date()
+    });
+
+    console.log('RFID santri berhasil dihapus');
+    return { success: true };
+  } catch (error) {
+    console.error('Error menghapus RFID santri:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const deleteSantri = async (santriId) => {
+  try {
+    if (!db) {
+      throw new Error('Firestore belum diinisialisasi');
+    }
+
+    const userRef = doc(db, 'users', santriId);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      throw new Error('Data santri tidak ditemukan');
+    }
+
+    const userData = userDoc.data();
+    
+    if (userData.deleted) {
+      throw new Error('Santri sudah dihapus sebelumnya');
+    }
+
+    await deleteDoc(userRef);
+
+    console.log('Data santri berhasil dihapus dari Firestore');
+
+    return { 
+      success: true, 
+      message: 'Data santri berhasil dihapus dari Firestore. Akun login tetap ada di sistem tapi tidak bisa digunakan.'
+    };
+  } catch (error) {
+    console.error('Error menghapus santri:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const restoreSantri = async (santriId) => {
+  try {
+    if (!db) {
+      throw new Error('Firestore belum diinisialisasi');
+    }
+
+    const userRef = doc(db, 'users', santriId);
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+      throw new Error('Data santri tidak ditemukan');
+    }
+
+    await updateDoc(userRef, {
+      deleted: false,
+      deletedAt: null,
+      deletedBy: null,
+      restoredAt: new Date(),
+      restoredBy: 'admin',
+      updatedAt: new Date()
+    });
+
+    console.log('Data santri berhasil dipulihkan');
+    return { success: true };
+  } catch (error) {
+    console.error('Error memulihkan santri:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getDeletedSantri = async () => {
+  try {
+    if (!db) {
+      return { success: true, data: [] };
+    }
+
+    const usersRef = collection(db, 'users');
+    const q = query(
+      usersRef, 
+      where('role', '==', 'user'),
+      where('deleted', '==', true)
+    );
+    const querySnapshot = await getDocs(q);
+    
+    const deletedSantriList = [];
+    querySnapshot.forEach((doc) => {
+      deletedSantriList.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    deletedSantriList.sort((a, b) => 
+      new Date(b.deletedAt) - new Date(a.deletedAt)
+    );
+
+    return { success: true, data: deletedSantriList };
+  } catch (error) {
+    console.error('Error mengambil data santri terhapus:', error);
+    return { success: false, error: error.message, data: [] };
   }
 };

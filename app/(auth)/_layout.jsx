@@ -4,9 +4,9 @@ import { Stack } from "expo-router";
 export default function AuthLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="login" />
-      <Stack.Screen name="register" />
-      <Stack.Screen name="forgot-password" />
+      <Stack.Screen name="admin-login" />
+      <Stack.Screen name="admin-register" />
+      <Stack.Screen name="wali-login" />
     </Stack>
   );
 }

@@ -10,7 +10,7 @@ const AuthGuard = ({ children, requireAuth = false }) => {
   if (!authInitialized || loading) {
     return (
       <View style={styles.container}>
-        <LoadingSpinner text="Loading..." />
+        <LoadingSpinner text="Memuat..." />
       </View>
     );
   }
@@ -19,7 +19,7 @@ const AuthGuard = ({ children, requireAuth = false }) => {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>
-          Access denied. Please login to continue.
+          Akses ditolak. Silakan masuk untuk melanjutkan.
         </Text>
       </View>
     );
@@ -28,7 +28,7 @@ const AuthGuard = ({ children, requireAuth = false }) => {
   if (!requireAuth && currentUser) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>You are already logged in.</Text>
+        <Text style={styles.message}>Anda sudah masuk.</Text>
       </View>
     );
   }

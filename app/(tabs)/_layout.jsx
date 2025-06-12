@@ -1,14 +1,27 @@
 import React from "react";
-import { Text } from "react-native";
+import { Text, ActivityIndicator, View } from "react-native";
 import { Tabs } from "expo-router";
 import { useSettings } from "../../contexts/SettingsContext";
-import { useTranslation } from "../../hooks/useTranslation";
 import { getColors } from "../../constants/Colors";
 
 export default function TabsLayout() {
-  const { theme } = useSettings();
-  const { t } = useTranslation();
+  const { theme, loading } = useSettings();
   const colors = getColors(theme);
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <Tabs
@@ -25,36 +38,18 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: t("common.home"),
+          title: "Status Pembayaran",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>🏠</Text>
+            <Text style={{ color, fontSize: size }}>💰</Text>
           ),
         }}
       />
       <Tabs.Screen
-        name="timbang"
+        name="profile"
         options={{
-          title: t("common.timbang"),
+          title: "Profil",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>⚖️</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="data-recap"
-        options={{
-          title: t("common.dataRecap"),
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>📊</Text>
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: t("common.settings"),
-          tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>⚙️</Text>
+            <Text style={{ color, fontSize: size }}>👤</Text>
           ),
         }}
       />

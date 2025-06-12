@@ -1,6 +1,6 @@
 export const lightTheme = {
-  primary: '#CDC1FF',
-  secondary: '#BFECFF',
+  primary: '#F50057',
+  secondary: '#00f59e',
   background: '#ffffff',
   white: '#ffffff',
   black: '#000000',
@@ -29,10 +29,8 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  primary: '#1e40af',
-  secondary: '#4c1d95',
-  secondary2: '#374151',
-  secondary3: '#7c2d12',
+  primary: '#F50057',
+  secondary: '#00f59e',
   background: '#111827',
   white: '#1f2937',
   black: '#ffffff',
@@ -60,7 +58,10 @@ export const darkTheme = {
   },
 };
 
-export const getColors = (theme = 'light') => {
+export const getColors = (theme) => {
+  if (!theme || typeof theme !== 'string') {
+    return lightTheme;
+  }
   return theme === 'dark' ? darkTheme : lightTheme;
 };
 
