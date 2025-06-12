@@ -16,13 +16,13 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
 
-export default function TambahSantri() {
+export default function TambahWarga() {
   const [formData, setFormData] = useState({
-    emailWali: "",
-    passwordWali: "",
-    namaSantri: "",
-    namaWali: "",
-    noHpWali: "",
+    emailWarga: "",
+    passwordWarga: "",
+    namaWarga: "",
+    alamat: "",
+    noHpWarga: "",
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -33,28 +33,28 @@ export default function TambahSantri() {
   };
 
   const validateForm = () => {
-    if (!formData.emailWali.trim()) {
-      Alert.alert("Error", "Email wali wajib diisi");
+    if (!formData.emailWarga.trim()) {
+      Alert.alert("Error", "Email warga wajib diisi");
       return false;
     }
-    if (!formData.passwordWali.trim()) {
-      Alert.alert("Error", "Password wali wajib diisi");
+    if (!formData.passwordWarga.trim()) {
+      Alert.alert("Error", "Password warga wajib diisi");
       return false;
     }
-    if (formData.passwordWali.length < 6) {
+    if (formData.passwordWarga.length < 6) {
       Alert.alert("Error", "Password minimal 6 karakter");
       return false;
     }
-    if (!formData.namaSantri.trim()) {
-      Alert.alert("Error", "Nama santri wajib diisi");
+    if (!formData.namaWarga.trim()) {
+      Alert.alert("Error", "Nama warga wajib diisi");
       return false;
     }
-    if (!formData.namaWali.trim()) {
-      Alert.alert("Error", "Nama wali wajib diisi");
+    if (!formData.alamat.trim()) {
+      Alert.alert("Error", "Alamat warga wajib diisi");
       return false;
     }
-    if (!formData.noHpWali.trim()) {
-      Alert.alert("Error", "No HP wali wajib diisi");
+    if (!formData.noHpWarga.trim()) {
+      Alert.alert("Error", "No HP warga wajib diisi");
       return false;
     }
     return true;
@@ -65,33 +65,33 @@ export default function TambahSantri() {
 
     setLoading(true);
     const profileData = {
-      namaSantri: formData.namaSantri,
-      namaWali: formData.namaWali,
-      noHpWali: formData.noHpWali,
-      rfidSantri: "",
+      namaWarga: formData.namaWarga,
+      alamat: formData.alamat,
+      noHpWarga: formData.noHpWarga,
+      rfidWarga: "",
       role: "user",
     };
 
     const result = await signUpWithEmail(
-      formData.emailWali,
-      formData.passwordWali,
+      formData.emailWarga,
+      formData.passwordWarga,
       profileData
     );
 
     if (result.success) {
       Alert.alert(
         "Berhasil",
-        "Data santri dan akun wali berhasil ditambahkan!",
+        "Data warga berhasil ditambahkan!",
         [
           {
             text: "OK",
             onPress: () => {
               setFormData({
-                emailWali: "",
-                passwordWali: "",
-                namaSantri: "",
-                namaWali: "",
-                noHpWali: "",
+                emailWarga: "",
+                passwordWarga: "",
+                namaWarga: "",
+                alamat: "",
+                noHpWarga: "",
               });
               router.back();
             },
@@ -117,7 +117,7 @@ export default function TambahSantri() {
           >
             <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Tambah Data Santri</Text>
+          <Text style={styles.headerTitle}>Tambah Data Warga</Text>
         </View>
 
         <ScrollView
@@ -130,57 +130,57 @@ export default function TambahSantri() {
         >
           <View style={styles.content}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Data Santri</Text>
+              <Text style={styles.sectionTitle}>Data Warga</Text>
 
               <Input
-                label="Nama Santri"
-                placeholder="Masukkan nama lengkap santri"
-                value={formData.namaSantri}
-                onChangeText={(value) => updateForm("namaSantri", value)}
+                label="Nama Warga"
+                placeholder="Masukkan nama lengkap warga"
+                value={formData.namaWarga}
+                onChangeText={(value) => updateForm("namaWarga", value)}
+                autoCapitalize="words"
+              />
+
+              <Input
+                label="Alamat"
+                placeholder="Masukkan alamat lengkap"
+                value={formData.alamat}
+                onChangeText={(value) => updateForm("alamat", value)}
                 autoCapitalize="words"
               />
 
               <View style={styles.infoBox}>
                 <Text style={styles.infoText}>
-                  ℹ️ RFID santri akan diatur setelah data tersimpan melalui menu
-                  Daftar Santri
+                  ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu
+                  Daftar Warga
                 </Text>
               </View>
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Data Wali Santri</Text>
+              <Text style={styles.sectionTitle}>Data Akun Warga</Text>
 
               <Input
-                label="Nama Wali"
-                placeholder="Masukkan nama lengkap wali"
-                value={formData.namaWali}
-                onChangeText={(value) => updateForm("namaWali", value)}
-                autoCapitalize="words"
-              />
-
-              <Input
-                label="No HP Wali"
-                placeholder="Masukkan nomor HP wali"
-                value={formData.noHpWali}
-                onChangeText={(value) => updateForm("noHpWali", value)}
+                label="No HP Warga"
+                placeholder="Masukkan nomor HP warga"
+                value={formData.noHpWarga}
+                onChangeText={(value) => updateForm("noHpWarga", value)}
                 keyboardType="phone-pad"
               />
 
               <Input
-                label="Email Wali"
-                placeholder="Masukkan email untuk login wali"
-                value={formData.emailWali}
-                onChangeText={(value) => updateForm("emailWali", value)}
+                label="Email Warga"
+                placeholder="Masukkan email untuk login warga"
+                value={formData.emailWarga}
+                onChangeText={(value) => updateForm("emailWarga", value)}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
 
               <Input
-                label="Password Wali"
-                placeholder="Buat password untuk wali (min. 6 karakter)"
-                value={formData.passwordWali}
-                onChangeText={(value) => updateForm("passwordWali", value)}
+                label="Password Warga"
+                placeholder="Buat password untuk warga (min. 6 karakter)"
+                value={formData.passwordWarga}
+                onChangeText={(value) => updateForm("passwordWarga", value)}
                 secureTextEntry
               />
             </View>

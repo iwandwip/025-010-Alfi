@@ -56,16 +56,16 @@ export default function AdminLogin() {
 
         <View style={styles.content}>
           <View style={styles.titleSection}>
-            <Text style={styles.title}>Masuk Admin</Text>
+            <Text style={styles.title}>Masuk Bendahara</Text>
             <Text style={styles.subtitle}>
-              Masuk sebagai Administrator TPQ Ibadurrohman
+              Masuk sebagai Bendahara RT 01 RW 02
             </Text>
           </View>
 
           <View style={styles.formSection}>
             <Input
               label="Email"
-              placeholder="Masukkan email admin"
+              placeholder="Masukkan email bendahara"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -89,8 +89,8 @@ export default function AdminLogin() {
           </View>
 
           <View style={styles.registerSection}>
-            <Text style={styles.registerText}>Belum memiliki akun admin?</Text>
-            <Link href="/(auth)/admin-register" style={styles.registerLink}>
+            <Text style={styles.registerText}>Belum memiliki akun bendahara?</Text>
+            <Link href="/(auth)/bendahara-register" style={styles.registerLink}>
               Daftar Sekarang
             </Link>
           </View>

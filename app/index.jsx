@@ -12,7 +12,7 @@ export default function Index() {
   useEffect(() => {
     if (authInitialized && !loading) {
       if (currentUser && userProfile) {
-        if (userProfile.role === "admin") {
+        if (userProfile.role === "bendahara" || userProfile.role === "admin") {
           router.replace("/(admin)");
         } else if (userProfile.role === "user") {
           router.replace("/(tabs)");

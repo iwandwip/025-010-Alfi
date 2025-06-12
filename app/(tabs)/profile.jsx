@@ -94,10 +94,10 @@ function Profile() {
               </Text>
             </View>
             <Text style={[styles.nameText, { color: colors.gray900 }]}>
-              {userProfile?.namaWali || "Nama Wali"}
+              {userProfile?.namaWarga || userProfile?.namaWali || "Nama Warga"}
             </Text>
             <Text style={[styles.roleText, { color: colors.gray600 }]}>
-              Wali Santri
+              Warga
             </Text>
           </View>
 
@@ -113,7 +113,7 @@ function Profile() {
                 ]}
               >
                 <Text style={[styles.cardTitle, { color: colors.gray900 }]}>
-                  Informasi Wali Santri
+                  Informasi Warga
                 </Text>
 
                 <View
@@ -123,10 +123,10 @@ function Profile() {
                   ]}
                 >
                   <Text style={[styles.label, { color: colors.gray600 }]}>
-                    Nama Wali:
+                    Nama Warga:
                   </Text>
                   <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.namaWali}
+                    {userProfile.namaWarga || userProfile.namaWali}
                   </Text>
                 </View>
 
@@ -140,7 +140,7 @@ function Profile() {
                     No HP:
                   </Text>
                   <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.noHpWali}
+                    {userProfile.noHpWarga || userProfile.noHpWali}
                   </Text>
                 </View>
 
@@ -169,7 +169,7 @@ function Profile() {
                 ]}
               >
                 <Text style={[styles.cardTitle, { color: colors.gray900 }]}>
-                  Informasi Santri
+                  Informasi Alamat
                 </Text>
 
                 <View
@@ -179,10 +179,10 @@ function Profile() {
                   ]}
                 >
                   <Text style={[styles.label, { color: colors.gray600 }]}>
-                    Nama Santri:
+                    Alamat:
                   </Text>
                   <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.namaSantri}
+                    {userProfile.alamat || 'Belum diisi'}
                   </Text>
                 </View>
 
@@ -199,13 +199,13 @@ function Profile() {
                     style={[
                       styles.value,
                       {
-                        color: userProfile.rfidSantri
+                        color: (userProfile.rfidWarga || userProfile.rfidSantri)
                           ? colors.success
                           : colors.error,
                       },
                     ]}
                   >
-                    {userProfile.rfidSantri ? "Terpasang" : "Belum Terpasang"}
+                    {(userProfile.rfidWarga || userProfile.rfidSantri) ? "Terpasang" : "Belum Terpasang"}
                   </Text>
                 </View>
 

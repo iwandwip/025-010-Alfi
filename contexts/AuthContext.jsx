@@ -28,9 +28,10 @@ export const AuthProvider = ({ children }) => {
   const [authInitialized, setAuthInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkAdminStatus = (user, profile) => {
+  const checkBendaharaStatus = (user, profile) => {
     return (
-      user?.email === "admin@gmail.com" ||
+      user?.email === "bendahara@gmail.com" ||
+      profile?.role === "bendahara" ||
       profile?.role === "admin" ||
       profile?.isAdmin
     );
@@ -46,36 +47,36 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await getUserProfile(user.uid);
       if (result.success) {
-        const adminStatus = checkAdminStatus(user, result.profile);
-        setIsAdmin(adminStatus);
+        const bendaharaStatus = checkBendaharaStatus(user, result.profile);
+        setIsAdmin(bendaharaStatus);
         setUserProfile(result.profile);
 
-        if (!adminStatus && result.profile.role === "user") {
+        if (!bendaharaStatus && result.profile.role === "user") {
           try {
             await paymentStatusManager.handleUserLogin(user.uid);
           } catch (error) {
             console.warn("Error during payment status update on login:", error);
           }
-        } else if (adminStatus) {
+        } else if (bendaharaStatus) {
           try {
             await paymentStatusManager.handleUserLogin(null);
           } catch (error) {
             console.warn(
-              "Error during admin payment status update on login:",
+              "Error during bendahara payment status update on login:",
               error
             );
           }
         }
       } else {
-        const adminStatus = checkAdminStatus(user, null);
-        setIsAdmin(adminStatus);
+        const bendaharaStatus = checkBendaharaStatus(user, null);
+        setIsAdmin(bendaharaStatus);
 
-        if (adminStatus) {
+        if (bendaharaStatus) {
           setUserProfile({
             id: user.uid,
             email: user.email,
             name: "Admin",
-            role: "admin",
+            role: "bendahara",
             isAdmin: true,
           });
 
@@ -83,7 +84,7 @@ export const AuthProvider = ({ children }) => {
             await paymentStatusManager.handleUserLogin(null);
           } catch (error) {
             console.warn(
-              "Error during admin payment status update on login:",
+              "Error during bendahara payment status update on login:",
               error
             );
           }
@@ -94,10 +95,10 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error("Error loading user profile:", error);
-      const adminStatus = checkAdminStatus(user, null);
-      setIsAdmin(adminStatus);
+      const bendaharaStatus = checkBendaharaStatus(user, null);
+      setIsAdmin(bendaharaStatus);
 
-      if (adminStatus) {
+      if (bendaharaStatus) {
         setUserProfile({
           id: user.uid,
           email: user.email,

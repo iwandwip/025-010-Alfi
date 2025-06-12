@@ -10,7 +10,7 @@ import { checkEmailExists } from './authService';
 
 class SeederService {
   constructor() {
-    this.namaSantriList = [
+    this.namaWargaList = [
       'Ahmad Fauzi', 'Siti Aisyah', 'Muhammad Rizki', 'Fatimah Zahra', 'Ali Hassan',
       'Khadijah Nur', 'Umar Faruq', 'Zainab Salma', 'Yusuf Ibrahim', 'Maryam Sari',
       'Khalid Rahman', 'Aisha Dewi', 'Ibrahim Malik', 'Hafsa Putri', 'Salman Hakim',
@@ -19,13 +19,17 @@ class SeederService {
       'Zulaikha Fitri', 'Sa\'ad Permana', 'Rabiah Cantika', 'Zayd Pratomo', 'Ummu Salamah'
     ];
 
-    this.namaWaliList = [
-      'Bapak Agus Santoso', 'Ibu Siti Rahayu', 'Bapak Joko Widodo', 'Ibu Fitri Handayani', 'Bapak Andi Susanto',
-      'Ibu Dewi Sartika', 'Bapak Bambang Hermawan', 'Ibu Rina Marlina', 'Bapak Dedi Kurniawan', 'Ibu Maya Sari',
-      'Bapak Hendra Gunawan', 'Ibu Lina Kartini', 'Bapak Rudi Hartono', 'Ibu Novi Anggraini', 'Bapak Irwan Setiawan',
-      'Ibu Tuti Wulandari', 'Bapak Budi Prasetyo', 'Ibu Eka Purwanti', 'Bapak Danu Wijaya', 'Ibu Sri Wahyuni',
-      'Bapak Fajar Ramadhan', 'Ibu Indah Permata', 'Bapak Gilang Pratama', 'Ibu Lia Kusuma', 'Bapak Yudi Setiawan',
-      'Ibu Ratna Dewi', 'Bapak Adi Nugroho', 'Ibu Vina Handayani', 'Bapak Reza Firmansyah', 'Ibu Diana Sari'
+    this.alamatList = [
+      'Jl. Merdeka No. 12, RT 01 RW 02', 'Jl. Sudirman No. 45, RT 01 RW 02', 'Jl. Gatot Subroto No. 78, RT 01 RW 02',
+      'Jl. Ahmad Yani No. 23, RT 01 RW 02', 'Jl. Diponegoro No. 56, RT 01 RW 02', 'Jl. Pahlawan No. 89, RT 01 RW 02',
+      'Jl. Kartini No. 34, RT 01 RW 02', 'Jl. Cut Nyak Dien No. 67, RT 01 RW 02', 'Jl. RA Kartini No. 90, RT 01 RW 02',
+      'Jl. Imam Bonjol No. 21, RT 01 RW 02', 'Jl. Veteran No. 43, RT 01 RW 02', 'Jl. Pemuda No. 65, RT 01 RW 02',
+      'Jl. Proklamasi No. 87, RT 01 RW 02', 'Jl. Kemerdekaan No. 32, RT 01 RW 02', 'Jl. Pancasila No. 54, RT 01 RW 02',
+      'Jl. Garuda No. 76, RT 01 RW 02', 'Jl. Mawar No. 98, RT 01 RW 02', 'Jl. Melati No. 11, RT 01 RW 02',
+      'Jl. Anggrek No. 33, RT 01 RW 02', 'Jl. Kenanga No. 55, RT 01 RW 02', 'Jl. Cempaka No. 77, RT 01 RW 02',
+      'Jl. Dahlia No. 99, RT 01 RW 02', 'Jl. Tulip No. 22, RT 01 RW 02', 'Jl. Sakura No. 44, RT 01 RW 02',
+      'Jl. Bougenville No. 66, RT 01 RW 02', 'Jl. Flamboyan No. 88, RT 01 RW 02', 'Jl. Kamboja No. 13, RT 01 RW 02',
+      'Jl. Teratai No. 35, RT 01 RW 02', 'Jl. Seruni No. 57, RT 01 RW 02', 'Jl. Lavender No. 79, RT 01 RW 02'
     ];
   }
 
@@ -140,11 +144,16 @@ class SeederService {
           const password = 'admin123';
           
           const profileData = {
-            namaSantri: this.getRandomName(this.namaSantriList),
-            namaWali: this.getRandomName(this.namaWaliList),
+            namaWarga: this.getRandomName(this.namaWargaList),
+            alamat: this.getRandomName(this.alamatList),
+            noHpWarga: this.generateRandomPhone(),
+            rfidWarga: this.generateRandomRFID(),
+            role: 'user',
+            // Backward compatibility
+            namaSantri: this.getRandomName(this.namaWargaList),
+            namaWali: this.getRandomName(this.namaWargaList),
             noHpWali: this.generateRandomPhone(),
-            rfidSantri: this.generateRandomRFID(),
-            role: 'user'
+            rfidSantri: this.generateRandomRFID()
           };
 
           const result = await signUpWithEmail(email, password, profileData);
@@ -153,10 +162,10 @@ class SeederService {
             results.push({
               email,
               userNumber: emailResult.userNumber,
-              namaSantri: profileData.namaSantri,
-              namaWali: profileData.namaWali,
-              rfidSantri: profileData.rfidSantri,
-              noHpWali: profileData.noHpWali
+              namaWarga: profileData.namaWarga,
+              alamat: profileData.alamat,
+              rfidWarga: profileData.rfidWarga,
+              noHpWarga: profileData.noHpWarga
             });
           } else {
             errors.push({

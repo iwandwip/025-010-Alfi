@@ -11,23 +11,23 @@ import {
 import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import { getAllSantri } from "../../services/userService";
+import { getAllWarga } from "../../services/userService";
 
-export default function DaftarSantri() {
-  const [santriList, setSantriList] = useState([]);
+export default function DaftarWarga() {
+  const [wargaList, setWargaList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const loadSantri = async (isRefresh = false) => {
+  const loadWarga = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
 
-    const result = await getAllSantri();
+    const result = await getAllWarga();
     if (result.success) {
-      setSantriList(result.data);
+      setWargaList(result.data);
     } else {
-      console.error("Error loading santri:", result.error);
+      console.error("Error loading warga:", result.error);
     }
 
     if (!isRefresh) setLoading(false);
@@ -35,42 +35,42 @@ export default function DaftarSantri() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadSantri(true);
+    await loadWarga(true);
     setRefreshing(false);
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      loadSantri();
+      loadWarga();
     }, [])
   );
 
   useEffect(() => {
-    loadSantri();
+    loadWarga();
   }, []);
 
-  const handleSantriPress = (santri) => {
+  const handleWargaPress = (warga) => {
     router.push({
-      pathname: "/(admin)/detail-santri",
-      params: { santriId: santri.id },
+      pathname: "/(admin)/detail-warga",
+      params: { wargaId: warga.id },
     });
   };
 
-  const renderSantriItem = ({ item }) => (
+  const renderWargaItem = ({ item }) => (
     <TouchableOpacity
-      style={styles.santriCard}
-      onPress={() => handleSantriPress(item)}
+      style={styles.wargaCard}
+      onPress={() => handleWargaPress(item)}
       activeOpacity={0.8}
     >
-      <View style={styles.santriInfo}>
-        <Text style={styles.namaSantri}>{item.namaSantri}</Text>
-        <Text style={styles.emailSantri}>{item.email}</Text>
-        <Text style={styles.namaWali}>Wali: {item.namaWali}</Text>
-        <Text style={styles.noHp}>HP: {item.noHpWali}</Text>
+      <View style={styles.wargaInfo}>
+        <Text style={styles.namaWarga}>{item.namaWarga || item.namaSantri}</Text>
+        <Text style={styles.emailWarga}>{item.email}</Text>
+        <Text style={styles.alamat}>Alamat: {item.alamat || 'Belum diisi'}</Text>
+        <Text style={styles.noHp}>HP: {item.noHp || item.noHpWali}</Text>
       </View>
 
       <View style={styles.rfidSection}>
-        {item.rfidSantri ? (
+        {item.rfidWarga || item.rfidSantri ? (
           <View style={styles.rfidActive}>
             <Text style={styles.rfidLabel}>RFID</Text>
             <Text style={styles.rfidValue}>✓ Terpasang</Text>
@@ -96,10 +96,10 @@ export default function DaftarSantri() {
           >
             <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Daftar Santri</Text>
+          <Text style={styles.headerTitle}>Daftar Warga</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <LoadingSpinner text="Memuat data santri..." />
+          <LoadingSpinner text="Memuat data warga..." />
         </View>
       </SafeAreaView>
     );
@@ -120,25 +120,25 @@ export default function DaftarSantri() {
       <View style={styles.content}>
         <View style={styles.statsSection}>
           <Text style={styles.statsText}>
-            Total Santri: {santriList.length}
+            Total Warga: {wargaList.length}
           </Text>
           <Text style={styles.statsSubtext}>
-            RFID Terpasang: {santriList.filter((s) => s.rfidSantri).length} |
-            Belum: {santriList.filter((s) => !s.rfidSantri).length}
+            RFID Terpasang: {wargaList.filter((w) => w.rfidWarga || w.rfidSantri).length} |
+            Belum: {wargaList.filter((w) => !w.rfidWarga && !w.rfidSantri).length}
           </Text>
         </View>
 
-        {santriList.length === 0 ? (
+        {wargaList.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Belum ada santri terdaftar</Text>
+            <Text style={styles.emptyText}>Belum ada warga terdaftar</Text>
             <Text style={styles.emptySubtext}>
-              Tambah santri baru melalui menu Tambah Data Santri
+              Tambah warga baru melalui menu Tambah Data Warga
             </Text>
           </View>
         ) : (
           <FlatList
-            data={santriList}
-            renderItem={renderSantriItem}
+            data={wargaList}
+            renderItem={renderWargaItem}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
   },
-  santriCard: {
+  wargaCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
@@ -234,22 +234,22 @@ const styles = StyleSheet.create({
     elevation: 2,
     minHeight: 90,
   },
-  santriInfo: {
+  wargaInfo: {
     flex: 1,
   },
-  namaSantri: {
+  namaWarga: {
     fontSize: 16,
     fontWeight: "600",
     color: "#1e293b",
     marginBottom: 4,
   },
-  emailSantri: {
+  emailWarga: {
     fontSize: 13,
     color: "#6b7280",
     fontStyle: "italic",
     marginBottom: 6,
   },
-  namaWali: {
+  alamat: {
     fontSize: 14,
     color: "#64748b",
     marginBottom: 2,

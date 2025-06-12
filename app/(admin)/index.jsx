@@ -122,7 +122,7 @@ function AdminHome() {
 
     Alert.alert(
       "Generate Data Santri",
-      `Akan membuat ${count} akun wali santri baru:\n${emailList.join(
+      `Akan membuat ${count} akun warga baru:\n${emailList.join(
         ", "
       )}\n\nLanjutkan?`,
       [
@@ -138,7 +138,7 @@ function AdminHome() {
               if (result.success) {
                 await loadSeederStats();
 
-                let message = `✅ Berhasil membuat ${result.totalCreated} akun santri!\n\n`;
+                let message = `✅ Berhasil membuat ${result.totalCreated} akun warga!\n\n`;
 
                 result.created.forEach((user, index) => {
                   message += `${index + 1}. ${user.namaSantri}\n`;
@@ -155,7 +155,7 @@ function AdminHome() {
 
                 showGeneralNotification(
                   "Seeder Berhasil",
-                  `Berhasil membuat ${result.totalCreated} akun santri baru`,
+                  `Berhasil membuat ${result.totalCreated} akun warga baru`,
                   "success",
                   { duration: 5000 }
                 );
@@ -183,12 +183,12 @@ function AdminHome() {
     );
   };
 
-  const handleTambahSantri = () => {
-    router.push("/(admin)/tambah-santri");
+  const handleTambahWarga = () => {
+    router.push("/(admin)/tambah-warga");
   };
 
-  const handleDaftarSantri = () => {
-    router.push("/(admin)/daftar-santri");
+  const handleDaftarWarga = () => {
+    router.push("/(admin)/daftar-warga");
   };
 
   const handleTimelineManager = () => {
@@ -220,8 +220,8 @@ function AdminHome() {
         }
       >
         <View style={styles.headerSection}>
-          <Text style={styles.title}>Dashboard Admin</Text>
-          <Text style={styles.subtitle}>TPQ Ibadurrohman</Text>
+          <Text style={styles.title}>Dashboard Bendahara</Text>
+          <Text style={styles.subtitle}>RT 01 RW 02</Text>
           {userProfile && (
             <Text style={styles.welcomeText}>
               Selamat datang, {userProfile.nama}
@@ -232,16 +232,16 @@ function AdminHome() {
         <View style={styles.menuSection}>
           <TouchableOpacity
             style={[styles.menuCard, styles.primaryCard]}
-            onPress={handleTambahSantri}
+            onPress={handleTambahWarga}
             activeOpacity={0.8}
           >
             <View style={styles.menuIcon}>
               <Text style={styles.menuIconText}>👤</Text>
             </View>
             <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Tambah Data Santri</Text>
+              <Text style={styles.menuTitle}>Tambah Data Warga</Text>
               <Text style={styles.menuDesc}>
-                Daftarkan santri baru dan buat akun wali santri
+                Daftarkan warga baru dan buat akun warga
               </Text>
             </View>
             <View style={styles.menuArrow}>
@@ -251,16 +251,16 @@ function AdminHome() {
 
           <TouchableOpacity
             style={[styles.menuCard, styles.secondaryCard]}
-            onPress={handleDaftarSantri}
+            onPress={handleDaftarWarga}
             activeOpacity={0.8}
           >
             <View style={styles.menuIcon}>
               <Text style={styles.menuIconText}>📋</Text>
             </View>
             <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Daftar Santri</Text>
+              <Text style={styles.menuTitle}>Daftar Warga</Text>
               <Text style={styles.menuDesc}>
-                Lihat dan kelola data santri yang terdaftar
+                Lihat dan kelola data warga yang terdaftar
               </Text>
             </View>
             <View style={styles.menuArrow}>
@@ -279,7 +279,7 @@ function AdminHome() {
             <View style={styles.menuContent}>
               <Text style={styles.menuTitle}>Timeline Manager</Text>
               <Text style={styles.menuDesc}>
-                Kelola timeline dan pembayaran bisyaroh
+                Kelola timeline dan setoran jimpitan
               </Text>
             </View>
             <View style={styles.menuArrow}>
@@ -296,9 +296,9 @@ function AdminHome() {
               <Text style={styles.menuIconText}>💰</Text>
             </View>
             <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Cek Status Pembayaran</Text>
+              <Text style={styles.menuTitle}>Cek Status Setoran</Text>
               <Text style={styles.menuDesc}>
-                Lihat status pembayaran bisyaroh semua santri
+                Lihat status setoran jimpitan semua warga
               </Text>
             </View>
             <View style={styles.menuArrow}>
@@ -325,16 +325,16 @@ function AdminHome() {
             </View>
             <View style={styles.menuContent}>
               <Text style={styles.menuTitle}>
-                {seederLoading ? "Generating Data..." : "Generate Data Santri"}
+                {seederLoading ? "Generating Data..." : "Generate Data Warga"}
               </Text>
               <Text style={styles.menuDesc}>
                 {seederLoading
-                  ? "Sedang membuat akun santri dengan data sequential..."
-                  : "Buat akun santri dengan email sequential untuk testing"}
+                  ? "Sedang membuat akun warga dengan data sequential..."
+                  : "Buat akun warga dengan email sequential untuk testing"}
               </Text>
               <View style={styles.seederStats}>
                 <Text style={styles.seederStatsText}>
-                  Total Santri: {seederStats.total} | Generated:{" "}
+                  Total Warga: {seederStats.total} | Generated:{" "}
                   {seederStats.seederUsers}
                 </Text>
                 <Text style={styles.seederNextText}>

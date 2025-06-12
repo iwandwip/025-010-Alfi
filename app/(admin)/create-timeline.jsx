@@ -284,7 +284,7 @@ export default function CreateTimeline() {
 
       Alert.alert(
         "Berhasil",
-        "Timeline berhasil dibuat dan pembayaran sudah digenerate untuk semua santri!",
+        "Timeline berhasil dibuat dan setoran sudah digenerate untuk semua warga!",
         [
           {
             text: "OK",

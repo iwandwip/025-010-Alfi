@@ -17,12 +17,12 @@ import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getUserProfile, updateUserProfile } from "../../services/userService";
 
-export default function EditSantri() {
-  const { santriId } = useLocalSearchParams();
+export default function EditWarga() {
+  const { wargaId } = useLocalSearchParams();
   const [formData, setFormData] = useState({
-    namaSantri: "",
-    namaWali: "",
-    noHpWali: "",
+    namaWarga: "",
+    alamat: "",
+    noHpWarga: "",
     email: "",
   });
   const [loading, setLoading] = useState(true);
@@ -30,47 +30,47 @@ export default function EditSantri() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const loadSantriData = async () => {
+  const loadWargaData = async () => {
     setLoading(true);
-    const result = await getUserProfile(santriId);
+    const result = await getUserProfile(wargaId);
     if (result.success) {
-      const santri = result.profile;
+      const warga = result.profile;
       setFormData({
-        namaSantri: santri.namaSantri || "",
-        namaWali: santri.namaWali || "",
-        noHpWali: santri.noHpWali || "",
-        email: santri.email || "",
+        namaWarga: warga.namaWarga || warga.namaSantri || "",
+        alamat: warga.alamat || "",
+        noHpWarga: warga.noHpWarga || warga.noHpWali || "",
+        email: warga.email || "",
       });
     } else {
-      Alert.alert("Error", "Gagal memuat data santri");
+      Alert.alert("Error", "Gagal memuat data warga");
       router.back();
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    loadSantriData();
-  }, [santriId]);
+    loadWargaData();
+  }, [wargaId]);
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateForm = () => {
-    if (!formData.namaSantri.trim()) {
-      Alert.alert("Error", "Nama santri wajib diisi");
+    if (!formData.namaWarga.trim()) {
+      Alert.alert("Error", "Nama warga wajib diisi");
       return false;
     }
-    if (!formData.namaWali.trim()) {
-      Alert.alert("Error", "Nama wali wajib diisi");
+    if (!formData.alamat.trim()) {
+      Alert.alert("Error", "Alamat warga wajib diisi");
       return false;
     }
-    if (!formData.noHpWali.trim()) {
-      Alert.alert("Error", "No HP wali wajib diisi");
+    if (!formData.noHpWarga.trim()) {
+      Alert.alert("Error", "No HP warga wajib diisi");
       return false;
     }
     if (!formData.email.trim()) {
-      Alert.alert("Error", "Email wali wajib diisi");
+      Alert.alert("Error", "Email warga wajib diisi");
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,7 +86,7 @@ export default function EditSantri() {
 
     Alert.alert(
       "Konfirmasi Perubahan",
-      "Apakah Anda yakin ingin menyimpan perubahan data santri?",
+      "Apakah Anda yakin ingin menyimpan perubahan data warga?",
       [
         { text: "Batal", style: "cancel" },
         {
@@ -94,16 +94,16 @@ export default function EditSantri() {
           onPress: async () => {
             setSaving(true);
             const updateData = {
-              namaSantri: formData.namaSantri,
-              namaWali: formData.namaWali,
-              noHpWali: formData.noHpWali,
+              namaWarga: formData.namaWarga,
+              alamat: formData.alamat,
+              noHpWarga: formData.noHpWarga,
               email: formData.email,
             };
 
-            const result = await updateUserProfile(santriId, updateData);
+            const result = await updateUserProfile(wargaId, updateData);
 
             if (result.success) {
-              Alert.alert("Berhasil", "Data santri berhasil diperbarui!", [
+              Alert.alert("Berhasil", "Data warga berhasil diperbarui!", [
                 {
                   text: "OK",
                   onPress: () => router.back(),
@@ -132,7 +132,7 @@ export default function EditSantri() {
           <Text style={styles.headerTitle}>Edit Data Santri</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <LoadingSpinner text="Memuat data santri..." />
+          <LoadingSpinner text="Memuat data warga..." />
         </View>
       </SafeAreaView>
     );
@@ -165,7 +165,7 @@ export default function EditSantri() {
           <View style={styles.content}>
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                ⚠️ Perubahan data akan mempengaruhi akun login wali santri
+                ⚠️ Perubahan data akan mempengaruhi akun login warga
               </Text>
             </View>
 
@@ -174,7 +174,7 @@ export default function EditSantri() {
 
               <Input
                 label="Nama Santri"
-                placeholder="Masukkan nama lengkap santri"
+                placeholder="Masukkan nama lengkap warga"
                 value={formData.namaSantri}
                 onChangeText={(value) => updateForm("namaSantri", value)}
                 autoCapitalize="words"
@@ -186,7 +186,7 @@ export default function EditSantri() {
 
               <Input
                 label="Nama Wali"
-                placeholder="Masukkan nama lengkap wali"
+                placeholder="Masukkan nama lengkap warga"
                 value={formData.namaWali}
                 onChangeText={(value) => updateForm("namaWali", value)}
                 autoCapitalize="words"
@@ -194,7 +194,7 @@ export default function EditSantri() {
 
               <Input
                 label="No HP Wali"
-                placeholder="Masukkan nomor HP wali"
+                placeholder="Masukkan nomor HP warga"
                 value={formData.noHpWali}
                 onChangeText={(value) => updateForm("noHpWali", value)}
                 keyboardType="phone-pad"
@@ -202,7 +202,7 @@ export default function EditSantri() {
 
               <Input
                 label="Email Wali"
-                placeholder="Masukkan email untuk login wali"
+                placeholder="Masukkan email untuk login warga"
                 value={formData.email}
                 onChangeText={(value) => updateForm("email", value)}
                 keyboardType="email-address"
@@ -211,7 +211,7 @@ export default function EditSantri() {
 
               <View style={styles.infoBox}>
                 <Text style={styles.infoText}>
-                  ℹ️ Jika email diubah, wali santri perlu menggunakan email baru
+                  ℹ️ Jika email diubah, warga perlu menggunakan email baru
                   untuk login
                 </Text>
               </View>

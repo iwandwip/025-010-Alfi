@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Haikal App",
-    "slug": "haikal-app",
+    "name": "Alfi App",
+    "slug": "alfi-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon-money.png",

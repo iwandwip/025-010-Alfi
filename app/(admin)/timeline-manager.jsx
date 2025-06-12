@@ -615,7 +615,7 @@ export default function TimelineManager() {
                 Belum ada timeline aktif
               </Text>
               <Text style={styles.noTimelineDesc}>
-                Buat timeline baru untuk mulai mengelola pembayaran bisyaroh
+                Buat timeline baru untuk mulai mengelola setoran jimpitan
               </Text>
             </View>
           )}

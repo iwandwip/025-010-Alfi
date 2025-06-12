@@ -35,10 +35,15 @@ export const createUserProfile = async (uid, profileData) => {
       updatedAt: new Date()
     };
 
-    if (profileData.role === 'admin') {
+    if (profileData.role === 'bendahara' || profileData.role === 'admin') {
       userProfile.nama = profileData.nama;
       userProfile.noHp = profileData.noHp;
     } else if (profileData.role === 'user') {
+      userProfile.namaWarga = profileData.namaWarga || profileData.namaSantri;
+      userProfile.alamat = profileData.alamat;
+      userProfile.noHpWarga = profileData.noHpWarga || profileData.noHpWali;
+      userProfile.rfidWarga = profileData.rfidWarga || profileData.rfidSantri || "";
+      // Keep old fields for backward compatibility
       userProfile.namaSantri = profileData.namaSantri;
       userProfile.namaWali = profileData.namaWali;
       userProfile.noHpWali = profileData.noHpWali;
@@ -106,7 +111,7 @@ export const updateUserProfile = async (uid, updates) => {
   }
 };
 
-export const getAllSantri = async () => {
+export const getAllWarga = async () => {
   try {
     if (!db) {
       console.warn('Firestore belum diinisialisasi, return empty array');
@@ -121,19 +126,24 @@ export const getAllSantri = async () => {
     );
     const querySnapshot = await getDocs(q);
     
-    const santriList = [];
+    const wargaList = [];
     querySnapshot.forEach((doc) => {
-      santriList.push({
+      const data = doc.data();
+      wargaList.push({
         id: doc.id,
-        ...doc.data()
+        ...data,
+        // Ensure compatibility with old and new field names
+        namaWarga: data.namaWarga || data.namaSantri,
+        noHpWarga: data.noHpWarga || data.noHpWali,
+        rfidWarga: data.rfidWarga || data.rfidSantri
       });
     });
 
-    santriList.sort((a, b) => a.namaSantri.localeCompare(b.namaSantri));
+    wargaList.sort((a, b) => (a.namaWarga || a.namaSantri).localeCompare(b.namaWarga || b.namaSantri));
 
-    return { success: true, data: santriList };
+    return { success: true, data: wargaList };
   } catch (error) {
-    console.error('Error mengambil data santri:', error);
+    console.error('Error mengambil data warga:', error);
     return { success: false, error: error.message, data: [] };
   }
 };
@@ -273,3 +283,6 @@ export const getDeletedSantri = async () => {
     return { success: false, error: error.message, data: [] };
   }
 };
+
+// Backward compatibility alias
+export const getAllSantri = getAllWarga;

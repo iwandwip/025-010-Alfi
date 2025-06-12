@@ -15,7 +15,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signInWithEmail } from "../../services/authService";
 
-export default function WaliLogin() {
+export default function WargaLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,12 +56,12 @@ export default function WaliLogin() {
 
         <View style={styles.content}>
           <View style={styles.titleSection}>
-            <Text style={styles.title}>Masuk Wali Santri</Text>
+            <Text style={styles.title}>Masuk Warga</Text>
             <Text style={styles.subtitle}>
-              Masuk untuk memantau dan membayar bisyaroh
+              Masuk untuk memantau dan setor jimpitan
             </Text>
             <Text style={styles.infoText}>
-              Belum punya akun? Hubungi admin TPQ untuk pendaftaran
+              Belum punya akun? Hubungi bendahara RT untuk pendaftaran
             </Text>
           </View>
 

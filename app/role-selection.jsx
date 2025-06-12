@@ -13,21 +13,21 @@ export default function RoleSelection() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const handleAdminPress = () => {
-    router.push("/(auth)/admin-login");
+  const handleBendaharaPress = () => {
+    router.push("/(auth)/bendahara-login");
   };
 
-  const handleWaliPress = () => {
-    router.push("/(auth)/wali-login");
+  const handleWargaPress = () => {
+    router.push("/(auth)/warga-login");
   };
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.content}>
         <View style={styles.headerSection}>
-          <Text style={styles.title}>Smart Bisyaroh</Text>
+          <Text style={styles.title}>Smart Jimpitan</Text>
           <Text style={styles.subtitle}>
-            Sistem Administrasi Pembayaran TPQ Ibadurrohman
+            Sistem Pengelolaan Jimpitan Warga RT 01 RW 02
           </Text>
         </View>
 
@@ -42,16 +42,16 @@ export default function RoleSelection() {
 
           <TouchableOpacity
             style={[styles.roleCard, styles.adminCard]}
-            onPress={handleAdminPress}
+            onPress={handleBendaharaPress}
             activeOpacity={0.8}
           >
             <View style={styles.roleIcon}>
               <Text style={styles.roleIconText}>👨‍💼</Text>
             </View>
             <View style={styles.roleContent}>
-              <Text style={styles.roleCardTitle}>Admin TPQ</Text>
+              <Text style={styles.roleCardTitle}>Bendahara</Text>
               <Text style={styles.roleCardDesc}>
-                Kelola data santri dan pembayaran bisyaroh
+                Kelola data warga dan setoran jimpitan
               </Text>
             </View>
             <View style={styles.arrowContainer}>
@@ -61,16 +61,16 @@ export default function RoleSelection() {
 
           <TouchableOpacity
             style={[styles.roleCard, styles.waliCard]}
-            onPress={handleWaliPress}
+            onPress={handleWargaPress}
             activeOpacity={0.8}
           >
             <View style={styles.roleIcon}>
               <Text style={styles.roleIconText}>👨‍👩‍👧‍👦</Text>
             </View>
             <View style={styles.roleContent}>
-              <Text style={styles.roleCardTitle}>Wali Santri</Text>
+              <Text style={styles.roleCardTitle}>Warga</Text>
               <Text style={styles.roleCardDesc}>
-                Pantau dan bayar bisyaroh anak Anda
+                Pantau dan setor jimpitan Anda
               </Text>
             </View>
             <View style={styles.arrowContainer}>
@@ -80,8 +80,8 @@ export default function RoleSelection() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>TPQ Ibadurrohman</Text>
-          <Text style={styles.footerSubtext}>Malang, Jawa Timur</Text>
+          <Text style={styles.footerText}>RT 01 RW 02</Text>
+          <Text style={styles.footerSubtext}>Kelurahan Sukajadi</Text>
         </View>
       </View>
     </SafeAreaView>

@@ -418,7 +418,7 @@ function PaymentStatus() {
                 color: colors.gray900,
               },
             ]}
-            placeholder="Cari nama santri, wali, atau email..."
+            placeholder="Cari nama warga, alamat, atau email..."
             placeholderTextColor={colors.gray500}
             value={searchQuery}
             onChangeText={setSearchQuery}

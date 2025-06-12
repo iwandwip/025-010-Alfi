@@ -29,9 +29,9 @@ export default function EditProfile() {
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    namaWali: userProfile?.namaWali || "",
-    noHpWali: userProfile?.noHpWali || "",
-    namaSantri: userProfile?.namaSantri || "",
+    namaWarga: userProfile?.namaWarga || userProfile?.namaWali || "",
+    noHpWarga: userProfile?.noHpWarga || userProfile?.noHpWali || "",
+    alamat: userProfile?.alamat || "",
   });
   const [errors, setErrors] = useState({});
 
@@ -45,16 +45,16 @@ export default function EditProfile() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.namaWali.trim()) {
-      newErrors.namaWali = "Nama wali wajib diisi";
+    if (!formData.namaWarga.trim()) {
+      newErrors.namaWarga = "Nama warga wajib diisi";
     }
 
-    if (!formData.noHpWali.trim()) {
-      newErrors.noHpWali = "No HP wali wajib diisi";
+    if (!formData.noHpWarga.trim()) {
+      newErrors.noHpWarga = "No HP warga wajib diisi";
     }
 
-    if (!formData.namaSantri.trim()) {
-      newErrors.namaSantri = "Nama santri wajib diisi";
+    if (!formData.alamat.trim()) {
+      newErrors.alamat = "Alamat warga wajib diisi";
     }
 
     setErrors(newErrors);
@@ -184,7 +184,7 @@ export default function EditProfile() {
 
               <Input
                 label="Nama Wali"
-                placeholder="Masukkan nama lengkap wali"
+                placeholder="Masukkan nama lengkap warga"
                 value={formData.namaWali}
                 onChangeText={(value) => updateFormData("namaWali", value)}
                 autoCapitalize="words"
@@ -193,7 +193,7 @@ export default function EditProfile() {
 
               <Input
                 label="No HP Wali"
-                placeholder="Masukkan nomor HP wali"
+                placeholder="Masukkan nomor HP warga"
                 value={formData.noHpWali}
                 onChangeText={(value) => updateFormData("noHpWali", value)}
                 keyboardType="phone-pad"

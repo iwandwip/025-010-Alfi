@@ -16,7 +16,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
 
-export default function AdminRegister() {
+export default function BendaharaRegister() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -67,7 +67,7 @@ export default function AdminRegister() {
     const profileData = {
       nama: formData.nama,
       noHp: formData.noHp,
-      role: "admin",
+      role: "bendahara",
     };
 
     const result = await signUpWithEmail(
@@ -77,7 +77,7 @@ export default function AdminRegister() {
     );
 
     if (result.success) {
-      Alert.alert("Berhasil", "Akun admin berhasil dibuat!", [
+      Alert.alert("Berhasil", "Akun bendahara berhasil dibuat!", [
         { text: "OK", onPress: () => router.replace("/(admin)") },
       ]);
     } else {
@@ -107,16 +107,16 @@ export default function AdminRegister() {
         >
           <View style={styles.content}>
             <View style={styles.titleSection}>
-              <Text style={styles.title}>Daftar Admin</Text>
+              <Text style={styles.title}>Daftar Bendahara</Text>
               <Text style={styles.subtitle}>
-                Buat akun Administrator TPQ Ibadurrohman
+                Buat akun Bendahara RT 01 RW 02
               </Text>
             </View>
 
             <View style={styles.formSection}>
               <Input
                 label="Email"
-                placeholder="Masukkan email admin"
+                placeholder="Masukkan email bendahara"
                 value={formData.email}
                 onChangeText={(value) => updateForm("email", value)}
                 keyboardType="email-address"
@@ -164,8 +164,8 @@ export default function AdminRegister() {
             </View>
 
             <View style={styles.loginSection}>
-              <Text style={styles.loginText}>Sudah memiliki akun admin?</Text>
-              <Link href="/(auth)/admin-login" style={styles.loginLink}>
+              <Text style={styles.loginText}>Sudah memiliki akun bendahara?</Text>
+              <Link href="/(auth)/bendahara-login" style={styles.loginLink}>
                 Masuk Sekarang
               </Link>
             </View>

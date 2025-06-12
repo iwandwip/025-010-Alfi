@@ -2,113 +2,117 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
-
-This is a React Native with Expo mobile application for managing payments at Islamic religious schools (TPQ). The system integrates with ESP32 firmware for RFID-based student identification and payment tracking.
-
 ## Development Commands
 
-```bash
-# Start development server
-npm start
+### App Development
+- `npm start` - Start Expo development server
+- `npm run android` - Run on Android emulator/device  
+- `npm run ios` - Run on iOS simulator/device
+- `npm run web` - Run as web application
+- `npm run clear` - Clear Expo cache and restart
+- `npm run reset` - Same as clear, reset Metro cache
 
-# Platform-specific development  
-npm run android
-npm run ios
-npm run web
+### Testing & Utilities
+- `npm test` - Run ESP32 simulator test (testing/esp32-simulator.js)
+- `npm run cleanup` - Run Firebase cleanup script
 
-# Clear cache when needed
-npm run clear
-npm run reset
+## Architecture Overview
 
-# Clean up Firebase data
-npm run cleanup
-```
+### Project Type
+React Native app with Expo Router using Firebase backend, designed for "Sistem Pengelolaan Jimpitan Warga" (community savings management) with ESP32 hardware integration and K-Nearest Neighbors algorithm.
 
-## Architecture
+### Key Architecture Components
 
-### Multi-Role System
-- **Admin**: Complete management access via `app/(admin)/` routes
-- **User (Wali)**: Parent/guardian access via `app/(tabs)/` routes
-- Authentication handled through `contexts/AuthContext.jsx`
+**Authentication & Authorization**
+- Firebase Auth with email/password
+- Role-based access: `bendahara@gmail.com` gets bendahara role automatically (backward compatible with `admin@gmail.com`)
+- AuthContext provides global auth state with bendahara detection
+- AuthGuard component for route protection
 
-### Key Technologies
-- **React Native + Expo SDK 53**
-- **Firebase** (Authentication + Firestore)
-- **Expo Router** for file-based navigation
-- **ESP32 Arduino firmware** with RFID integration
+**Routing Structure (Expo Router)**
+- `app/(auth)/` - Authentication screens (bendahara-login, warga-login, bendahara-register)
+- `app/(tabs)/` - Main warga interface (status setoran, profile, etc.)
+- `app/(admin)/` - Bendahara panel for warga/setoran management
+- File-based routing with layout components
 
-### Service Layer
-All business logic is separated into service files:
-- `authService.js` - Authentication operations
-- `userService.js` - Student/parent management
-- `*paymentService.js` - Payment processing (admin/wali specific)
-- `timelineService.js` - Payment schedule management
-- `pairingService.js` - RFID card-to-student mapping
+**State Management**
+- React Context pattern for global state
+- AuthContext: authentication and user profiles
+- SettingsContext: app settings (theme, language)
+- NotificationContext: toast notifications
 
-### State Management
-Global state via React Context:
-- `AuthContext` - User authentication and role
-- `SettingsContext` - App configuration
-- `NotificationContext` - Toast notifications
+**Data Layer**
+- Firebase Firestore as primary database
+- Services pattern: separate service files for different domains
+  - authService.js: authentication operations
+  - userService.js: warga profile management (getAllWarga, backward compatible with getAllSantri)
+  - adminPaymentService.js/waliPaymentService.js: setoran jimpitan management
+  - timelineService.js: timeline/schedule management
+  - pairingService.js: ESP32 device pairing operations
 
-## Hardware Integration
+**Hardware Integration**
+- ESP32 firmware in `firmware/` directory with two versions (R0, R1)
+- KNN algorithm implementation for device recognition
+- USB and WiFi communication protocols
+- RFID, LCD, RTC, color sensor, servo, and relay integration
 
-### ESP32 Firmware
-Located in `firmware/` with two versions (R0/R1):
-- **RFID reading** for student identification
-- **KNN algorithm** for payment pattern analysis
-- **WiFi connectivity** for real-time data sync
-- **Menu system** for device configuration
+**Setoran Jimpitan System**
+- Credit-based setoran system with real-time status tracking
+- paymentStatusManager.js handles automatic status updates
+- Bendahara can manage setoran and view detailed setoran history
+- Warga interface for setoran operations
 
-### Key Firmware Components
-- `KNN.ino` - Machine learning for payment predictions
-- `WiFi.ino` - Network connectivity and Firebase sync
-- `Menu.ino` - LCD interface and button controls
-- `USBComs.ino` - Serial communication
+### Key Patterns
 
-## Important Implementation Details
+**Component Structure**
+- `components/ui/` - Reusable UI components (Button, Input, DataTable)
+- `components/auth/` - Authentication-specific components
+- `components/illustrations/` - SVG illustrations for auth screens
 
-### Authentication
-- Special admin account: `admin@gmail.com` (accepts any password)
-- Regular users authenticate with email/password via Firebase
-- Role-based routing enforced in `_layout.jsx` files
+**Error Handling**
+- ErrorBoundary component wraps entire app
+- ToastNotification system for user feedback
+- Comprehensive error handling in Firebase operations
 
-### Payment System
-- Timeline-based payment schedules configurable by admin
-- Real-time status updates via Firebase listeners
-- Payment status managed through `paymentStatusManager.js`
-- Complex validation logic in `utils/paymentStatusUtils.js`
+**Multi-language Support**
+- Built-in Indonesian/English support
+- SettingsContext manages language preferences
 
-### RFID Integration
-- Students paired with RFID cards via `pairingService.js`
-- Card scans trigger payment processing
-- Hardware communicates with app via Firebase real-time database
+**Theme System**
+- Dark/light theme support with persistent storage
+- Primary color scheme uses pink (#F50057)
 
-### Database Structure
-Firebase Firestore collections:
-- `users` - Student and parent accounts
-- `payments` - Payment records and history  
-- `timelines` - Payment schedule templates
-- `settings` - System configuration
+## Firebase Configuration
 
-## Development Notes
+The app uses Firebase project "haikal-ef006" with:
+- Authentication (email/password)
+- Firestore database for user profiles and app data
+- Real-time listeners for data synchronization
 
-### Firebase Configuration
-- Configuration hardcoded in `services/firebase.js`
-- Consider moving to environment variables for security
+Bendahara access: Use `bendahara@gmail.com` or `admin@gmail.com` with any password to get bendahara privileges automatically.
 
-### Language Support
-- Primary language: Indonesian (Bahasa Indonesia)
-- UI text and validation messages in Indonesian
+## Hardware Integration Notes
 
-### Testing ESP32 Integration
-- Requires physical ESP32 hardware setup
-- RFID reader and LCD display needed for full functionality
-- WiFi credentials configured via device menu system
+ESP32 firmware supports:
+- RFID card reading for user identification
+- LCD display for user interface
+- RTC for time tracking
+- Color sensor (TCS3200) for object detection
+- Servo motor and relay control
+- WiFi connectivity for data transmission
+- KNN algorithm for intelligent recognition
 
-### Common File Patterns
-- Screen components in `app/` follow Expo Router conventions
-- Reusable UI components in `components/ui/`
-- Business logic abstracted to `services/`
-- Form validation centralized in `utils/validation.js`
+Testing framework available in `testing/` directory with ESP32 simulator.
+
+## File Structure Changes
+
+Key renamed files:
+- `admin-login.jsx` → `bendahara-login.jsx`
+- `admin-register.jsx` → `bendahara-register.jsx`
+- `wali-login.jsx` → `warga-login.jsx`
+- `daftar-santri.jsx` → `daftar-warga.jsx`
+- `tambah-santri.jsx` → `tambah-warga.jsx`
+- `detail-santri.jsx` → `detail-warga.jsx`
+- `edit-santri.jsx` → `edit-warga.jsx`
+
+Backward compatibility maintained in userService.js with `getAllSantri` alias for `getAllWarga`.

@@ -29,7 +29,7 @@ import {
   processPaymentWithCredit,
 } from "../../services/waliPaymentService";
 
-function StatusPembayaran() {
+function StatusSetoran() {
   const { userProfile } = useAuth();
   const { theme, loading: settingsLoading } = useSettings();
   const { 
@@ -277,7 +277,7 @@ function StatusPembayaran() {
         ]}
       >
         <Text style={[styles.summaryTitle, { color: colors.gray900 }]}>
-          Ringkasan Pembayaran
+          Ringkasan Setoran
         </Text>
 
         <View style={styles.progressContainer}>
@@ -351,7 +351,7 @@ function StatusPembayaran() {
 
             <View style={styles.amountRow}>
               <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
-                Sudah Dibayar:
+                Sudah Disetor:
               </Text>
               <Text style={[styles.amountValue, { color: colors.success }]}>
                 {formatCurrency(summary.paidAmount || 0)}
@@ -360,7 +360,7 @@ function StatusPembayaran() {
 
             <View style={styles.amountRow}>
               <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
-                Belum Dibayar:
+                Belum Disetor:
               </Text>
               <Text style={[styles.amountValue, { color: colors.error }]}>
                 {formatCurrency(summary.unpaidAmount || 0)}
@@ -917,4 +917,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StatusPembayaran;
+export default StatusSetoran;

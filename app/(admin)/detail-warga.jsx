@@ -25,9 +25,9 @@ import {
   listenToPairingData,
 } from "../../services/pairingService";
 
-export default function DetailSantri() {
-  const { santriId } = useLocalSearchParams();
-  const [santri, setSantri] = useState(null);
+export default function DetailWarga() {
+  const { wargaId } = useLocalSearchParams();
+  const [warga, setWarga] = useState(null);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [pairingStatus, setPairingStatus] = useState(null);
@@ -35,13 +35,13 @@ export default function DetailSantri() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const loadSantriData = async () => {
+  const loadWargaData = async () => {
     setLoading(true);
-    const result = await getUserProfile(santriId);
+    const result = await getUserProfile(wargaId);
     if (result.success) {
-      setSantri(result.profile);
+      setWarga(result.profile);
     } else {
-      Alert.alert("Error", "Gagal memuat data santri");
+      Alert.alert("Error", "Gagal memuat data warga");
       router.back();
     }
     setLoading(false);
@@ -54,9 +54,9 @@ export default function DetailSantri() {
 
   useFocusEffect(
     React.useCallback(() => {
-      loadSantriData();
+      loadWargaData();
       loadPairingStatus();
-    }, [santriId])
+    }, [wargaId])
   );
 
   useEffect(() => {
@@ -64,14 +64,14 @@ export default function DetailSantri() {
       if (
         rfidData &&
         pairingStatus?.isActive &&
-        pairingStatus?.santriId === santriId
+        pairingStatus?.wargaId === wargaId || pairingStatus?.santriId === wargaId
       ) {
         handleRFIDReceived(rfidData);
       }
     });
 
     return () => unsubscribe && unsubscribe();
-  }, [santriId, pairingStatus]);
+  }, [wargaId, pairingStatus]);
 
   useEffect(() => {
     const interval = setInterval(loadPairingStatus, 2000);
@@ -81,7 +81,7 @@ export default function DetailSantri() {
   const handleRFIDReceived = async (rfidData) => {
     Alert.alert(
       "RFID Terdeteksi",
-      `RFID Code: ${rfidData.rfidCode}\n\nApakah Anda ingin menyimpan RFID ini untuk ${santri?.namaSantri}?`,
+      `RFID Code: ${rfidData.rfidCode}\n\nApakah Anda ingin menyimpan RFID ini untuk ${warga?.namaWarga || warga?.namaSantri}?`,
       [
         {
           text: "Batal",
@@ -91,11 +91,11 @@ export default function DetailSantri() {
         {
           text: "Simpan",
           onPress: async () => {
-            const result = await updateSantriRFID(santriId, rfidData.rfidCode);
+            const result = await updateSantriRFID(wargaId, rfidData.rfidCode);
             await cancelPairing();
             if (result.success) {
               Alert.alert("Berhasil", "RFID berhasil dipasangkan!");
-              loadSantriData();
+              loadWargaData();
             } else {
               Alert.alert("Error", "Gagal menyimpan RFID");
             }
@@ -107,7 +107,7 @@ export default function DetailSantri() {
 
   const handleStartPairing = async () => {
     setPairingLoading(true);
-    const result = await startPairing(santriId);
+    const result = await startPairing(wargaId);
     if (result.success) {
       Alert.alert(
         "Pairing Dimulai",
@@ -145,17 +145,17 @@ export default function DetailSantri() {
     );
   };
 
-  const handleEditSantri = () => {
+  const handleEditWarga = () => {
     router.push({
-      pathname: "/(admin)/edit-santri",
-      params: { santriId: santriId },
+      pathname: "/(admin)/edit-warga",
+      params: { wargaId: wargaId },
     });
   };
 
-  const handleDeleteSantri = () => {
+  const handleDeleteWarga = () => {
     Alert.alert(
-      "Hapus Santri",
-      `Apakah Anda yakin ingin menghapus data ${santri?.namaSantri}?\n\nTindakan ini akan:\n• Menghapus data santri dari sistem\n• Menonaktifkan akun wali (akun login tetap ada)\n• Email ${santri?.email} tidak dapat digunakan lagi\n• Tidak dapat dibatalkan\n\nLanjutkan?`,
+      "Hapus Warga",
+      `Apakah Anda yakin ingin menghapus data ${warga?.namaWarga || warga?.namaSantri}?\n\nTindakan ini akan:\n• Menghapus data warga dari sistem\n• Menonaktifkan akun warga (akun login tetap ada)\n• Email ${warga?.email} tidak dapat digunakan lagi\n• Tidak dapat dibatalkan\n\nLanjutkan?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -171,23 +171,23 @@ export default function DetailSantri() {
     setDeleting(true);
 
     try {
-      const result = await deleteSantri(santriId);
+      const result = await deleteSantri(wargaId);
 
       if (result.success) {
         Alert.alert(
           "Berhasil Dihapus! ✅",
-          `Data santri ${santri?.namaSantri} berhasil dihapus dari sistem.\n\n⚠️ Catatan: Email ${santri?.email} tidak dapat digunakan untuk akun baru karena masih terdaftar di sistem autentikasi.`,
+          `Data warga ${warga?.namaWarga || warga?.namaSantri} berhasil dihapus dari sistem.\n\n⚠️ Catatan: Email ${warga?.email} tidak dapat digunakan untuk akun baru karena masih terdaftar di sistem autentikasi.`,
           [
             {
               text: "OK",
               onPress: () => {
-                router.replace("/(admin)/daftar-santri");
+                router.replace("/(admin)/daftar-warga");
               },
             },
           ]
         );
       } else {
-        Alert.alert("Error", `Gagal menghapus data santri: ${result.error}`);
+        Alert.alert("Error", `Gagal menghapus data warga: ${result.error}`);
       }
     } catch (error) {
       Alert.alert("Error", `Terjadi kesalahan tidak terduga: ${error.message}`);
@@ -199,7 +199,7 @@ export default function DetailSantri() {
   const handleDeleteRFID = () => {
     Alert.alert(
       "Hapus RFID",
-      `Apakah Anda yakin ingin menghapus RFID untuk ${santri?.namaSantri}?\n\nRFID: ${santri?.rfidSantri}\n\nSetelah dihapus, santri tidak akan bisa menggunakan kartu RFID untuk pembayaran.`,
+      `Apakah Anda yakin ingin menghapus RFID untuk ${warga?.namaWarga || warga?.namaSantri}?\n\nRFID: ${warga?.rfidWarga || warga?.rfidSantri}\n\nSetelah dihapus, warga tidak akan bisa menggunakan kartu RFID untuk setoran.`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -213,7 +213,7 @@ export default function DetailSantri() {
 
   const confirmDeleteRFID = async () => {
     try {
-      const result = await deleteSantriRFID(santriId);
+      const result = await deleteSantriRFID(wargaId);
       if (result.success) {
         Alert.alert("Berhasil", "RFID berhasil dihapus!");
         loadSantriData();
@@ -228,7 +228,7 @@ export default function DetailSantri() {
   const handleRePairing = () => {
     Alert.alert(
       "Ganti RFID",
-      `Apakah Anda ingin mengganti RFID untuk ${santri?.namaSantri}?\n\nRFID saat ini: ${santri?.rfidSantri}\n\nRFID lama akan diganti dengan yang baru.`,
+      `Apakah Anda ingin mengganti RFID untuk ${warga?.namaWarga || warga?.namaSantri}?\n\nRFID saat ini: ${warga?.rfidWarga || warga?.rfidSantri}\n\nRFID lama akan diganti dengan yang baru.`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -241,7 +241,7 @@ export default function DetailSantri() {
 
   const startRePairing = async () => {
     try {
-      const result = await startPairing(santriId);
+      const result = await startPairing(wargaId);
       if (result.success) {
         Alert.alert(
           "Mode Pairing Aktif",
@@ -269,13 +269,13 @@ export default function DetailSantri() {
           <Text style={styles.headerTitle}>Detail Santri</Text>
         </View>
         <View style={styles.loadingContainer}>
-          <LoadingSpinner text="Memuat data santri..." />
+          <LoadingSpinner text="Memuat data warga..." />
         </View>
       </SafeAreaView>
     );
   }
 
-  if (!santri) {
+  if (!warga) {
     return (
       <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
@@ -288,15 +288,15 @@ export default function DetailSantri() {
           <Text style={styles.headerTitle}>Detail Santri</Text>
         </View>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Data santri tidak ditemukan</Text>
+          <Text style={styles.errorText}>Data warga tidak ditemukan</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   const isPairingActive =
-    pairingStatus?.isActive && pairingStatus?.santriId === santriId;
-  const canStartPairing = !santri.rfidSantri && !pairingStatus?.isActive;
+    pairingStatus?.isActive && (pairingStatus?.wargaId === wargaId || pairingStatus?.santriId === wargaId);
+  const canStartPairing = !(warga.rfidWarga || warga.rfidSantri) && !pairingStatus?.isActive;
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
@@ -322,8 +322,8 @@ export default function DetailSantri() {
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>👤</Text>
           </View>
-          <Text style={styles.namaSantri}>{santri.namaSantri}</Text>
-          <Text style={styles.santriId}>ID: {santri.id}</Text>
+          <Text style={styles.namaWarga}>{warga.namaWarga || warga.namaSantri}</Text>
+          <Text style={styles.wargaId}>ID: {warga.id}</Text>
         </View>
 
         <View style={styles.actionSection}>
@@ -336,8 +336,8 @@ export default function DetailSantri() {
               disabled={deleting}
             />
             <Button
-              title={deleting ? "Menghapus..." : "🗑️ Hapus Santri"}
-              onPress={handleDeleteSantri}
+              title={deleting ? "Menghapus..." : "🗑️ Hapus Warga"}
+              onPress={handleDeleteWarga}
               variant="outline"
               style={styles.deleteButton}
               disabled={deleting}
@@ -348,34 +348,34 @@ export default function DetailSantri() {
         {deleting && (
           <View style={styles.deletingInfo}>
             <Text style={styles.deletingText}>
-              🔄 Menghapus data santri dari sistem...
+              🔄 Menghapus data warga dari sistem...
             </Text>
             <Text style={styles.deletingSubtext}>Mohon tunggu sebentar</Text>
           </View>
         )}
 
         <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Informasi Santri</Text>
+          <Text style={styles.sectionTitle}>Informasi Warga</Text>
 
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nama Santri:</Text>
-              <Text style={styles.infoValue}>{santri.namaSantri}</Text>
+              <Text style={styles.infoLabel}>Nama Warga:</Text>
+              <Text style={styles.infoValue}>{warga.namaWarga || warga.namaSantri}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nama Wali:</Text>
-              <Text style={styles.infoValue}>{santri.namaWali}</Text>
+              <Text style={styles.infoLabel}>Alamat:</Text>
+              <Text style={styles.infoValue}>{warga.alamat || 'Belum diisi'}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>No HP Wali:</Text>
-              <Text style={styles.infoValue}>{santri.noHpWali}</Text>
+              <Text style={styles.infoLabel}>No HP Warga:</Text>
+              <Text style={styles.infoValue}>{warga.noHpWarga || warga.noHpWali}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email Wali:</Text>
-              <Text style={styles.infoValue}>{santri.email}</Text>
+              <Text style={styles.infoLabel}>Email Warga:</Text>
+              <Text style={styles.infoValue}>{warga.email}</Text>
             </View>
           </View>
         </View>
@@ -385,12 +385,12 @@ export default function DetailSantri() {
 
           <View style={styles.rfidCard}>
             <View style={styles.rfidStatus}>
-              {santri.rfidSantri ? (
+              {(warga.rfidWarga || warga.rfidSantri) ? (
                 <View style={styles.rfidActive}>
                   <Text style={styles.rfidIcon}>✅</Text>
                   <View style={styles.rfidInfo}>
                     <Text style={styles.rfidLabel}>RFID Terpasang</Text>
-                    <Text style={styles.rfidCode}>{santri.rfidSantri}</Text>
+                    <Text style={styles.rfidCode}>{warga.rfidWarga || warga.rfidSantri}</Text>
                   </View>
                 </View>
               ) : (
@@ -437,7 +437,7 @@ export default function DetailSantri() {
                 />
               )}
 
-              {santri.rfidSantri && !isPairingActive && (
+              {(warga.rfidWarga || warga.rfidSantri) && !isPairingActive && (
                 <View style={styles.rfidManagement}>
                   <Button
                     title="🔄 Ganti RFID"
@@ -530,14 +530,14 @@ const styles = StyleSheet.create({
     fontSize: 32,
     color: "#fff",
   },
-  namaSantri: {
+  namaWarga: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#1e293b",
     marginBottom: 4,
     textAlign: "center",
   },
-  santriId: {
+  wargaId: {
     fontSize: 14,
     color: "#64748b",
     fontFamily: "monospace",
