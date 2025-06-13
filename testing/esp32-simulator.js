@@ -42,7 +42,7 @@ class ESP32RFIDSimulator {
   async initialize() {
     try {
       console.log('🔐 Authenticating...');
-      await signInWithEmailAndPassword(auth, 'admin@gmail.com', 'admin123');
+      await signInWithEmailAndPassword(auth, 'bendahara@gmail.com', 'admin123');
       this.isAuthenticated = true;
       console.log('✅ Authentication successful');
       
@@ -74,7 +74,7 @@ class ESP32RFIDSimulator {
   handlePairingChange(pairingData) {
     console.log('📊 Pairing data received:', {
       isActive: pairingData.isActive,
-      santriId: pairingData.santriId,
+      wargaId: pairingData.wargaId,
       startTime: pairingData.startTime?.toDate?.()?.toLocaleString(),
       hasRfidCode: !!pairingData.rfidCode
     });
@@ -100,7 +100,7 @@ class ESP32RFIDSimulator {
 
   startRFIDPairing(pairingData) {
     console.log(`🔧 RFID Pairing Session Started`);
-    console.log(`👤 Santri ID: ${pairingData.santriId}`);
+    console.log(`👤 Warga ID: ${pairingData.wargaId}`);
     console.log(`⏰ Started at: ${pairingData.startTime?.toDate?.()?.toLocaleString()}`);
     
     this.currentSession = pairingData;
@@ -126,13 +126,13 @@ class ESP32RFIDSimulator {
     try {
       await updateDoc(this.pairingRef, {
         rfidCode: rfidCode,
-        santriId: this.currentSession.santriId,
+        wargaId: this.currentSession.wargaId,
         lastActivity: new Date()
       });
       
       console.log(`📤 RFID data sent to Firestore`);
       console.log(`🎉 RFID Pairing Complete!`);
-      console.log(`📱 App should receive: { success: true, rfidCode: "${rfidCode}", santriId: "${this.currentSession.santriId}" }\n`);
+      console.log(`📱 App should receive: { success: true, rfidCode: "${rfidCode}", wargaId: "${this.currentSession.wargaId}" }\n`);
       
     } catch (error) {
       console.error('❌ Failed to update RFID:', error.message);

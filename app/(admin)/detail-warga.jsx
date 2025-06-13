@@ -14,9 +14,9 @@ import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import {
   getUserProfile,
-  deleteSantri,
-  updateSantriRFID,
-  deleteSantriRFID,
+  deleteWarga,
+  updateWargaRFID,
+  deleteWargaRFID,
 } from "../../services/userService";
 import {
   startPairing,
@@ -64,7 +64,7 @@ export default function DetailWarga() {
       if (
         rfidData &&
         pairingStatus?.isActive &&
-        pairingStatus?.wargaId === wargaId || pairingStatus?.santriId === wargaId
+        pairingStatus?.wargaId === wargaId
       ) {
         handleRFIDReceived(rfidData);
       }
@@ -81,7 +81,7 @@ export default function DetailWarga() {
   const handleRFIDReceived = async (rfidData) => {
     Alert.alert(
       "RFID Terdeteksi",
-      `RFID Code: ${rfidData.rfidCode}\n\nApakah Anda ingin menyimpan RFID ini untuk ${warga?.namaWarga || warga?.namaSantri}?`,
+      `RFID Code: ${rfidData.rfidCode}\n\nApakah Anda ingin menyimpan RFID ini untuk ${warga?.namaWarga}?`,
       [
         {
           text: "Batal",
@@ -91,7 +91,7 @@ export default function DetailWarga() {
         {
           text: "Simpan",
           onPress: async () => {
-            const result = await updateSantriRFID(wargaId, rfidData.rfidCode);
+            const result = await updateWargaRFID(wargaId, rfidData.rfidCode);
             await cancelPairing();
             if (result.success) {
               Alert.alert("Berhasil", "RFID berhasil dipasangkan!");
@@ -155,28 +155,28 @@ export default function DetailWarga() {
   const handleDeleteWarga = () => {
     Alert.alert(
       "Hapus Warga",
-      `Apakah Anda yakin ingin menghapus data ${warga?.namaWarga || warga?.namaSantri}?\n\nTindakan ini akan:\n• Menghapus data warga dari sistem\n• Menonaktifkan akun warga (akun login tetap ada)\n• Email ${warga?.email} tidak dapat digunakan lagi\n• Tidak dapat dibatalkan\n\nLanjutkan?`,
+      `Apakah Anda yakin ingin menghapus data ${warga?.namaWarga}?\n\nTindakan ini akan:\n• Menghapus data warga dari sistem\n• Menonaktifkan akun warga (akun login tetap ada)\n• Email ${warga?.email} tidak dapat digunakan lagi\n• Tidak dapat dibatalkan\n\nLanjutkan?`,
       [
         { text: "Batal", style: "cancel" },
         {
           text: "Ya, Hapus",
           style: "destructive",
-          onPress: confirmDeleteSantri,
+          onPress: confirmDeleteWarga,
         },
       ]
     );
   };
 
-  const confirmDeleteSantri = async () => {
+  const confirmDeleteWarga = async () => {
     setDeleting(true);
 
     try {
-      const result = await deleteSantri(wargaId);
+      const result = await deleteWarga(wargaId);
 
       if (result.success) {
         Alert.alert(
           "Berhasil Dihapus! ✅",
-          `Data warga ${warga?.namaWarga || warga?.namaSantri} berhasil dihapus dari sistem.\n\n⚠️ Catatan: Email ${warga?.email} tidak dapat digunakan untuk akun baru karena masih terdaftar di sistem autentikasi.`,
+          `Data warga ${warga?.namaWarga} berhasil dihapus dari sistem.\n\n⚠️ Catatan: Email ${warga?.email} tidak dapat digunakan untuk akun baru karena masih terdaftar di sistem autentikasi.`,
           [
             {
               text: "OK",
@@ -199,7 +199,7 @@ export default function DetailWarga() {
   const handleDeleteRFID = () => {
     Alert.alert(
       "Hapus RFID",
-      `Apakah Anda yakin ingin menghapus RFID untuk ${warga?.namaWarga || warga?.namaSantri}?\n\nRFID: ${warga?.rfidWarga || warga?.rfidSantri}\n\nSetelah dihapus, warga tidak akan bisa menggunakan kartu RFID untuk setoran.`,
+      `Apakah Anda yakin ingin menghapus RFID untuk ${warga?.namaWarga}?\n\nRFID: ${warga?.rfidWarga}\n\nSetelah dihapus, warga tidak akan bisa menggunakan kartu RFID untuk setoran.`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -213,10 +213,10 @@ export default function DetailWarga() {
 
   const confirmDeleteRFID = async () => {
     try {
-      const result = await deleteSantriRFID(wargaId);
+      const result = await deleteWargaRFID(wargaId);
       if (result.success) {
         Alert.alert("Berhasil", "RFID berhasil dihapus!");
-        loadSantriData();
+        loadWargaData();
       } else {
         Alert.alert("Error", `Gagal menghapus RFID: ${result.error}`);
       }
@@ -228,7 +228,7 @@ export default function DetailWarga() {
   const handleRePairing = () => {
     Alert.alert(
       "Ganti RFID",
-      `Apakah Anda ingin mengganti RFID untuk ${warga?.namaWarga || warga?.namaSantri}?\n\nRFID saat ini: ${warga?.rfidWarga || warga?.rfidSantri}\n\nRFID lama akan diganti dengan yang baru.`,
+      `Apakah Anda ingin mengganti RFID untuk ${warga?.namaWarga}?\n\nRFID saat ini: ${warga?.rfidWarga}\n\nRFID lama akan diganti dengan yang baru.`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -266,7 +266,7 @@ export default function DetailWarga() {
           >
             <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Detail Santri</Text>
+          <Text style={styles.headerTitle}>Detail Warga</Text>
         </View>
         <View style={styles.loadingContainer}>
           <LoadingSpinner text="Memuat data warga..." />
@@ -285,7 +285,7 @@ export default function DetailWarga() {
           >
             <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Detail Santri</Text>
+          <Text style={styles.headerTitle}>Detail Warga</Text>
         </View>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Data warga tidak ditemukan</Text>
@@ -295,8 +295,8 @@ export default function DetailWarga() {
   }
 
   const isPairingActive =
-    pairingStatus?.isActive && (pairingStatus?.wargaId === wargaId || pairingStatus?.santriId === wargaId);
-  const canStartPairing = !(warga.rfidWarga || warga.rfidSantri) && !pairingStatus?.isActive;
+    pairingStatus?.isActive && pairingStatus?.wargaId === wargaId;
+  const canStartPairing = !warga.rfidWarga && !pairingStatus?.isActive;
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
@@ -307,7 +307,7 @@ export default function DetailWarga() {
         >
           <Text style={styles.backButtonText}>← Kembali</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detail Santri</Text>
+        <Text style={styles.headerTitle}>Detail Warga</Text>
       </View>
 
       <ScrollView
@@ -322,7 +322,7 @@ export default function DetailWarga() {
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>👤</Text>
           </View>
-          <Text style={styles.namaWarga}>{warga.namaWarga || warga.namaSantri}</Text>
+          <Text style={styles.namaWarga}>{warga.namaWarga}</Text>
           <Text style={styles.wargaId}>ID: {warga.id}</Text>
         </View>
 
@@ -330,7 +330,7 @@ export default function DetailWarga() {
           <View style={styles.actionButtons}>
             <Button
               title="✏️ Edit Data"
-              onPress={handleEditSantri}
+              onPress={handleEditWarga}
               variant="secondary"
               style={styles.editButton}
               disabled={deleting}
@@ -360,7 +360,7 @@ export default function DetailWarga() {
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Nama Warga:</Text>
-              <Text style={styles.infoValue}>{warga.namaWarga || warga.namaSantri}</Text>
+              <Text style={styles.infoValue}>{warga.namaWarga}</Text>
             </View>
 
             <View style={styles.infoRow}>
@@ -370,7 +370,7 @@ export default function DetailWarga() {
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>No HP Warga:</Text>
-              <Text style={styles.infoValue}>{warga.noHpWarga || warga.noHpWali}</Text>
+              <Text style={styles.infoValue}>{warga.noHpWarga}</Text>
             </View>
 
             <View style={styles.infoRow}>
@@ -385,12 +385,12 @@ export default function DetailWarga() {
 
           <View style={styles.rfidCard}>
             <View style={styles.rfidStatus}>
-              {(warga.rfidWarga || warga.rfidSantri) ? (
+              {warga.rfidWarga ? (
                 <View style={styles.rfidActive}>
                   <Text style={styles.rfidIcon}>✅</Text>
                   <View style={styles.rfidInfo}>
                     <Text style={styles.rfidLabel}>RFID Terpasang</Text>
-                    <Text style={styles.rfidCode}>{warga.rfidWarga || warga.rfidSantri}</Text>
+                    <Text style={styles.rfidCode}>{warga.rfidWarga}</Text>
                   </View>
                 </View>
               ) : (
@@ -437,7 +437,7 @@ export default function DetailWarga() {
                 />
               )}
 
-              {(warga.rfidWarga || warga.rfidSantri) && !isPairingActive && (
+              {warga.rfidWarga && !isPairingActive && (
                 <View style={styles.rfidManagement}>
                   <Button
                     title="🔄 Ganti RFID"

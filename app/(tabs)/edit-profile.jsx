@@ -29,8 +29,8 @@ export default function EditProfile() {
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    namaWarga: userProfile?.namaWarga || userProfile?.namaWali || "",
-    noHpWarga: userProfile?.noHpWarga || userProfile?.noHpWali || "",
+    namaWarga: userProfile?.namaWarga || "",
+    noHpWarga: userProfile?.noHpWarga || "",
     alamat: userProfile?.alamat || "",
   });
   const [errors, setErrors] = useState({});
@@ -179,25 +179,25 @@ export default function EditProfile() {
                   { color: colors.gray900, borderBottomColor: colors.primary },
                 ]}
               >
-                Informasi Wali Santri
+                Informasi Pribadi
               </Text>
 
               <Input
-                label="Nama Wali"
+                label="Nama Warga"
                 placeholder="Masukkan nama lengkap warga"
-                value={formData.namaWali}
-                onChangeText={(value) => updateFormData("namaWali", value)}
+                value={formData.namaWarga}
+                onChangeText={(value) => updateFormData("namaWarga", value)}
                 autoCapitalize="words"
-                error={errors.namaWali}
+                error={errors.namaWarga}
               />
 
               <Input
-                label="No HP Wali"
+                label="No HP Warga"
                 placeholder="Masukkan nomor HP warga"
-                value={formData.noHpWali}
-                onChangeText={(value) => updateFormData("noHpWali", value)}
+                value={formData.noHpWarga}
+                onChangeText={(value) => updateFormData("noHpWarga", value)}
                 keyboardType="phone-pad"
-                error={errors.noHpWali}
+                error={errors.noHpWarga}
               />
             </View>
 
@@ -208,16 +208,17 @@ export default function EditProfile() {
                   { color: colors.gray900, borderBottomColor: colors.primary },
                 ]}
               >
-                Informasi Santri
+                Informasi Alamat
               </Text>
 
               <Input
-                label="Nama Santri"
-                placeholder="Masukkan nama lengkap santri"
-                value={formData.namaSantri}
-                onChangeText={(value) => updateFormData("namaSantri", value)}
-                autoCapitalize="words"
-                error={errors.namaSantri}
+                label="Alamat"
+                placeholder="Masukkan alamat lengkap"
+                value={formData.alamat}
+                onChangeText={(value) => updateFormData("alamat", value)}
+                multiline
+                numberOfLines={3}
+                error={errors.alamat}
               />
 
               <View
@@ -227,7 +228,7 @@ export default function EditProfile() {
                 ]}
               >
                 <Text style={[styles.infoText, { color: colors.primary }]}>
-                  ℹ️ RFID santri hanya dapat diatur oleh admin TPQ
+                  ℹ️ RFID warga hanya dapat diatur oleh bendahara
                 </Text>
               </View>
             </View>

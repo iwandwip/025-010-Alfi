@@ -121,7 +121,7 @@ function AdminHome() {
     }
 
     Alert.alert(
-      "Generate Data Santri",
+      "Generate Data Warga",
       `Akan membuat ${count} akun warga baru:\n${emailList.join(
         ", "
       )}\n\nLanjutkan?`,
@@ -141,10 +141,10 @@ function AdminHome() {
                 let message = `✅ Berhasil membuat ${result.totalCreated} akun warga!\n\n`;
 
                 result.created.forEach((user, index) => {
-                  message += `${index + 1}. ${user.namaSantri}\n`;
+                  message += `${index + 1}. ${user.namaWarga}\n`;
                   message += `   Email: ${user.email}\n`;
-                  message += `   Wali: ${user.namaWali}\n`;
-                  message += `   RFID: ${user.rfidSantri}\n\n`;
+                  message += `   Warga: ${user.namaWarga}\n`;
+                  message += `   RFID: ${user.rfidWarga}\n\n`;
                 });
 
                 message += `Password semua akun: admin123`;
@@ -372,7 +372,7 @@ function AdminHome() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Generate Data Santri</Text>
+              <Text style={styles.modalTitle}>Generate Data Warga</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setSeederModalVisible(false)}
@@ -437,7 +437,7 @@ function AdminHome() {
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingModal}>
             <ActivityIndicator size="large" color="#ef4444" />
-            <Text style={styles.loadingTitle}>Generating Data Santri</Text>
+            <Text style={styles.loadingTitle}>Generating Data Warga</Text>
             <Text style={styles.loadingSubtitle}>
               Membuat {seederCount} akun dengan email sequential...
             </Text>

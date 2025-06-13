@@ -148,12 +148,7 @@ class SeederService {
             alamat: this.getRandomName(this.alamatList),
             noHpWarga: this.generateRandomPhone(),
             rfidWarga: this.generateRandomRFID(),
-            role: 'user',
-            // Backward compatibility
-            namaSantri: this.getRandomName(this.namaWargaList),
-            namaWali: this.getRandomName(this.namaWargaList),
-            noHpWali: this.generateRandomPhone(),
-            rfidSantri: this.generateRandomRFID()
+            role: 'user'
           };
 
           const result = await signUpWithEmail(email, password, profileData);

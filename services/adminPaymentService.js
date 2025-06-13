@@ -67,8 +67,8 @@ export const getAllUsersPaymentStatus = async () => {
     const usersWithPaymentStatus = await Promise.all(userPaymentPromises);
 
     usersWithPaymentStatus.sort((a, b) => {
-      if (a.namaSantri && b.namaSantri) {
-        return a.namaSantri.localeCompare(b.namaSantri);
+      if (a.namaWarga && b.namaWarga) {
+        return a.namaWarga.localeCompare(b.namaWarga);
       }
       return 0;
     });
@@ -94,10 +94,10 @@ export const getUserPaymentSummaryOptimized = async (userId, timeline) => {
           timeline.id, 
           'periods', 
           periodKey, 
-          'santri_payments'
+          'warga_payments'
         );
         
-        const q = query(paymentsRef, where('santriId', '==', userId));
+        const q = query(paymentsRef, where('wargaId', '==', userId));
         const querySnapshot = await getDocs(q);
         
         const period = timeline.periods[periodKey];
@@ -105,7 +105,7 @@ export const getUserPaymentSummaryOptimized = async (userId, timeline) => {
         if (querySnapshot.empty) {
           const payment = {
             id: `${userId}_${periodKey}`,
-            santriId: userId,
+            wargaId: userId,
             period: periodKey,
             amount: period.amount,
             dueDate: period.dueDate,
@@ -131,7 +131,7 @@ export const getUserPaymentSummaryOptimized = async (userId, timeline) => {
         const period = timeline.periods[periodKey];
         const payment = {
           id: `${userId}_${periodKey}`,
-          santriId: userId,
+          wargaId: userId,
           period: periodKey,
           amount: period.amount,
           dueDate: period.dueDate,
@@ -219,10 +219,10 @@ export const getUserDetailedPayments = async (userId) => {
           timeline.id, 
           'periods', 
           periodKey, 
-          'santri_payments'
+          'warga_payments'
         );
         
-        const q = query(paymentsRef, where('santriId', '==', userId));
+        const q = query(paymentsRef, where('wargaId', '==', userId));
         const querySnapshot = await getDocs(q);
         
         const period = timeline.periods[periodKey];
@@ -230,7 +230,7 @@ export const getUserDetailedPayments = async (userId) => {
         if (querySnapshot.empty) {
           const payment = {
             id: `${userId}_${periodKey}`,
-            santriId: userId,
+            wargaId: userId,
             period: periodKey,
             periodLabel: period.label,
             amount: period.amount,
@@ -263,7 +263,7 @@ export const getUserDetailedPayments = async (userId) => {
         const period = timeline.periods[periodKey];
         const payment = {
           id: `${userId}_${periodKey}`,
-          santriId: userId,
+          wargaId: userId,
           period: periodKey,
           periodLabel: period.label,
           amount: period.amount,
@@ -298,13 +298,13 @@ export const getUserDetailedPayments = async (userId) => {
   }
 };
 
-export const updateUserPaymentStatus = async (timelineId, periodKey, santriId, updateData) => {
+export const updateUserPaymentStatus = async (timelineId, periodKey, wargaId, updateData) => {
   try {
     if (!db) {
       throw new Error('Firestore belum diinisialisasi');
     }
 
-    if (!timelineId || !periodKey || !santriId) {
+    if (!timelineId || !periodKey || !wargaId) {
       throw new Error('Parameter tidak lengkap untuk update payment');
     }
 
@@ -314,8 +314,8 @@ export const updateUserPaymentStatus = async (timelineId, periodKey, santriId, u
       timelineId, 
       'periods', 
       periodKey, 
-      'santri_payments', 
-      santriId
+      'warga_payments', 
+      wargaId
     );
 
     const updatePayload = {
@@ -333,8 +333,8 @@ export const updateUserPaymentStatus = async (timelineId, periodKey, santriId, u
           
           if (period) {
             const newPaymentData = {
-              id: `${santriId}_${periodKey}`,
-              santriId: santriId,
+              id: `${wargaId}_${periodKey}`,
+              wargaId: wargaId,
               period: periodKey,
               periodLabel: period.label,
               amount: period.amount,
@@ -391,7 +391,7 @@ export const bulkUpdatePaymentStatus = async () => {
         timeline.id, 
         'periods', 
         periodKey, 
-        'santri_payments'
+        'warga_payments'
       );
       
       const querySnapshot = await getDocs(paymentsRef);

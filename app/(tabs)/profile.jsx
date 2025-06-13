@@ -94,7 +94,7 @@ function Profile() {
               </Text>
             </View>
             <Text style={[styles.nameText, { color: colors.gray900 }]}>
-              {userProfile?.namaWarga || userProfile?.namaWali || "Nama Warga"}
+              {userProfile?.namaWarga || "Nama Warga"}
             </Text>
             <Text style={[styles.roleText, { color: colors.gray600 }]}>
               Warga
@@ -126,7 +126,7 @@ function Profile() {
                     Nama Warga:
                   </Text>
                   <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.namaWarga || userProfile.namaWali}
+                    {userProfile.namaWarga}
                   </Text>
                 </View>
 
@@ -140,7 +140,7 @@ function Profile() {
                     No HP:
                   </Text>
                   <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.noHpWarga || userProfile.noHpWali}
+                    {userProfile.noHpWarga}
                   </Text>
                 </View>
 
@@ -199,17 +199,17 @@ function Profile() {
                     style={[
                       styles.value,
                       {
-                        color: (userProfile.rfidWarga || userProfile.rfidSantri)
+                        color: (userProfile.rfidWarga || userProfile.rfidWarga)
                           ? colors.success
                           : colors.error,
                       },
                     ]}
                   >
-                    {(userProfile.rfidWarga || userProfile.rfidSantri) ? "Terpasang" : "Belum Terpasang"}
+                    {(userProfile.rfidWarga || userProfile.rfidWarga) ? "Terpasang" : "Belum Terpasang"}
                   </Text>
                 </View>
 
-                {userProfile.rfidSantri && (
+                {userProfile.rfidWarga && (
                   <View
                     style={[
                       styles.profileRow,
@@ -226,7 +226,7 @@ function Profile() {
                         { color: colors.gray900 },
                       ]}
                     >
-                      {userProfile.rfidSantri}
+                      {userProfile.rfidWarga}
                     </Text>
                   </View>
                 )}

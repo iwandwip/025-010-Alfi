@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getWaliPaymentHistory } from './waliPaymentService';
+import { getWargaPaymentHistory } from './wargaPaymentService';
 import { getAllUsersPaymentStatus } from './adminPaymentService';
 import { getActiveTimeline } from './timelineService';
 
@@ -95,7 +95,7 @@ class PaymentStatusManager {
       this.isUpdating.add(key);
       console.log(`Updating payment status for user ${userId} (source: ${source})`);
 
-      const result = await getWaliPaymentHistory(userId);
+      const result = await getWargaPaymentHistory(userId);
       
       if (result.success) {
         this.setCache(key, result);

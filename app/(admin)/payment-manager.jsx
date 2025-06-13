@@ -91,7 +91,7 @@ export default function PaymentManager() {
     const result = await updatePaymentStatus(
       timeline.id,
       selectedPeriod,
-      payment.wargaId || payment.santriId,
+      payment.wargaId || payment.wargaId,
       updateData
     );
 
@@ -108,7 +108,7 @@ export default function PaymentManager() {
   const handleMarkAsPaid = (payment) => {
     Alert.alert(
       "Tandai Lunas",
-      `Tandai setoran ${payment.wargaName || payment.santriName} sebagai lunas?`,
+      `Tandai setoran ${payment.wargaName || payment.wargaName} sebagai lunas?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -126,7 +126,7 @@ export default function PaymentManager() {
   const handleMarkAsUnpaid = (payment) => {
     Alert.alert(
       "Tandai Belum Bayar",
-      `Tandai setoran ${payment.wargaName || payment.santriName} sebagai belum bayar?`,
+      `Tandai setoran ${payment.wargaName || payment.wargaName} sebagai belum bayar?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -219,8 +219,8 @@ export default function PaymentManager() {
     <View style={styles.paymentCard}>
       <View style={styles.paymentHeader}>
         <View style={styles.wargaInfo}>
-          <Text style={styles.wargaName}>{item.wargaName || item.santriName}</Text>
-          <Text style={styles.alamatName}>Alamat: {item.alamat || item.waliName}</Text>
+          <Text style={styles.wargaName}>{item.wargaName || item.wargaName}</Text>
+          <Text style={styles.alamatName}>Alamat: {item.alamat}</Text>
         </View>
         <View
           style={[

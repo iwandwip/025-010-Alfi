@@ -60,7 +60,7 @@ export default function RoleSelection() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.roleCard, styles.waliCard]}
+            style={[styles.roleCard, styles.wargaCard]}
             onPress={handleWargaPress}
             activeOpacity={0.8}
           >
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   adminCard: {
     borderColor: "#3b82f6",
   },
-  waliCard: {
+  wargaCard: {
     borderColor: "#10b981",
   },
   roleIcon: {

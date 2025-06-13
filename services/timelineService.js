@@ -11,6 +11,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { getAllWarga } from './userService';
 
 export const createTimelineTemplate = async (templateData) => {
   try {
@@ -168,14 +169,14 @@ export const deleteActiveTimeline = async (deletePaymentData = false) => {
     const batch = writeBatch(db);
 
     if (deletePaymentData) {
-      // Delete all payment data for this timeline including santri payments
+      // Delete all payment data for this timeline including warga payments
       for (const periodKey of Object.keys(timeline.periods)) {
-        // Get all santri payments for this period
-        const santriPaymentsRef = collection(db, 'payments', timeline.id, 'periods', periodKey, 'santri_payments');
-        const santriSnapshot = await getDocs(santriPaymentsRef);
+        // Get all warga payments for this period
+        const wargaPaymentsRef = collection(db, 'payments', timeline.id, 'periods', periodKey, 'warga_payments');
+        const wargaSnapshot = await getDocs(wargaPaymentsRef);
         
-        // Delete each santri payment
-        santriSnapshot.docs.forEach(doc => {
+        // Delete each warga payment
+        wargaSnapshot.docs.forEach(doc => {
           batch.delete(doc.ref);
         });
         
@@ -235,26 +236,25 @@ export const generatePaymentsForTimeline = async (timelineId) => {
     }
 
     const timeline = timelineResult.timeline;
-    const santriResult = await getAllSantri();
-    if (!santriResult.success) {
-      throw new Error('Gagal mengambil data santri');
+    const wargaResult = await getAllWarga();
+    if (!wargaResult.success) {
+      throw new Error('Gagal mengambil data warga');
     }
 
     const batch = writeBatch(db);
-    const santriList = santriResult.data;
+    const wargaList = wargaResult.data;
 
     Object.keys(timeline.periods).forEach(periodKey => {
       const period = timeline.periods[periodKey];
       if (period.active) {
-        santriList.forEach(santri => {
-          const paymentId = `${santri.id}_${periodKey}`;
-          const paymentRef = doc(db, 'payments', timelineId, 'periods', periodKey, 'santri_payments', santri.id);
+        wargaList.forEach(warga => {
+          const paymentId = `${warga.id}_${periodKey}`;
+          const paymentRef = doc(db, 'payments', timelineId, 'periods', periodKey, 'warga_payments', warga.id);
           
           const paymentData = {
             id: paymentId,
-            santriId: santri.id,
-            santriName: santri.namaSantri,
-            wargaName: santri.namaWarga || santri.namaSantri,
+            wargaId: warga.id,
+            wargaName: warga.namaWarga,
             period: periodKey,
             periodLabel: period.label,
             amount: period.amount,
@@ -286,7 +286,7 @@ export const getPaymentsByPeriod = async (timelineId, periodKey) => {
       return { success: true, payments: [] };
     }
 
-    const paymentsRef = collection(db, 'payments', timelineId, 'periods', periodKey, 'santri_payments');
+    const paymentsRef = collection(db, 'payments', timelineId, 'periods', periodKey, 'warga_payments');
     const querySnapshot = await getDocs(paymentsRef);
     
     const payments = [];
@@ -304,13 +304,13 @@ export const getPaymentsByPeriod = async (timelineId, periodKey) => {
   }
 };
 
-export const updatePaymentStatus = async (timelineId, periodKey, santriId, updateData) => {
+export const updatePaymentStatus = async (timelineId, periodKey, wargaId, updateData) => {
   try {
     if (!db) {
       throw new Error('Firestore belum diinisialisasi');
     }
 
-    const paymentRef = doc(db, 'payments', timelineId, 'periods', periodKey, 'santri_payments', santriId);
+    const paymentRef = doc(db, 'payments', timelineId, 'periods', periodKey, 'warga_payments', wargaId);
     const updatePayload = {
       ...updateData,
       updatedAt: new Date()
@@ -431,27 +431,3 @@ const calculateDueDate = (type, periodNumber, startDate) => {
   return dueDate.toISOString();
 };
 
-const getAllSantri = async () => {
-  try {
-    if (!db) {
-      return { success: true, data: [] };
-    }
-
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('role', '==', 'user'));
-    const querySnapshot = await getDocs(q);
-    
-    const santriList = [];
-    querySnapshot.forEach((doc) => {
-      santriList.push({
-        id: doc.id,
-        ...doc.data()
-      });
-    });
-
-    return { success: true, data: santriList };
-  } catch (error) {
-    console.error('Error getting santri data:', error);
-    return { success: false, error: error.message, data: [] };
-  }
-};

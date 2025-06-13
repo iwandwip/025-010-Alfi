@@ -37,6 +37,13 @@ export default function TambahWarga() {
       Alert.alert("Error", "Email warga wajib diisi");
       return false;
     }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.emailWarga.trim())) {
+      Alert.alert("Error", "Format email tidak valid");
+      return false;
+    }
+    
     if (!formData.passwordWarga.trim()) {
       Alert.alert("Error", "Password warga wajib diisi");
       return false;

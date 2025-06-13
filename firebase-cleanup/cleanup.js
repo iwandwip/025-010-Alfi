@@ -15,6 +15,7 @@ const db = admin.firestore();
 const auth = admin.auth();
 
 const PROTECTED_EMAILS = [
+  'bendahara@gmail.com',
   'admin@gmail.com'
 ];
 
@@ -69,10 +70,10 @@ async function getPaymentData(timelineId) {
   const allPayments = [];
   
   for (const periodDoc of periodsSnapshot.docs) {
-    const santriPaymentsRef = periodDoc.ref.collection('santri_payments');
-    const santriSnapshot = await santriPaymentsRef.get();
+    const wargaPaymentsRef = periodDoc.ref.collection('warga_payments');
+    const wargaSnapshot = await wargaPaymentsRef.get();
     
-    santriSnapshot.forEach(doc => {
+    wargaSnapshot.forEach(doc => {
       allPayments.push({
         path: doc.ref.path,
         data: doc.data()
@@ -102,7 +103,7 @@ async function getAllRelatedData() {
       
       const paymentData = await getPaymentData(timelineDoc.data().id);
       relatedData.payments = paymentData.filter(payment => 
-        userIds.includes(payment.data.santriId)
+        userIds.includes(payment.data.wargaId)
       );
     }
   } catch (error) {
@@ -125,7 +126,7 @@ async function getAllRelatedData() {
   try {
     const pairingSnapshot = await db.collection('rfid_pairing').get();
     pairingSnapshot.forEach(doc => {
-      if (userIds.includes(doc.data().santriId)) {
+      if (userIds.includes(doc.data().wargaId)) {
         relatedData.pairing.push({
           id: doc.id,
           path: doc.ref.path,
@@ -165,7 +166,7 @@ async function showDryRun(deleteOptions) {
       console.log('  Tidak ada user firestore yang akan dihapus\n');
     } else {
       relatedData.users.forEach((user, index) => {
-        console.log(`  ${index + 1}. ${user.email} (${user.namaSantri || 'No Name'})`);
+        console.log(`  ${index + 1}. ${user.email} (${user.namaWarga || 'No Name'})`);
       });
       console.log('');
     }

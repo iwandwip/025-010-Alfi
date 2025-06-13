@@ -36,9 +36,9 @@ export default function EditWarga() {
     if (result.success) {
       const warga = result.profile;
       setFormData({
-        namaWarga: warga.namaWarga || warga.namaSantri || "",
+        namaWarga: warga.namaWarga || "",
         alamat: warga.alamat || "",
-        noHpWarga: warga.noHpWarga || warga.noHpWali || "",
+        noHpWarga: warga.noHpWarga || "",
         email: warga.email || "",
       });
     } else {
@@ -129,7 +129,7 @@ export default function EditWarga() {
           >
             <Text style={styles.backButtonText}>← Batal</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Data Santri</Text>
+          <Text style={styles.headerTitle}>Edit Data Warga</Text>
         </View>
         <View style={styles.loadingContainer}>
           <LoadingSpinner text="Memuat data warga..." />
@@ -151,7 +151,7 @@ export default function EditWarga() {
           >
             <Text style={styles.backButtonText}>← Batal</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Data Santri</Text>
+          <Text style={styles.headerTitle}>Edit Data Warga</Text>
         </View>
 
         <ScrollView
@@ -170,38 +170,34 @@ export default function EditWarga() {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Data Santri</Text>
+              <Text style={styles.sectionTitle}>Data Warga</Text>
 
               <Input
-                label="Nama Santri"
+                label="Nama Warga"
                 placeholder="Masukkan nama lengkap warga"
-                value={formData.namaSantri}
-                onChangeText={(value) => updateForm("namaSantri", value)}
-                autoCapitalize="words"
-              />
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Data Wali Santri</Text>
-
-              <Input
-                label="Nama Wali"
-                placeholder="Masukkan nama lengkap warga"
-                value={formData.namaWali}
-                onChangeText={(value) => updateForm("namaWali", value)}
+                value={formData.namaWarga}
+                onChangeText={(value) => updateForm("namaWarga", value)}
                 autoCapitalize="words"
               />
 
               <Input
-                label="No HP Wali"
+                label="Alamat"
+                placeholder="Masukkan alamat lengkap warga"
+                value={formData.alamat}
+                onChangeText={(value) => updateForm("alamat", value)}
+                autoCapitalize="words"
+              />
+
+              <Input
+                label="No HP Warga"
                 placeholder="Masukkan nomor HP warga"
-                value={formData.noHpWali}
-                onChangeText={(value) => updateForm("noHpWali", value)}
+                value={formData.noHpWarga}
+                onChangeText={(value) => updateForm("noHpWarga", value)}
                 keyboardType="phone-pad"
               />
 
               <Input
-                label="Email Wali"
+                label="Email Warga"
                 placeholder="Masukkan email untuk login warga"
                 value={formData.email}
                 onChangeText={(value) => updateForm("email", value)}

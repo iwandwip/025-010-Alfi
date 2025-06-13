@@ -63,14 +63,14 @@ export default function DaftarWarga() {
       activeOpacity={0.8}
     >
       <View style={styles.wargaInfo}>
-        <Text style={styles.namaWarga}>{item.namaWarga || item.namaSantri}</Text>
+        <Text style={styles.namaWarga}>{item.namaWarga}</Text>
         <Text style={styles.emailWarga}>{item.email}</Text>
         <Text style={styles.alamat}>Alamat: {item.alamat || 'Belum diisi'}</Text>
-        <Text style={styles.noHp}>HP: {item.noHp || item.noHpWali}</Text>
+        <Text style={styles.noHp}>HP: {item.noHpWarga}</Text>
       </View>
 
       <View style={styles.rfidSection}>
-        {item.rfidWarga || item.rfidSantri ? (
+        {item.rfidWarga ? (
           <View style={styles.rfidActive}>
             <Text style={styles.rfidLabel}>RFID</Text>
             <Text style={styles.rfidValue}>✓ Terpasang</Text>
@@ -114,7 +114,7 @@ export default function DaftarWarga() {
         >
           <Text style={styles.backButtonText}>← Kembali</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Daftar Santri</Text>
+        <Text style={styles.headerTitle}>Daftar Warga</Text>
       </View>
 
       <View style={styles.content}>
@@ -123,8 +123,8 @@ export default function DaftarWarga() {
             Total Warga: {wargaList.length}
           </Text>
           <Text style={styles.statsSubtext}>
-            RFID Terpasang: {wargaList.filter((w) => w.rfidWarga || w.rfidSantri).length} |
-            Belum: {wargaList.filter((w) => !w.rfidWarga && !w.rfidSantri).length}
+            RFID Terpasang: {wargaList.filter((w) => w.rfidWarga).length} |
+            Belum: {wargaList.filter((w) => !w.rfidWarga).length}
           </Text>
         </View>
 

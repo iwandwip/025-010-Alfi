@@ -39,15 +39,10 @@ export const createUserProfile = async (uid, profileData) => {
       userProfile.nama = profileData.nama;
       userProfile.noHp = profileData.noHp;
     } else if (profileData.role === 'user') {
-      userProfile.namaWarga = profileData.namaWarga || profileData.namaSantri;
+      userProfile.namaWarga = profileData.namaWarga;
       userProfile.alamat = profileData.alamat;
-      userProfile.noHpWarga = profileData.noHpWarga || profileData.noHpWali;
-      userProfile.rfidWarga = profileData.rfidWarga || profileData.rfidSantri || "";
-      // Keep old fields for backward compatibility
-      userProfile.namaSantri = profileData.namaSantri;
-      userProfile.namaWali = profileData.namaWali;
-      userProfile.noHpWali = profileData.noHpWali;
-      userProfile.rfidSantri = profileData.rfidSantri || "";
+      userProfile.noHpWarga = profileData.noHpWarga;
+      userProfile.rfidWarga = profileData.rfidWarga || "";
     }
 
     await setDoc(doc(db, 'users', uid), userProfile);
@@ -132,14 +127,13 @@ export const getAllWarga = async () => {
       wargaList.push({
         id: doc.id,
         ...data,
-        // Ensure compatibility with old and new field names
-        namaWarga: data.namaWarga || data.namaSantri,
-        noHpWarga: data.noHpWarga || data.noHpWali,
-        rfidWarga: data.rfidWarga || data.rfidSantri
+        namaWarga: data.namaWarga,
+        noHpWarga: data.noHpWarga,
+        rfidWarga: data.rfidWarga
       });
     });
 
-    wargaList.sort((a, b) => (a.namaWarga || a.namaSantri).localeCompare(b.namaWarga || b.namaSantri));
+    wargaList.sort((a, b) => a.namaWarga.localeCompare(b.namaWarga));
 
     return { success: true, data: wargaList };
   } catch (error) {
@@ -148,90 +142,90 @@ export const getAllWarga = async () => {
   }
 };
 
-export const updateSantriRFID = async (santriId, rfidCode) => {
+export const updateWargaRFID = async (wargaId, rfidCode) => {
   try {
     if (!db) {
       throw new Error('Firestore belum diinisialisasi');
     }
 
-    const santriRef = doc(db, 'users', santriId);
-    await updateDoc(santriRef, {
-      rfidSantri: rfidCode,
+    const wargaRef = doc(db, 'users', wargaId);
+    await updateDoc(wargaRef, {
+      rfidWarga: rfidCode,
       updatedAt: new Date()
     });
 
-    console.log('RFID santri berhasil diupdate');
+    console.log('RFID warga berhasil diupdate');
     return { success: true };
   } catch (error) {
-    console.error('Error update RFID santri:', error);
+    console.error('Error update RFID warga:', error);
     return { success: false, error: error.message };
   }
 };
 
-export const deleteSantriRFID = async (santriId) => {
+export const deleteWargaRFID = async (wargaId) => {
   try {
     if (!db) {
       throw new Error('Firestore belum diinisialisasi');
     }
 
-    const santriRef = doc(db, 'users', santriId);
-    await updateDoc(santriRef, {
-      rfidSantri: null,
+    const wargaRef = doc(db, 'users', wargaId);
+    await updateDoc(wargaRef, {
+      rfidWarga: null,
       updatedAt: new Date()
     });
 
-    console.log('RFID santri berhasil dihapus');
+    console.log('RFID warga berhasil dihapus');
     return { success: true };
   } catch (error) {
-    console.error('Error menghapus RFID santri:', error);
+    console.error('Error menghapus RFID warga:', error);
     return { success: false, error: error.message };
   }
 };
 
-export const deleteSantri = async (santriId) => {
+export const deleteWarga = async (wargaId) => {
   try {
     if (!db) {
       throw new Error('Firestore belum diinisialisasi');
     }
 
-    const userRef = doc(db, 'users', santriId);
+    const userRef = doc(db, 'users', wargaId);
     const userDoc = await getDoc(userRef);
     
     if (!userDoc.exists()) {
-      throw new Error('Data santri tidak ditemukan');
+      throw new Error('Data warga tidak ditemukan');
     }
 
     const userData = userDoc.data();
     
     if (userData.deleted) {
-      throw new Error('Santri sudah dihapus sebelumnya');
+      throw new Error('Warga sudah dihapus sebelumnya');
     }
 
     await deleteDoc(userRef);
 
-    console.log('Data santri berhasil dihapus dari Firestore');
+    console.log('Data warga berhasil dihapus dari Firestore');
 
     return { 
       success: true, 
-      message: 'Data santri berhasil dihapus dari Firestore. Akun login tetap ada di sistem tapi tidak bisa digunakan.'
+      message: 'Data warga berhasil dihapus dari Firestore. Akun login tetap ada di sistem tapi tidak bisa digunakan.'
     };
   } catch (error) {
-    console.error('Error menghapus santri:', error);
+    console.error('Error menghapus warga:', error);
     return { success: false, error: error.message };
   }
 };
 
-export const restoreSantri = async (santriId) => {
+export const restoreWarga = async (wargaId) => {
   try {
     if (!db) {
       throw new Error('Firestore belum diinisialisasi');
     }
 
-    const userRef = doc(db, 'users', santriId);
+    const userRef = doc(db, 'users', wargaId);
     const userDoc = await getDoc(userRef);
     
     if (!userDoc.exists()) {
-      throw new Error('Data santri tidak ditemukan');
+      throw new Error('Data warga tidak ditemukan');
     }
 
     await updateDoc(userRef, {
@@ -243,15 +237,15 @@ export const restoreSantri = async (santriId) => {
       updatedAt: new Date()
     });
 
-    console.log('Data santri berhasil dipulihkan');
+    console.log('Data warga berhasil dipulihkan');
     return { success: true };
   } catch (error) {
-    console.error('Error memulihkan santri:', error);
+    console.error('Error memulihkan warga:', error);
     return { success: false, error: error.message };
   }
 };
 
-export const getDeletedSantri = async () => {
+export const getDeletedWarga = async () => {
   try {
     if (!db) {
       return { success: true, data: [] };
@@ -265,24 +259,22 @@ export const getDeletedSantri = async () => {
     );
     const querySnapshot = await getDocs(q);
     
-    const deletedSantriList = [];
+    const deletedWargaList = [];
     querySnapshot.forEach((doc) => {
-      deletedSantriList.push({
+      deletedWargaList.push({
         id: doc.id,
         ...doc.data()
       });
     });
 
-    deletedSantriList.sort((a, b) => 
+    deletedWargaList.sort((a, b) => 
       new Date(b.deletedAt) - new Date(a.deletedAt)
     );
 
-    return { success: true, data: deletedSantriList };
+    return { success: true, data: deletedWargaList };
   } catch (error) {
-    console.error('Error mengambil data santri terhapus:', error);
+    console.error('Error mengambil data warga terhapus:', error);
     return { success: false, error: error.message, data: [] };
   }
 };
 
-// Backward compatibility alias
-export const getAllSantri = getAllWarga;

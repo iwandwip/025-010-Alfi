@@ -22,12 +22,12 @@ import CreditBalance from "../../components/ui/CreditBalance";
 import { formatDate } from "../../utils/dateUtils";
 import { paymentStatusManager } from "../../services/paymentStatusManager";
 import {
-  getWaliPaymentHistory,
+  getWargaPaymentHistory,
   getPaymentSummary,
-  updateWaliPaymentStatus,
+  updateWargaPaymentStatus,
   getCreditBalance,
   processPaymentWithCredit,
-} from "../../services/waliPaymentService";
+} from "../../services/wargaPaymentService";
 
 function StatusSetoran() {
   const { userProfile } = useAuth();
@@ -74,7 +74,7 @@ function StatusSetoran() {
           setTimeline(result.data.timeline);
           setSummary(getPaymentSummary(result.data.payments || []));
         } else {
-          const fallbackResult = await getWaliPaymentHistory(userProfile.id);
+          const fallbackResult = await getWargaPaymentHistory(userProfile.id);
           if (fallbackResult.success) {
             setPayments(fallbackResult.payments);
             setTimeline(fallbackResult.timeline);
@@ -558,11 +558,11 @@ function StatusSetoran() {
           ]}
         >
           <Text style={[styles.title, { color: colors.gray900 }]}>
-            Status Pembayaran Bisyaroh
+            Status Setoran Jimpitan
           </Text>
           {userProfile && (
             <Text style={[styles.subtitle, { color: colors.gray600 }]}>
-              Santri: {userProfile.namaSantri}
+              Warga: {userProfile.namaWarga}
             </Text>
           )}
         </View>
@@ -591,11 +591,11 @@ function StatusSetoran() {
         ]}
       >
         <Text style={[styles.title, { color: colors.gray900 }]}>
-          Status Pembayaran Bisyaroh
+          Status Setoran Jimpitan
         </Text>
         {userProfile && (
           <Text style={[styles.subtitle, { color: colors.gray600 }]}>
-            Santri: {userProfile.namaSantri}
+            Warga: {userProfile.namaWarga}
           </Text>
         )}
         {timeline && (

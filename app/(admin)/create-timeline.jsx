@@ -478,7 +478,7 @@ export default function CreateTimeline() {
 
               <Input
                 label="Nama Timeline"
-                placeholder="Contoh: TPQ Reguler 2024"
+                placeholder="Contoh: Jimpitan Reguler 2024"
                 value={formData.name}
                 onChangeText={(value) => updateFormData("name", value)}
               />

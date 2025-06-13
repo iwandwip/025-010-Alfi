@@ -113,8 +113,8 @@ function PaymentStatus() {
     }
     return users.filter(
       (user) =>
-        user.namaSantri?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.namaWali?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.namaWarga?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.namaWarga?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery, users]);
@@ -125,7 +125,7 @@ function PaymentStatus() {
         pathname: "/(admin)/user-payment-detail",
         params: {
           userId: user.id,
-          userName: user.namaSantri || "Santri",
+          userName: user.namaWarga || "Warga",
           timelineId: timeline?.id,
         },
       });
@@ -172,10 +172,10 @@ function PaymentStatus() {
         <View style={styles.userHeader}>
           <View style={styles.userInfo}>
             <Text style={[styles.userName, { color: colors.gray900 }]}>
-              {user.namaSantri || "Nama Santri"}
+              {user.namaWarga || "Nama Warga"}
             </Text>
             <Text style={[styles.parentName, { color: colors.gray600 }]}>
-              Wali: {user.namaWali || "Nama Wali"}
+              Warga: {user.namaWarga || "Nama Warga"}
             </Text>
             <Text style={[styles.userEmail, { color: colors.gray500 }]}>
               {user.email}
@@ -308,11 +308,11 @@ function PaymentStatus() {
       <View style={styles.emptyContainer}>
         <Text style={[styles.emptyIcon, { color: colors.gray400 }]}>👥</Text>
         <Text style={[styles.emptyText, { color: colors.gray600 }]}>
-          {timeline ? "Belum ada data santri" : "Belum ada timeline aktif"}
+          {timeline ? "Belum ada data warga" : "Belum ada timeline aktif"}
         </Text>
         <Text style={[styles.emptySubtext, { color: colors.gray500 }]}>
           {timeline
-            ? "Data santri akan muncul setelah ada yang mendaftar"
+            ? "Data warga akan muncul setelah ada yang mendaftar"
             : "Buat timeline terlebih dahulu"}
         </Text>
       </View>
@@ -325,7 +325,7 @@ function PaymentStatus() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles.loadingText, { color: colors.gray600 }]}>
-          Memuat data pembayaran santri...
+          Memuat data setoran warga...
         </Text>
       </View>
     ),
@@ -360,7 +360,7 @@ function PaymentStatus() {
             </Text>
           </TouchableOpacity>
           <Text style={[styles.title, { color: colors.gray900 }]}>
-            Status Pembayaran Santri
+            Status Pembayaran Warga
           </Text>
         </View>
         {renderLoadingState()}
@@ -390,7 +390,7 @@ function PaymentStatus() {
           </Text>
         </TouchableOpacity>
         <Text style={[styles.title, { color: colors.gray900 }]}>
-          Status Pembayaran Santri
+          Status Pembayaran Warga
         </Text>
         {timeline && (
           <Text style={[styles.subtitle, { color: colors.gray600 }]}>

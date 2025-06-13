@@ -21,18 +21,18 @@ const isCacheValid = () => {
   return cacheTimestamp && (Date.now() - cacheTimestamp) < CACHE_DURATION;
 };
 
-export const getWaliPaymentHistory = async (santriId) => {
+export const getWargaPaymentHistory = async (wargaId) => {
   try {
     if (!db) {
       return { success: true, payments: [], timeline: null };
     }
 
-    if (!santriId) {
-      return { success: false, error: 'Santri ID tidak ditemukan', payments: [], timeline: null };
+    if (!wargaId) {
+      return { success: false, error: 'Warga ID tidak ditemukan', payments: [], timeline: null };
     }
 
     let timeline;
-    const cacheKey = santriId;
+    const cacheKey = wargaId;
 
     if (isCacheValid() && cachedTimeline && cachedPayments.has(cacheKey)) {
       return {
@@ -65,18 +65,18 @@ export const getWaliPaymentHistory = async (santriId) => {
           timeline.id, 
           'periods', 
           periodKey, 
-          'santri_payments'
+          'warga_payments'
         );
         
-        const q = query(paymentsRef, where('santriId', '==', santriId));
+        const q = query(paymentsRef, where('wargaId', '==', wargaId));
         const querySnapshot = await getDocs(q);
         
         const period = timeline.periods[periodKey];
         
         if (querySnapshot.empty) {
           const payment = {
-            id: `${santriId}_${periodKey}`,
-            santriId: santriId,
+            id: `${wargaId}_${periodKey}`,
+            wargaId: wargaId,
             period: periodKey,
             periodLabel: period.label,
             amount: period.amount,
@@ -111,8 +111,8 @@ export const getWaliPaymentHistory = async (santriId) => {
         console.warn(`Error loading period ${periodKey}:`, periodError);
         const period = timeline.periods[periodKey];
         const payment = {
-          id: `${santriId}_${periodKey}`,
-          santriId: santriId,
+          id: `${wargaId}_${periodKey}`,
+          wargaId: wargaId,
           period: periodKey,
           periodLabel: period.label,
           amount: period.amount,
@@ -148,18 +148,18 @@ export const getWaliPaymentHistory = async (santriId) => {
 
     return { success: true, payments: allPayments, timeline };
   } catch (error) {
-    console.error('Error getting wali payment history:', error);
+    console.error('Error getting warga payment history:', error);
     return { success: false, error: error.message, payments: [], timeline: null };
   }
 };
 
-export const updateWaliPaymentStatus = async (timelineId, periodKey, santriId, updateData) => {
+export const updateWargaPaymentStatus = async (timelineId, periodKey, wargaId, updateData) => {
   try {
     if (!db) {
       throw new Error('Firestore belum diinisialisasi');
     }
 
-    if (!timelineId || !periodKey || !santriId) {
+    if (!timelineId || !periodKey || !wargaId) {
       throw new Error('Parameter tidak lengkap untuk update payment');
     }
 
@@ -169,8 +169,8 @@ export const updateWaliPaymentStatus = async (timelineId, periodKey, santriId, u
       timelineId, 
       'periods', 
       periodKey, 
-      'santri_payments', 
-      santriId
+      'warga_payments', 
+      wargaId
     );
 
     const updatePayload = {
@@ -188,8 +188,8 @@ export const updateWaliPaymentStatus = async (timelineId, periodKey, santriId, u
           
           if (period) {
             const newPaymentData = {
-              id: `${santriId}_${periodKey}`,
-              santriId: santriId,
+              id: `${wargaId}_${periodKey}`,
+              wargaId: wargaId,
               period: periodKey,
               periodLabel: period.label,
               amount: period.amount,
@@ -210,12 +210,12 @@ export const updateWaliPaymentStatus = async (timelineId, periodKey, santriId, u
       }
     }
 
-    cachedPayments.delete(santriId);
+    cachedPayments.delete(wargaId);
     cacheTimestamp = null;
 
     return { success: true };
   } catch (error) {
-    console.error('Error updating wali payment status:', error);
+    console.error('Error updating warga payment status:', error);
     return { success: false, error: error.message };
   }
 };
@@ -246,13 +246,13 @@ export const getPaymentSummary = (payments) => {
   };
 };
 
-export const getCreditBalance = async (santriId) => {
+export const getCreditBalance = async (wargaId) => {
   try {
-    if (!db || !santriId) {
+    if (!db || !wargaId) {
       return { success: false, creditBalance: 0 };
     }
 
-    const userDoc = await doc(db, 'users', santriId);
+    const userDoc = await doc(db, 'users', wargaId);
     const userData = await getDoc(userDoc);
     
     if (userData.exists()) {
@@ -270,13 +270,13 @@ export const getCreditBalance = async (santriId) => {
   }
 };
 
-export const updateCreditBalance = async (santriId, newBalance) => {
+export const updateCreditBalance = async (wargaId, newBalance) => {
   try {
-    if (!db || !santriId) {
+    if (!db || !wargaId) {
       throw new Error('Parameter tidak lengkap');
     }
 
-    const userRef = doc(db, 'users', santriId);
+    const userRef = doc(db, 'users', wargaId);
     await updateDoc(userRef, {
       creditBalance: newBalance,
       updatedAt: new Date()
@@ -323,19 +323,19 @@ export const applyCreditToPayments = (payments, creditBalance) => {
   };
 };
 
-export const processPaymentWithCredit = async (timelineId, periodKey, santriId, paymentAmount, paymentMethod) => {
+export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, paymentAmount, paymentMethod) => {
   try {
-    if (!db || !timelineId || !periodKey || !santriId || !paymentAmount) {
+    if (!db || !timelineId || !periodKey || !wargaId || !paymentAmount) {
       throw new Error('Parameter tidak lengkap');
     }
 
-    const creditResult = await getCreditBalance(santriId);
+    const creditResult = await getCreditBalance(wargaId);
     if (!creditResult.success) {
       throw new Error('Gagal mengambil saldo credit');
     }
 
     const currentCredit = creditResult.creditBalance;
-    const paymentHistory = await getWaliPaymentHistory(santriId);
+    const paymentHistory = await getWargaPaymentHistory(wargaId);
     
     if (!paymentHistory.success) {
       throw new Error('Gagal mengambil riwayat pembayaran');
@@ -383,12 +383,12 @@ export const processPaymentWithCredit = async (timelineId, periodKey, santriId, 
       notes: creditApplied > 0 ? `Credit applied: ${creditApplied}` : ''
     };
 
-    const paymentResult = await updateWaliPaymentStatus(timelineId, periodKey, santriId, updateData);
+    const paymentResult = await updateWargaPaymentStatus(timelineId, periodKey, wargaId, updateData);
     if (!paymentResult.success) {
       throw new Error('Gagal update status pembayaran');
     }
 
-    const creditUpdateResult = await updateCreditBalance(santriId, newCreditBalance);
+    const creditUpdateResult = await updateCreditBalance(wargaId, newCreditBalance);
     if (!creditUpdateResult.success) {
       throw new Error('Gagal update saldo credit');
     }
@@ -408,7 +408,7 @@ export const processPaymentWithCredit = async (timelineId, periodKey, santriId, 
   }
 };
 
-export const clearWaliCache = () => {
+export const clearWargaCache = () => {
   cachedPayments.clear();
   cachedTimeline = null;
   cacheTimestamp = null;
