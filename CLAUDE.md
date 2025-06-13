@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Overview
+
+**Alfi App** is a sophisticated React Native application built with Expo that serves as a "Sistem Pengelolaan Jimpitan Warga" (community savings management system). It integrates mobile app functionality with ESP32 hardware and uses K-Nearest Neighbors algorithms for intelligent payment processing.
+
 ## Development Commands
 
 ### App Development
@@ -16,10 +20,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm test` - Run ESP32 simulator test (testing/esp32-simulator.js)
 - `npm run cleanup` - Run Firebase cleanup script
 
-## Architecture Overview
+## Tech Stack
 
-### Project Type
-React Native app with Expo Router using Firebase backend, designed for "Sistem Pengelolaan Jimpitan Warga" (community savings management) with ESP32 hardware integration and K-Nearest Neighbors algorithm.
+### Frontend
+- **React Native** (0.79.3) with **Expo SDK 53**
+- **Expo Router** for file-based routing
+- **React Navigation** for navigation management
+- **React Context** pattern for state management
+- **Firebase** (v10.14.0) for backend services
+
+### Key Dependencies
+- **@react-native-async-storage/async-storage** (2.1.2) - Persistent storage
+- **firebase** (10.14.0) + **firebase-admin** (13.4.0) - Backend services
+- **expo-router** (5.0.7) - File-based routing
+- **react-native-svg** (15.11.2) - SVG illustrations
+- **jspdf & jspdf-autotable** - PDF export functionality
+- **xlsx** (0.18.5) - Excel export capabilities
+- **inquirer** (12.6.3) - CLI interactions for utilities
+- **react-native-chart-kit** (6.12.0) - Data visualization
+
+### Hardware Integration
+- **ESP32 firmware** with two versions (R0 and R1)
+- **K-Nearest Neighbors (KNN)** algorithm for intelligent recognition
+- **WiFi and USB communication** protocols
+- **RFID, LCD, RTC, color sensors, servo motors, and relays**
+
+### Configuration
+- **Metro bundler** with crypto alias configuration
+- **EAS (Expo Application Services)** for builds and deployment
+- **Environment variables** for Firebase configuration
+
+## Architecture Overview
 
 ### Key Architecture Components
 
@@ -81,6 +112,13 @@ React Native app with Expo Router using Firebase backend, designed for "Sistem P
 **Theme System**
 - Dark/light theme support with persistent storage
 - Primary color scheme uses pink (#F50057)
+- App icon and splash screen themed with money icon
+- Automatic UI style adaptation (light/dark)
+
+**Metro Configuration**
+- Custom crypto alias using expo-crypto
+- Disabled package exports for compatibility
+- Cache reset enabled for development
 
 ## Firebase Configuration
 
@@ -88,8 +126,21 @@ The app uses Firebase project "haikal-ef006" with:
 - Authentication (email/password)
 - Firestore database for user profiles and app data
 - Real-time listeners for data synchronization
+- Firebase Admin SDK for server-side operations
 
 Bendahara access: Use `bendahara@gmail.com` or `admin@gmail.com` with any password to get bendahara privileges automatically.
+
+### Environment Variables
+Firebase configuration is managed through environment variables:
+```bash
+EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key_here
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
+EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
+```
 
 ## Hardware Integration Notes
 
@@ -190,6 +241,13 @@ Testing framework available in `testing/` directory with ESP32 simulator.
 - `testing/esp32-simulator.js` - ESP32 device simulator
 - `testing/esp32-framework.cpp` - ESP32 hardware testing framework
 
+### Configuration Files
+- `package.json` - Dependencies and npm scripts
+- `app.json` - Expo configuration with app metadata
+- `eas.json` - Expo Application Services build configuration
+- `metro.config.js` - Metro bundler configuration with crypto alias
+- `.env.example` - Firebase environment variables template
+
 ## Important Notes
 
 - All references to old terminology (santri, wali, TPQ, bisyaroh) have been completely removed
@@ -209,3 +267,32 @@ Testing framework available in `testing/` directory with ESP32 simulator.
 6. **Error Handling**: Always include comprehensive error handling for Firebase operations
 7. **Authentication**: Support both bendahara@gmail.com and admin@gmail.com for admin access
 8. **Testing**: Use the ESP32 simulator for hardware integration testing
+9. **Dependencies**: Always check existing package.json before adding new dependencies
+10. **Exports**: Use PDF (jsPDF) and Excel (xlsx) for data export functionality
+11. **Charts**: Use react-native-chart-kit for data visualization components
+
+## Deployment & Build
+
+### EAS Configuration
+- **Development builds**: Internal distribution with development client
+- **Preview builds**: Internal APK distribution for Android
+- **Production builds**: Auto-increment versioning enabled
+- **Project ID**: 878acea5-1787-4765-a329-78bb9b93b718
+
+### App Package Details
+- **App Name**: Alfi App
+- **Slug**: alfi-app
+- **Android Package**: com.haikal.haikalapp
+- **Scheme**: firebase-auth-template
+- **Icons**: Money-themed icon throughout (./assets/icon-money.png)
+
+## What Makes This Project Unique
+
+1. **Hardware-Software Integration**: Seamless connection between React Native app and ESP32 firmware
+2. **Advanced Algorithm Integration**: KNN algorithm for intelligent object/currency recognition
+3. **Community-Focused Design**: Specifically built for Indonesian community savings management
+4. **Multi-layer Authentication**: Role-based access with automatic bendahara detection
+5. **Real-time Payment Processing**: Live status updates and credit balance management
+6. **Comprehensive Testing Framework**: Both software simulation and hardware testing capabilities
+7. **Export Capabilities**: PDF and Excel export for financial data and reports
+8. **Data Visualization**: Built-in charting for payment analytics and trends

@@ -1,22 +1,31 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  View,
+  Box,
+  VStack,
+  HStack,
   Text,
-  StyleSheet,
-  SafeAreaView,
+  Heading,
   FlatList,
-  TouchableOpacity,
-  RefreshControl,
-  ActivityIndicator,
-  Alert,
-  AppState,
-} from "react-native";
+  Pressable,
+  Badge,
+  Icon,
+  Progress,
+  Center,
+  Spinner,
+  Modal,
+  useToast,
+} from "native-base";
+import { RefreshControl, AppState } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { useNotification } from "../../contexts/NotificationContext";
 import { getColors } from "../../constants/Colors";
+import NBCard, { NBInfoCard } from "../../components/ui/NBCard";
+import NBButton from "../../components/ui/NBButton";
+import NBLoadingSpinner from "../../components/ui/NBLoadingSpinner";
 import PaymentModal from "../../components/ui/PaymentModal";
 import CreditBalance from "../../components/ui/CreditBalance";
 import { formatDate } from "../../utils/dateUtils";
@@ -270,238 +279,229 @@ function StatusSetoran() {
     if (!summary) return null;
 
     return (
-      <View
-        style={[
-          styles.summaryCard,
-          { backgroundColor: colors.white, borderColor: colors.gray200 },
-        ]}
+      <NBCard
+        title="Ringkasan Setoran"
+        icon="assessment"
+        variant="elevated"
+        shadow={3}
+        bg={colors.white}
       >
-        <Text style={[styles.summaryTitle, { color: colors.gray900 }]}>
-          Ringkasan Setoran
-        </Text>
-
-        <View style={styles.progressContainer}>
-          <View style={styles.progressHeader}>
-            <Text style={[styles.progressText, { color: colors.gray700 }]}>
-              Progress: {summary.lunas || 0}/{summary.total || 0} periode
-            </Text>
-            <Text
-              style={[styles.progressPercentage, { color: colors.primary }]}
-            >
-              {summary.progressPercentage || 0}%
-            </Text>
-          </View>
-
-          <View
-            style={[styles.progressBar, { backgroundColor: colors.gray200 }]}
-          >
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  backgroundColor: colors.success,
-                  width: `${summary.progressPercentage || 0}%`,
-                },
-              ]}
-            />
-          </View>
-        </View>
-
-        <View style={styles.summaryStats}>
-          <View style={styles.statRow}>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.success }]}>
-                {summary.lunas || 0}
+        <VStack space={4}>
+          <VStack space={2}>
+            <HStack justifyContent="space-between" alignItems="center">
+              <Text fontSize="sm" color={colors.gray700}>
+                Progress: {summary.lunas || 0}/{summary.total || 0} periode
               </Text>
-              <Text style={[styles.statLabel, { color: colors.gray600 }]}>
+              <Text fontSize="md" fontWeight="bold" color="teal.600">
+                {summary.progressPercentage || 0}%
+              </Text>
+            </HStack>
+            <Progress
+              value={summary.progressPercentage || 0}
+              colorScheme="teal"
+              bg={colors.gray200}
+              size="sm"
+            />
+          </VStack>
+
+          <HStack justifyContent="space-around">
+            <VStack alignItems="center">
+              <Heading size="lg" color={colors.success}>
+                {summary.lunas || 0}
+              </Heading>
+              <Text fontSize="xs" color={colors.gray600}>
                 Lunas
               </Text>
-            </View>
+            </VStack>
 
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.error }]}>
+            <VStack alignItems="center">
+              <Heading size="lg" color={colors.error}>
                 {summary.belumBayar || 0}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.gray600 }]}>
+              </Heading>
+              <Text fontSize="xs" color={colors.gray600}>
                 Belum Bayar
               </Text>
-            </View>
+            </VStack>
 
             {(summary.terlambat || 0) > 0 && (
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: colors.warning }]}>
+              <VStack alignItems="center">
+                <Heading size="lg" color={colors.warning}>
                   {summary.terlambat || 0}
-                </Text>
-                <Text style={[styles.statLabel, { color: colors.gray600 }]}>
+                </Heading>
+                <Text fontSize="xs" color={colors.gray600}>
                   Terlambat
                 </Text>
-              </View>
+              </VStack>
             )}
-          </View>
+          </HStack>
 
-          <View style={styles.amountSummary}>
-            <View style={styles.amountRow}>
-              <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
+          <VStack space={2} borderTopWidth={1} borderTopColor={colors.gray200} pt={3}>
+            <HStack justifyContent="space-between">
+              <Text fontSize="sm" color={colors.gray600}>
                 Total Tagihan:
               </Text>
-              <Text style={[styles.amountValue, { color: colors.gray900 }]}>
+              <Text fontSize="sm" fontWeight="bold" color={colors.gray900}>
                 {formatCurrency(summary.totalAmount || 0)}
               </Text>
-            </View>
+            </HStack>
 
-            <View style={styles.amountRow}>
-              <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
+            <HStack justifyContent="space-between">
+              <Text fontSize="sm" color={colors.gray600}>
                 Sudah Disetor:
               </Text>
-              <Text style={[styles.amountValue, { color: colors.success }]}>
+              <Text fontSize="sm" fontWeight="bold" color={colors.success}>
                 {formatCurrency(summary.paidAmount || 0)}
               </Text>
-            </View>
+            </HStack>
 
-            <View style={styles.amountRow}>
-              <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
+            <HStack justifyContent="space-between">
+              <Text fontSize="sm" color={colors.gray600}>
                 Belum Disetor:
               </Text>
-              <Text style={[styles.amountValue, { color: colors.error }]}>
+              <Text fontSize="sm" fontWeight="bold" color={colors.error}>
                 {formatCurrency(summary.unpaidAmount || 0)}
               </Text>
-            </View>
-          </View>
-        </View>
-      </View>
+            </HStack>
+          </VStack>
+        </VStack>
+      </NBCard>
     );
   }, [summary, colors, formatCurrency]);
 
   const renderPaymentItem = useCallback(
-    ({ item }) => (
-      <View
-        style={[
-          styles.paymentCard,
-          { backgroundColor: colors.white, borderColor: colors.gray200 },
-        ]}
-      >
-        <View style={styles.cardHeader}>
-          <View style={styles.periodInfo}>
-            <Text style={[styles.periodText, { color: colors.gray900 }]}>
-              {item.periodData.label}
-            </Text>
-            <Text style={[styles.periodNumber, { color: colors.gray500 }]}>
-              Periode {item.periodData.number}
-            </Text>
-          </View>
+    ({ item }) => {
+      const statusColorScheme = item.status === "lunas" ? "success" : 
+                               item.status === "belum_bayar" ? "error" : "warning";
+      
+      return (
+        <NBCard
+          variant="outline"
+          borderColor={colors.gray200}
+          bg={colors.white}
+          mb={3}
+        >
+          <VStack space={3}>
+            <HStack justifyContent="space-between" alignItems="flex-start">
+              <VStack flex={1}>
+                <Text fontSize="md" fontWeight="600" color={colors.gray900}>
+                  {item.periodData.label}
+                </Text>
+                <Text fontSize="sm" color={colors.gray500}>
+                  Periode {item.periodData.number}
+                </Text>
+              </VStack>
 
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getStatusColor(item.status) + "15" },
-            ]}
-          >
-            <Text style={styles.statusIcon}>{getStatusIcon(item.status)}</Text>
-            <Text
-              style={[
-                styles.statusText,
-                { color: getStatusColor(item.status) },
-              ]}
-            >
-              {getStatusLabel(item.status)}
-            </Text>
-          </View>
-        </View>
+              <Badge
+                colorScheme={statusColorScheme}
+                variant="subtle"
+                borderRadius="full"
+                px={3}
+                py={1}
+              >
+                <HStack alignItems="center" space={1}>
+                  <Text fontSize="sm">{getStatusIcon(item.status)}</Text>
+                  <Text fontSize="sm">{getStatusLabel(item.status)}</Text>
+                </HStack>
+              </Badge>
+            </HStack>
 
-        <View style={styles.cardContent}>
-          <View style={styles.infoRow}>
-            <Text style={[styles.labelText, { color: colors.gray600 }]}>
-              Nominal:
-            </Text>
-            <Text style={[styles.valueText, { color: colors.gray900 }]}>
-              {formatCurrency(item.amount || 0)}
-            </Text>
-          </View>
+            <VStack space={2}>
+              <HStack justifyContent="space-between">
+                <Text fontSize="sm" color={colors.gray600}>
+                  Nominal:
+                </Text>
+                <Text fontSize="sm" fontWeight="bold" color={colors.gray900}>
+                  {formatCurrency(item.amount || 0)}
+                </Text>
+              </HStack>
 
-          {(item.creditApplied || 0) > 0 && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.green }]}>
-                💰 Credit Applied:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.green }]}>
-                -{formatCurrency(item.creditApplied || 0)}
-              </Text>
-            </View>
-          )}
+              {(item.creditApplied || 0) > 0 && (
+                <HStack justifyContent="space-between">
+                  <HStack alignItems="center" space={1}>
+                    <Icon as={MaterialIcons} name="account-balance-wallet" size={4} color="teal.600" />
+                    <Text fontSize="sm" color="teal.600">
+                      Credit Applied:
+                    </Text>
+                  </HStack>
+                  <Text fontSize="sm" fontWeight="bold" color="teal.600">
+                    -{formatCurrency(item.creditApplied || 0)}
+                  </Text>
+                </HStack>
+              )}
 
-          {(item.remainingAmount || 0) > 0 && (item.remainingAmount || 0) < (item.amount || 0) && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.primary }]}>
-                Sisa Bayar:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.primary }]}>
-                {formatCurrency(item.remainingAmount || 0)}
-              </Text>
-            </View>
-          )}
+              {(item.remainingAmount || 0) > 0 && (item.remainingAmount || 0) < (item.amount || 0) && (
+                <HStack justifyContent="space-between">
+                  <Text fontSize="sm" color="teal.600">
+                    Sisa Bayar:
+                  </Text>
+                  <Text fontSize="sm" fontWeight="bold" color="teal.600">
+                    {formatCurrency(item.remainingAmount || 0)}
+                  </Text>
+                </HStack>
+              )}
 
-          {item.paymentDate && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Tanggal Bayar:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray900 }]}>
-                {formatDate(item.paymentDate)}
-              </Text>
-            </View>
-          )}
+              {item.paymentDate && (
+                <HStack justifyContent="space-between">
+                  <Text fontSize="sm" color={colors.gray600}>
+                    Tanggal Bayar:
+                  </Text>
+                  <Text fontSize="sm" color={colors.gray900}>
+                    {formatDate(item.paymentDate)}
+                  </Text>
+                </HStack>
+              )}
 
-          {item.paymentMethod && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Metode:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray900 }]}>
-                {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
-              </Text>
-            </View>
-          )}
+              {item.paymentMethod && (
+                <HStack justifyContent="space-between">
+                  <Text fontSize="sm" color={colors.gray600}>
+                    Metode:
+                  </Text>
+                  <Text fontSize="sm" color={colors.gray900}>
+                    {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
+                  </Text>
+                </HStack>
+              )}
 
-          {item.notes && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Catatan:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray700 }]}>
-                {item.notes}
-              </Text>
-            </View>
-          )}
-        </View>
+              {item.notes && (
+                <VStack>
+                  <Text fontSize="sm" color={colors.gray600}>
+                    Catatan:
+                  </Text>
+                  <Text fontSize="sm" color={colors.gray700}>
+                    {item.notes}
+                  </Text>
+                </VStack>
+              )}
+            </VStack>
 
-        {item.status === "belum_bayar" && (
-          <TouchableOpacity
-            style={[styles.payButton, { backgroundColor: colors.primary }]}
-            onPress={() => handlePayNow(item)}
-            disabled={updatingPayment}
-          >
-            <Text style={[styles.payButtonText, { color: colors.white }]}>
-              💳 Bayar Sekarang
-            </Text>
-          </TouchableOpacity>
-        )}
+            {item.status === "belum_bayar" && (
+              <NBButton
+                title="Bayar Sekarang"
+                onPress={() => handlePayNow(item)}
+                disabled={updatingPayment}
+                variant="primary"
+                size="md"
+                leftIcon={<Icon as={MaterialIcons} name="payment" size={5} color="white" />}
+              />
+            )}
 
-        {item.status === "terlambat" && (
-          <TouchableOpacity
-            style={[styles.payButton, { backgroundColor: colors.warning }]}
-            onPress={() => handlePayNow(item)}
-            disabled={updatingPayment}
-          >
-            <Text style={[styles.payButtonText, { color: colors.white }]}>
-              ⚡ Bayar Segera
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    ),
+            {item.status === "terlambat" && (
+              <NBButton
+                title="Bayar Segera"
+                onPress={() => handlePayNow(item)}
+                disabled={updatingPayment}
+                variant="primary"
+                style={{ backgroundColor: colors.warning }}
+                size="md"
+                leftIcon={<Icon as={MaterialIcons} name="flash-on" size={5} color="white" />}
+              />
+            )}
+          </VStack>
+        </NBCard>
+      );
+    },
     [
       colors,
-      getStatusColor,
       getStatusIcon,
       getStatusLabel,
       formatCurrency,
@@ -542,85 +542,71 @@ function StatusSetoran() {
 
   if (settingsLoading || loading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colors.background, paddingTop: insets.top },
-        ]}
-      >
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: colors.white,
-              borderBottomColor: colors.gray200,
-            },
-          ]}
+      <Box flex={1} bg={colors.background} safeAreaTop>
+        <VStack
+          px={6}
+          py={5}
+          bg={colors.white}
+          borderBottomWidth={1}
+          borderBottomColor={colors.gray200}
+          shadow={2}
         >
-          <Text style={[styles.title, { color: colors.gray900 }]}>
+          <Heading size="md" textAlign="center" color={colors.gray900}>
             Status Setoran Jimpitan
-          </Text>
+          </Heading>
           {userProfile && (
-            <Text style={[styles.subtitle, { color: colors.gray600 }]}>
+            <Text fontSize="sm" textAlign="center" color={colors.gray600} mt={1}>
               Warga: {userProfile.namaWarga}
             </Text>
           )}
-        </View>
+        </VStack>
 
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
-            Memuat data pembayaran...
-          </Text>
-        </View>
-      </SafeAreaView>
+        <NBLoadingSpinner text="Memuat data pembayaran..." />
+      </Box>
     );
   }
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.background, paddingTop: insets.top },
-      ]}
-    >
-      <View
-        style={[
-          styles.header,
-          { backgroundColor: colors.white, borderBottomColor: colors.gray200 },
-        ]}
+    <Box flex={1} bg={colors.background} safeAreaTop>
+      <VStack
+        px={6}
+        py={5}
+        bg={colors.white}
+        borderBottomWidth={1}
+        borderBottomColor={colors.gray200}
+        shadow={2}
       >
-        <Text style={[styles.title, { color: colors.gray900 }]}>
+        <Heading size="md" textAlign="center" color={colors.gray900}>
           Status Setoran Jimpitan
-        </Text>
+        </Heading>
         {userProfile && (
-          <Text style={[styles.subtitle, { color: colors.gray600 }]}>
+          <Text fontSize="sm" textAlign="center" color={colors.gray600} mt={1}>
             Warga: {userProfile.namaWarga}
           </Text>
         )}
         {timeline && (
-          <Text style={[styles.timelineInfo, { color: colors.primary }]}>
+          <Text fontSize="xs" textAlign="center" color="teal.600" mt={1} fontWeight="500">
             Timeline: {timeline.name}
           </Text>
         )}
-      </View>
+      </VStack>
 
       {payments.length > 0 ? (
         <FlatList
           data={listData}
           renderItem={renderItem}
           keyExtractor={keyExtractor}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 24 },
-          ]}
+          contentContainerStyle={{
+            padding: 24,
+            paddingBottom: insets.bottom + 24,
+          }}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
+              colors={["#14b8a6"]}
+              tintColor="#14b8a6"
               title="Memuat ulang..."
               titleColor={colors.gray600}
             />
@@ -629,26 +615,23 @@ function StatusSetoran() {
           maxToRenderPerBatch={5}
           windowSize={10}
           removeClippedSubviews={true}
-          getItemLayout={(data, index) => ({
-            length: index === 0 ? 250 : 180,
-            offset: index === 0 ? 0 : 250 + (index - 1) * 180,
-            index,
-          })}
         />
       ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyIcon, { color: colors.gray400 }]}>📊</Text>
-          <Text style={[styles.emptyText, { color: colors.gray600 }]}>
-            {timeline
-              ? "Belum ada data pembayaran"
-              : "Belum ada timeline aktif"}
-          </Text>
-          <Text style={[styles.emptySubtext, { color: colors.gray500 }]}>
-            {timeline
-              ? "Data pembayaran akan muncul setelah admin membuat timeline"
-              : "Admin belum membuat timeline pembayaran"}
-          </Text>
-        </View>
+        <Center flex={1} px={6}>
+          <VStack alignItems="center" space={3}>
+            <Icon as={MaterialIcons} name="assessment" size={16} color={colors.gray400} />
+            <Heading size="md" color={colors.gray600} textAlign="center">
+              {timeline
+                ? "Belum ada data pembayaran"
+                : "Belum ada timeline aktif"}
+            </Heading>
+            <Text fontSize="sm" color={colors.gray500} textAlign="center">
+              {timeline
+                ? "Data pembayaran akan muncul setelah admin membuat timeline"
+                : "Admin belum membuat timeline pembayaran"}
+            </Text>
+          </VStack>
+        </Center>
       )}
 
       <PaymentModal
@@ -659,26 +642,25 @@ function StatusSetoran() {
         onPaymentSuccess={handlePaymentSuccess}
       />
 
-      {updatingPayment && (
-        <View
-          style={[
-            styles.updateOverlay,
-            { backgroundColor: "rgba(0, 0, 0, 0.7)" },
-          ]}
-        >
-          <View style={[styles.updateModal, { backgroundColor: colors.white }]}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={[styles.updateText, { color: colors.gray900 }]}>
-              Memperbarui status pembayaran...
-            </Text>
-          </View>
-        </View>
-      )}
-    </SafeAreaView>
+      <Modal isOpen={updatingPayment} size="lg">
+        <Modal.Content maxWidth="400px">
+          <Modal.Body>
+            <Center py={6}>
+              <VStack space={4} alignItems="center">
+                <Spinner size="lg" color="teal.600" />
+                <Text fontSize="md" color={colors.gray900}>
+                  Memperbarui status pembayaran...
+                </Text>
+              </VStack>
+            </Center>
+          </Modal.Body>
+        </Modal.Content>
+      </Modal>
+    </Box>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
   },
@@ -915,6 +897,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: "center",
   },
-});
+};
 
 export default StatusSetoran;

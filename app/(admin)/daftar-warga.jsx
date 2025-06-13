@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from "react";
 import {
-  View,
+  Box,
+  VStack,
+  HStack,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
+  Heading,
   FlatList,
-  RefreshControl,
-} from "react-native";
+  Pressable,
+  Badge,
+  Icon,
+  IconButton,
+  Center,
+} from "native-base";
+import { RefreshControl } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import NBCard, { NBInfoCard } from "../../components/ui/NBCard";
+import NBLoadingSpinner from "../../components/ui/NBLoadingSpinner";
 import { getAllWarga } from "../../services/userService";
+import { Colors } from "../../constants/Colors";
 
 export default function DaftarWarga() {
   const [wargaList, setWargaList] = useState([]);
@@ -57,257 +65,166 @@ export default function DaftarWarga() {
   };
 
   const renderWargaItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.wargaCard}
+    <NBCard
+      variant="outline"
+      borderColor={Colors.gray200}
+      bg={Colors.white}
       onPress={() => handleWargaPress(item)}
-      activeOpacity={0.8}
+      mb={3}
+      p={4}
+      shadow={2}
     >
-      <View style={styles.wargaInfo}>
-        <Text style={styles.namaWarga}>{item.namaWarga}</Text>
-        <Text style={styles.emailWarga}>{item.email}</Text>
-        <Text style={styles.alamat}>Alamat: {item.alamat || 'Belum diisi'}</Text>
-        <Text style={styles.noHp}>HP: {item.noHpWarga}</Text>
-      </View>
+      <HStack alignItems="center" space={4}>
+        <VStack flex={1} space={1}>
+          <Heading size="sm" color="gray.900">
+            {item.namaWarga}
+          </Heading>
+          <Text fontSize="xs" color="gray.500" fontStyle="italic">
+            {item.email}
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            Alamat: {item.alamat || 'Belum diisi'}
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            HP: {item.noHpWarga}
+          </Text>
+        </VStack>
 
-      <View style={styles.rfidSection}>
-        {item.rfidWarga ? (
-          <View style={styles.rfidActive}>
-            <Text style={styles.rfidLabel}>RFID</Text>
-            <Text style={styles.rfidValue}>✓ Terpasang</Text>
-          </View>
-        ) : (
-          <View style={styles.rfidInactive}>
-            <Text style={styles.rfidLabel}>RFID</Text>
-            <Text style={styles.rfidValue}>⚠ Belum</Text>
-          </View>
-        )}
-        <Text style={styles.arrowText}>→</Text>
-      </View>
-    </TouchableOpacity>
+        <VStack alignItems="center" space={2}>
+          <Badge
+            colorScheme={item.rfidWarga ? "green" : "orange"}
+            variant="subtle"
+            borderRadius="md"
+            px={2}
+            py={1}
+          >
+            <HStack alignItems="center" space={1}>
+              <Icon
+                as={MaterialIcons}
+                name={item.rfidWarga ? "check-circle" : "warning"}
+                size={3}
+                color={item.rfidWarga ? "green.600" : "orange.600"}
+              />
+              <VStack alignItems="center">
+                <Text fontSize="xs" color={item.rfidWarga ? "green.600" : "orange.600"}>
+                  RFID
+                </Text>
+                <Text fontSize="xs" color={item.rfidWarga ? "green.600" : "orange.600"}>
+                  {item.rfidWarga ? "Terpasang" : "Belum"}
+                </Text>
+              </VStack>
+            </HStack>
+          </Badge>
+          <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+        </VStack>
+      </HStack>
+    </NBCard>
   );
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>← Kembali</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Daftar Warga</Text>
-        </View>
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner text="Memuat data warga..." />
-        </View>
-      </SafeAreaView>
+      <Box flex={1} bg="gray.50" safeAreaTop>
+        <VStack
+          px={6}
+          py={4}
+          bg="white"
+          borderBottomWidth={1}
+          borderBottomColor="gray.200"
+          shadow={2}
+        >
+          <HStack alignItems="center" space={3} mb={2}>
+            <IconButton
+              icon={<Icon as={MaterialIcons} name="arrow-back" size={6} />}
+              onPress={() => router.back()}
+              variant="ghost"
+              colorScheme="green"
+              _pressed={{ bg: "green.100" }}
+            />
+            <Heading size="md" color="gray.900" flex={1} textAlign="center">
+              Daftar Warga
+            </Heading>
+            <Box w={10} />
+          </HStack>
+        </VStack>
+        <NBLoadingSpinner text="Memuat data warga..." />
+      </Box>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>← Kembali</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Daftar Warga</Text>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.statsSection}>
-          <Text style={styles.statsText}>
-            Total Warga: {wargaList.length}
-          </Text>
-          <Text style={styles.statsSubtext}>
-            RFID Terpasang: {wargaList.filter((w) => w.rfidWarga).length} |
-            Belum: {wargaList.filter((w) => !w.rfidWarga).length}
-          </Text>
-        </View>
-
-        {wargaList.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Belum ada warga terdaftar</Text>
-            <Text style={styles.emptySubtext}>
-              Tambah warga baru melalui menu Tambah Data Warga
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={wargaList}
-            renderItem={renderWargaItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.listContent,
-              { paddingBottom: insets.bottom + 24 },
-            ]}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                colors={["#3b82f6"]}
-                tintColor="#3b82f6"
-              />
-            }
+    <Box flex={1} bg="gray.50" safeAreaTop>
+      <VStack
+        px={6}
+        py={4}
+        bg="white"
+        borderBottomWidth={1}
+        borderBottomColor="gray.200"
+        shadow={2}
+      >
+        <HStack alignItems="center" space={3} mb={2}>
+          <IconButton
+            icon={<Icon as={MaterialIcons} name="arrow-back" size={6} />}
+            onPress={() => router.back()}
+            variant="ghost"
+            colorScheme="green"
+            _pressed={{ bg: "green.100" }}
           />
-        )}
-      </View>
-    </SafeAreaView>
+          <Heading size="md" color="gray.900" flex={1} textAlign="center">
+            Daftar Warga
+          </Heading>
+          <Box w={10} />
+        </HStack>
+      </VStack>
+
+      <Box flex={1} px={6} pt={4}>
+        <VStack space={5} flex={1}>
+          <NBInfoCard
+            title="Total Warga"
+            value={wargaList.length.toString()}
+            icon="groups"
+            color={Colors.primary}
+          >
+            <Text fontSize="sm" color="gray.600" mt={2}>
+              RFID Terpasang: {wargaList.filter((w) => w.rfidWarga).length} |
+              Belum: {wargaList.filter((w) => !w.rfidWarga).length}
+            </Text>
+          </NBInfoCard>
+
+          {wargaList.length === 0 ? (
+            <Center flex={1}>
+              <VStack alignItems="center" space={3}>
+                <Icon as={MaterialIcons} name="group-off" size={16} color="gray.400" />
+                <Heading size="md" color="gray.600" textAlign="center">
+                  Belum ada warga terdaftar
+                </Heading>
+                <Text fontSize="sm" color="gray.500" textAlign="center">
+                  Tambah warga baru melalui menu Tambah Data Warga
+                </Text>
+              </VStack>
+            </Center>
+          ) : (
+            <FlatList
+              data={wargaList}
+              renderItem={renderWargaItem}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingBottom: insets.bottom + 24,
+              }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={["#10b981"]}
+                  tintColor="#10b981"
+                />
+              }
+            />
+          )}
+        </VStack>
+      </Box>
+    </Box>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    marginBottom: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: "#3b82f6",
-    fontWeight: "500",
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1e293b",
-    textAlign: "center",
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  statsSection: {
-    marginBottom: 20,
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-  },
-  statsText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  statsSubtext: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  listContent: {
-    paddingBottom: 24,
-  },
-  wargaCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    minHeight: 90,
-  },
-  wargaInfo: {
-    flex: 1,
-  },
-  namaWarga: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  emailWarga: {
-    fontSize: 13,
-    color: "#6b7280",
-    fontStyle: "italic",
-    marginBottom: 6,
-  },
-  alamat: {
-    fontSize: 14,
-    color: "#64748b",
-    marginBottom: 2,
-  },
-  noHp: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  rfidSection: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-  },
-  rfidActive: {
-    alignItems: "center",
-    backgroundColor: "#dcfce7",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  rfidInactive: {
-    alignItems: "center",
-    backgroundColor: "#fef3c7",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  rfidLabel: {
-    fontSize: 10,
-    fontWeight: "500",
-    color: "#374151",
-  },
-  rfidValue: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#374151",
-  },
-  arrowText: {
-    fontSize: 16,
-    color: "#94a3b8",
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 60,
-  },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#64748b",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: "#94a3b8",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-});
+const styles = {};

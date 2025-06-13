@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/icon-money.png",
         "backgroundColor": "#F50057"
       },
-      "package": "com.haikal.haikalapp"
+      "package": "com.alfi.alfiapp"
     },
     "web": {
       "favicon": "./assets/icon-money.png",
@@ -33,10 +33,7 @@
     ],
     "scheme": "firebase-auth-template",
     "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "878acea5-1787-4765-a329-78bb9b93b718"
-      }
+      "router": {}
     }
   }
 }

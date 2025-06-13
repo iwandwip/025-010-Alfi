@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import {
-  View,
+  Box,
+  VStack,
+  HStack,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
+  Heading,
   ScrollView,
-  ActivityIndicator,
-} from "react-native";
+  Avatar,
+  Badge,
+  Icon,
+  Center,
+} from "native-base";
+import { Alert } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
-import Button from "../../components/ui/Button";
+import NBCard from "../../components/ui/NBCard";
+import NBButton from "../../components/ui/NBButton";
+import NBLoadingSpinner from "../../components/ui/NBLoadingSpinner";
 import { signOutUser } from "../../services/authService";
 import { getColors } from "../../constants/Colors";
+import { Colors } from "../../constants/Colors";
 
 function Profile() {
   const { currentUser, userProfile } = useAuth();
@@ -50,260 +58,220 @@ function Profile() {
 
   if (settingsLoading || !userProfile) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { backgroundColor: colors.background, paddingTop: insets.top },
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
-            Memuat profil...
-          </Text>
-        </View>
-      </SafeAreaView>
+      <Box flex={1} bg={colors.background} safeAreaTop>
+        <NBLoadingSpinner text="Memuat profil..." />
+      </Box>
     );
   }
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: colors.background, paddingTop: insets.top },
-      ]}
-    >
+    <Box flex={1} bg={colors.background} safeAreaTop>
       <ScrollView
-        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 24 },
-        ]}
+        _contentContainerStyle={{
+          p: 6,
+          pt: 10,
+          pb: insets.bottom + 6,
+        }}
       >
-        <View style={styles.content}>
-          <View style={styles.profileSection}>
-            <View
-              style={[
-                styles.avatarContainer,
-                { backgroundColor: colors.primary },
-              ]}
-            >
-              <Text style={[styles.avatarText, { color: colors.white }]}>
-                👤
-              </Text>
-            </View>
-            <Text style={[styles.nameText, { color: colors.gray900 }]}>
-              {userProfile?.namaWarga || "Nama Warga"}
-            </Text>
-            <Text style={[styles.roleText, { color: colors.gray600 }]}>
-              Warga
-            </Text>
-          </View>
+        <VStack space={8}>
+          <Center>
+            <VStack alignItems="center" space={4}>
+              <Avatar
+                size="xl"
+                bg="teal.600"
+                source={{
+                  uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile?.namaWarga || 'W')}&background=14b8a6&color=ffffff&size=200`,
+                }}
+              >
+                <Icon as={MaterialIcons} name="person" size={10} color="white" />
+              </Avatar>
+              <VStack alignItems="center">
+                <Heading size="lg" color={colors.gray900} textAlign="center">
+                  {userProfile?.namaWarga || "Nama Warga"}
+                </Heading>
+                <Badge
+                  colorScheme="teal"
+                  variant="subtle"
+                  borderRadius="full"
+                  px={3}
+                  py={1}
+                >
+                  <HStack alignItems="center" space={1}>
+                    <Icon as={MaterialIcons} name="person" size={3} color="teal.600" />
+                    <Text fontSize="sm" color="teal.600">Warga</Text>
+                  </HStack>
+                </Badge>
+              </VStack>
+            </VStack>
+          </Center>
 
           {userProfile && (
-            <View style={styles.profileContainer}>
-              <View
-                style={[
-                  styles.profileCard,
-                  {
-                    backgroundColor: colors.white,
-                    shadowColor: colors.shadow.color,
-                  },
-                ]}
+            <VStack space={4}>
+              <NBCard
+                title="Informasi Warga"
+                icon="person"
+                variant="elevated"
+                shadow={3}
+                bg={colors.white}
               >
-                <Text style={[styles.cardTitle, { color: colors.gray900 }]}>
-                  Informasi Warga
-                </Text>
+                <VStack space={3}>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text fontSize="sm" color={colors.gray600}>
+                      Nama Warga:
+                    </Text>
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                      {userProfile.namaWarga}
+                    </Text>
+                  </HStack>
 
-                <View
-                  style={[
-                    styles.profileRow,
-                    { borderBottomColor: colors.gray100 },
-                  ]}
-                >
-                  <Text style={[styles.label, { color: colors.gray600 }]}>
-                    Nama Warga:
-                  </Text>
-                  <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.namaWarga}
-                  </Text>
-                </View>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text fontSize="sm" color={colors.gray600}>
+                      No HP:
+                    </Text>
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                      {userProfile.noHpWarga}
+                    </Text>
+                  </HStack>
 
-                <View
-                  style={[
-                    styles.profileRow,
-                    { borderBottomColor: colors.gray100 },
-                  ]}
-                >
-                  <Text style={[styles.label, { color: colors.gray600 }]}>
-                    No HP:
-                  </Text>
-                  <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.noHpWarga}
-                  </Text>
-                </View>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text fontSize="sm" color={colors.gray600}>
+                      Email:
+                    </Text>
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                      {userProfile.email}
+                    </Text>
+                  </HStack>
+                </VStack>
+              </NBCard>
 
-                <View
-                  style={[
-                    styles.profileRow,
-                    { borderBottomColor: colors.gray100 },
-                  ]}
-                >
-                  <Text style={[styles.label, { color: colors.gray600 }]}>
-                    Email:
-                  </Text>
-                  <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.email}
-                  </Text>
-                </View>
-              </View>
-
-              <View
-                style={[
-                  styles.profileCard,
-                  {
-                    backgroundColor: colors.white,
-                    shadowColor: colors.shadow.color,
-                  },
-                ]}
+              <NBCard
+                title="Informasi Alamat"
+                icon="location-on"
+                variant="elevated"
+                shadow={3}
+                bg={colors.white}
               >
-                <Text style={[styles.cardTitle, { color: colors.gray900 }]}>
-                  Informasi Alamat
-                </Text>
+                <VStack space={3}>
+                  <HStack justifyContent="space-between" alignItems="flex-start">
+                    <Text fontSize="sm" color={colors.gray600}>
+                      Alamat:
+                    </Text>
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                      {userProfile.alamat || 'Belum diisi'}
+                    </Text>
+                  </HStack>
 
-                <View
-                  style={[
-                    styles.profileRow,
-                    { borderBottomColor: colors.gray100 },
-                  ]}
-                >
-                  <Text style={[styles.label, { color: colors.gray600 }]}>
-                    Alamat:
-                  </Text>
-                  <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.alamat || 'Belum diisi'}
-                  </Text>
-                </View>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text fontSize="sm" color={colors.gray600}>
+                      Status RFID:
+                    </Text>
+                    <HStack alignItems="center" space={2}>
+                      <Icon
+                        as={MaterialIcons}
+                        name={userProfile.rfidWarga ? "check-circle" : "cancel"}
+                        size={4}
+                        color={userProfile.rfidWarga ? "green.500" : "red.500"}
+                      />
+                      <Text
+                        fontSize="sm"
+                        fontWeight="600"
+                        color={userProfile.rfidWarga ? "green.600" : "red.500"}
+                      >
+                        {userProfile.rfidWarga ? "Terpasang" : "Belum Terpasang"}
+                      </Text>
+                    </HStack>
+                  </HStack>
 
-                <View
-                  style={[
-                    styles.profileRow,
-                    { borderBottomColor: colors.gray100 },
-                  ]}
-                >
-                  <Text style={[styles.label, { color: colors.gray600 }]}>
-                    Status RFID:
-                  </Text>
-                  <Text
-                    style={[
-                      styles.value,
-                      {
-                        color: (userProfile.rfidWarga || userProfile.rfidWarga)
-                          ? colors.success
-                          : colors.error,
-                      },
-                    ]}
-                  >
-                    {(userProfile.rfidWarga || userProfile.rfidWarga) ? "Terpasang" : "Belum Terpasang"}
-                  </Text>
-                </View>
+                  {userProfile.rfidWarga && (
+                    <HStack justifyContent="space-between" alignItems="center">
+                      <Text fontSize="sm" color={colors.gray600}>
+                        Kode RFID:
+                      </Text>
+                      <Text
+                        fontSize="sm"
+                        fontWeight="600"
+                        color={colors.gray900}
+                        fontFamily="mono"
+                        flex={1}
+                        textAlign="right"
+                      >
+                        {userProfile.rfidWarga}
+                      </Text>
+                    </HStack>
+                  )}
+                </VStack>
+              </NBCard>
 
-                {userProfile.rfidWarga && (
-                  <View
-                    style={[
-                      styles.profileRow,
-                      { borderBottomColor: colors.gray100 },
-                    ]}
-                  >
-                    <Text style={[styles.label, { color: colors.gray600 }]}>
-                      Kode RFID:
+              <NBCard
+                title="Informasi Akun"
+                icon="admin-panel-settings"
+                variant="elevated"
+                shadow={3}
+                bg={colors.white}
+              >
+                <VStack space={3}>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text fontSize="sm" color={colors.gray600}>
+                      User ID:
                     </Text>
                     <Text
-                      style={[
-                        styles.value,
-                        styles.rfidCode,
-                        { color: colors.gray900 },
-                      ]}
+                      fontSize="xs"
+                      fontWeight="600"
+                      color={colors.gray900}
+                      fontFamily="mono"
+                      flex={1}
+                      textAlign="right"
                     >
-                      {userProfile.rfidWarga}
+                      {userProfile.id}
                     </Text>
-                  </View>
-                )}
-              </View>
+                  </HStack>
 
-              <View
-                style={[
-                  styles.profileCard,
-                  {
-                    backgroundColor: colors.white,
-                    shadowColor: colors.shadow.color,
-                  },
-                ]}
-              >
-                <Text style={[styles.cardTitle, { color: colors.gray900 }]}>
-                  Informasi Akun
-                </Text>
-
-                <View
-                  style={[
-                    styles.profileRow,
-                    { borderBottomColor: colors.gray100 },
-                  ]}
-                >
-                  <Text style={[styles.label, { color: colors.gray600 }]}>
-                    User ID:
-                  </Text>
-                  <Text
-                    style={[
-                      styles.value,
-                      styles.userId,
-                      { color: colors.gray900 },
-                    ]}
-                  >
-                    {userProfile.id}
-                  </Text>
-                </View>
-
-                <View
-                  style={[
-                    styles.profileRow,
-                    { borderBottomColor: colors.gray100 },
-                  ]}
-                >
-                  <Text style={[styles.label, { color: colors.gray600 }]}>
-                    Role:
-                  </Text>
-                  <Text style={[styles.value, { color: colors.gray900 }]}>
-                    {userProfile.role}
-                  </Text>
-                </View>
-              </View>
-            </View>
+                  <HStack justifyContent="space-between" alignItems="center">
+                    <Text fontSize="sm" color={colors.gray600}>
+                      Role:
+                    </Text>
+                    <Badge
+                      colorScheme="teal"
+                      variant="subtle"
+                      borderRadius="full"
+                      px={2}
+                      py={1}
+                    >
+                      <Text fontSize="xs" color="teal.600">
+                        {userProfile.role}
+                      </Text>
+                    </Badge>
+                  </HStack>
+                </VStack>
+              </NBCard>
+            </VStack>
           )}
 
-          <View style={styles.actionsContainer}>
-            <Button
+          <VStack space={3}>
+            <NBButton
               title="Edit Profil"
               onPress={handleEditProfile}
-              style={styles.editButton}
+              variant="primary"
+              leftIcon={<Icon as={MaterialIcons} name="edit" size={5} color="white" />}
             />
 
-            <Button
+            <NBButton
               title={loggingOut ? "Sedang Keluar..." : "Keluar"}
               onPress={handleLogout}
               variant="outline"
-              style={[styles.logoutButton, { borderColor: colors.error }]}
+              style={{ borderColor: colors.error }}
               disabled={loggingOut}
+              leftIcon={<Icon as={MaterialIcons} name="logout" size={5} color={colors.error} />}
             />
-          </View>
-        </View>
+          </VStack>
+        </VStack>
       </ScrollView>
-    </SafeAreaView>
+    </Box>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
   },
@@ -404,6 +372,6 @@ const styles = StyleSheet.create({
   logoutButton: {
     marginBottom: 8,
   },
-});
+};
 
 export default Profile;

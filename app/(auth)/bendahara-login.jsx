@@ -1,26 +1,34 @@
 import React, { useState } from "react";
+import { useRouter } from "expo-router";
 import {
-  View,
+  Box,
+  VStack,
+  HStack,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-  TouchableOpacity,
+  Center,
   KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { Link, useRouter } from "expo-router";
+  ScrollView,
+  useTheme,
+  Pressable,
+  Icon,
+  Alert as NBAlert,
+  Heading,
+  Link,
+} from "native-base";
+import { Platform, Alert } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
+import NBInput from "../../components/ui/NBInput";
+import NBButton from "../../components/ui/NBButton";
 import { signInWithEmail } from "../../services/authService";
 
-export default function AdminLogin() {
+export default function BendaharaLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -40,124 +48,185 @@ export default function AdminLogin() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+    <Box flex={1} bg="green.50" safeAreaTop>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardContainer}
+        style={{ flex: 1 }}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>← Kembali</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView 
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <VStack flex={1} px={6}>
+            {/* Header */}
+            <HStack py={4} alignItems="center">
+              <Pressable onPress={() => router.back()}>
+                <HStack alignItems="center" space={1}>
+                  <Icon 
+                    as={MaterialIcons} 
+                    name="arrow-back" 
+                    size="md" 
+                    color="green.700" 
+                  />
+                  <Text color="green.700" fontSize="md" fontWeight="medium">
+                    Kembali
+                  </Text>
+                </HStack>
+              </Pressable>
+            </HStack>
 
-        <View style={styles.content}>
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>Masuk Bendahara</Text>
-            <Text style={styles.subtitle}>
-              Masuk sebagai Bendahara RT 01 RW 02
-            </Text>
-          </View>
+            {/* Content */}
+            <VStack flex={1} justifyContent="center" space={8}>
+              {/* Logo/Illustration Area */}
+              <Center>
+                <Box 
+                  bg="white" 
+                  p={8} 
+                  rounded="full" 
+                  shadow={4}
+                  borderWidth={3}
+                  borderColor="green.200"
+                >
+                  <Icon 
+                    as={MaterialIcons} 
+                    name="admin-panel-settings" 
+                    size={70} 
+                    color="green.600" 
+                  />
+                </Box>
+              </Center>
 
-          <View style={styles.formSection}>
-            <Input
-              label="Email"
-              placeholder="Masukkan email bendahara"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+              {/* Title Section */}
+              <VStack space={3} alignItems="center">
+                <Heading size="xl" color="coolGray.800">
+                  Masuk Bendahara
+                </Heading>
+                <Text 
+                  fontSize="md" 
+                  color="coolGray.600" 
+                  textAlign="center"
+                  px={4}
+                >
+                  Masuk sebagai Bendahara RT 01 RW 02
+                </Text>
+                <NBAlert 
+                  status="success" 
+                  colorScheme="success"
+                  w="100%"
+                  variant="subtle"
+                  rounded="lg"
+                >
+                  <VStack space={2} flexShrink={1} w="100%">
+                    <HStack flexShrink={1} space={2} alignItems="center">
+                      <NBAlert.Icon />
+                      <Text fontSize="sm" color="coolGray.800" flexShrink={1}>
+                        Kelola data warga dan setoran jimpitan
+                      </Text>
+                    </HStack>
+                  </VStack>
+                </NBAlert>
+              </VStack>
 
-            <Input
-              label="Password"
-              placeholder="Masukkan password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
+              {/* Form Section */}
+              <VStack space={5}>
+                <Box>
+                  <NBInput
+                    label="Email"
+                    placeholder="Masukkan email bendahara"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    leftElement={
+                      <Icon 
+                        as={MaterialIcons} 
+                        name="email" 
+                        size={5} 
+                        ml={3} 
+                        color="muted.400" 
+                      />
+                    }
+                    focusBorderColor="green.500"
+                  />
+                </Box>
 
-            <Button
-              title={loading ? "Sedang Masuk..." : "Masuk"}
-              onPress={handleLogin}
-              disabled={loading}
-              style={styles.loginButton}
-            />
-          </View>
+                <Box>
+                  <NBInput
+                    label="Password"
+                    placeholder="Masukkan password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    leftElement={
+                      <Icon 
+                        as={MaterialIcons} 
+                        name="lock" 
+                        size={5} 
+                        ml={3} 
+                        color="muted.400" 
+                      />
+                    }
+                    focusBorderColor="green.500"
+                  />
+                </Box>
 
-          <View style={styles.registerSection}>
-            <Text style={styles.registerText}>Belum memiliki akun bendahara?</Text>
-            <Link href="/(auth)/bendahara-register" style={styles.registerLink}>
-              Daftar Sekarang
-            </Link>
-          </View>
-        </View>
+                <NBButton
+                  title={loading ? "Sedang Masuk..." : "Masuk"}
+                  onPress={handleLogin}
+                  disabled={loading}
+                  isLoading={loading}
+                  leftIcon={
+                    <Icon 
+                      as={MaterialIcons} 
+                      name="login" 
+                      size="sm" 
+                      color="white"
+                    />
+                  }
+                  size="lg"
+                  bg="green.600"
+                  _pressed={{
+                    bg: "green.700"
+                  }}
+                  _hover={{
+                    bg: "green.700"
+                  }}
+                  _text={{
+                    fontSize: "md",
+                    fontWeight: "semibold"
+                  }}
+                />
+              </VStack>
+
+              {/* Register Link */}
+              <Center>
+                <VStack space={2} alignItems="center">
+                  <Text fontSize="sm" color="coolGray.600">
+                    Belum memiliki akun bendahara?
+                  </Text>
+                  <Pressable onPress={() => router.push("/(auth)/bendahara-register")}>
+                    <Text 
+                      color="green.600" 
+                      fontSize="sm" 
+                      fontWeight="semibold"
+                      underline
+                    >
+                      Daftar Sekarang
+                    </Text>
+                  </Pressable>
+                </VStack>
+              </Center>
+            </VStack>
+
+            {/* Footer */}
+            <Center py={6}>
+              <Text fontSize="xs" color="coolGray.500">
+                Sistem Pengelolaan Jimpitan Warga
+              </Text>
+            </Center>
+          </VStack>
+        </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc",
-  },
-  keyboardContainer: {
-    flex: 1,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  backButton: {
-    alignSelf: "flex-start",
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: "#3b82f6",
-    fontWeight: "500",
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: "center",
-  },
-  titleSection: {
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 24,
-  },
-  formSection: {
-    marginBottom: 32,
-  },
-  loginButton: {
-    marginTop: 8,
-  },
-  registerSection: {
-    alignItems: "center",
-  },
-  registerText: {
-    fontSize: 14,
-    color: "#64748b",
-    marginBottom: 8,
-  },
-  registerLink: {
-    fontSize: 14,
-    color: "#3b82f6",
-    fontWeight: "600",
-  },
-});

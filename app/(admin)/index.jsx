@@ -1,24 +1,35 @@
 import React, { useState, useEffect } from "react";
 import {
-  View,
+  Box,
+  VStack,
+  HStack,
   Text,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-  TouchableOpacity,
+  Heading,
   ScrollView,
-  ActivityIndicator,
+  Pressable,
   Modal,
-  TextInput,
-  RefreshControl,
-} from "react-native";
+  Input,
+  Icon,
+  Badge,
+  Spinner,
+  Center,
+  IconButton,
+  Divider,
+  useToast,
+} from "native-base";
+import { RefreshControl, Alert } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import Button from "../../components/ui/Button";
+import NBCard from "../../components/ui/NBCard";
+import NBButton from "../../components/ui/NBButton";
+import NBInput from "../../components/ui/NBInput";
+import NBLoadingSpinner from "../../components/ui/NBLoadingSpinner";
 import { signOutUser } from "../../services/authService";
 import { seederService } from "../../services/seederService";
+import { Colors } from "../../constants/Colors";
 
 function AdminHome() {
   const { currentUser, userProfile } = useAuth();
@@ -200,200 +211,250 @@ function AdminHome() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+    <Box flex={1} bg="gray.50" safeAreaTop>
       <ScrollView
-        style={styles.content}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 40 },
-        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#3b82f6"]}
-            tintColor="#3b82f6"
+            colors={["#10b981"]}
+            tintColor="#10b981"
             title="Tarik untuk memuat ulang..."
-            titleColor="#64748b"
+            titleColor={Colors.gray600}
           />
         }
+        _contentContainerStyle={{
+          px: 6,
+          pt: 10,
+          pb: insets.bottom + 10,
+        }}
       >
-        <View style={styles.headerSection}>
-          <Text style={styles.title}>Dashboard Bendahara</Text>
-          <Text style={styles.subtitle}>RT 01 RW 02</Text>
+        <VStack alignItems="center" mb={10}>
+          <Heading size="lg" color="gray.900">
+            Dashboard Bendahara
+          </Heading>
+          <Text fontSize="md" color="gray.600" mt={1}>
+            RT 01 RW 02
+          </Text>
           {userProfile && (
-            <Text style={styles.welcomeText}>
+            <Text fontSize="sm" color="green.600" fontWeight="500" mt={2}>
               Selamat datang, {userProfile.nama}
             </Text>
           )}
-        </View>
+        </VStack>
 
-        <View style={styles.menuSection}>
-          <TouchableOpacity
-            style={[styles.menuCard, styles.primaryCard]}
+        <VStack space={4} mb={10}>
+          <NBCard
+            variant="elevated"
+            borderColor="blue.400"
             onPress={handleTambahWarga}
-            activeOpacity={0.8}
+            p={5}
+            shadow={3}
           >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>👤</Text>
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Tambah Data Warga</Text>
-              <Text style={styles.menuDesc}>
-                Daftarkan warga baru dan buat akun warga
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={styles.arrowText}>→</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.menuCard, styles.secondaryCard]}
-            onPress={handleDaftarWarga}
-            activeOpacity={0.8}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>📋</Text>
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Daftar Warga</Text>
-              <Text style={styles.menuDesc}>
-                Lihat dan kelola data warga yang terdaftar
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={styles.arrowText}>→</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.menuCard, styles.tertiaryCard]}
-            onPress={handleTimelineManager}
-            activeOpacity={0.8}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>📅</Text>
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Timeline Manager</Text>
-              <Text style={styles.menuDesc}>
-                Kelola timeline dan setoran jimpitan
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={styles.arrowText}>→</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.menuCard, styles.quaternaryCard]}
-            onPress={handleCekPembayaran}
-            activeOpacity={0.8}
-          >
-            <View style={styles.menuIcon}>
-              <Text style={styles.menuIconText}>💰</Text>
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>Cek Status Setoran</Text>
-              <Text style={styles.menuDesc}>
-                Lihat status setoran jimpitan semua warga
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={styles.arrowText}>→</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.menuCard,
-              styles.seederCard,
-              seederLoading && styles.seederCardLoading,
-            ]}
-            onPress={handleSeeder}
-            activeOpacity={0.8}
-            disabled={seederLoading}
-          >
-            <View style={styles.menuIcon}>
-              {seederLoading ? (
-                <ActivityIndicator size={24} color="#ef4444" />
-              ) : (
-                <Text style={styles.menuIconText}>🎲</Text>
-              )}
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>
-                {seederLoading ? "Generating Data..." : "Generate Data Warga"}
-              </Text>
-              <Text style={styles.menuDesc}>
-                {seederLoading
-                  ? "Sedang membuat akun warga dengan data sequential..."
-                  : "Buat akun warga dengan email sequential untuk testing"}
-              </Text>
-              <View style={styles.seederStats}>
-                <Text style={styles.seederStatsText}>
-                  Total Warga: {seederStats.total} | Generated:{" "}
-                  {seederStats.seederUsers}
-                </Text>
-                <Text style={styles.seederNextText}>
-                  Next: user{seederStats.nextUserNumber}@gmail.com
-                </Text>
-              </View>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text
-                style={[styles.arrowText, seederLoading && { opacity: 0.5 }]}
+            <HStack alignItems="center" space={4}>
+              <Box
+                bg="blue.100"
+                p={3}
+                borderRadius="full"
               >
-                {seederLoading ? "⏳" : "→"}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+                <Icon as={MaterialIcons} name="person-add" size={8} color="blue.600" />
+              </Box>
+              <VStack flex={1}>
+                <Heading size="sm" color="gray.900">
+                  Tambah Data Warga
+                </Heading>
+                <Text fontSize="sm" color="gray.600" mt={1}>
+                  Daftarkan warga baru dan buat akun warga
+                </Text>
+              </VStack>
+              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+            </HStack>
+          </NBCard>
 
-        <View style={styles.logoutSection}>
-          <Button
+          <NBCard
+            variant="elevated"
+            borderColor="green.400"
+            onPress={handleDaftarWarga}
+            p={5}
+            shadow={3}
+          >
+            <HStack alignItems="center" space={4}>
+              <Box
+                bg="green.100"
+                p={3}
+                borderRadius="full"
+              >
+                <Icon as={MaterialIcons} name="list-alt" size={8} color="green.600" />
+              </Box>
+              <VStack flex={1}>
+                <Heading size="sm" color="gray.900">
+                  Daftar Warga
+                </Heading>
+                <Text fontSize="sm" color="gray.600" mt={1}>
+                  Lihat dan kelola data warga yang terdaftar
+                </Text>
+              </VStack>
+              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+            </HStack>
+          </NBCard>
+
+          <NBCard
+            variant="elevated"
+            borderColor="amber.400"
+            onPress={handleTimelineManager}
+            p={5}
+            shadow={3}
+          >
+            <HStack alignItems="center" space={4}>
+              <Box
+                bg="amber.100"
+                p={3}
+                borderRadius="full"
+              >
+                <Icon as={MaterialIcons} name="event" size={8} color="amber.600" />
+              </Box>
+              <VStack flex={1}>
+                <Heading size="sm" color="gray.900">
+                  Timeline Manager
+                </Heading>
+                <Text fontSize="sm" color="gray.600" mt={1}>
+                  Kelola timeline dan setoran jimpitan
+                </Text>
+              </VStack>
+              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+            </HStack>
+          </NBCard>
+
+          <NBCard
+            variant="elevated"
+            borderColor="purple.400"
+            onPress={handleCekPembayaran}
+            p={5}
+            shadow={3}
+          >
+            <HStack alignItems="center" space={4}>
+              <Box
+                bg="purple.100"
+                p={3}
+                borderRadius="full"
+              >
+                <Icon as={MaterialIcons} name="account-balance-wallet" size={8} color="purple.600" />
+              </Box>
+              <VStack flex={1}>
+                <Heading size="sm" color="gray.900">
+                  Cek Status Setoran
+                </Heading>
+                <Text fontSize="sm" color="gray.600" mt={1}>
+                  Lihat status setoran jimpitan semua warga
+                </Text>
+              </VStack>
+              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+            </HStack>
+          </NBCard>
+
+          <NBCard
+            variant="elevated"
+            bg={seederLoading ? "orange.50" : "red.50"}
+            borderColor={seederLoading ? "orange.400" : "red.400"}
+            onPress={handleSeeder}
+            p={5}
+            shadow={3}
+            opacity={seederLoading ? 0.7 : 1}
+            isDisabled={seederLoading}
+          >
+            <HStack alignItems="center" space={4}>
+              <Box
+                bg={seederLoading ? "orange.100" : "red.100"}
+                p={3}
+                borderRadius="full"
+              >
+                {seederLoading ? (
+                  <Spinner size="sm" color="orange.600" />
+                ) : (
+                  <Icon as={MaterialIcons} name="casino" size={8} color="red.600" />
+                )}
+              </Box>
+              <VStack flex={1}>
+                <Heading size="sm" color="gray.900">
+                  {seederLoading ? "Generating Data..." : "Generate Data Warga"}
+                </Heading>
+                <Text fontSize="sm" color="gray.600" mt={1}>
+                  {seederLoading
+                    ? "Sedang membuat akun warga dengan data sequential..."
+                    : "Buat akun warga dengan email sequential untuk testing"}
+                </Text>
+                <VStack mt={2}>
+                  <Text fontSize="xs" color="red.600" fontWeight="500">
+                    Total Warga: {seederStats.total} | Generated: {seederStats.seederUsers}
+                  </Text>
+                  <Text fontSize="xs" color="green.600" fontWeight="600">
+                    Next: user{seederStats.nextUserNumber}@gmail.com
+                  </Text>
+                </VStack>
+              </VStack>
+              <Icon 
+                as={MaterialIcons} 
+                name={seederLoading ? "hourglass-empty" : "chevron-right"} 
+                size={6} 
+                color={seederLoading ? "orange.400" : "gray.400"} 
+              />
+            </HStack>
+          </NBCard>
+        </VStack>
+
+        <Box mb={5}>
+          <NBButton
             title={loggingOut ? "Sedang Keluar..." : "Keluar"}
             onPress={handleLogout}
             variant="outline"
             disabled={loggingOut}
-            style={styles.logoutButton}
+            style={{ borderColor: Colors.error }}
+            leftIcon={<Icon as={MaterialIcons} name="logout" size={5} color={Colors.error} />}
           />
-        </View>
+        </Box>
       </ScrollView>
 
       <Modal
-        visible={seederModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => !seederLoading && setSeederModalVisible(false)}
+        isOpen={seederModalVisible}
+        onClose={() => !seederLoading && setSeederModalVisible(false)}
+        size="lg"
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Generate Data Warga</Text>
-              <TouchableOpacity
-                style={styles.closeButton}
+        <Modal.Content maxWidth="400px">
+          <Modal.Header>
+            <HStack justifyContent="space-between" alignItems="center">
+              <Heading size="md">Generate Data Warga</Heading>
+              <IconButton
+                icon={<Icon as={MaterialIcons} name="close" size={5} />}
                 onPress={() => setSeederModalVisible(false)}
-              >
-                <Text style={styles.closeButtonText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.modalContent}>
-              <Text style={styles.inputLabel}>Jumlah Akun (1-10):</Text>
-              <TextInput
-                style={styles.numberInput}
-                value={seederCount}
-                onChangeText={setSeederCount}
-                keyboardType="numeric"
-                placeholder="Masukkan jumlah"
-                maxLength={2}
+                variant="ghost"
+                colorScheme="gray"
+                _pressed={{ bg: "gray.100" }}
               />
+            </HStack>
+          </Modal.Header>
 
-              <View style={styles.previewSection}>
-                <Text style={styles.previewTitle}>Preview Email:</Text>
+          <Modal.Body>
+            <VStack space={4}>
+              <VStack>
+                <Text fontSize="md" fontWeight="600" color="gray.700" mb={3}>
+                  Jumlah Akun (1-10):
+                </Text>
+                <NBInput
+                  value={seederCount}
+                  onChangeText={setSeederCount}
+                  keyboardType="numeric"
+                  placeholder="Masukkan jumlah"
+                  textAlign="center"
+                  fontSize="lg"
+                  maxLength={2}
+                />
+              </VStack>
+
+              <Box bg="gray.50" p={4} borderRadius={8}>
+                <Text fontSize="sm" fontWeight="600" color="gray.700" mb={2}>
+                  Preview Email:
+                </Text>
                 {(() => {
                   const count = parseInt(seederCount) || 0;
                   if (count >= 1 && count <= 10) {
@@ -404,54 +465,65 @@ function AdminHome() {
                       );
                     }
                     return emails.map((email, index) => (
-                      <Text key={index} style={styles.previewEmail}>
+                      <Text key={index} fontSize="xs" color="green.600" fontFamily="mono" mb={1}>
                         {email}
                       </Text>
                     ));
                   }
                   return (
-                    <Text style={styles.previewError}>Jumlah harus 1-10</Text>
+                    <Text fontSize="sm" color="red.500" fontStyle="italic">
+                      Jumlah harus 1-10
+                    </Text>
                   );
                 })()}
-              </View>
-            </View>
+              </Box>
+            </VStack>
+          </Modal.Body>
 
-            <View style={styles.modalFooter}>
-              <Button
+          <Modal.Footer>
+            <HStack space={3}>
+              <NBButton
                 title="Batal"
                 onPress={() => setSeederModalVisible(false)}
                 variant="outline"
-                style={styles.modalButton}
+                flex={1}
               />
-              <Button
+              <NBButton
                 title="Generate"
                 onPress={handleSeederConfirm}
-                style={styles.modalButton}
+                variant="primary"
+                flex={1}
               />
-            </View>
-          </View>
-        </View>
+            </HStack>
+          </Modal.Footer>
+        </Modal.Content>
       </Modal>
 
-      {seederLoading && (
-        <View style={styles.loadingOverlay}>
-          <View style={styles.loadingModal}>
-            <ActivityIndicator size="large" color="#ef4444" />
-            <Text style={styles.loadingTitle}>Generating Data Warga</Text>
-            <Text style={styles.loadingSubtitle}>
-              Membuat {seederCount} akun dengan email sequential...
-            </Text>
-            <Text style={styles.loadingNote}>
-              Next: user{seederStats.nextUserNumber}@gmail.com
-            </Text>
-          </View>
-        </View>
-      )}
-    </SafeAreaView>
+      <Modal isOpen={seederLoading} size="lg">
+        <Modal.Content maxWidth="350px">
+          <Modal.Body>
+            <Center py={8}>
+              <VStack space={4} alignItems="center">
+                <Spinner size="lg" color="red.600" />
+                <Heading size="md" textAlign="center" color="gray.900">
+                  Generating Data Warga
+                </Heading>
+                <Text fontSize="sm" textAlign="center" color="gray.600">
+                  Membuat {seederCount} akun dengan email sequential...
+                </Text>
+                <Text fontSize="xs" textAlign="center" color="green.600" fontWeight="600">
+                  Next: user{seederStats.nextUserNumber}@gmail.com
+                </Text>
+              </VStack>
+            </Center>
+          </Modal.Body>
+        </Modal.Content>
+      </Modal>
+    </Box>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     backgroundColor: "#f8fafc",
@@ -714,6 +786,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
   },
-});
+};
 
 export default AdminHome;
