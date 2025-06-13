@@ -114,7 +114,6 @@ function PaymentStatus() {
     return users.filter(
       (user) =>
         user.namaWarga?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.namaWarga?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery, users]);
