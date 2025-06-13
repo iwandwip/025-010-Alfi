@@ -811,11 +811,11 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: "#3b82f6",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     textAlign: "center",
   },
@@ -853,7 +853,7 @@ const styles = StyleSheet.create({
   },
   stepTitle: {
     fontSize: 24,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     marginBottom: 24,
     textAlign: "center",
@@ -863,7 +863,7 @@ const styles = StyleSheet.create({
   },
   templatesTitle: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: 500,
     color: "#374151",
     marginBottom: 12,
   },
@@ -877,7 +877,7 @@ const styles = StyleSheet.create({
   },
   templateName: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     marginBottom: 4,
   },
@@ -890,7 +890,7 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
     color: "#374151",
     marginBottom: 8,
   },
@@ -911,7 +911,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#374151",
     textAlign: "center",
-    fontWeight: "600",
+    fontWeight: 600,
   },
   typeButtonTextActive: {
     color: "#3b82f6",
@@ -931,7 +931,7 @@ const styles = StyleSheet.create({
   calculationText: {
     fontSize: 14,
     color: "#0369a1",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   timelineRangeInfo: {
     backgroundColor: "#ecfdf5",
@@ -942,13 +942,13 @@ const styles = StyleSheet.create({
   timelineRangeLabel: {
     fontSize: 12,
     color: "#047857",
-    fontWeight: "500",
+    fontWeight: 500,
     marginBottom: 4,
   },
   timelineRangeValue: {
     fontSize: 14,
     color: "#047857",
-    fontWeight: "600",
+    fontWeight: 600,
   },
   manualModeSection: {
     marginTop: 16,
@@ -967,13 +967,13 @@ const styles = StyleSheet.create({
   simulationPreviewLabel: {
     fontSize: 12,
     color: "#1e40af",
-    fontWeight: "500",
+    fontWeight: 500,
     marginBottom: 4,
   },
   simulationPreviewValue: {
     fontSize: 14,
     color: "#1e40af",
-    fontWeight: "600",
+    fontWeight: 600,
   },
   rangeInfoBox: {
     marginTop: 12,
@@ -1025,7 +1025,7 @@ const styles = StyleSheet.create({
   },
   periodButtonText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
     color: "#374151",
   },
   periodButtonTextHoliday: {
@@ -1045,7 +1045,7 @@ const styles = StyleSheet.create({
   },
   amountPerPeriod: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#059669",
     marginTop: 8,
   },
@@ -1059,7 +1059,7 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     marginBottom: 16,
     textAlign: "center",
@@ -1075,13 +1075,13 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontSize: 14,
     color: "#64748b",
-    fontWeight: "500",
+    fontWeight: 500,
     flex: 1,
   },
   summaryValue: {
     fontSize: 14,
     color: "#1e293b",
-    fontWeight: "600",
+    fontWeight: 600,
     flex: 1.5,
     textAlign: "right",
   },

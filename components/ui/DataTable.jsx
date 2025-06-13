@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
     color: Colors.gray900,
     textAlign: "center",
   },
@@ -216,10 +216,10 @@ const styles = StyleSheet.create({
   },
   numberText: {
     fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   statusText: {
-    fontWeight: "500",
+    fontWeight: 500,
     textTransform: "capitalize",
   },
   actionButtons: {

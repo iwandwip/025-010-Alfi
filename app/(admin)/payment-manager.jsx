@@ -407,11 +407,11 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: "#3b82f6",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     textAlign: "center",
   },
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
   },
   timelineName: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     textAlign: "center",
     marginBottom: 4,
@@ -461,11 +461,11 @@ const styles = StyleSheet.create({
   periodTabText: {
     fontSize: 12,
     color: "#64748b",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   periodTabTextActive: {
     color: "#fff",
-    fontWeight: "600",
+    fontWeight: 600,
   },
   summarySection: {
     paddingHorizontal: 24,
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     textAlign: "center",
     marginBottom: 12,
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   },
   wargaName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     marginBottom: 4,
   },
@@ -548,7 +548,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   paymentDetails: {
     marginBottom: 16,
@@ -562,12 +562,12 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 14,
     color: "#64748b",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   detailValue: {
     fontSize: 14,
     color: "#1e293b",
-    fontWeight: "600",
+    fontWeight: 600,
   },
   paymentActions: {
     marginTop: 8,
@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: 500,
     color: "#64748b",
     marginBottom: 8,
     textAlign: "center",

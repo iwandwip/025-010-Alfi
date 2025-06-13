@@ -704,11 +704,11 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: "#3b82f6",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     textAlign: "center",
   },
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     marginBottom: 16,
   },
@@ -751,7 +751,7 @@ const styles = StyleSheet.create({
   },
   timelineName: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: 700,
     color: "#1e293b",
     flex: 1,
   },
@@ -763,7 +763,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#16a34a",
   },
   timelineDetails: {
@@ -780,13 +780,13 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 14,
     color: "#64748b",
-    fontWeight: "500",
+    fontWeight: 500,
     flex: 1,
   },
   detailValue: {
     fontSize: 14,
     color: "#1e293b",
-    fontWeight: "600",
+    fontWeight: 600,
     flex: 1.5,
     textAlign: "right",
   },
@@ -798,7 +798,7 @@ const styles = StyleSheet.create({
   },
   simulationTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#0369a1",
     marginBottom: 16,
     textAlign: "center",
@@ -812,13 +812,13 @@ const styles = StyleSheet.create({
   currentSimulationLabel: {
     fontSize: 12,
     color: "#1e40af",
-    fontWeight: "500",
+    fontWeight: 500,
     marginBottom: 4,
   },
   currentSimulationValue: {
     fontSize: 14,
     color: "#1e40af",
-    fontWeight: "600",
+    fontWeight: 600,
   },
   updateDateButton: {
     backgroundColor: "#0369a1",
@@ -880,7 +880,7 @@ const styles = StyleSheet.create({
   },
   noTimelineText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#64748b",
     marginBottom: 8,
     textAlign: "center",
@@ -935,7 +935,7 @@ const styles = StyleSheet.create({
   },
   templateName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     flex: 1,
   },
@@ -953,7 +953,7 @@ const styles = StyleSheet.create({
   templateAmount: {
     fontSize: 14,
     color: "#059669",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   templateHolidays: {
     fontSize: 12,
@@ -973,7 +973,7 @@ const styles = StyleSheet.create({
   },
   noTemplatesText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: 500,
     color: "#64748b",
     marginBottom: 8,
     textAlign: "center",

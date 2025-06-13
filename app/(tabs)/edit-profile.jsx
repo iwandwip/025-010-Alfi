@@ -274,11 +274,11 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
     textAlign: "center",
   },
   loadingContainer: {
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 16,
     paddingBottom: 8,
     borderBottomWidth: 2,

@@ -227,11 +227,11 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: "#3b82f6",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     textAlign: "center",
   },
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#1e293b",
     marginBottom: 16,
     paddingBottom: 8,

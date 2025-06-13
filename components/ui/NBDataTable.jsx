@@ -162,14 +162,14 @@ const NBDataTable = ({
             bg="gray.50"
             borderBottomWidth={2}
             borderBottomColor="gray.200"
-            px="2"
-            py="3"
+            px={2}
+            py={3}
           >
             {headers.map((header, index) => (
               <Box
                 key={index}
                 w={getCellWidth(index)}
-                px="2"
+                px={2}
                 alignItems="center"
                 borderRightWidth={index < headers.length - 1 ? 1 : 0}
                 borderRightColor="gray.200"
@@ -202,8 +202,8 @@ const NBDataTable = ({
                 bg={striped && rowIndex % 2 === 0 ? "white" : "gray.50"}
                 borderBottomWidth={1}
                 borderBottomColor="gray.100"
-                px="2"
-                py="3"
+                px={2}
+                py={3}
                 _hover={{
                   bg: "gray.50",
                 }}
@@ -212,7 +212,7 @@ const NBDataTable = ({
                   <Box
                     key={cellIndex}
                     w={getCellWidth(cellIndex)}
-                    px="2"
+                    px={2}
                     alignItems="center"
                     justifyContent="center"
                     borderRightWidth={cellIndex < headers.length - 1 ? 1 : 0}
@@ -227,7 +227,7 @@ const NBDataTable = ({
 
           {/* Empty State */}
           {data.length === 0 && (
-            <Box py="8" alignItems="center">
+            <Box py={8} alignItems="center">
               <Text color="gray.500" fontSize="md">
                 Tidak ada data untuk ditampilkan
               </Text>

@@ -70,12 +70,12 @@ export default function DaftarWarga() {
       borderColor={Colors.gray200}
       bg={Colors.white}
       onPress={() => handleWargaPress(item)}
-      mb="3"
-      p="4"
-      shadow="2"
+      mb={3}
+      p={4}
+      shadow={2}
     >
-      <HStack alignItems="center" space="4">
-        <VStack flex="1" space="1">
+      <HStack alignItems="center" space={4}>
+        <VStack flex="1" space={1}>
           <Heading size="sm" color="gray.900">
             {item.namaWarga}
           </Heading>
@@ -90,19 +90,19 @@ export default function DaftarWarga() {
           </Text>
         </VStack>
 
-        <VStack alignItems="center" space="2">
+        <VStack alignItems="center" space={2}>
           <Badge
             colorScheme={item.rfidWarga ? "green" : "orange"}
             variant="subtle"
             borderRadius="md"
-            px="2"
-            py="1"
+            px={2}
+            py={1}
           >
-            <HStack alignItems="center" space="1">
+            <HStack alignItems="center" space={1}>
               <Icon
                 as={MaterialIcons}
                 name={item.rfidWarga ? "check-circle" : "warning"}
-                size="3"
+                size={3}
                 color={item.rfidWarga ? "green.600" : "orange.600"}
               />
               <VStack alignItems="center">
@@ -115,7 +115,7 @@ export default function DaftarWarga() {
               </VStack>
             </HStack>
           </Badge>
-          <Icon as={MaterialIcons} name="chevron-right" size="6" color="gray.400" />
+          <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
         </VStack>
       </HStack>
     </NBCard>
@@ -125,16 +125,16 @@ export default function DaftarWarga() {
     return (
       <Box flex="1" bg="gray.50" safeAreaTop>
         <VStack
-          px="6"
-          py="4"
+          px={6}
+          py={4}
           bg="white"
           borderBottomWidth={1}
           borderBottomColor="gray.200"
-          shadow="2"
+          shadow={2}
         >
-          <HStack alignItems="center" space="3" mb="2">
+          <HStack alignItems="center" space={3} mb={2}>
             <IconButton
-              icon={<Icon as={MaterialIcons} name="arrow-back" size="6" />}
+              icon={<Icon as={MaterialIcons} name="arrow-back" size={6} />}
               onPress={() => router.back()}
               variant="ghost"
               colorScheme="green"
@@ -143,7 +143,7 @@ export default function DaftarWarga() {
             <Heading size="md" color="gray.900" flex="1" textAlign="center">
               Daftar Warga
             </Heading>
-            <Box w="10" />
+            <Box w={10} />
           </HStack>
         </VStack>
         <NBLoadingSpinner text="Memuat data warga..." />
@@ -154,16 +154,16 @@ export default function DaftarWarga() {
   return (
     <Box flex="1" bg="gray.50" safeAreaTop>
       <VStack
-        px="6"
-        py="4"
+        px={6}
+        py={4}
         bg="white"
         borderBottomWidth={1}
         borderBottomColor="gray.200"
-        shadow="2"
+        shadow={2}
       >
-        <HStack alignItems="center" space="3" mb="2">
+        <HStack alignItems="center" space={3} mb={2}>
           <IconButton
-            icon={<Icon as={MaterialIcons} name="arrow-back" size="6" />}
+            icon={<Icon as={MaterialIcons} name="arrow-back" size={6} />}
             onPress={() => router.back()}
             variant="ghost"
             colorScheme="green"
@@ -172,19 +172,19 @@ export default function DaftarWarga() {
           <Heading size="md" color="gray.900" flex="1" textAlign="center">
             Daftar Warga
           </Heading>
-          <Box w="10" />
+          <Box w={10} />
         </HStack>
       </VStack>
 
-      <Box flex="1" px="6" pt="4">
-        <VStack space="5" flex="1">
+      <Box flex="1" px={6} pt={4}>
+        <VStack space={5} flex="1">
           <NBInfoCard
             title="Total Warga"
             value={wargaList.length.toString()}
             icon="groups"
             color={Colors.primary}
           >
-            <Text fontSize="sm" color="gray.600" mt="2">
+            <Text fontSize="sm" color="gray.600" mt={2}>
               RFID Terpasang: {wargaList.filter((w) => w.rfidWarga).length} |
               Belum: {wargaList.filter((w) => !w.rfidWarga).length}
             </Text>
@@ -192,8 +192,8 @@ export default function DaftarWarga() {
 
           {wargaList.length === 0 ? (
             <Center flex="1">
-              <VStack alignItems="center" space="3">
-                <Icon as={MaterialIcons} name="group-off" size="16" color="gray.400" />
+              <VStack alignItems="center" space={3}>
+                <Icon as={MaterialIcons} name="group-off" size={16} color="gray.400" />
                 <Heading size="md" color="gray.600" textAlign="center">
                   Belum ada warga terdaftar
                 </Heading>

@@ -686,24 +686,24 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   title: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
     textAlign: "center",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
     textAlign: "center",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   timelineInfo: {
     fontSize: 12,
     textAlign: "center",
     marginTop: 4,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   loadingContainer: {
     flex: 1,
@@ -732,7 +732,7 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: 700,
     textAlign: "center",
     marginBottom: 20,
   },
@@ -747,11 +747,11 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   progressPercentage: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: 700,
   },
   progressBar: {
     height: 8,
@@ -780,7 +780,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   amountSummary: {
     borderTopWidth: 1,
@@ -795,11 +795,11 @@ const styles = StyleSheet.create({
   },
   amountLabel: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   amountValue: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   paymentCard: {
     borderRadius: 12,
@@ -823,12 +823,12 @@ const styles = StyleSheet.create({
   },
   periodText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 2,
   },
   periodNumber: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   statusBadge: {
     flexDirection: "row",
@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   cardContent: {
     marginBottom: 12,
@@ -856,12 +856,12 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
     flex: 1,
   },
   valueText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
     flex: 1.5,
     textAlign: "right",
   },
@@ -879,7 +879,7 @@ const styles = StyleSheet.create({
   },
   arrowText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   modalOverlay: {
     flex: 1,
@@ -901,7 +901,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   closeButton: {
     width: 32,
@@ -912,7 +912,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   modalContent: {
     paddingHorizontal: 24,
@@ -925,7 +925,7 @@ const styles = StyleSheet.create({
   },
   paymentTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 8,
   },
   paymentAmount: {
@@ -959,7 +959,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 8,
     textAlign: "center",
   },

@@ -36,7 +36,7 @@ const NBInput = ({
   };
 
   const passwordToggleElement = secureTextEntry ? (
-    <Pressable onPress={togglePasswordVisibility} mr="3">
+    <Pressable onPress={togglePasswordVisibility} mr={3}>
       <Icon
         as={MaterialIcons}
         name={isPasswordVisible ? "visibility" : "visibility-off"}
@@ -51,14 +51,14 @@ const NBInput = ({
       isInvalid={!!error}
       isRequired={isRequired}
       style={style}
-      mb="4"
+      mb={4}
     >
       <Stack>
         {label && (
           <FormControl.Label
             _text={{
               fontSize: "sm",
-              fontWeight: "500",
+              fontWeight: 500,
               color: "gray.700",
             }}
           >

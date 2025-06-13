@@ -1,25 +1,27 @@
 import React, { useState } from "react";
 import { useRouter } from "expo-router";
 import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Center,
   KeyboardAvoidingView,
   ScrollView,
-  useTheme,
-  Pressable,
-  Icon,
-  Alert as NBAlert,
-  Heading,
-  Divider,
-} from "native-base";
-import { Platform, Alert } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+  Platform,
+  Alert,
+  TouchableOpacity,
+  StyleSheet,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import NBInput from "../../components/ui/NBInput";
-import NBButton from "../../components/ui/NBButton";
+import {
+  SafeArea,
+  VStack,
+  HStack,
+  CustomText as Text,
+  Heading,
+  Box,
+  Center,
+  Button,
+  Input,
+  Colors,
+} from "../../components/ui/CoreComponents";
 import { signUpWithEmail } from "../../services/authService";
 
 export default function BendaharaRegister() {
@@ -33,7 +35,6 @@ export default function BendaharaRegister() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -94,255 +95,255 @@ export default function BendaharaRegister() {
   };
 
   return (
-    <Box flex="1" bg="green.50" safeAreaTop>
+    <SafeArea style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
-          <VStack flex="1" px="6">
+          <VStack style={styles.content}>
             {/* Header */}
-            <HStack py="4" alignItems="center">
-              <Pressable onPress={() => router.back()}>
-                <HStack alignItems="center" space="1">
-                  <Icon 
-                    as={MaterialIcons} 
-                    name="arrow-back" 
-                    size="md" 
-                    color="green.700" 
-                  />
-                  <Text color="green.700" fontSize="md" fontWeight="medium">
-                    Kembali
-                  </Text>
+            <HStack style={styles.header}>
+              <TouchableOpacity onPress={() => router.back()}>
+                <HStack style={styles.backButton}>
+                  <Text style={styles.backIcon}>←</Text>
+                  <Text style={styles.backText}>Kembali</Text>
                 </HStack>
-              </Pressable>
+              </TouchableOpacity>
             </HStack>
 
             {/* Content */}
-            <VStack flex="1" space="6" pb="6">
+            <VStack style={styles.mainContent}>
               {/* Logo/Illustration Area */}
-              <Center>
-                <Box 
-                  bg="white" 
-                  p="6" 
-                  rounded="full" 
-                  shadow="4"
-                  borderWidth={3}
-                  borderColor="green.200"
-                >
-                  <Icon 
-                    as={MaterialIcons} 
-                    name="person-add" 
-                    size="50" 
-                    color="green.600" 
-                  />
+              <Center style={styles.logoSection}>
+                <Box style={styles.logoContainer}>
+                  <Text style={styles.logoIcon}>👤➕</Text>
                 </Box>
               </Center>
 
               {/* Title Section */}
-              <VStack space="3" alignItems="center">
-                <Heading size="lg" color="coolGray.800">
+              <VStack style={styles.titleSection}>
+                <Heading size="lg" style={styles.title}>
                   Daftar Bendahara
                 </Heading>
-                <Text 
-                  fontSize="md" 
-                  color="coolGray.600" 
-                  textAlign="center"
-                  px={4}
-                >
-                  Buat akun Bendahara RT 01 RW 02
+                <Text style={styles.subtitle}>
+                  Buat akun bendahara untuk mengelola jimpitan warga
                 </Text>
               </VStack>
 
               {/* Form Section */}
-              <VStack space="4">
-                {/* Account Info Section */}
-                <VStack space="4">
-                  <HStack alignItems="center" space="2" px={1}>
-                    <Icon 
-                      as={MaterialIcons} 
-                      name="account-circle" 
-                      size="sm" 
-                      color="green.600" 
-                    />
-                    <Text fontSize="md" fontWeight="semibold" color="coolGray.700">
+              <VStack style={styles.formSection}>
+                <VStack style={styles.formGroup}>
+                  <HStack style={styles.formHeader}>
+                    <Text style={styles.sectionIcon}>📧</Text>
+                    <Heading size="sm" style={styles.sectionTitle}>
                       Informasi Akun
-                    </Text>
+                    </Heading>
                   </HStack>
-                  
-                  <Box>
-                    <NBInput
-                      label="Email"
-                      placeholder="Masukkan email bendahara"
-                      value={formData.email}
-                      onChangeText={(value) => updateForm("email", value)}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      leftElement={
-                        <Icon 
-                          as={MaterialIcons} 
-                          name="email" 
-                          size="5" 
-                          ml="3" 
-                          color="muted.400" 
-                        />
-                      }
-                      focusBorderColor="green.500"
-                    />
-                  </Box>
 
-                  <Box>
-                    <NBInput
-                      label="Password"
-                      placeholder="Masukkan password (min. 6 karakter)"
-                      value={formData.password}
-                      onChangeText={(value) => updateForm("password", value)}
-                      secureTextEntry
-                      leftElement={
-                        <Icon 
-                          as={MaterialIcons} 
-                          name="lock" 
-                          size="5" 
-                          ml="3" 
-                          color="muted.400" 
-                        />
-                      }
-                      focusBorderColor="green.500"
-                    />
-                  </Box>
+                  <Input
+                    label="Email"
+                    placeholder="Masukkan email bendahara"
+                    value={formData.email}
+                    onChangeText={(value) => updateForm("email", value)}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
 
-                  <Box>
-                    <NBInput
-                      label="Konfirmasi Password"
-                      placeholder="Ulangi password"
-                      value={formData.confirmPassword}
-                      onChangeText={(value) => updateForm("confirmPassword", value)}
-                      secureTextEntry
-                      leftElement={
-                        <Icon 
-                          as={MaterialIcons} 
-                          name="lock-outline" 
-                          size="5" 
-                          ml="3" 
-                          color="muted.400" 
-                        />
-                      }
-                      focusBorderColor="green.500"
-                    />
-                  </Box>
+                  <Input
+                    label="Password"
+                    placeholder="Masukkan password (min. 6 karakter)"
+                    value={formData.password}
+                    onChangeText={(value) => updateForm("password", value)}
+                    secureTextEntry
+                  />
+
+                  <Input
+                    label="Konfirmasi Password"
+                    placeholder="Masukkan ulang password"
+                    value={formData.confirmPassword}
+                    onChangeText={(value) => updateForm("confirmPassword", value)}
+                    secureTextEntry
+                  />
                 </VStack>
 
-                <Divider my="2" />
+                <View style={styles.divider} />
 
-                {/* Personal Info Section */}
-                <VStack space="4">
-                  <HStack alignItems="center" space="2" px={1}>
-                    <Icon 
-                      as={MaterialIcons} 
-                      name="person" 
-                      size="sm" 
-                      color="green.600" 
-                    />
-                    <Text fontSize="md" fontWeight="semibold" color="coolGray.700">
+                <VStack style={styles.formGroup}>
+                  <HStack style={styles.formHeader}>
+                    <Text style={styles.sectionIcon}>👤</Text>
+                    <Heading size="sm" style={styles.sectionTitle}>
                       Informasi Pribadi
-                    </Text>
+                    </Heading>
                   </HStack>
 
-                  <Box>
-                    <NBInput
-                      label="Nama Lengkap"
-                      placeholder="Masukkan nama lengkap"
-                      value={formData.nama}
-                      onChangeText={(value) => updateForm("nama", value)}
-                      autoCapitalize="words"
-                      leftElement={
-                        <Icon 
-                          as={MaterialIcons} 
-                          name="badge" 
-                          size="5" 
-                          ml="3" 
-                          color="muted.400" 
-                        />
-                      }
-                      focusBorderColor="green.500"
-                    />
-                  </Box>
+                  <Input
+                    label="Nama Lengkap"
+                    placeholder="Masukkan nama lengkap"
+                    value={formData.nama}
+                    onChangeText={(value) => updateForm("nama", value)}
+                  />
 
-                  <Box>
-                    <NBInput
-                      label="No HP"
-                      placeholder="Masukkan nomor HP"
-                      value={formData.noHp}
-                      onChangeText={(value) => updateForm("noHp", value)}
-                      keyboardType="phone-pad"
-                      leftElement={
-                        <Icon 
-                          as={MaterialIcons} 
-                          name="phone" 
-                          size="5" 
-                          ml="3" 
-                          color="muted.400" 
-                        />
-                      }
-                      focusBorderColor="green.500"
-                    />
-                  </Box>
+                  <Input
+                    label="No. HP"
+                    placeholder="Masukkan nomor HP"
+                    value={formData.noHp}
+                    onChangeText={(value) => updateForm("noHp", value)}
+                    keyboardType="phone-pad"
+                  />
                 </VStack>
 
-                <NBButton
-                  title={loading ? "Sedang Mendaftar..." : "Daftar"}
+                <Button
+                  title={loading ? "Sedang Daftar..." : "Daftar Akun"}
                   onPress={handleRegister}
                   disabled={loading}
-                  isLoading={loading}
-                  leftIcon={
-                    <Icon 
-                      as={MaterialIcons} 
-                      name="person-add" 
-                      size="sm" 
-                      color="white"
-                    />
-                  }
+                  loading={loading}
+                  variant="primary"
                   size="lg"
-                  bg="green.600"
-                  _pressed={{
-                    bg: "green.700"
-                  }}
-                  _hover={{
-                    bg: "green.700"
-                  }}
-                  _text={{
-                    fontSize: "md",
-                    fontWeight: "semibold"
-                  }}
-                  mt="2"
+                  style={[styles.registerButton, { backgroundColor: Colors.green }]}
                 />
               </VStack>
 
               {/* Login Link */}
-              <Center>
-                <VStack space="2" alignItems="center">
-                  <Text fontSize="sm" color="coolGray.600">
-                    Sudah memiliki akun bendahara?
+              <Center style={styles.loginSection}>
+                <VStack style={styles.loginContent}>
+                  <Text style={styles.loginQuestion}>
+                    Sudah memiliki akun?
                   </Text>
-                  <Pressable onPress={() => router.push("/(auth)/bendahara-login")}>
-                    <Text 
-                      color="green.600" 
-                      fontSize="sm" 
-                      fontWeight="semibold"
-                      underline
-                    >
+                  <TouchableOpacity onPress={() => router.push("/(auth)/bendahara-login")}>
+                    <Text style={styles.loginLink}>
                       Masuk Sekarang
                     </Text>
-                  </Pressable>
+                  </TouchableOpacity>
                 </VStack>
               </Center>
             </VStack>
           </VStack>
         </ScrollView>
       </KeyboardAvoidingView>
-    </Box>
+    </SafeArea>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.green + '10',
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  
+  // Header
+  header: {
+    paddingVertical: 16,
+  },
+  backButton: {
+    alignItems: 'center',
+  },
+  backIcon: {
+    fontSize: 20,
+    color: Colors.green,
+    marginRight: 4,
+  },
+  backText: {
+    color: Colors.green,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  
+  // Main Content
+  mainContent: {
+    flex: 1,
+  },
+  
+  // Logo
+  logoSection: {
+    marginBottom: 24,
+  },
+  logoContainer: {
+    backgroundColor: Colors.white,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 3,
+    borderColor: Colors.green + '30',
+  },
+  logoIcon: {
+    fontSize: 32,
+  },
+  
+  // Title
+  titleSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  title: {
+    color: Colors.gray800,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: Colors.gray600,
+    textAlign: 'center',
+    paddingHorizontal: 16,
+  },
+  
+  // Form
+  formSection: {
+    marginBottom: 24,
+  },
+  formGroup: {
+    marginBottom: 16,
+  },
+  formHeader: {
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 4,
+  },
+  sectionIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  sectionTitle: {
+    color: Colors.gray700,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.gray200,
+    marginVertical: 16,
+  },
+  registerButton: {
+    marginTop: 16,
+  },
+  
+  // Login
+  loginSection: {
+    marginBottom: 16,
+  },
+  loginContent: {
+    alignItems: 'center',
+  },
+  loginQuestion: {
+    fontSize: 14,
+    color: Colors.gray600,
+    marginBottom: 8,
+  },
+  loginLink: {
+    color: Colors.green,
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+});

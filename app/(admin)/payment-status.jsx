@@ -477,11 +477,11 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   title: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
     textAlign: "center",
     marginBottom: 4,
   },
@@ -527,12 +527,12 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 4,
   },
   parentName: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
     marginBottom: 2,
   },
   userEmail: {
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   amountInfo: {
     marginBottom: 12,
@@ -585,11 +585,11 @@ const styles = StyleSheet.create({
   },
   amountLabel: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
   },
   amountValue: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   lastPayment: {
     marginTop: 8,
@@ -608,11 +608,11 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   arrowText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   emptyContainer: {
     flex: 1,
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 8,
     textAlign: "center",
   },

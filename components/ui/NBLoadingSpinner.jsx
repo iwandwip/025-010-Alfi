@@ -57,7 +57,7 @@ const NBLoadingSpinner = ({
         style,
       ]}
     >
-      <VStack space="4" alignItems="center" p="5">
+      <VStack space={4} alignItems="center" p={5}>
         <Box position="relative">
           <Spinner
             size={size}
@@ -67,8 +67,8 @@ const NBLoadingSpinner = ({
           {/* Pulse effect background */}
           <Box
             position="absolute"
-            w="60"
-            h="60"
+            w={60}
+            h={60}
             borderRadius="full"
             bg={color}
             opacity="0.1"
@@ -99,11 +99,11 @@ const NBLoadingSpinner = ({
         )}
 
         {showProgress && progressSteps.length > 0 && (
-          <VStack space="2" w="100%" alignItems="center">
+          <VStack space={2} w="100%" alignItems="center">
             <Progress
               value={progressValue}
               w="100%"
-              h="2"
+              h={2}
               bg="gray.200"
               _filledTrack={{
                 bg: color,
@@ -157,16 +157,16 @@ const NBLoadingCard = ({
         <Box
           bg="white"
           rounded="2xl"
-          p="10"
+          p={10}
           alignItems="center"
-          shadow="9"
+          shadow={9}
           borderWidth={1}
           borderColor="gray.200"
           minW={300}
         >
           <NBLoadingSpinner size="lg" color={color} text="" />
           
-          <Heading size="md" mt="4" textAlign="center">
+          <Heading size="md" mt={4} textAlign="center">
             {title}
           </Heading>
           
@@ -174,7 +174,7 @@ const NBLoadingCard = ({
             fontSize="sm"
             color="gray.600"
             textAlign="center"
-            mt="2"
+            mt={2}
           >
             {subtitle}
           </Text>
@@ -203,7 +203,7 @@ const NBLoadingOverlay = ({
           <Box
             bg="white"
             rounded="xl"
-            p="8"
+            p={8}
             alignItems="center"
             maxW={280}
           >

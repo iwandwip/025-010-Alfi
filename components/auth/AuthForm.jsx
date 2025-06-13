@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.primary,
     textAlign: "center",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   scrollContainer: {
     flex: 1,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   },
   genderLabel: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: 500,
     color: Colors.gray700,
     marginBottom: 8,
   },

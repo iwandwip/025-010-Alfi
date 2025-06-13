@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   closeButton: {
     width: 32,
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   modalContent: {
     flex: 1,
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   },
   periodTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 8,
   },
   amountText: {
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
   },
   creditText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     marginBottom: 8,
   },
   divider: {
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
   },
   paidWithCreditText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 600,
     marginTop: 8,
     textAlign: 'center',
   },
@@ -589,14 +589,14 @@ const styles = StyleSheet.create({
   },
   modeButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 600,
   },
   customAmountSection: {
     marginTop: 12,
   },
   customAmountLabel: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: 500,
     marginBottom: 8,
   },
   customAmountInput: {
@@ -613,12 +613,12 @@ const styles = StyleSheet.create({
   },
   excessText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: 600,
     marginBottom: 4,
   },
   excessAmount: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: 500,
     marginBottom: 4,
   },
   excessWarning: {
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 16,
   },
   methodCard: {
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
   },
   methodName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     marginBottom: 4,
   },
   methodDescription: {
@@ -684,7 +684,7 @@ const styles = StyleSheet.create({
   },
   processingText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     marginTop: 16,
     textAlign: "center",
   },

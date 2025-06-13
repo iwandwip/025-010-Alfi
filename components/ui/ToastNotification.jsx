@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     flex: 1,
   },
   closeButton: {
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   message: {
     fontSize: 14,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   progressContainer: {
     height: 3,

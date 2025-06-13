@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 12,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: 600,
     textAlign: "center",
   },
   subText: {
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   stepText: {
     fontSize: 14,
     color: Colors.gray700,
-    fontWeight: "500",
+    fontWeight: 500,
     textAlign: "center",
     marginBottom: 4,
   },
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: 600,
     color: Colors.gray900,
     textAlign: "center",
     marginTop: 16,
