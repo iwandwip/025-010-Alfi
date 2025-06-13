@@ -163,7 +163,7 @@ const NBCard = ({
         onPress={onPress}
         _pressed={{
           opacity: 0.8,
-          transform: [{ scale: "0.98" }],
+          transform: [{ scale: 0.98 }],
         }}
       >
         <Box {...cardProps}>

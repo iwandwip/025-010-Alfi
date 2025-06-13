@@ -48,7 +48,7 @@ export default function BendaharaLogin() {
   };
 
   return (
-    <Box flex="1" bg="green.50" safeAreaTop>
+    <Box flex={1} bg="green.50" safeAreaTop>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -57,7 +57,7 @@ export default function BendaharaLogin() {
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
-          <VStack flex="1" px="6">
+          <VStack flex={1} px="6">
             {/* Header */}
             <HStack py="4" alignItems="center">
               <Pressable onPress={() => router.back()}>
@@ -76,7 +76,7 @@ export default function BendaharaLogin() {
             </HStack>
 
             {/* Content */}
-            <VStack flex="1" justifyContent="center" space="8">
+            <VStack flex={1} justifyContent="center" space="8">
               {/* Logo/Illustration Area */}
               <Center>
                 <Box 
@@ -105,7 +105,7 @@ export default function BendaharaLogin() {
                   fontSize="md" 
                   color="coolGray.600" 
                   textAlign="center"
-                  px={4}
+                  px="4"
                 >
                   Masuk sebagai Bendahara RT 01 RW 02
                 </Text>
