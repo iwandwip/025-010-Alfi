@@ -46,7 +46,7 @@ export default function WargaLogin() {
   };
 
   return (
-    <Box flex={1} bg="primary.50" safeAreaTop>
+    <Box flex="1" bg="primary.50" safeAreaTop>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -55,11 +55,11 @@ export default function WargaLogin() {
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
-          <VStack flex={1} px={6}>
+          <VStack flex="1" px="6">
             {/* Header */}
-            <HStack py={4} alignItems="center">
+            <HStack py="4" alignItems="center">
               <Pressable onPress={() => router.back()}>
-                <HStack alignItems="center" space={1}>
+                <HStack alignItems="center" space="1">
                   <Icon 
                     as={MaterialIcons} 
                     name="arrow-back" 
@@ -74,28 +74,28 @@ export default function WargaLogin() {
             </HStack>
 
             {/* Content */}
-            <VStack flex={1} justifyContent="center" space={8}>
+            <VStack flex="1" justifyContent="center" space="8">
               {/* Logo/Illustration Area */}
               <Center>
                 <Box 
                   bg="white" 
-                  p={8} 
+                  p="8" 
                   rounded="full" 
-                  shadow={3}
-                  borderWidth={3}
+                  shadow="3"
+                  borderWidth="3"
                   borderColor="primary.200"
                 >
                   <Icon 
                     as={MaterialIcons} 
                     name="account-balance-wallet" 
-                    size={70} 
+                    size="70px" 
                     color="primary.500" 
                   />
                 </Box>
               </Center>
 
               {/* Title Section */}
-              <VStack space={3} alignItems="center">
+              <VStack space="3" alignItems="center">
                 <Heading size="xl" color="coolGray.800">
                   Masuk Warga
                 </Heading>
@@ -103,25 +103,25 @@ export default function WargaLogin() {
                   fontSize="md" 
                   color="coolGray.600" 
                   textAlign="center"
-                  px={4}
+                  px="4"
                 >
                   Masuk untuk memantau dan setor jimpitan
                 </Text>
                 <Box 
                   bg="blue.50" 
-                  p={3} 
+                  p="3" 
                   rounded="lg" 
-                  borderWidth={1} 
+                  borderWidth="1" 
                   borderColor="blue.200"
                 >
-                  <HStack space={2} alignItems="center">
+                  <HStack space="2" alignItems="center">
                     <Icon 
                       as={MaterialIcons} 
                       name="info" 
                       size="sm" 
                       color="blue.500" 
                     />
-                    <Text fontSize="sm" color="coolGray.800" flexShrink={1}>
+                    <Text fontSize="sm" color="coolGray.800" flexShrink="1">
                       Belum punya akun? Hubungi bendahara RT untuk pendaftaran
                     </Text>
                   </HStack>
@@ -129,7 +129,7 @@ export default function WargaLogin() {
               </VStack>
 
               {/* Form Section */}
-              <VStack space={5}>
+              <VStack space="5">
                 <Box>
                   <NBInput
                     label="Email"
@@ -142,8 +142,8 @@ export default function WargaLogin() {
                       <Icon 
                         as={MaterialIcons} 
                         name="email" 
-                        size={5} 
-                        ml={3} 
+                        size="sm" 
+                        ml="3" 
                         color="muted.400" 
                       />
                     }
@@ -161,8 +161,8 @@ export default function WargaLogin() {
                       <Icon 
                         as={MaterialIcons} 
                         name="lock" 
-                        size={5} 
-                        ml={3} 
+                        size="sm" 
+                        ml="3" 
                         color="muted.400" 
                       />
                     }
@@ -187,7 +187,7 @@ export default function WargaLogin() {
             </VStack>
 
             {/* Footer */}
-            <Center py={6}>
+            <Center py="6">
               <Text fontSize="xs" color="coolGray.500">
                 Sistem Pengelolaan Jimpitan Warga
               </Text>

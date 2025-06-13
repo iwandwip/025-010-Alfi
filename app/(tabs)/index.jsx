@@ -283,11 +283,11 @@ function StatusSetoran() {
         title="Ringkasan Setoran"
         icon="assessment"
         variant="elevated"
-        shadow={3}
+        shadow="3"
         bg={colors.white}
       >
-        <VStack space={4}>
-          <VStack space={2}>
+        <VStack space="4">
+          <VStack space="2">
             <HStack justifyContent="space-between" alignItems="center">
               <Text fontSize="sm" color={colors.gray700}>
                 Progress: {summary.lunas || 0}/{summary.total || 0} periode
@@ -335,7 +335,7 @@ function StatusSetoran() {
             )}
           </HStack>
 
-          <VStack space={2} borderTopWidth={1} borderTopColor={colors.gray200} pt={3}>
+          <VStack space="2" borderTopWidth="1" borderTopColor={colors.gray200} pt="3">
             <HStack justifyContent="space-between">
               <Text fontSize="sm" color={colors.gray600}>
                 Total Tagihan:
@@ -378,11 +378,11 @@ function StatusSetoran() {
           variant="outline"
           borderColor={colors.gray200}
           bg={colors.white}
-          mb={3}
+          mb="3"
         >
-          <VStack space={3}>
+          <VStack space="3">
             <HStack justifyContent="space-between" alignItems="flex-start">
-              <VStack flex={1}>
+              <VStack flex="1">
                 <Text fontSize="md" fontWeight="600" color={colors.gray900}>
                   {item.periodData.label}
                 </Text>
@@ -395,17 +395,17 @@ function StatusSetoran() {
                 colorScheme={statusColorScheme}
                 variant="subtle"
                 borderRadius="full"
-                px={3}
-                py={1}
+                px="3"
+                py="1"
               >
-                <HStack alignItems="center" space={1}>
+                <HStack alignItems="center" space="1">
                   <Text fontSize="sm">{getStatusIcon(item.status)}</Text>
                   <Text fontSize="sm">{getStatusLabel(item.status)}</Text>
                 </HStack>
               </Badge>
             </HStack>
 
-            <VStack space={2}>
+            <VStack space="2">
               <HStack justifyContent="space-between">
                 <Text fontSize="sm" color={colors.gray600}>
                   Nominal:
@@ -417,8 +417,8 @@ function StatusSetoran() {
 
               {(item.creditApplied || 0) > 0 && (
                 <HStack justifyContent="space-between">
-                  <HStack alignItems="center" space={1}>
-                    <Icon as={MaterialIcons} name="account-balance-wallet" size={4} color="teal.600" />
+                  <HStack alignItems="center" space="1">
+                    <Icon as={MaterialIcons} name="account-balance-wallet" size="4" color="teal.600" />
                     <Text fontSize="sm" color="teal.600">
                       Credit Applied:
                     </Text>
@@ -481,7 +481,7 @@ function StatusSetoran() {
                 disabled={updatingPayment}
                 variant="primary"
                 size="md"
-                leftIcon={<Icon as={MaterialIcons} name="payment" size={5} color="white" />}
+                leftIcon={<Icon as={MaterialIcons} name="payment" size="5" color="white" />}
               />
             )}
 
@@ -493,7 +493,7 @@ function StatusSetoran() {
                 variant="primary"
                 style={{ backgroundColor: colors.warning }}
                 size="md"
-                leftIcon={<Icon as={MaterialIcons} name="flash-on" size={5} color="white" />}
+                leftIcon={<Icon as={MaterialIcons} name="flash-on" size="5" color="white" />}
               />
             )}
           </VStack>
@@ -542,20 +542,20 @@ function StatusSetoran() {
 
   if (settingsLoading || loading) {
     return (
-      <Box flex={1} bg={colors.background} safeAreaTop>
+      <Box flex="1" bg={colors.background} safeAreaTop>
         <VStack
-          px={6}
-          py={5}
+          px="6"
+          py="5"
           bg={colors.white}
-          borderBottomWidth={1}
+          borderBottomWidth="1"
           borderBottomColor={colors.gray200}
-          shadow={2}
+          shadow="2"
         >
           <Heading size="md" textAlign="center" color={colors.gray900}>
             Status Setoran Jimpitan
           </Heading>
           {userProfile && (
-            <Text fontSize="sm" textAlign="center" color={colors.gray600} mt={1}>
+            <Text fontSize="sm" textAlign="center" color={colors.gray600} mt="1">
               Warga: {userProfile.namaWarga}
             </Text>
           )}
@@ -567,25 +567,25 @@ function StatusSetoran() {
   }
 
   return (
-    <Box flex={1} bg={colors.background} safeAreaTop>
+    <Box flex="1" bg={colors.background} safeAreaTop>
       <VStack
-        px={6}
-        py={5}
+        px="6"
+        py="5"
         bg={colors.white}
-        borderBottomWidth={1}
+        borderBottomWidth="1"
         borderBottomColor={colors.gray200}
-        shadow={2}
+        shadow="2"
       >
         <Heading size="md" textAlign="center" color={colors.gray900}>
           Status Setoran Jimpitan
         </Heading>
         {userProfile && (
-          <Text fontSize="sm" textAlign="center" color={colors.gray600} mt={1}>
+          <Text fontSize="sm" textAlign="center" color={colors.gray600} mt="1">
             Warga: {userProfile.namaWarga}
           </Text>
         )}
         {timeline && (
-          <Text fontSize="xs" textAlign="center" color="teal.600" mt={1} fontWeight="500">
+          <Text fontSize="xs" textAlign="center" color="teal.600" mt="1" fontWeight="500">
             Timeline: {timeline.name}
           </Text>
         )}
@@ -617,8 +617,8 @@ function StatusSetoran() {
           removeClippedSubviews={true}
         />
       ) : (
-        <Center flex={1} px={6}>
-          <VStack alignItems="center" space={3}>
+        <Center flex="1" px="6">
+          <VStack alignItems="center" space="3">
             <Icon as={MaterialIcons} name="assessment" size={16} color={colors.gray400} />
             <Heading size="md" color={colors.gray600} textAlign="center">
               {timeline
@@ -645,8 +645,8 @@ function StatusSetoran() {
       <Modal isOpen={updatingPayment} size="lg">
         <Modal.Content maxWidth="400px">
           <Modal.Body>
-            <Center py={6}>
-              <VStack space={4} alignItems="center">
+            <Center py="6">
+              <VStack space="4" alignItems="center">
                 <Spinner size="lg" color="teal.600" />
                 <Text fontSize="md" color={colors.gray900}>
                   Memperbarui status pembayaran...

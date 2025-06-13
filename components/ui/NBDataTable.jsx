@@ -11,7 +11,7 @@ import {
   Divider,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Colors } from "../../constants/Colors";
+// Colors now use NativeBase theme tokens
 
 const NBDataTable = ({ 
   headers, 
@@ -71,8 +71,8 @@ const NBDataTable = ({
               borderRadius="full"
               size="sm"
               variant="solid"
-              bg={Colors.primary}
-              _pressed={{ bg: `${Colors.primary}CC` }}
+              bg="primary.500"
+              _pressed={{ bg: "primary.600" }}
               onPress={() => onEdit(row)}
               accessibilityLabel="Edit"
             />
@@ -83,8 +83,8 @@ const NBDataTable = ({
               borderRadius="full"
               size="sm"
               variant="solid"
-              bg={Colors.error}
-              _pressed={{ bg: `${Colors.error}CC` }}
+              bg="red.500"
+              _pressed={{ bg: "red.600" }}
               onPress={() => onDelete(row)}
               accessibilityLabel="Delete"
             />
@@ -119,7 +119,7 @@ const NBDataTable = ({
     // DateTime column (assuming it's column 0)
     if (columnIndex === 0 && value && (value instanceof Date || typeof value === "string")) {
       return (
-        <Text fontSize="xs" fontFamily="monospace" color={Colors.gray700}>
+        <Text fontSize="xs" fontFamily="monospace" color="gray.700">
           {formatDateTime(value)}
         </Text>
       );
@@ -128,7 +128,7 @@ const NBDataTable = ({
     // Number columns (assuming columns 1 and 2)
     if ((columnIndex === 1 || columnIndex === 2) && typeof value === "number") {
       return (
-        <Text fontSize="sm" fontFamily="monospace" fontWeight="500" color={Colors.gray700}>
+        <Text fontSize="sm" fontFamily="monospace" fontWeight="500" color="gray.700">
           {formatNumber(value)}
         </Text>
       );
@@ -136,7 +136,7 @@ const NBDataTable = ({
 
     // Default cell
     return (
-      <Text fontSize="sm" color={Colors.gray700} numberOfLines={2}>
+      <Text fontSize="sm" color="gray.700" numberOfLines={2}>
         {String(value || "")}
       </Text>
     );
@@ -149,35 +149,35 @@ const NBDataTable = ({
 
   return (
     <Box
-      bg={Colors.white}
-      borderRadius={12}
-      borderWidth={1}
-      borderColor={Colors.gray200}
+      bg="white"
+      rounded="xl"
+      borderWidth="1"
+      borderColor="gray.200"
       overflow="hidden"
     >
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <Box minW="100%">
           {/* Header */}
           <HStack
-            bg={Colors.gray50}
-            borderBottomWidth={2}
-            borderBottomColor={Colors.gray200}
-            px={2}
-            py={3}
+            bg="gray.50"
+            borderBottomWidth="2"
+            borderBottomColor="gray.200"
+            px="2"
+            py="3"
           >
             {headers.map((header, index) => (
               <Box
                 key={index}
                 w={getCellWidth(index)}
-                px={2}
+                px="2"
                 alignItems="center"
-                borderRightWidth={index < headers.length - 1 ? 1 : 0}
-                borderRightColor={Colors.gray200}
+                borderRightWidth={index < headers.length - 1 ? "1" : "0"}
+                borderRightColor="gray.200"
               >
                 <Text
                   fontSize="sm"
                   fontWeight="600"
-                  color={Colors.gray900}
+                  color="gray.900"
                   textAlign="center"
                 >
                   {header}
@@ -199,24 +199,24 @@ const NBDataTable = ({
             return (
               <HStack
                 key={keyExtractor ? keyExtractor(row, rowIndex) : rowIndex}
-                bg={striped && rowIndex % 2 === 0 ? Colors.white : Colors.gray25}
-                borderBottomWidth={1}
-                borderBottomColor={Colors.gray100}
-                px={2}
-                py={3}
+                bg={striped && rowIndex % 2 === 0 ? "white" : "gray.50"}
+                borderBottomWidth="1"
+                borderBottomColor="gray.100"
+                px="2"
+                py="3"
                 _hover={{
-                  bg: Colors.gray50,
+                  bg: "gray.50",
                 }}
               >
                 {rowData.map((cellValue, cellIndex) => (
                   <Box
                     key={cellIndex}
                     w={getCellWidth(cellIndex)}
-                    px={2}
+                    px="2"
                     alignItems="center"
                     justifyContent="center"
-                    borderRightWidth={cellIndex < headers.length - 1 ? 1 : 0}
-                    borderRightColor={Colors.gray100}
+                    borderRightWidth={cellIndex < headers.length - 1 ? "1" : "0"}
+                    borderRightColor="gray.100"
                   >
                     {renderCell(cellValue, cellIndex, rowIndex, row)}
                   </Box>
@@ -227,8 +227,8 @@ const NBDataTable = ({
 
           {/* Empty State */}
           {data.length === 0 && (
-            <Box py={8} alignItems="center">
-              <Text color={Colors.gray500} fontSize="md">
+            <Box py="8" alignItems="center">
+              <Text color="gray.500" fontSize="md">
                 Tidak ada data untuk ditampilkan
               </Text>
             </Box>

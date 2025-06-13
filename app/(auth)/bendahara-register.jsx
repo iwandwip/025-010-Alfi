@@ -94,7 +94,7 @@ export default function BendaharaRegister() {
   };
 
   return (
-    <Box flex={1} bg="green.50" safeAreaTop>
+    <Box flex="1" bg="green.50" safeAreaTop>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -103,11 +103,11 @@ export default function BendaharaRegister() {
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
-          <VStack flex={1} px={6}>
+          <VStack flex="1" px="6">
             {/* Header */}
-            <HStack py={4} alignItems="center">
+            <HStack py="4" alignItems="center">
               <Pressable onPress={() => router.back()}>
-                <HStack alignItems="center" space={1}>
+                <HStack alignItems="center" space="1">
                   <Icon 
                     as={MaterialIcons} 
                     name="arrow-back" 
@@ -122,28 +122,28 @@ export default function BendaharaRegister() {
             </HStack>
 
             {/* Content */}
-            <VStack flex={1} space={6} pb={6}>
+            <VStack flex="1" space="6" pb="6">
               {/* Logo/Illustration Area */}
               <Center>
                 <Box 
                   bg="white" 
-                  p={6} 
+                  p="6" 
                   rounded="full" 
-                  shadow={4}
-                  borderWidth={3}
+                  shadow="4"
+                  borderWidth="3"
                   borderColor="green.200"
                 >
                   <Icon 
                     as={MaterialIcons} 
                     name="person-add" 
-                    size={50} 
+                    size="50" 
                     color="green.600" 
                   />
                 </Box>
               </Center>
 
               {/* Title Section */}
-              <VStack space={3} alignItems="center">
+              <VStack space="3" alignItems="center">
                 <Heading size="lg" color="coolGray.800">
                   Daftar Bendahara
                 </Heading>
@@ -158,10 +158,10 @@ export default function BendaharaRegister() {
               </VStack>
 
               {/* Form Section */}
-              <VStack space={4}>
+              <VStack space="4">
                 {/* Account Info Section */}
-                <VStack space={4}>
-                  <HStack alignItems="center" space={2} px={1}>
+                <VStack space="4">
+                  <HStack alignItems="center" space="2" px={1}>
                     <Icon 
                       as={MaterialIcons} 
                       name="account-circle" 
@@ -185,8 +185,8 @@ export default function BendaharaRegister() {
                         <Icon 
                           as={MaterialIcons} 
                           name="email" 
-                          size={5} 
-                          ml={3} 
+                          size="5" 
+                          ml="3" 
                           color="muted.400" 
                         />
                       }
@@ -205,8 +205,8 @@ export default function BendaharaRegister() {
                         <Icon 
                           as={MaterialIcons} 
                           name="lock" 
-                          size={5} 
-                          ml={3} 
+                          size="5" 
+                          ml="3" 
                           color="muted.400" 
                         />
                       }
@@ -225,8 +225,8 @@ export default function BendaharaRegister() {
                         <Icon 
                           as={MaterialIcons} 
                           name="lock-outline" 
-                          size={5} 
-                          ml={3} 
+                          size="5" 
+                          ml="3" 
                           color="muted.400" 
                         />
                       }
@@ -235,11 +235,11 @@ export default function BendaharaRegister() {
                   </Box>
                 </VStack>
 
-                <Divider my={2} />
+                <Divider my="2" />
 
                 {/* Personal Info Section */}
-                <VStack space={4}>
-                  <HStack alignItems="center" space={2} px={1}>
+                <VStack space="4">
+                  <HStack alignItems="center" space="2" px={1}>
                     <Icon 
                       as={MaterialIcons} 
                       name="person" 
@@ -262,8 +262,8 @@ export default function BendaharaRegister() {
                         <Icon 
                           as={MaterialIcons} 
                           name="badge" 
-                          size={5} 
-                          ml={3} 
+                          size="5" 
+                          ml="3" 
                           color="muted.400" 
                         />
                       }
@@ -282,8 +282,8 @@ export default function BendaharaRegister() {
                         <Icon 
                           as={MaterialIcons} 
                           name="phone" 
-                          size={5} 
-                          ml={3} 
+                          size="5" 
+                          ml="3" 
                           color="muted.400" 
                         />
                       }
@@ -317,13 +317,13 @@ export default function BendaharaRegister() {
                     fontSize: "md",
                     fontWeight: "semibold"
                   }}
-                  mt={2}
+                  mt="2"
                 />
               </VStack>
 
               {/* Login Link */}
               <Center>
-                <VStack space={2} alignItems="center">
+                <VStack space="2" alignItems="center">
                   <Text fontSize="sm" color="coolGray.600">
                     Sudah memiliki akun bendahara?
                   </Text>

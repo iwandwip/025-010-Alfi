@@ -58,14 +58,14 @@ function Profile() {
 
   if (settingsLoading || !userProfile) {
     return (
-      <Box flex={1} bg={colors.background} safeAreaTop>
+      <Box flex="1" bg={colors.background} safeAreaTop>
         <NBLoadingSpinner text="Memuat profil..." />
       </Box>
     );
   }
 
   return (
-    <Box flex={1} bg={colors.background} safeAreaTop>
+    <Box flex="1" bg={colors.background} safeAreaTop>
       <ScrollView
         showsVerticalScrollIndicator={false}
         _contentContainerStyle={{
@@ -74,9 +74,9 @@ function Profile() {
           pb: insets.bottom + 6,
         }}
       >
-        <VStack space={8}>
+        <VStack space="8">
           <Center>
-            <VStack alignItems="center" space={4}>
+            <VStack alignItems="center" space="4">
               <Avatar
                 size="xl"
                 bg="teal.600"
@@ -84,7 +84,7 @@ function Profile() {
                   uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile?.namaWarga || 'W')}&background=14b8a6&color=ffffff&size=200`,
                 }}
               >
-                <Icon as={MaterialIcons} name="person" size={10} color="white" />
+                <Icon as={MaterialIcons} name="person" size="10" color="white" />
               </Avatar>
               <VStack alignItems="center">
                 <Heading size="lg" color={colors.gray900} textAlign="center">
@@ -94,11 +94,11 @@ function Profile() {
                   colorScheme="teal"
                   variant="subtle"
                   borderRadius="full"
-                  px={3}
-                  py={1}
+                  px="3"
+                  py="1"
                 >
-                  <HStack alignItems="center" space={1}>
-                    <Icon as={MaterialIcons} name="person" size={3} color="teal.600" />
+                  <HStack alignItems="center" space="1">
+                    <Icon as={MaterialIcons} name="person" size="3" color="teal.600" />
                     <Text fontSize="sm" color="teal.600">Warga</Text>
                   </HStack>
                 </Badge>
@@ -107,20 +107,20 @@ function Profile() {
           </Center>
 
           {userProfile && (
-            <VStack space={4}>
+            <VStack space="4">
               <NBCard
                 title="Informasi Warga"
                 icon="person"
                 variant="elevated"
-                shadow={3}
+                shadow="3"
                 bg={colors.white}
               >
-                <VStack space={3}>
+                <VStack space="3">
                   <HStack justifyContent="space-between" alignItems="center">
                     <Text fontSize="sm" color={colors.gray600}>
                       Nama Warga:
                     </Text>
-                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex="1" textAlign="right">
                       {userProfile.namaWarga}
                     </Text>
                   </HStack>
@@ -129,7 +129,7 @@ function Profile() {
                     <Text fontSize="sm" color={colors.gray600}>
                       No HP:
                     </Text>
-                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex="1" textAlign="right">
                       {userProfile.noHpWarga}
                     </Text>
                   </HStack>
@@ -138,7 +138,7 @@ function Profile() {
                     <Text fontSize="sm" color={colors.gray600}>
                       Email:
                     </Text>
-                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex="1" textAlign="right">
                       {userProfile.email}
                     </Text>
                   </HStack>
@@ -149,15 +149,15 @@ function Profile() {
                 title="Informasi Alamat"
                 icon="location-on"
                 variant="elevated"
-                shadow={3}
+                shadow="3"
                 bg={colors.white}
               >
-                <VStack space={3}>
+                <VStack space="3">
                   <HStack justifyContent="space-between" alignItems="flex-start">
                     <Text fontSize="sm" color={colors.gray600}>
                       Alamat:
                     </Text>
-                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex={1} textAlign="right">
+                    <Text fontSize="sm" fontWeight="600" color={colors.gray900} flex="1" textAlign="right">
                       {userProfile.alamat || 'Belum diisi'}
                     </Text>
                   </HStack>
@@ -166,11 +166,11 @@ function Profile() {
                     <Text fontSize="sm" color={colors.gray600}>
                       Status RFID:
                     </Text>
-                    <HStack alignItems="center" space={2}>
+                    <HStack alignItems="center" space="2">
                       <Icon
                         as={MaterialIcons}
                         name={userProfile.rfidWarga ? "check-circle" : "cancel"}
-                        size={4}
+                        size="4"
                         color={userProfile.rfidWarga ? "green.500" : "red.500"}
                       />
                       <Text
@@ -193,7 +193,7 @@ function Profile() {
                         fontWeight="600"
                         color={colors.gray900}
                         fontFamily="mono"
-                        flex={1}
+                        flex="1"
                         textAlign="right"
                       >
                         {userProfile.rfidWarga}
@@ -207,10 +207,10 @@ function Profile() {
                 title="Informasi Akun"
                 icon="admin-panel-settings"
                 variant="elevated"
-                shadow={3}
+                shadow="3"
                 bg={colors.white}
               >
-                <VStack space={3}>
+                <VStack space="3">
                   <HStack justifyContent="space-between" alignItems="center">
                     <Text fontSize="sm" color={colors.gray600}>
                       User ID:
@@ -220,7 +220,7 @@ function Profile() {
                       fontWeight="600"
                       color={colors.gray900}
                       fontFamily="mono"
-                      flex={1}
+                      flex="1"
                       textAlign="right"
                     >
                       {userProfile.id}
@@ -235,8 +235,8 @@ function Profile() {
                       colorScheme="teal"
                       variant="subtle"
                       borderRadius="full"
-                      px={2}
-                      py={1}
+                      px="2"
+                      py="1"
                     >
                       <Text fontSize="xs" color="teal.600">
                         {userProfile.role}
@@ -248,12 +248,12 @@ function Profile() {
             </VStack>
           )}
 
-          <VStack space={3}>
+          <VStack space="3">
             <NBButton
               title="Edit Profil"
               onPress={handleEditProfile}
               variant="primary"
-              leftIcon={<Icon as={MaterialIcons} name="edit" size={5} color="white" />}
+              leftIcon={<Icon as={MaterialIcons} name="edit" size="5" color="white" />}
             />
 
             <NBButton
@@ -262,7 +262,7 @@ function Profile() {
               variant="outline"
               style={{ borderColor: colors.error }}
               disabled={loggingOut}
-              leftIcon={<Icon as={MaterialIcons} name="logout" size={5} color={colors.error} />}
+              leftIcon={<Icon as={MaterialIcons} name="logout" size="5" color={colors.error} />}
             />
           </VStack>
         </VStack>

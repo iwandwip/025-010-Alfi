@@ -211,7 +211,7 @@ function AdminHome() {
   };
 
   return (
-    <Box flex={1} bg="gray.50" safeAreaTop>
+    <Box flex="1" bg="gray.50" safeAreaTop>
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -221,7 +221,7 @@ function AdminHome() {
             colors={["#10b981"]}
             tintColor="#10b981"
             title="Tarik untuk memuat ulang..."
-            titleColor={Colors.gray600}
+            titleColor="#6b7280"
           />
         }
         _contentContainerStyle={{
@@ -230,45 +230,45 @@ function AdminHome() {
           pb: insets.bottom + 10,
         }}
       >
-        <VStack alignItems="center" mb={10}>
+        <VStack alignItems="center" mb="10">
           <Heading size="lg" color="gray.900">
             Dashboard Bendahara
           </Heading>
-          <Text fontSize="md" color="gray.600" mt={1}>
+          <Text fontSize="md" color="gray.600" mt="1">
             RT 01 RW 02
           </Text>
           {userProfile && (
-            <Text fontSize="sm" color="green.600" fontWeight="500" mt={2}>
+            <Text fontSize="sm" color="green.600" fontWeight="500" mt="2">
               Selamat datang, {userProfile.nama}
             </Text>
           )}
         </VStack>
 
-        <VStack space={4} mb={10}>
+        <VStack space="4" mb="10">
           <NBCard
             variant="elevated"
             borderColor="blue.400"
             onPress={handleTambahWarga}
-            p={5}
-            shadow={3}
+            p="5"
+            shadow="3"
           >
-            <HStack alignItems="center" space={4}>
+            <HStack alignItems="center" space="4">
               <Box
                 bg="blue.100"
-                p={3}
-                borderRadius="full"
+                p="3"
+                rounded="full"
               >
-                <Icon as={MaterialIcons} name="person-add" size={8} color="blue.600" />
+                <Icon as={MaterialIcons} name="person-add" size="8" color="blue.600" />
               </Box>
-              <VStack flex={1}>
+              <VStack flex="1">
                 <Heading size="sm" color="gray.900">
                   Tambah Data Warga
                 </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
+                <Text fontSize="sm" color="gray.600" mt="1">
                   Daftarkan warga baru dan buat akun warga
                 </Text>
               </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+              <Icon as={MaterialIcons} name="chevron-right" size="6" color="gray.400" />
             </HStack>
           </NBCard>
 
@@ -276,26 +276,26 @@ function AdminHome() {
             variant="elevated"
             borderColor="green.400"
             onPress={handleDaftarWarga}
-            p={5}
-            shadow={3}
+            p="5"
+            shadow="3"
           >
-            <HStack alignItems="center" space={4}>
+            <HStack alignItems="center" space="4">
               <Box
                 bg="green.100"
-                p={3}
-                borderRadius="full"
+                p="3"
+                rounded="full"
               >
-                <Icon as={MaterialIcons} name="list-alt" size={8} color="green.600" />
+                <Icon as={MaterialIcons} name="list-alt" size="8" color="green.600" />
               </Box>
-              <VStack flex={1}>
+              <VStack flex="1">
                 <Heading size="sm" color="gray.900">
                   Daftar Warga
                 </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
+                <Text fontSize="sm" color="gray.600" mt="1">
                   Lihat dan kelola data warga yang terdaftar
                 </Text>
               </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+              <Icon as={MaterialIcons} name="chevron-right" size="6" color="gray.400" />
             </HStack>
           </NBCard>
 
@@ -303,26 +303,26 @@ function AdminHome() {
             variant="elevated"
             borderColor="amber.400"
             onPress={handleTimelineManager}
-            p={5}
-            shadow={3}
+            p="5"
+            shadow="3"
           >
-            <HStack alignItems="center" space={4}>
+            <HStack alignItems="center" space="4">
               <Box
                 bg="amber.100"
-                p={3}
-                borderRadius="full"
+                p="3"
+                rounded="full"
               >
-                <Icon as={MaterialIcons} name="event" size={8} color="amber.600" />
+                <Icon as={MaterialIcons} name="event" size="8" color="amber.600" />
               </Box>
-              <VStack flex={1}>
+              <VStack flex="1">
                 <Heading size="sm" color="gray.900">
                   Timeline Manager
                 </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
+                <Text fontSize="sm" color="gray.600" mt="1">
                   Kelola timeline dan setoran jimpitan
                 </Text>
               </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+              <Icon as={MaterialIcons} name="chevron-right" size="6" color="gray.400" />
             </HStack>
           </NBCard>
 
@@ -330,26 +330,26 @@ function AdminHome() {
             variant="elevated"
             borderColor="purple.400"
             onPress={handleCekPembayaran}
-            p={5}
-            shadow={3}
+            p="5"
+            shadow="3"
           >
-            <HStack alignItems="center" space={4}>
+            <HStack alignItems="center" space="4">
               <Box
                 bg="purple.100"
-                p={3}
-                borderRadius="full"
+                p="3"
+                rounded="full"
               >
-                <Icon as={MaterialIcons} name="account-balance-wallet" size={8} color="purple.600" />
+                <Icon as={MaterialIcons} name="account-balance-wallet" size="8" color="purple.600" />
               </Box>
-              <VStack flex={1}>
+              <VStack flex="1">
                 <Heading size="sm" color="gray.900">
                   Cek Status Setoran
                 </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
+                <Text fontSize="sm" color="gray.600" mt="1">
                   Lihat status setoran jimpitan semua warga
                 </Text>
               </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
+              <Icon as={MaterialIcons} name="chevron-right" size="6" color="gray.400" />
             </HStack>
           </NBCard>
 
@@ -358,33 +358,33 @@ function AdminHome() {
             bg={seederLoading ? "orange.50" : "red.50"}
             borderColor={seederLoading ? "orange.400" : "red.400"}
             onPress={handleSeeder}
-            p={5}
-            shadow={3}
+            p="5"
+            shadow="3"
             opacity={seederLoading ? 0.7 : 1}
             isDisabled={seederLoading}
           >
-            <HStack alignItems="center" space={4}>
+            <HStack alignItems="center" space="4">
               <Box
                 bg={seederLoading ? "orange.100" : "red.100"}
-                p={3}
-                borderRadius="full"
+                p="3"
+                rounded="full"
               >
                 {seederLoading ? (
                   <Spinner size="sm" color="orange.600" />
                 ) : (
-                  <Icon as={MaterialIcons} name="casino" size={8} color="red.600" />
+                  <Icon as={MaterialIcons} name="casino" size="8" color="red.600" />
                 )}
               </Box>
-              <VStack flex={1}>
+              <VStack flex="1">
                 <Heading size="sm" color="gray.900">
                   {seederLoading ? "Generating Data..." : "Generate Data Warga"}
                 </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
+                <Text fontSize="sm" color="gray.600" mt="1">
                   {seederLoading
                     ? "Sedang membuat akun warga dengan data sequential..."
                     : "Buat akun warga dengan email sequential untuk testing"}
                 </Text>
-                <VStack mt={2}>
+                <VStack mt="2">
                   <Text fontSize="xs" color="red.600" fontWeight="500">
                     Total Warga: {seederStats.total} | Generated: {seederStats.seederUsers}
                   </Text>
@@ -396,21 +396,21 @@ function AdminHome() {
               <Icon 
                 as={MaterialIcons} 
                 name={seederLoading ? "hourglass-empty" : "chevron-right"} 
-                size={6} 
+                size="6" 
                 color={seederLoading ? "orange.400" : "gray.400"} 
               />
             </HStack>
           </NBCard>
         </VStack>
 
-        <Box mb={5}>
+        <Box mb="5">
           <NBButton
             title={loggingOut ? "Sedang Keluar..." : "Keluar"}
             onPress={handleLogout}
             variant="outline"
             disabled={loggingOut}
-            style={{ borderColor: Colors.error }}
-            leftIcon={<Icon as={MaterialIcons} name="logout" size={5} color={Colors.error} />}
+            colorScheme="red"
+            leftIcon={<Icon as={MaterialIcons} name="logout" size="5" color="red.500" />}
           />
         </Box>
       </ScrollView>
@@ -425,7 +425,7 @@ function AdminHome() {
             <HStack justifyContent="space-between" alignItems="center">
               <Heading size="md">Generate Data Warga</Heading>
               <IconButton
-                icon={<Icon as={MaterialIcons} name="close" size={5} />}
+                icon={<Icon as={MaterialIcons} name="close" size="5" />}
                 onPress={() => setSeederModalVisible(false)}
                 variant="ghost"
                 colorScheme="gray"
@@ -435,9 +435,9 @@ function AdminHome() {
           </Modal.Header>
 
           <Modal.Body>
-            <VStack space={4}>
+            <VStack space="4">
               <VStack>
-                <Text fontSize="md" fontWeight="600" color="gray.700" mb={3}>
+                <Text fontSize="md" fontWeight="600" color="gray.700" mb="3">
                   Jumlah Akun (1-10):
                 </Text>
                 <NBInput
@@ -447,12 +447,12 @@ function AdminHome() {
                   placeholder="Masukkan jumlah"
                   textAlign="center"
                   fontSize="lg"
-                  maxLength={2}
+                  maxLength="2"
                 />
               </VStack>
 
-              <Box bg="gray.50" p={4} borderRadius={8}>
-                <Text fontSize="sm" fontWeight="600" color="gray.700" mb={2}>
+              <Box bg="gray.50" p="4" rounded="lg">
+                <Text fontSize="sm" fontWeight="600" color="gray.700" mb="2">
                   Preview Email:
                 </Text>
                 {(() => {
@@ -481,18 +481,18 @@ function AdminHome() {
           </Modal.Body>
 
           <Modal.Footer>
-            <HStack space={3}>
+            <HStack space="3">
               <NBButton
                 title="Batal"
                 onPress={() => setSeederModalVisible(false)}
                 variant="outline"
-                flex={1}
+                flex="1"
               />
               <NBButton
                 title="Generate"
                 onPress={handleSeederConfirm}
                 variant="primary"
-                flex={1}
+                flex="1"
               />
             </HStack>
           </Modal.Footer>
@@ -502,8 +502,8 @@ function AdminHome() {
       <Modal isOpen={seederLoading} size="lg">
         <Modal.Content maxWidth="350px">
           <Modal.Body>
-            <Center py={8}>
-              <VStack space={4} alignItems="center">
+            <Center py="8">
+              <VStack space="4" alignItems="center">
                 <Spinner size="lg" color="red.600" />
                 <Heading size="md" textAlign="center" color="gray.900">
                   Generating Data Warga

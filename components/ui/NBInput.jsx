@@ -9,7 +9,6 @@ import {
   Box,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Colors } from "../../constants/Colors";
 
 const NBInput = ({
   label,
@@ -37,12 +36,12 @@ const NBInput = ({
   };
 
   const passwordToggleElement = secureTextEntry ? (
-    <Pressable onPress={togglePasswordVisibility} mr={3}>
+    <Pressable onPress={togglePasswordVisibility} mr="3">
       <Icon
         as={MaterialIcons}
         name={isPasswordVisible ? "visibility" : "visibility-off"}
-        size={5}
-        color={Colors.gray500}
+        size="sm"
+        color="gray.500"
       />
     </Pressable>
   ) : null;
@@ -52,15 +51,15 @@ const NBInput = ({
       isInvalid={!!error}
       isRequired={isRequired}
       style={style}
-      mb={4}
+      mb="4"
     >
       <Stack>
         {label && (
           <FormControl.Label
             _text={{
-              fontSize: 14,
+              fontSize: "sm",
               fontWeight: "500",
-              color: Colors.gray700,
+              color: "gray.700",
             }}
           >
             {label}
@@ -71,35 +70,21 @@ const NBInput = ({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor={Colors.gray400}
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
           multiline={multiline}
           numberOfLines={numberOfLines}
-          textAlignVertical={multiline ? "top" : "center"}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          fontSize={16}
-          color={Colors.gray900}
-          borderRadius={8}
-          borderWidth={1}
-          borderColor={error ? Colors.error : (isFocused ? Colors.primary : Colors.gray300)}
-          backgroundColor={Colors.white}
-          px={4}
-          py={3}
-          minHeight={multiline ? 20 : 12}
+          fontSize="md"
+          size="lg"
+          variant={error ? "outline" : "outline"}
+          borderColor={error ? "red.500" : (isFocused ? "primary.500" : "gray.300")}
+          bg="white"
           _focus={{
-            borderColor: Colors.primary,
-            backgroundColor: Colors.white,
-          }}
-          _hover={{
-            borderColor: Colors.primary,
-          }}
-          _disabled={{
-            backgroundColor: Colors.gray100,
-            borderColor: Colors.gray300,
-            opacity: 0.6,
+            borderColor: "primary.500",
+            bg: "white",
           }}
           InputLeftElement={leftElement}
           InputRightElement={rightElement || passwordToggleElement}
@@ -109,8 +94,8 @@ const NBInput = ({
         {helperText && !error && (
           <FormControl.HelperText
             _text={{
-              fontSize: 12,
-              color: Colors.gray600,
+              fontSize: "xs",
+              color: "gray.600",
             }}
           >
             {helperText}
@@ -120,8 +105,8 @@ const NBInput = ({
         {error && (
           <FormControl.ErrorMessage
             _text={{
-              fontSize: 12,
-              color: Colors.error,
+              fontSize: "xs",
+              color: "red.500",
             }}
           >
             {error}

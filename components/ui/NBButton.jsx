@@ -1,6 +1,5 @@
 import React from "react";
 import { Button as NativeBaseButton } from "native-base";
-import { Colors } from "../../constants/Colors";
 
 const NBButton = ({
   title,
@@ -20,41 +19,27 @@ const NBButton = ({
     switch (variant) {
       case "primary":
         return {
-          backgroundColor: Colors.primary,
-          _text: { color: Colors.white, ...textStyle },
-          _pressed: { backgroundColor: `${Colors.primary}CC` },
-          _disabled: {
-            backgroundColor: Colors.gray300,
-            _text: { color: Colors.gray500 },
-          },
+          variant: "solid",
+          colorScheme: "primary",
+          _text: { ...textStyle },
         };
       case "secondary":
         return {
-          backgroundColor: Colors.secondary,
-          borderWidth: 1,
-          borderColor: Colors.primary,
-          _text: { color: Colors.primary, ...textStyle },
-          _pressed: { backgroundColor: `${Colors.secondary}CC` },
-          _disabled: {
-            backgroundColor: Colors.gray300,
-            _text: { color: Colors.gray500 },
-          },
+          variant: "outline",
+          colorScheme: "primary",
+          _text: { ...textStyle },
         };
       case "outline":
         return {
           variant: "outline",
-          borderColor: Colors.primary,
-          _text: { color: Colors.primary, ...textStyle },
-          _pressed: { backgroundColor: `${Colors.primary}1A` },
-          _disabled: {
-            borderColor: Colors.gray300,
-            _text: { color: Colors.gray500 },
-          },
+          colorScheme: "primary",
+          _text: { ...textStyle },
         };
       default:
         return {
-          backgroundColor: Colors.primary,
-          _text: { color: Colors.white, ...textStyle },
+          variant: "solid",
+          colorScheme: "primary",
+          _text: { ...textStyle },
         };
     }
   };
@@ -81,12 +66,8 @@ const NBButton = ({
       onPress={onPress}
       isDisabled={disabled}
       size={getSize()}
-      borderRadius={8}
-      minHeight={12}
-      px={6}
-      py={3}
+      rounded="lg"
       accessibilityLabel={accessibilityLabel || title}
-      accessibilityRole="button"
       leftIcon={leftIcon}
       rightIcon={rightIcon}
       {...variantProps}

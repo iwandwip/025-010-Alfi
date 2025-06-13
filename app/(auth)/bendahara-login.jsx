@@ -48,7 +48,7 @@ export default function BendaharaLogin() {
   };
 
   return (
-    <Box flex={1} bg="green.50" safeAreaTop>
+    <Box flex="1" bg="green.50" safeAreaTop>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -57,11 +57,11 @@ export default function BendaharaLogin() {
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
-          <VStack flex={1} px={6}>
+          <VStack flex="1" px="6">
             {/* Header */}
-            <HStack py={4} alignItems="center">
+            <HStack py="4" alignItems="center">
               <Pressable onPress={() => router.back()}>
-                <HStack alignItems="center" space={1}>
+                <HStack alignItems="center" space="1">
                   <Icon 
                     as={MaterialIcons} 
                     name="arrow-back" 
@@ -76,28 +76,28 @@ export default function BendaharaLogin() {
             </HStack>
 
             {/* Content */}
-            <VStack flex={1} justifyContent="center" space={8}>
+            <VStack flex="1" justifyContent="center" space="8">
               {/* Logo/Illustration Area */}
               <Center>
                 <Box 
                   bg="white" 
-                  p={8} 
+                  p="8" 
                   rounded="full" 
-                  shadow={4}
-                  borderWidth={3}
+                  shadow="4"
+                  borderWidth="3"
                   borderColor="green.200"
                 >
                   <Icon 
                     as={MaterialIcons} 
                     name="admin-panel-settings" 
-                    size={70} 
+                    size="70" 
                     color="green.600" 
                   />
                 </Box>
               </Center>
 
               {/* Title Section */}
-              <VStack space={3} alignItems="center">
+              <VStack space="3" alignItems="center">
                 <Heading size="xl" color="coolGray.800">
                   Masuk Bendahara
                 </Heading>
@@ -116,8 +116,8 @@ export default function BendaharaLogin() {
                   variant="subtle"
                   rounded="lg"
                 >
-                  <VStack space={2} flexShrink={1} w="100%">
-                    <HStack flexShrink={1} space={2} alignItems="center">
+                  <VStack space="2" flexShrink={1} w="100%">
+                    <HStack flexShrink={1} space="2" alignItems="center">
                       <NBAlert.Icon />
                       <Text fontSize="sm" color="coolGray.800" flexShrink={1}>
                         Kelola data warga dan setoran jimpitan
@@ -128,7 +128,7 @@ export default function BendaharaLogin() {
               </VStack>
 
               {/* Form Section */}
-              <VStack space={5}>
+              <VStack space="5">
                 <Box>
                   <NBInput
                     label="Email"
@@ -141,8 +141,8 @@ export default function BendaharaLogin() {
                       <Icon 
                         as={MaterialIcons} 
                         name="email" 
-                        size={5} 
-                        ml={3} 
+                        size="5" 
+                        ml="3" 
                         color="muted.400" 
                       />
                     }
@@ -161,8 +161,8 @@ export default function BendaharaLogin() {
                       <Icon 
                         as={MaterialIcons} 
                         name="lock" 
-                        size={5} 
-                        ml={3} 
+                        size="5" 
+                        ml="3" 
                         color="muted.400" 
                       />
                     }
@@ -200,7 +200,7 @@ export default function BendaharaLogin() {
 
               {/* Register Link */}
               <Center>
-                <VStack space={2} alignItems="center">
+                <VStack space="2" alignItems="center">
                   <Text fontSize="sm" color="coolGray.600">
                     Belum memiliki akun bendahara?
                   </Text>
@@ -219,7 +219,7 @@ export default function BendaharaLogin() {
             </VStack>
 
             {/* Footer */}
-            <Center py={6}>
+            <Center py="6">
               <Text fontSize="xs" color="coolGray.500">
                 Sistem Pengelolaan Jimpitan Warga
               </Text>
