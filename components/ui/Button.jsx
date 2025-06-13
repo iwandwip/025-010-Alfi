@@ -9,6 +9,7 @@ const Button = ({
   disabled = false,
   style,
   textStyle,
+  accessibilityLabel,
 }) => {
   return (
     <TouchableOpacity
@@ -21,6 +22,9 @@ const Button = ({
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || title}
+      accessibilityState={{ disabled }}
     >
       <Text
         style={[

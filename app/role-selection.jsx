@@ -44,6 +44,8 @@ export default function RoleSelection() {
             style={[styles.roleCard, styles.adminCard]}
             onPress={handleBendaharaPress}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Masuk sebagai Bendahara untuk mengelola data warga dan setoran"
           >
             <View style={styles.roleIcon}>
               <Text style={styles.roleIconText}>👨‍💼</Text>
@@ -63,6 +65,8 @@ export default function RoleSelection() {
             style={[styles.roleCard, styles.wargaCard]}
             onPress={handleWargaPress}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Masuk sebagai Warga untuk pantau dan setor jimpitan"
           >
             <View style={styles.roleIcon}>
               <Text style={styles.roleIconText}>👨‍👩‍👧‍👦</Text>

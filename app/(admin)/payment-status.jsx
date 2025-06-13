@@ -74,7 +74,7 @@ function PaymentStatus() {
     if (!settingsLoading) {
       loadData(false, true);
     }
-  }, [loadData, settingsLoading]);
+  }, [settingsLoading]); // loadData is stable due to useCallback with empty deps
 
   useFocusEffect(
     useCallback(() => {

@@ -112,7 +112,7 @@ function StatusSetoran() {
     if (!settingsLoading) {
       loadData(false, true);
     }
-  }, [loadData, settingsLoading]);
+  }, [loadData, settingsLoading]); // loadData changes when userProfile.id changes
 
   useFocusEffect(
     useCallback(() => {

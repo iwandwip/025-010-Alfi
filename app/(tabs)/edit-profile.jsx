@@ -91,7 +91,7 @@ export default function EditProfile() {
     setLoading(false);
   };
 
-  if (settingsLoading) {
+  if (settingsLoading || !userProfile) {
     return (
       <SafeAreaView
         style={[

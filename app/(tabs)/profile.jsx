@@ -48,7 +48,7 @@ function Profile() {
     router.push("/(tabs)/edit-profile");
   };
 
-  if (settingsLoading) {
+  if (settingsLoading || !userProfile) {
     return (
       <SafeAreaView
         style={[
