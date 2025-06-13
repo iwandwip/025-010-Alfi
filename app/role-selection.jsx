@@ -61,7 +61,7 @@ export default function RoleSelection() {
               p="8" 
               rounded="full" 
               shadow="8"
-              borderWidth="4"
+              borderWidth={4}
               borderColor="pink.100"
             >
               <Icon 
@@ -93,7 +93,7 @@ export default function RoleSelection() {
                 rounded="2xl"
                 shadow="4"
                 overflow="hidden"
-                borderWidth="2"
+                borderWidth={2}
                 borderColor="green.200"
                 _pressed={{
                   borderColor: "green.400",
@@ -150,7 +150,7 @@ export default function RoleSelection() {
                 rounded="2xl"
                 shadow="4"
                 overflow="hidden"
-                borderWidth="2"
+                borderWidth={2}
                 borderColor="teal.200"
                 _pressed={{
                   borderColor: "teal.400",

@@ -128,7 +128,7 @@ export default function DaftarWarga() {
           px="6"
           py="4"
           bg="white"
-          borderBottomWidth="1"
+          borderBottomWidth={1}
           borderBottomColor="gray.200"
           shadow="2"
         >
@@ -157,7 +157,7 @@ export default function DaftarWarga() {
         px="6"
         py="4"
         bg="white"
-        borderBottomWidth="1"
+        borderBottomWidth={1}
         borderBottomColor="gray.200"
         shadow="2"
       >

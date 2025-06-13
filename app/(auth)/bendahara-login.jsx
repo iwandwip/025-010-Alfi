@@ -84,7 +84,7 @@ export default function BendaharaLogin() {
                   p="8" 
                   rounded="full" 
                   shadow="4"
-                  borderWidth="3"
+                  borderWidth={3}
                   borderColor="green.200"
                 >
                   <Icon 

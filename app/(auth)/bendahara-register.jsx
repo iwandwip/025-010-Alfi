@@ -130,7 +130,7 @@ export default function BendaharaRegister() {
                   p="6" 
                   rounded="full" 
                   shadow="4"
-                  borderWidth="3"
+                  borderWidth={3}
                   borderColor="green.200"
                 >
                   <Icon 

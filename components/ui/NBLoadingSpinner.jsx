@@ -160,7 +160,7 @@ const NBLoadingCard = ({
           p="10"
           alignItems="center"
           shadow="9"
-          borderWidth="1"
+          borderWidth={1}
           borderColor="gray.200"
           minW={300}
         >

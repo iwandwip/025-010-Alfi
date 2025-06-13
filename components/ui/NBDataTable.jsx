@@ -151,7 +151,7 @@ const NBDataTable = ({
     <Box
       bg="white"
       rounded="xl"
-      borderWidth="1"
+      borderWidth={1}
       borderColor="gray.200"
       overflow="hidden"
     >
@@ -160,7 +160,7 @@ const NBDataTable = ({
           {/* Header */}
           <HStack
             bg="gray.50"
-            borderBottomWidth="2"
+            borderBottomWidth={2}
             borderBottomColor="gray.200"
             px="2"
             py="3"
@@ -171,7 +171,7 @@ const NBDataTable = ({
                 w={getCellWidth(index)}
                 px="2"
                 alignItems="center"
-                borderRightWidth={index < headers.length - 1 ? "1" : "0"}
+                borderRightWidth={index < headers.length - 1 ? 1 : 0}
                 borderRightColor="gray.200"
               >
                 <Text
@@ -200,7 +200,7 @@ const NBDataTable = ({
               <HStack
                 key={keyExtractor ? keyExtractor(row, rowIndex) : rowIndex}
                 bg={striped && rowIndex % 2 === 0 ? "white" : "gray.50"}
-                borderBottomWidth="1"
+                borderBottomWidth={1}
                 borderBottomColor="gray.100"
                 px="2"
                 py="3"
@@ -215,7 +215,7 @@ const NBDataTable = ({
                     px="2"
                     alignItems="center"
                     justifyContent="center"
-                    borderRightWidth={cellIndex < headers.length - 1 ? "1" : "0"}
+                    borderRightWidth={cellIndex < headers.length - 1 ? 1 : 0}
                     borderRightColor="gray.100"
                   >
                     {renderCell(cellValue, cellIndex, rowIndex, row)}

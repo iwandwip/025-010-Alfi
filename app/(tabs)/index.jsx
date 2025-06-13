@@ -335,7 +335,7 @@ function StatusSetoran() {
             )}
           </HStack>
 
-          <VStack space="2" borderTopWidth="1" borderTopColor={colors.gray200} pt="3">
+          <VStack space="2" borderTopWidth={1} borderTopColor={colors.gray200} pt="3">
             <HStack justifyContent="space-between">
               <Text fontSize="sm" color={colors.gray600}>
                 Total Tagihan:
@@ -547,7 +547,7 @@ function StatusSetoran() {
           px="6"
           py="5"
           bg={colors.white}
-          borderBottomWidth="1"
+          borderBottomWidth={1}
           borderBottomColor={colors.gray200}
           shadow="2"
         >
@@ -572,7 +572,7 @@ function StatusSetoran() {
         px="6"
         py="5"
         bg={colors.white}
-        borderBottomWidth="1"
+        borderBottomWidth={1}
         borderBottomColor={colors.gray200}
         shadow="2"
       >

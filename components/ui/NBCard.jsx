@@ -41,30 +41,30 @@ const NBCard = ({
       case "elevated":
         return {
           shadow: shadow,
-          borderWidth: "0",
+          borderWidth: 0,
         };
       case "outline":
         return {
           shadow: "0",
-          borderWidth: "1",
+          borderWidth: 1,
           borderColor: borderColor,
         };
       case "filled":
         return {
           shadow: "0",
-          borderWidth: "0",
+          borderWidth: 0,
           bg: bg,
         };
       case "ghost":
         return {
           shadow: "0",
-          borderWidth: "0",
+          borderWidth: 0,
           bg: "transparent",
         };
       default:
         return {
           shadow: shadow,
-          borderWidth: "0",
+          borderWidth: 0,
         };
     }
   };

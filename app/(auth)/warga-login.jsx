@@ -51,7 +51,7 @@ export default function WargaLogin() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
         >
@@ -60,11 +60,11 @@ export default function WargaLogin() {
             <HStack py="4" alignItems="center">
               <Pressable onPress={() => router.back()}>
                 <HStack alignItems="center" space="1">
-                  <Icon 
-                    as={MaterialIcons} 
-                    name="arrow-back" 
-                    size="md" 
-                    color="primary.600" 
+                  <Icon
+                    as={MaterialIcons}
+                    name="arrow-back"
+                    size="md"
+                    color="primary.600"
                   />
                   <Text color="primary.600" fontSize="md" fontWeight="medium">
                     Kembali
@@ -77,19 +77,19 @@ export default function WargaLogin() {
             <VStack flex="1" justifyContent="center" space="8">
               {/* Logo/Illustration Area */}
               <Center>
-                <Box 
-                  bg="white" 
-                  p="8" 
-                  rounded="full" 
+                <Box
+                  bg="white"
+                  p="8"
+                  rounded="full"
                   shadow="3"
-                  borderWidth="3"
+                  borderWidth={3}
                   borderColor="primary.200"
                 >
-                  <Icon 
-                    as={MaterialIcons} 
-                    name="account-balance-wallet" 
-                    size="70px" 
-                    color="primary.500" 
+                  <Icon
+                    as={MaterialIcons}
+                    name="account-balance-wallet"
+                    size="70px"
+                    color="primary.500"
                   />
                 </Box>
               </Center>
@@ -99,27 +99,27 @@ export default function WargaLogin() {
                 <Heading size="xl" color="coolGray.800">
                   Masuk Warga
                 </Heading>
-                <Text 
-                  fontSize="md" 
-                  color="coolGray.600" 
+                <Text
+                  fontSize="md"
+                  color="coolGray.600"
                   textAlign="center"
                   px="4"
                 >
                   Masuk untuk memantau dan setor jimpitan
                 </Text>
-                <Box 
-                  bg="blue.50" 
-                  p="3" 
-                  rounded="lg" 
-                  borderWidth="1" 
+                <Box
+                  bg="blue.50"
+                  p="3"
+                  rounded="lg"
+                  borderWidth={1}
                   borderColor="blue.200"
                 >
                   <HStack space="2" alignItems="center">
-                    <Icon 
-                      as={MaterialIcons} 
-                      name="info" 
-                      size="sm" 
-                      color="blue.500" 
+                    <Icon
+                      as={MaterialIcons}
+                      name="info"
+                      size="sm"
+                      color="blue.500"
                     />
                     <Text fontSize="sm" color="coolGray.800" flexShrink="1">
                       Belum punya akun? Hubungi bendahara RT untuk pendaftaran
@@ -139,12 +139,12 @@ export default function WargaLogin() {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     leftElement={
-                      <Icon 
-                        as={MaterialIcons} 
-                        name="email" 
-                        size="sm" 
-                        ml="3" 
-                        color="muted.400" 
+                      <Icon
+                        as={MaterialIcons}
+                        name="email"
+                        size="sm"
+                        ml="3"
+                        color="muted.400"
                       />
                     }
                   />
@@ -158,12 +158,12 @@ export default function WargaLogin() {
                     onChangeText={setPassword}
                     secureTextEntry
                     leftElement={
-                      <Icon 
-                        as={MaterialIcons} 
-                        name="lock" 
-                        size="sm" 
-                        ml="3" 
-                        color="muted.400" 
+                      <Icon
+                        as={MaterialIcons}
+                        name="lock"
+                        size="sm"
+                        ml="3"
+                        color="muted.400"
                       />
                     }
                   />
@@ -174,10 +174,10 @@ export default function WargaLogin() {
                   onPress={handleLogin}
                   disabled={loading}
                   leftIcon={
-                    <Icon 
-                      as={MaterialIcons} 
-                      name="login" 
-                      size="sm" 
+                    <Icon
+                      as={MaterialIcons}
+                      name="login"
+                      size="sm"
                       color="white"
                     />
                   }
