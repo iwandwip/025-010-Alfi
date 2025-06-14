@@ -181,7 +181,7 @@ const NBCard = ({
 };
 
 // Predefined card variants for common use cases
-export const NBInfoCard = ({ title, value, icon, color = Colors.primary, ...props }) => (
+export const NBInfoCard = ({ title, value, icon, color = "primary.500", ...props }) => (
   <NBCard
     variant="elevated"
     px={4}
