@@ -1,22 +1,23 @@
 import React from "react";
+import { View, ScrollView, StyleSheet, TouchableRipple } from "react-native";
+import { 
+  Surface, 
+  Text, 
+  useTheme,
+  Avatar,
+  Card,
+  Chip,
+  IconButton
+} from "react-native-paper";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-import { ScrollView, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  SafeArea,
-  Container,
-  VStack,
-  HStack,
-  CustomText as Text,
-  Heading,
-  Box,
-  Center,
-  Colors,
-} from "../components/ui/CoreComponents";
+import Animated, { FadeInDown, FadeInUp, SlideInLeft, SlideInRight } from 'react-native-reanimated';
 
 export default function RoleSelection() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   const handleBendaharaPress = () => {
     router.push("/(auth)/bendahara-login");
@@ -27,283 +28,326 @@ export default function RoleSelection() {
   };
 
   return (
-    <SafeArea style={[styles.container, { paddingTop: insets.top }]}>
+    <LinearGradient
+      colors={[theme.colors.primaryContainer, theme.colors.background]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <VStack style={styles.content}>
-          {/* Header Section */}
-          <VStack style={styles.header}>
-            <Heading size="2xl" style={styles.title}>
-              Smart Jimpitan
-            </Heading>
-            <Text style={styles.subtitle}>
-              Sistem Pengelolaan Jimpitan Warga{"\n"}RT 01 RW 02
+        {/* Header */}
+        <Animated.View 
+          entering={FadeInDown.delay(100)}
+          style={styles.header}
+        >
+          <Surface style={styles.logoSurface} elevation={5}>
+            <Avatar.Icon 
+              size={100} 
+              icon="piggy-bank" 
+              style={{ backgroundColor: theme.colors.primary }}
+              color={theme.colors.onPrimary}
+            />
+          </Surface>
+          
+          <Text variant="displayMedium" style={[styles.title, { color: theme.colors.primary }]}>
+            Smart Jimpitan
+          </Text>
+          
+          <Text variant="titleMedium" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+            Sistem Digital Pengelolaan{'\n'}Jimpitan Warga RT
+          </Text>
+
+          <View style={styles.badgeContainer}>
+            <Chip 
+              icon="map-marker" 
+              style={{ backgroundColor: theme.colors.tertiaryContainer }}
+              textStyle={{ color: theme.colors.onTertiaryContainer }}
+            >
+              RT 01 RW 02 Sukajadi
+            </Chip>
+          </View>
+        </Animated.View>
+
+        {/* Role Selection */}
+        <View style={styles.rolesContainer}>
+          <Animated.View entering={FadeInUp.delay(200)}>
+            <Text variant="titleLarge" style={[styles.rolesTitle, { color: theme.colors.onSurface }]}>
+              Pilih Akses Anda
             </Text>
-          </VStack>
+          </Animated.View>
 
-          {/* Logo Container */}
-          <Center style={styles.logoContainer}>
-            <Box style={styles.logo}>
-              <Text style={styles.logoIcon}>💰</Text>
-            </Box>
-          </Center>
-
-          {/* Role Selection */}
-          <VStack style={styles.rolesContainer}>
-            <Heading size="md" style={styles.rolesTitle}>
-              Pilih Peran Anda
-            </Heading>
-
-            {/* Bendahara Card */}
-            <TouchableOpacity 
-              style={styles.roleCard}
-              onPress={handleBendaharaPress}
-              activeOpacity={0.8}
-            >
-              <Box style={[styles.card, styles.bendaharaCard]}>
-                <HStack style={styles.cardContent}>
-                  <Box style={[styles.iconContainer, styles.bendaharaIcon]}>
-                    <Text style={styles.cardIcon}>👨‍💼</Text>
-                  </Box>
+          {/* Bendahara Card */}
+          <Animated.View entering={SlideInLeft.delay(300).springify()}>
+            <Card style={styles.roleCard} mode="elevated">
+              <TouchableRipple 
+                onPress={handleBendaharaPress}
+                borderless
+                style={{ borderRadius: 20 }}
+              >
+                <Card.Content style={styles.cardContent}>
+                  <View style={styles.cardLeft}>
+                    <Surface 
+                      style={[styles.iconContainer, { backgroundColor: theme.colors.primaryContainer }]} 
+                      elevation={3}
+                    >
+                      <Avatar.Icon 
+                        size={64} 
+                        icon="account-tie" 
+                        style={{ backgroundColor: 'transparent' }}
+                        color={theme.colors.onPrimaryContainer}
+                      />
+                    </Surface>
+                  </View>
                   
-                  <VStack style={styles.cardText}>
-                    <HStack style={styles.cardHeader}>
-                      <Heading size="sm" style={styles.cardTitle}>
+                  <View style={styles.cardMiddle}>
+                    <View style={styles.cardHeader}>
+                      <Text variant="headlineSmall" style={{ color: theme.colors.onSurface }}>
                         Bendahara
-                      </Heading>
-                      <Box style={[styles.badge, styles.adminBadge]}>
-                        <Text style={styles.badgeText}>ADMIN</Text>
-                      </Box>
-                    </HStack>
-                    <Text style={styles.cardDescription}>
-                      Kelola data warga dan setoran jimpitan
+                      </Text>
+                      <Chip 
+                        compact 
+                        mode="outlined"
+                        style={{ backgroundColor: theme.colors.errorContainer }}
+                        textStyle={{ color: theme.colors.onErrorContainer, fontSize: 10 }}
+                      >
+                        ADMIN
+                      </Chip>
+                    </View>
+                    
+                    <Text variant="bodyMedium" style={[styles.cardDescription, { color: theme.colors.onSurfaceVariant }]}>
+                      Kelola data warga, setoran jimpitan, dan laporan keuangan RT
                     </Text>
-                  </VStack>
-                  
-                  <Text style={styles.chevron}>›</Text>
-                </HStack>
-              </Box>
-            </TouchableOpacity>
 
-            {/* Warga Card */}
-            <TouchableOpacity 
-              style={styles.roleCard}
-              onPress={handleWargaPress}
-              activeOpacity={0.8}
-            >
-              <Box style={[styles.card, styles.wargaCard]}>
-                <HStack style={styles.cardContent}>
-                  <Box style={[styles.iconContainer, styles.wargaIcon]}>
-                    <Text style={styles.cardIcon}>👥</Text>
-                  </Box>
+                    <View style={styles.featureChips}>
+                      <Chip 
+                        compact 
+                        icon="account-group"
+                        style={{ backgroundColor: theme.colors.successContainer, marginRight: 8 }}
+                        textStyle={{ color: theme.colors.onSuccessContainer }}
+                      >
+                        Data Warga
+                      </Chip>
+                      <Chip 
+                        compact 
+                        icon="chart-line"
+                        style={{ backgroundColor: theme.colors.infoContainer }}
+                        textStyle={{ color: theme.colors.onInfoContainer }}
+                      >
+                        Laporan
+                      </Chip>
+                    </View>
+                  </View>
                   
-                  <VStack style={styles.cardText}>
-                    <HStack style={styles.cardHeader}>
-                      <Heading size="sm" style={styles.cardTitle}>
+                  <IconButton 
+                    icon="chevron-right" 
+                    size={28}
+                    iconColor={theme.colors.primary}
+                  />
+                </Card.Content>
+              </TouchableRipple>
+            </Card>
+          </Animated.View>
+
+          {/* Warga Card */}
+          <Animated.View entering={SlideInRight.delay(400).springify()}>
+            <Card style={styles.roleCard} mode="elevated">
+              <TouchableRipple 
+                onPress={handleWargaPress}
+                borderless
+                style={{ borderRadius: 20 }}
+              >
+                <Card.Content style={styles.cardContent}>
+                  <View style={styles.cardLeft}>
+                    <Surface 
+                      style={[styles.iconContainer, { backgroundColor: theme.colors.secondaryContainer }]} 
+                      elevation={3}
+                    >
+                      <Avatar.Icon 
+                        size={64} 
+                        icon="home-account" 
+                        style={{ backgroundColor: 'transparent' }}
+                        color={theme.colors.onSecondaryContainer}
+                      />
+                    </Surface>
+                  </View>
+                  
+                  <View style={styles.cardMiddle}>
+                    <View style={styles.cardHeader}>
+                      <Text variant="headlineSmall" style={{ color: theme.colors.onSurface }}>
                         Warga
-                      </Heading>
-                      <Box style={[styles.badge, styles.userBadge]}>
-                        <Text style={styles.badgeText}>USER</Text>
-                      </Box>
-                    </HStack>
-                    <Text style={styles.cardDescription}>
-                      Pantau dan setor jimpitan Anda
+                      </Text>
+                      <Chip 
+                        compact 
+                        mode="outlined"
+                        style={{ backgroundColor: theme.colors.secondaryContainer }}
+                        textStyle={{ color: theme.colors.onSecondaryContainer, fontSize: 10 }}
+                      >
+                        USER
+                      </Chip>
+                    </View>
+                    
+                    <Text variant="bodyMedium" style={[styles.cardDescription, { color: theme.colors.onSurfaceVariant }]}>
+                      Pantau status setoran, riwayat pembayaran, dan kelola profil Anda
                     </Text>
-                  </VStack>
-                  
-                  <Text style={styles.chevron}>›</Text>
-                </HStack>
-              </Box>
-            </TouchableOpacity>
-          </VStack>
 
-          {/* Footer */}
-          <Center style={styles.footer}>
-            <VStack style={styles.footerContent}>
-              <HStack style={styles.locationRow}>
-                <Text style={styles.locationIcon}>📍</Text>
-                <Text style={styles.locationText}>RT 01 RW 02</Text>
-              </HStack>
-              <Text style={styles.kelurahanText}>
-                Kelurahan Sukajadi
-              </Text>
-            </VStack>
-          </Center>
-        </VStack>
+                    <View style={styles.featureChips}>
+                      <Chip 
+                        compact 
+                        icon="credit-card-check"
+                        style={{ backgroundColor: theme.colors.tertiaryContainer, marginRight: 8 }}
+                        textStyle={{ color: theme.colors.onTertiaryContainer }}
+                      >
+                        Status
+                      </Chip>
+                      <Chip 
+                        compact 
+                        icon="history"
+                        style={{ backgroundColor: theme.colors.warningContainer }}
+                        textStyle={{ color: theme.colors.onWarningContainer }}
+                      >
+                        Riwayat
+                      </Chip>
+                    </View>
+                  </View>
+                  
+                  <IconButton 
+                    icon="chevron-right" 
+                    size={28}
+                    iconColor={theme.colors.secondary}
+                  />
+                </Card.Content>
+              </TouchableRipple>
+            </Card>
+          </Animated.View>
+        </View>
+
+        {/* Footer */}
+        <Animated.View 
+          entering={FadeInUp.delay(500)}
+          style={styles.footer}
+        >
+          <Surface style={styles.footerCard} elevation={1}>
+            <View style={styles.footerContent}>
+              <Avatar.Icon 
+                size={32} 
+                icon="information" 
+                style={{ backgroundColor: theme.colors.infoContainer }}
+                color={theme.colors.onInfoContainer}
+              />
+              <View style={styles.footerText}>
+                <Text variant="labelLarge" style={{ color: theme.colors.onSurface }}>
+                  Butuh Bantuan?
+                </Text>
+                <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                  Hubungi pengurus RT untuk informasi lebih lanjut
+                </Text>
+              </View>
+            </View>
+          </Surface>
+
+          <Text variant="bodySmall" style={[styles.copyright, { color: theme.colors.onSurfaceVariant }]}>
+            © 2024 Smart Jimpitan System
+          </Text>
+        </Animated.View>
       </ScrollView>
-    </SafeArea>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.gray50,
   },
   scrollContent: {
     flexGrow: 1,
-  },
-  content: {
-    flex: 1,
     paddingHorizontal: 24,
-    paddingVertical: 32,
+    paddingVertical: 20,
   },
-  
-  // Header
   header: {
     alignItems: 'center',
-    marginBottom: 32,
-  },
-  title: {
-    textAlign: 'center',
-    color: Colors.gray800,
-    marginBottom: 16,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: Colors.gray600,
-    textAlign: 'center',
-    lineHeight: 24,
-    paddingHorizontal: 16,
-  },
-  
-  // Logo
-  logoContainer: {
     marginBottom: 40,
   },
-  logo: {
-    backgroundColor: Colors.primary,
-    width: 120,
-    height: 120,
+  logoSurface: {
     borderRadius: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 12,
-    borderWidth: 4,
-    borderColor: Colors.pink + '20',
+    marginBottom: 24,
+    padding: 10,
   },
-  logoIcon: {
-    fontSize: 48,
+  title: {
+    fontWeight: '800',
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  
-  // Roles
+  subtitle: {
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 24,
+  },
+  badgeContainer: {
+    marginTop: 8,
+  },
   rolesContainer: {
     flex: 1,
     justifyContent: 'center',
+    marginBottom: 40,
   },
   rolesTitle: {
     textAlign: 'center',
-    color: Colors.gray700,
-    marginBottom: 24,
+    marginBottom: 32,
+    fontWeight: '600',
   },
   roleCard: {
-    marginBottom: 16,
-  },
-  card: {
-    borderRadius: 16,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-    overflow: 'hidden',
-  },
-  bendaharaCard: {
-    backgroundColor: Colors.white,
-    borderWidth: 2,
-    borderColor: Colors.green + '40',
-  },
-  wargaCard: {
-    backgroundColor: Colors.white,
-    borderWidth: 2,
-    borderColor: Colors.teal + '40',
+    marginBottom: 20,
+    borderRadius: 20,
   },
   cardContent: {
+    flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+  cardLeft: {
     marginRight: 16,
   },
-  bendaharaIcon: {
-    backgroundColor: Colors.green + '20',
+  iconContainer: {
+    borderRadius: 20,
+    padding: 8,
   },
-  wargaIcon: {
-    backgroundColor: Colors.teal + '20',
-  },
-  cardIcon: {
-    fontSize: 28,
-  },
-  cardText: {
+  cardMiddle: {
     flex: 1,
   },
   cardHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
-  },
-  cardTitle: {
-    color: Colors.gray800,
-    marginRight: 8,
-  },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  adminBadge: {
-    backgroundColor: Colors.green + '20',
-  },
-  userBadge: {
-    backgroundColor: Colors.teal + '20',
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: Colors.gray700,
+    marginBottom: 8,
+    gap: 12,
   },
   cardDescription: {
-    fontSize: 14,
-    color: Colors.gray600,
+    marginBottom: 12,
+    lineHeight: 20,
   },
-  chevron: {
-    fontSize: 24,
-    color: Colors.gray400,
-    marginLeft: 8,
+  featureChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
-  
-  // Footer
   footer: {
-    paddingTop: 32,
+    alignItems: 'center',
+  },
+  footerCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    width: '100%',
   },
   footerContent: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
   },
-  locationRow: {
-    alignItems: 'center',
-    marginBottom: 4,
+  footerText: {
+    flex: 1,
   },
-  locationIcon: {
-    fontSize: 12,
-    marginRight: 8,
-  },
-  locationText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: Colors.gray600,
-  },
-  kelurahanText: {
-    fontSize: 12,
-    color: Colors.gray500,
+  copyright: {
+    textAlign: 'center',
+    opacity: 0.7,
   },
 });

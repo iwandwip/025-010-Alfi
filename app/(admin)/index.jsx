@@ -1,41 +1,36 @@
 import React, { useState, useEffect } from "react";
+import { View, ScrollView, StyleSheet, RefreshControl, Alert } from "react-native";
 import {
-  Box,
-  VStack,
-  HStack,
+  Surface,
   Text,
-  Heading,
-  ScrollView,
-  Pressable,
-  Modal,
-  Input,
-  Icon,
-  Badge,
-  Spinner,
-  Center,
+  Card,
+  Button,
   IconButton,
+  Avatar,
+  Chip,
   Divider,
-  useToast,
-} from "native-base";
-import { RefreshControl, Alert } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+  Modal,
+  Portal,
+  TextInput,
+  ActivityIndicator,
+  useTheme,
+  FAB
+} from "react-native-paper";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import NBCard from "../../components/ui/NBCard";
-import NBButton from "../../components/ui/NBButton";
-import NBInput from "../../components/ui/NBInput";
-import NBLoadingSpinner from "../../components/ui/NBLoadingSpinner";
 import { signOutUser } from "../../services/authService";
 import { seederService } from "../../services/seederService";
-import { Colors } from "../../constants/Colors";
+import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 
 function AdminHome() {
   const { currentUser, userProfile } = useAuth();
   const { showGeneralNotification } = useNotification();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const paperTheme = useTheme();
   const [loggingOut, setLoggingOut] = useState(false);
   const [seederLoading, setSeederLoading] = useState(false);
   const [seederModalVisible, setSeederModalVisible] = useState(false);
@@ -211,248 +206,242 @@ function AdminHome() {
   };
 
   return (
-    <Box flex="1" bg="gray.50" safeAreaTop>
+    <LinearGradient
+      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      <Surface style={styles.header} elevation={2}>
+        <Text variant="headlineMedium" style={styles.headerTitle}>
+          Dashboard Bendahara
+        </Text>
+        <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+          RT 01 RW 02 Sukajadi
+        </Text>
+        {userProfile && (
+          <Chip 
+            icon="account-tie" 
+            mode="flat"
+            style={{ backgroundColor: paperTheme.colors.successContainer, marginTop: 8 }}
+            textStyle={{ color: paperTheme.colors.onSuccessContainer }}
+          >
+            {userProfile.nama}
+          </Chip>
+        )}
+      </Surface>
+
       <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#10b981"]}
-            tintColor="#10b981"
+            colors={[paperTheme.colors.primary]}
+            tintColor={paperTheme.colors.primary}
             title="Tarik untuk memuat ulang..."
-            titleColor="#6b7280"
           />
         }
-        _contentContainerStyle={{
-          px: 6,
-          pt: 10,
-          pb: insets.bottom + 10,
-        }}
       >
-        <VStack alignItems="center" mb={10}>
-          <Heading size="lg" color="gray.900">
-            Dashboard Bendahara
-          </Heading>
-          <Text fontSize="md" color="gray.600" mt={1}>
-            RT 01 RW 02
-          </Text>
-          {userProfile && (
-            <Text fontSize="sm" color="green.600" fontWeight="500" mt={2}>
-              Selamat datang, {userProfile.nama}
-            </Text>
-          )}
-        </VStack>
 
-        <VStack space={4} mb={10}>
-          <NBCard
-            variant="elevated"
-            borderColor="blue.400"
-            onPress={handleTambahWarga}
-            p={5}
-            shadow={3}
-          >
-            <HStack alignItems="center" space={4}>
-              <Box
-                bg="blue.100"
-                p={3}
-                rounded="full"
-              >
-                <Icon as={MaterialIcons} name="person-add" size={8} color="blue.600" />
-              </Box>
-              <VStack flex="1">
-                <Heading size="sm" color="gray.900">
-                  Tambah Data Warga
-                </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
-                  Daftarkan warga baru dan buat akun warga
-                </Text>
-              </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
-            </HStack>
-          </NBCard>
+        {/* Menu Cards */}
+        <View style={styles.menuSection}>
+          <Animated.View entering={FadeInDown.delay(100)}>
+            <Card style={styles.menuCard} mode="elevated" onPress={handleTambahWarga}>
+              <Card.Content style={styles.cardContent}>
+                <Avatar.Icon 
+                  size={56} 
+                  icon="account-plus" 
+                  style={{ backgroundColor: paperTheme.colors.primaryContainer }}
+                  color={paperTheme.colors.onPrimaryContainer}
+                />
+                <View style={styles.cardTextSection}>
+                  <Text variant="titleMedium" style={styles.cardTitle}>
+                    Tambah Data Warga
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Daftarkan warga baru dan buat akun warga
+                  </Text>
+                </View>
+                <IconButton 
+                  icon="chevron-right" 
+                  iconColor={paperTheme.colors.onSurfaceVariant}
+                />
+              </Card.Content>
+            </Card>
+          </Animated.View>
 
-          <NBCard
-            variant="elevated"
-            borderColor="green.400"
-            onPress={handleDaftarWarga}
-            p={5}
-            shadow={3}
-          >
-            <HStack alignItems="center" space={4}>
-              <Box
-                bg="green.100"
-                p={3}
-                rounded="full"
-              >
-                <Icon as={MaterialIcons} name="list-alt" size={8} color="green.600" />
-              </Box>
-              <VStack flex="1">
-                <Heading size="sm" color="gray.900">
-                  Daftar Warga
-                </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
-                  Lihat dan kelola data warga yang terdaftar
-                </Text>
-              </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
-            </HStack>
-          </NBCard>
+          <Animated.View entering={FadeInDown.delay(200)}>
+            <Card style={styles.menuCard} mode="elevated" onPress={handleDaftarWarga}>
+              <Card.Content style={styles.cardContent}>
+                <Avatar.Icon 
+                  size={56} 
+                  icon="account-group" 
+                  style={{ backgroundColor: paperTheme.colors.secondaryContainer }}
+                  color={paperTheme.colors.onSecondaryContainer}
+                />
+                <View style={styles.cardTextSection}>
+                  <Text variant="titleMedium" style={styles.cardTitle}>
+                    Daftar Warga
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Lihat dan kelola data warga yang terdaftar
+                  </Text>
+                </View>
+                <IconButton 
+                  icon="chevron-right" 
+                  iconColor={paperTheme.colors.onSurfaceVariant}
+                />
+              </Card.Content>
+            </Card>
+          </Animated.View>
 
-          <NBCard
-            variant="elevated"
-            borderColor="amber.400"
-            onPress={handleTimelineManager}
-            p={5}
-            shadow={3}
-          >
-            <HStack alignItems="center" space={4}>
-              <Box
-                bg="amber.100"
-                p={3}
-                rounded="full"
-              >
-                <Icon as={MaterialIcons} name="event" size={8} color="amber.600" />
-              </Box>
-              <VStack flex="1">
-                <Heading size="sm" color="gray.900">
-                  Timeline Manager
-                </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
-                  Kelola timeline dan setoran jimpitan
-                </Text>
-              </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
-            </HStack>
-          </NBCard>
+          <Animated.View entering={FadeInDown.delay(300)}>
+            <Card style={styles.menuCard} mode="elevated" onPress={handleTimelineManager}>
+              <Card.Content style={styles.cardContent}>
+                <Avatar.Icon 
+                  size={56} 
+                  icon="calendar-clock" 
+                  style={{ backgroundColor: paperTheme.colors.tertiaryContainer }}
+                  color={paperTheme.colors.onTertiaryContainer}
+                />
+                <View style={styles.cardTextSection}>
+                  <Text variant="titleMedium" style={styles.cardTitle}>
+                    Timeline Manager
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Kelola timeline dan setoran jimpitan
+                  </Text>
+                </View>
+                <IconButton 
+                  icon="chevron-right" 
+                  iconColor={paperTheme.colors.onSurfaceVariant}
+                />
+              </Card.Content>
+            </Card>
+          </Animated.View>
 
-          <NBCard
-            variant="elevated"
-            borderColor="purple.400"
-            onPress={handleCekPembayaran}
-            p={5}
-            shadow={3}
-          >
-            <HStack alignItems="center" space={4}>
-              <Box
-                bg="purple.100"
-                p={3}
-                rounded="full"
-              >
-                <Icon as={MaterialIcons} name="account-balance-wallet" size={8} color="purple.600" />
-              </Box>
-              <VStack flex="1">
-                <Heading size="sm" color="gray.900">
-                  Cek Status Setoran
-                </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
-                  Lihat status setoran jimpitan semua warga
-                </Text>
-              </VStack>
-              <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
-            </HStack>
-          </NBCard>
+          <Animated.View entering={FadeInDown.delay(400)}>
+            <Card style={styles.menuCard} mode="elevated" onPress={handleCekPembayaran}>
+              <Card.Content style={styles.cardContent}>
+                <Avatar.Icon 
+                  size={56} 
+                  icon="wallet" 
+                  style={{ backgroundColor: paperTheme.colors.surfaceVariant }}
+                  color={paperTheme.colors.onSurfaceVariant}
+                />
+                <View style={styles.cardTextSection}>
+                  <Text variant="titleMedium" style={styles.cardTitle}>
+                    Cek Status Setoran
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Lihat status setoran jimpitan semua warga
+                  </Text>
+                </View>
+                <IconButton 
+                  icon="chevron-right" 
+                  iconColor={paperTheme.colors.onSurfaceVariant}
+                />
+              </Card.Content>
+            </Card>
+          </Animated.View>
 
-          <NBCard
-            variant="elevated"
-            bg={seederLoading ? "orange.50" : "red.50"}
-            borderColor={seederLoading ? "orange.400" : "red.400"}
-            onPress={handleSeeder}
-            p={5}
-            shadow={3}
-            opacity={seederLoading ? 0.7 : 1}
-            isDisabled={seederLoading}
-          >
-            <HStack alignItems="center" space={4}>
-              <Box
-                bg={seederLoading ? "orange.100" : "red.100"}
-                p={3}
-                rounded="full"
-              >
+          {/* Seeder Card */}
+          <Animated.View entering={FadeInDown.delay(500)}>
+            <Card 
+              style={[styles.menuCard, { backgroundColor: seederLoading ? paperTheme.colors.errorContainer : paperTheme.colors.errorContainer }]} 
+              mode="elevated" 
+              onPress={seederLoading ? undefined : handleSeeder}
+            >
+              <Card.Content style={styles.cardContent}>
                 {seederLoading ? (
-                  <Spinner size="sm" color="orange.600" />
+                  <ActivityIndicator size={56} animating color={paperTheme.colors.onErrorContainer} />
                 ) : (
-                  <Icon as={MaterialIcons} name="casino" size={8} color="red.600" />
+                  <Avatar.Icon 
+                    size={56} 
+                    icon="database-plus" 
+                    style={{ backgroundColor: paperTheme.colors.error }}
+                    color={paperTheme.colors.onError}
+                  />
                 )}
-              </Box>
-              <VStack flex="1">
-                <Heading size="sm" color="gray.900">
-                  {seederLoading ? "Generating Data..." : "Generate Data Warga"}
-                </Heading>
-                <Text fontSize="sm" color="gray.600" mt={1}>
-                  {seederLoading
-                    ? "Sedang membuat akun warga dengan data sequential..."
-                    : "Buat akun warga dengan email sequential untuk testing"}
-                </Text>
-                <VStack mt={2}>
-                  <Text fontSize="xs" color="red.600" fontWeight="500">
-                    Total Warga: {seederStats.total} | Generated: {seederStats.seederUsers}
+                <View style={styles.cardTextSection}>
+                  <Text variant="titleMedium" style={[styles.cardTitle, { color: paperTheme.colors.onErrorContainer }]}>
+                    {seederLoading ? "Generating Data..." : "Generate Data Warga"}
                   </Text>
-                  <Text fontSize="xs" color="green.600" fontWeight="600">
-                    Next: user{seederStats.nextUserNumber}@gmail.com
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onErrorContainer }}>
+                    {seederLoading
+                      ? "Sedang membuat akun warga dengan data sequential..."
+                      : "Buat akun warga dengan email sequential untuk testing"}
                   </Text>
-                </VStack>
-              </VStack>
-              <Icon 
-                as={MaterialIcons} 
-                name={seederLoading ? "hourglass-empty" : "chevron-right"} 
-                size={6} 
-                color={seederLoading ? "orange.400" : "gray.400"} 
-              />
-            </HStack>
-          </NBCard>
-        </VStack>
+                  <View style={{ marginTop: 8 }}>
+                    <Text variant="bodySmall" style={{ color: paperTheme.colors.onErrorContainer, fontWeight: 'bold' }}>
+                      Total: {seederStats.total} | Generated: {seederStats.seederUsers}
+                    </Text>
+                    <Text variant="bodySmall" style={{ color: paperTheme.colors.success, fontWeight: 'bold', fontFamily: 'monospace' }}>
+                      Next: user{seederStats.nextUserNumber}@gmail.com
+                    </Text>
+                  </View>
+                </View>
+                <IconButton 
+                  icon={seederLoading ? "clock" : "chevron-right"}
+                  iconColor={paperTheme.colors.onErrorContainer}
+                />
+              </Card.Content>
+            </Card>
+          </Animated.View>
+        </View>
 
-        <Box mb={5}>
-          <NBButton
-            title={loggingOut ? "Sedang Keluar..." : "Keluar"}
+        {/* Logout Button */}
+        <Animated.View entering={FadeInUp.delay(600)}>
+          <Button
+            mode="outlined"
             onPress={handleLogout}
-            variant="outline"
             disabled={loggingOut}
-            colorScheme="red"
-            leftIcon={<Icon as={MaterialIcons} name="logout" size={5} color="red.500" />}
-          />
-        </Box>
+            loading={loggingOut}
+            style={[styles.logoutButton, { borderColor: paperTheme.colors.error }]}
+            contentStyle={styles.buttonContent}
+            labelStyle={{ color: paperTheme.colors.error }}
+            icon="logout"
+          >
+            {loggingOut ? "Sedang Keluar..." : "Keluar"}
+          </Button>
+        </Animated.View>
       </ScrollView>
 
-      <Modal
-        isOpen={seederModalVisible}
-        onClose={() => !seederLoading && setSeederModalVisible(false)}
-        size="lg"
-      >
-        <Modal.Content maxWidth="400px">
-          <Modal.Header>
-            <HStack justifyContent="space-between" alignItems="center">
-              <Heading size="md">Generate Data Warga</Heading>
-              <IconButton
-                icon={<Icon as={MaterialIcons} name="close" size={5} />}
-                onPress={() => setSeederModalVisible(false)}
-                variant="ghost"
-                colorScheme="gray"
-                _pressed={{ bg: "gray.100" }}
-              />
-            </HStack>
-          </Modal.Header>
+      {/* Seeder Modal */}
+      <Portal>
+        <Modal 
+          visible={seederModalVisible} 
+          onDismiss={() => !seederLoading && setSeederModalVisible(false)}
+          contentContainerStyle={styles.modalContainer}
+        >
+          <View style={styles.modalHeader}>
+            <Text variant="titleLarge" style={styles.modalTitle}>Generate Data Warga</Text>
+            <IconButton
+              icon="close"
+              onPress={() => setSeederModalVisible(false)}
+              style={styles.closeButton}
+            />
+          </View>
 
-          <Modal.Body>
-            <VStack space={4}>
-              <VStack>
-                <Text fontSize="md" fontWeight="600" color="gray.700" mb={3}>
-                  Jumlah Akun (1-10):
-                </Text>
-                <NBInput
-                  value={seederCount}
-                  onChangeText={setSeederCount}
-                  keyboardType="numeric"
-                  placeholder="Masukkan jumlah"
-                  textAlign="center"
-                  fontSize="lg"
-                  maxLength={2}
-                />
-              </VStack>
+          <View style={styles.modalContent}>
+            <Text variant="bodyLarge" style={styles.inputLabel}>
+              Jumlah Akun (1-10):
+            </Text>
+            <TextInput
+              value={seederCount}
+              onChangeText={setSeederCount}
+              mode="outlined"
+              keyboardType="numeric"
+              placeholder="Masukkan jumlah"
+              style={styles.numberInput}
+              maxLength={2}
+              outlineStyle={{ borderRadius: 12 }}
+            />
 
-              <Box bg="gray.50" p={4} rounded="lg">
-                <Text fontSize="sm" fontWeight="600" color="gray.700" mb={2}>
+            <Card style={styles.previewCard} mode="outlined">
+              <Card.Content>
+                <Text variant="bodyMedium" style={styles.previewTitle}>
                   Preview Email:
                 </Text>
                 {(() => {
@@ -465,327 +454,189 @@ function AdminHome() {
                       );
                     }
                     return emails.map((email, index) => (
-                      <Text key={index} fontSize="xs" color="green.600" fontFamily="mono" mb={1}>
+                      <Text key={index} variant="bodySmall" style={styles.previewEmail}>
                         {email}
                       </Text>
                     ));
                   }
                   return (
-                    <Text fontSize="sm" color="red.500" fontStyle="italic">
+                    <Text variant="bodySmall" style={{ color: paperTheme.colors.error, fontStyle: 'italic' }}>
                       Jumlah harus 1-10
                     </Text>
                   );
                 })()}
-              </Box>
-            </VStack>
-          </Modal.Body>
+              </Card.Content>
+            </Card>
+          </View>
 
-          <Modal.Footer>
-            <HStack space={3}>
-              <NBButton
-                title="Batal"
-                onPress={() => setSeederModalVisible(false)}
-                variant="outline"
-                flex="1"
-              />
-              <NBButton
-                title="Generate"
-                onPress={handleSeederConfirm}
-                variant="primary"
-                flex="1"
-              />
-            </HStack>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal>
+          <View style={styles.modalActions}>
+            <Button
+              mode="outlined"
+              onPress={() => setSeederModalVisible(false)}
+              style={styles.modalButton}
+            >
+              Batal
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleSeederConfirm}
+              style={styles.modalButton}
+            >
+              Generate
+            </Button>
+          </View>
+        </Modal>
 
-      <Modal isOpen={seederLoading} size="lg">
-        <Modal.Content maxWidth="350px">
-          <Modal.Body>
-            <Center py={8}>
-              <VStack space={4} alignItems="center">
-                <Spinner size="lg" color="red.600" />
-                <Heading size="md" textAlign="center" color="gray.900">
-                  Generating Data Warga
-                </Heading>
-                <Text fontSize="sm" textAlign="center" color="gray.600">
-                  Membuat {seederCount} akun dengan email sequential...
-                </Text>
-                <Text fontSize="xs" textAlign="center" color="green.600" fontWeight="600">
-                  Next: user{seederStats.nextUserNumber}@gmail.com
-                </Text>
-              </VStack>
-            </Center>
-          </Modal.Body>
-        </Modal.Content>
-      </Modal>
-    </Box>
+        {/* Loading Modal */}
+        <Modal visible={seederLoading} dismissable={false} contentContainerStyle={styles.loadingModalContainer}>
+          <Card style={styles.loadingCard}>
+            <Card.Content style={styles.loadingContent}>
+              <ActivityIndicator size="large" animating />
+              <Text variant="titleMedium" style={styles.loadingTitle}>
+                Generating Data Warga
+              </Text>
+              <Text variant="bodyMedium" style={styles.loadingSubtitle}>
+                Membuat {seederCount} akun dengan email sequential...
+              </Text>
+              <Text variant="bodySmall" style={styles.loadingNext}>
+                Next: user{seederStats.nextUserNumber}@gmail.com
+              </Text>
+            </Card.Content>
+          </Card>
+        </Modal>
+      </Portal>
+    </LinearGradient>
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
   },
-  content: {
+  header: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 40,
-  },
-  headerSection: {
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#64748b",
-    marginBottom: 12,
-  },
-  welcomeText: {
-    fontSize: 14,
-    color: "#3b82f6",
-    fontWeight: 500,
+    padding: 24,
   },
   menuSection: {
     gap: 16,
-    marginBottom: 40,
+    marginBottom: 24,
   },
   menuCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
     borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    borderWidth: 2,
-  },
-  primaryCard: {
-    borderColor: "#3b82f6",
-  },
-  secondaryCard: {
-    borderColor: "#10b981",
-  },
-  tertiaryCard: {
-    borderColor: "#f59e0b",
-  },
-  quaternaryCard: {
-    borderColor: "#8b5cf6",
-  },
-  seederCard: {
-    borderColor: "#ef4444",
-    backgroundColor: "#fef2f2",
-  },
-  seederCardLoading: {
-    opacity: 0.7,
-    borderColor: "#f97316",
-    backgroundColor: "#fff7ed",
-  },
-  menuIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#f1f5f9",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  menuIconText: {
-    fontSize: 24,
-  },
-  menuContent: {
-    flex: 1,
-  },
-  menuTitle: {
-    fontSize: 18,
-    fontWeight: 600,
-    color: "#1e293b",
     marginBottom: 4,
   },
-  menuDesc: {
-    fontSize: 14,
-    color: "#64748b",
-    lineHeight: 20,
-    marginBottom: 8,
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    gap: 16,
   },
-  seederStats: {
-    marginTop: 4,
+  cardTextSection: {
+    flex: 1,
   },
-  seederStatsText: {
-    fontSize: 12,
-    color: "#ef4444",
-    fontWeight: 500,
-  },
-  seederNextText: {
-    fontSize: 11,
-    color: "#059669",
-    fontWeight: 600,
-    marginTop: 2,
-  },
-  menuArrow: {
-    marginLeft: 12,
-  },
-  arrowText: {
-    fontSize: 20,
-    color: "#94a3b8",
-  },
-  logoutSection: {
-    marginTop: 20,
-    marginBottom: 20,
+  cardTitle: {
+    fontWeight: '600',
+    marginBottom: 4,
   },
   logoutButton: {
-    borderColor: "#ef4444",
+    borderRadius: 28,
+    marginTop: 16,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
+  buttonContent: {
+    paddingVertical: 8,
   },
   modalContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: 'white',
     borderRadius: 20,
     margin: 20,
-    width: "90%",
     maxWidth: 400,
+    alignSelf: 'center',
   },
   modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    paddingTop: 20,
+    paddingBottom: 16,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 600,
-    color: "#1e293b",
+    fontWeight: '600',
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#f1f5f9",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeButtonText: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#64748b",
+    margin: 0,
   },
   modalContent: {
     paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingBottom: 8,
   },
   inputLabel: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#1e293b",
+    fontWeight: '600',
     marginBottom: 12,
   },
   numberInput: {
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: "#1e293b",
-    textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  previewSection: {
-    backgroundColor: "#f8fafc",
-    borderRadius: 8,
-    padding: 16,
+  previewCard: {
+    borderRadius: 12,
   },
   previewTitle: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: "#374151",
+    fontWeight: '600',
     marginBottom: 8,
   },
   previewEmail: {
-    fontSize: 12,
-    color: "#059669",
-    fontFamily: "monospace",
+    fontFamily: 'monospace',
     marginBottom: 2,
   },
-  previewError: {
-    fontSize: 12,
-    color: "#ef4444",
-    fontStyle: "italic",
-  },
-  modalFooter: {
-    flexDirection: "row",
+  modalActions: {
+    flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
+    paddingVertical: 16,
     gap: 12,
   },
   modalButton: {
     flex: 1,
+    borderRadius: 24,
   },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 9999,
+  loadingModalContainer: {
+    margin: 20,
+    alignItems: 'center',
   },
-  loadingModal: {
-    backgroundColor: "#fff",
+  loadingCard: {
     borderRadius: 20,
-    padding: 32,
-    alignItems: "center",
     minWidth: 280,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
+  },
+  loadingContent: {
+    alignItems: 'center',
+    paddingVertical: 24,
   },
   loadingTitle: {
-    fontSize: 18,
-    fontWeight: 600,
-    color: "#1e293b",
+    fontWeight: '600',
     marginTop: 16,
     marginBottom: 8,
-    textAlign: "center",
+    textAlign: 'center',
   },
   loadingSubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 8,
-    lineHeight: 20,
   },
-  loadingNote: {
-    fontSize: 12,
-    color: "#059669",
-    textAlign: "center",
-    fontWeight: 600,
+  loadingNext: {
+    fontFamily: 'monospace',
+    textAlign: 'center',
+    fontWeight: '600',
   },
-};
+});
 
 export default AdminHome;

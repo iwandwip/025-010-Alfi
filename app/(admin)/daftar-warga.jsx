@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { View, FlatList, StyleSheet, RefreshControl } from "react-native";
 import {
-  Box,
-  VStack,
-  HStack,
+  Surface,
   Text,
-  Heading,
-  FlatList,
-  Pressable,
-  Badge,
-  Icon,
+  Card,
+  Avatar,
+  Chip,
   IconButton,
-  Center,
-} from "native-base";
-import { RefreshControl } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+  ActivityIndicator,
+  useTheme,
+  FAB,
+  Divider
+} from "react-native-paper";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import NBCard, { NBInfoCard } from "../../components/ui/NBCard";
-import NBLoadingSpinner from "../../components/ui/NBLoadingSpinner";
 import { getAllWarga } from "../../services/userService";
-import { Colors } from "../../constants/Colors";
+import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated';
 
 export default function DaftarWarga() {
   const [wargaList, setWargaList] = useState([]);
@@ -27,6 +24,7 @@ export default function DaftarWarga() {
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const paperTheme = useTheme();
 
   const loadWarga = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
@@ -64,167 +62,295 @@ export default function DaftarWarga() {
     });
   };
 
-  const renderWargaItem = ({ item }) => (
-    <NBCard
-      variant="outline"
-      borderColor={Colors.gray200}
-      bg={Colors.white}
-      onPress={() => handleWargaPress(item)}
-      mb={3}
-      p={4}
-      shadow={2}
-    >
-      <HStack alignItems="center" space={4}>
-        <VStack flex="1" space={1}>
-          <Heading size="sm" color="gray.900">
-            {item.namaWarga}
-          </Heading>
-          <Text fontSize="xs" color="gray.500" fontStyle="italic">
-            {item.email}
-          </Text>
-          <Text fontSize="sm" color="gray.600">
-            Alamat: {item.alamat || 'Belum diisi'}
-          </Text>
-          <Text fontSize="sm" color="gray.600">
-            HP: {item.noHpWarga}
-          </Text>
-        </VStack>
+  const renderWargaItem = ({ item, index }) => (
+    <Animated.View entering={SlideInRight.delay(index * 100)}>
+      <Card style={styles.wargaCard} mode="outlined" onPress={() => handleWargaPress(item)}>
+        <Card.Content style={styles.cardContent}>
+          <View style={styles.avatarSection}>
+            <Avatar.Text 
+              size={48} 
+              label={item.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
+              style={{ backgroundColor: paperTheme.colors.primaryContainer }}
+              color={paperTheme.colors.onPrimaryContainer}
+            />
+          </View>
+          
+          <View style={styles.infoSection}>
+            <Text variant="titleMedium" style={styles.wargaName}>
+              {item.namaWarga}
+            </Text>
+            <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant, fontStyle: 'italic' }}>
+              {item.email}
+            </Text>
+            <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+              Alamat: {item.alamat || 'Belum diisi'}
+            </Text>
+            <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+              HP: {item.noHpWarga}
+            </Text>
+          </View>
 
-        <VStack alignItems="center" space={2}>
-          <Badge
-            colorScheme={item.rfidWarga ? "green" : "orange"}
-            variant="subtle"
-            borderRadius="md"
-            px={2}
-            py={1}
-          >
-            <HStack alignItems="center" space={1}>
-              <Icon
-                as={MaterialIcons}
-                name={item.rfidWarga ? "check-circle" : "warning"}
-                size={3}
-                color={item.rfidWarga ? "green.600" : "orange.600"}
-              />
-              <VStack alignItems="center">
-                <Text fontSize="xs" color={item.rfidWarga ? "green.600" : "orange.600"}>
-                  RFID
-                </Text>
-                <Text fontSize="xs" color={item.rfidWarga ? "green.600" : "orange.600"}>
-                  {item.rfidWarga ? "Terpasang" : "Belum"}
-                </Text>
-              </VStack>
-            </HStack>
-          </Badge>
-          <Icon as={MaterialIcons} name="chevron-right" size={6} color="gray.400" />
-        </VStack>
-      </HStack>
-    </NBCard>
+          <View style={styles.statusSection}>
+            <Chip 
+              icon={item.rfidWarga ? "check-circle" : "alert-circle"}
+              mode="flat"
+              style={{ 
+                backgroundColor: item.rfidWarga ? paperTheme.colors.successContainer : paperTheme.colors.warningContainer,
+                marginBottom: 8
+              }}
+              textStyle={{ 
+                color: item.rfidWarga ? paperTheme.colors.onSuccessContainer : paperTheme.colors.onWarningContainer,
+                fontSize: 11
+              }}
+            >
+              {item.rfidWarga ? "RFID OK" : "No RFID"}
+            </Chip>
+            <IconButton 
+              icon="chevron-right" 
+              size={20}
+              iconColor={paperTheme.colors.onSurfaceVariant}
+            />
+          </View>
+        </Card.Content>
+      </Card>
+    </Animated.View>
   );
 
   if (loading) {
     return (
-      <Box flex="1" bg="gray.50" safeAreaTop>
-        <VStack
-          px={6}
-          py={4}
-          bg="white"
-          borderBottomWidth={1}
-          borderBottomColor="gray.200"
-          shadow={2}
-        >
-          <HStack alignItems="center" space={3} mb={2}>
-            <IconButton
-              icon={<Icon as={MaterialIcons} name="arrow-back" size={6} />}
-              onPress={() => router.back()}
-              variant="ghost"
-              colorScheme="green"
-              _pressed={{ bg: "green.100" }}
-            />
-            <Heading size="md" color="gray.900" flex="1" textAlign="center">
-              Daftar Warga
-            </Heading>
-            <Box w={10} />
-          </HStack>
-        </VStack>
-        <NBLoadingSpinner text="Memuat data warga..." />
-      </Box>
+      <LinearGradient
+        colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+        style={[styles.container, { paddingTop: insets.top }]}
+      >
+        <Surface style={styles.header} elevation={2}>
+          <IconButton
+            icon="arrow-left"
+            onPress={() => router.back()}
+            style={styles.backButton}
+          />
+          <Text variant="headlineMedium" style={styles.headerTitle}>
+            Daftar Warga
+          </Text>
+          <View style={styles.placeholder} />
+        </Surface>
+        
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" animating />
+          <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+            Memuat data warga...
+          </Text>
+        </View>
+      </LinearGradient>
     );
   }
 
   return (
-    <Box flex="1" bg="gray.50" safeAreaTop>
-      <VStack
-        px={6}
-        py={4}
-        bg="white"
-        borderBottomWidth={1}
-        borderBottomColor="gray.200"
-        shadow={2}
-      >
-        <HStack alignItems="center" space={3} mb={2}>
-          <IconButton
-            icon={<Icon as={MaterialIcons} name="arrow-back" size={6} />}
-            onPress={() => router.back()}
-            variant="ghost"
-            colorScheme="green"
-            _pressed={{ bg: "green.100" }}
-          />
-          <Heading size="md" color="gray.900" flex="1" textAlign="center">
-            Daftar Warga
-          </Heading>
-          <Box w={10} />
-        </HStack>
-      </VStack>
+    <LinearGradient
+      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      <Surface style={styles.header} elevation={2}>
+        <IconButton
+          icon="arrow-left"
+          onPress={() => router.back()}
+          style={styles.backButton}
+        />
+        <Text variant="headlineMedium" style={styles.headerTitle}>
+          Daftar Warga
+        </Text>
+        <View style={styles.placeholder} />
+      </Surface>
 
-      <Box flex="1" px={6} pt={4}>
-        <VStack space={5} flex="1">
-          <NBInfoCard
-            title="Total Warga"
-            value={wargaList.length.toString()}
-            icon="groups"
-            color={Colors.primary}
-          >
-            <Text fontSize="sm" color="gray.600" mt={2}>
-              RFID Terpasang: {wargaList.filter((w) => w.rfidWarga).length} |
-              Belum: {wargaList.filter((w) => !w.rfidWarga).length}
-            </Text>
-          </NBInfoCard>
-
-          {wargaList.length === 0 ? (
-            <Center flex="1">
-              <VStack alignItems="center" space={3}>
-                <Icon as={MaterialIcons} name="group-off" size={16} color="gray.400" />
-                <Heading size="md" color="gray.600" textAlign="center">
-                  Belum ada warga terdaftar
-                </Heading>
-                <Text fontSize="sm" color="gray.500" textAlign="center">
-                  Tambah warga baru melalui menu Tambah Data Warga
-                </Text>
-              </VStack>
-            </Center>
-          ) : (
-            <FlatList
-              data={wargaList}
-              renderItem={renderWargaItem}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingBottom: insets.bottom + 24,
-              }}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                  colors={["#10b981"]}
-                  tintColor="#10b981"
+      <View style={styles.content}>
+        {/* Summary Card */}
+        <Animated.View entering={FadeInDown.delay(100)}>
+          <Card style={styles.summaryCard} mode="elevated">
+            <Card.Content>
+              <View style={styles.summaryHeader}>
+                <Avatar.Icon 
+                  size={48} 
+                  icon="account-group" 
+                  style={{ backgroundColor: paperTheme.colors.primary }}
+                  color={paperTheme.colors.onPrimary}
                 />
-              }
+                <View style={styles.summaryInfo}>
+                  <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
+                    {wargaList.length}
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Total Warga
+                  </Text>
+                </View>
+              </View>
+              
+              <Divider style={{ marginVertical: 16 }} />
+              
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text variant="titleMedium" style={{ color: paperTheme.colors.success, fontWeight: 'bold' }}>
+                    {wargaList.filter((w) => w.rfidWarga).length}
+                  </Text>
+                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    RFID Terpasang
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text variant="titleMedium" style={{ color: paperTheme.colors.warning, fontWeight: 'bold' }}>
+                    {wargaList.filter((w) => !w.rfidWarga).length}
+                  </Text>
+                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Belum RFID
+                  </Text>
+                </View>
+              </View>
+            </Card.Content>
+          </Card>
+        </Animated.View>
+
+        {wargaList.length === 0 ? (
+          <Animated.View entering={FadeInDown.delay(200)} style={styles.emptyContainer}>
+            <Avatar.Icon 
+              size={80} 
+              icon="account-off" 
+              style={{ backgroundColor: paperTheme.colors.surfaceVariant }}
+              color={paperTheme.colors.onSurfaceVariant}
             />
-          )}
-        </VStack>
-      </Box>
-    </Box>
+            <Text variant="headlineSmall" style={[styles.emptyTitle, { color: paperTheme.colors.onSurfaceVariant }]}>
+              Belum ada warga terdaftar
+            </Text>
+            <Text variant="bodyMedium" style={[styles.emptyText, { color: paperTheme.colors.onSurfaceVariant }]}>
+              Tambah warga baru melalui menu Tambah Data Warga
+            </Text>
+          </Animated.View>
+        ) : (
+          <FlatList
+            data={wargaList}
+            renderItem={renderWargaItem}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            style={styles.list}
+            contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 24 }]}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[paperTheme.colors.primary]}
+                tintColor={paperTheme.colors.primary}
+              />
+            }
+          />
+        )}
+      </View>
+
+      <FAB
+        icon="plus"
+        style={[styles.fab, { backgroundColor: paperTheme.colors.primary }]}
+        onPress={() => router.push('/(admin)/tambah-warga')}
+      />
+    </LinearGradient>
   );
 }
 
-const styles = {};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    justifyContent: 'space-between',
+  },
+  backButton: {
+    margin: 0,
+  },
+  headerTitle: {
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 48,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  summaryCard: {
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  summaryInfo: {
+    flex: 1,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  emptyTitle: {
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  list: {
+    flex: 1,
+  },
+  listContent: {
+    padding: 4,
+  },
+  wargaCard: {
+    borderRadius: 16,
+    marginBottom: 12,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    gap: 12,
+  },
+  avatarSection: {
+    alignItems: 'center',
+  },
+  infoSection: {
+    flex: 1,
+  },
+  wargaName: {
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  statusSection: {
+    alignItems: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
+});

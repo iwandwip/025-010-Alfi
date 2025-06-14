@@ -1,34 +1,30 @@
 import React, { useState } from "react";
+import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { 
+  Surface, 
+  Text, 
+  TextInput, 
+  Button, 
+  IconButton,
+  useTheme,
+  Avatar,
+  Card,
+  Banner
+} from "react-native-paper";
 import { useRouter } from "expo-router";
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-  Alert,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  SafeArea,
-  VStack,
-  HStack,
-  CustomText as Text,
-  Heading,
-  Box,
-  Center,
-  Button,
-  Input,
-  Colors,
-} from "../../components/ui/CoreComponents";
 import { signInWithEmail } from "../../services/authService";
+import Animated, { FadeInDown, FadeInUp, BounceIn } from 'react-native-reanimated';
 
 export default function WargaLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -42,213 +38,261 @@ export default function WargaLogin() {
     if (result.success) {
       router.replace("/(tabs)");
     } else {
-      Alert.alert("Masuk Gagal", result.error);
+      Alert.alert("Login Gagal", result.error);
     }
     setLoading(false);
   };
 
   return (
-    <SafeArea style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
           showsVerticalScrollIndicator={false}
         >
-          <VStack style={styles.content}>
-            {/* Header */}
-            <HStack style={styles.header}>
-              <TouchableOpacity onPress={() => router.back()}>
-                <HStack style={styles.backButton}>
-                  <Text style={styles.backIcon}>←</Text>
-                  <Text style={styles.backText}>Kembali</Text>
-                </HStack>
-              </TouchableOpacity>
-            </HStack>
+          {/* Header */}
+          <Animated.View entering={FadeInDown.delay(100)}>
+            <IconButton
+              icon="arrow-left"
+              size={24}
+              onPress={() => router.back()}
+              style={styles.backButton}
+            />
+          </Animated.View>
 
-            {/* Content */}
-            <VStack style={styles.mainContent}>
-              {/* Logo/Illustration Area */}
-              <Center style={styles.logoSection}>
-                <Box style={styles.logoContainer}>
-                  <Text style={styles.logoIcon}>💳</Text>
-                </Box>
-              </Center>
+          {/* Illustration */}
+          <Animated.View 
+            entering={BounceIn.delay(200).springify()}
+            style={styles.illustrationContainer}
+          >
+            <Surface style={styles.illustrationSurface} elevation={3}>
+              <Avatar.Icon 
+                size={100} 
+                icon="home-city" 
+                style={{ backgroundColor: theme.colors.secondaryContainer }}
+                color={theme.colors.onSecondaryContainer}
+              />
+            </Surface>
+          </Animated.View>
 
-              {/* Title Section */}
-              <VStack style={styles.titleSection}>
-                <Heading size="xl" style={styles.title}>
-                  Masuk Warga
-                </Heading>
-                <Text style={styles.subtitle}>
-                  Masuk untuk memantau dan setor jimpitan
+          {/* Welcome Text */}
+          <Animated.View 
+            entering={FadeInUp.delay(300)}
+            style={styles.welcomeSection}
+          >
+            <Text variant="displaySmall" style={[styles.welcomeTitle, { color: theme.colors.primary }]}>
+              Selamat Datang
+            </Text>
+            <Text variant="titleMedium" style={[styles.welcomeSubtitle, { color: theme.colors.onSurfaceVariant }]}>
+              Portal Warga RT 01 RW 02
+            </Text>
+          </Animated.View>
+
+          {/* Banner Info */}
+          {showBanner && (
+            <Animated.View entering={FadeInUp.delay(400)}>
+              <Banner
+                visible={showBanner}
+                actions={[
+                  {
+                    label: 'Mengerti',
+                    onPress: () => setShowBanner(false),
+                  },
+                ]}
+                icon="information"
+                style={styles.banner}
+              >
+                Belum punya akun? Hubungi bendahara RT untuk pendaftaran.
+              </Banner>
+            </Animated.View>
+          )}
+
+          {/* Login Form */}
+          <Animated.View entering={FadeInUp.delay(500)}>
+            <Card style={styles.formCard} mode="outlined">
+              <Card.Content>
+                <Text variant="titleLarge" style={styles.formTitle}>
+                  Masuk Akun Warga
                 </Text>
-                <Box style={styles.infoBox}>
-                  <HStack style={styles.infoContent}>
-                    <Text style={styles.infoIcon}>ℹ️</Text>
-                    <Text style={styles.infoText}>
-                      Belum punya akun? Hubungi bendahara RT untuk pendaftaran
-                    </Text>
-                  </HStack>
-                </Box>
-              </VStack>
 
-              {/* Form Section */}
-              <VStack style={styles.formSection}>
-                <Input
+                <TextInput
                   label="Email"
-                  placeholder="Masukkan email Anda"
                   value={email}
                   onChangeText={setEmail}
+                  mode="outlined"
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  left={<TextInput.Icon icon="email-outline" />}
+                  style={styles.input}
+                  outlineStyle={{ borderRadius: 12 }}
                 />
 
-                <Input
+                <TextInput
                   label="Password"
-                  placeholder="Masukkan password"
                   value={password}
                   onChangeText={setPassword}
-                  secureTextEntry
+                  mode="outlined"
+                  secureTextEntry={!showPassword}
+                  left={<TextInput.Icon icon="lock-outline" />}
+                  right={
+                    <TextInput.Icon 
+                      icon={showPassword ? "eye-off" : "eye"} 
+                      onPress={() => setShowPassword(!showPassword)}
+                    />
+                  }
+                  style={styles.input}
+                  outlineStyle={{ borderRadius: 12 }}
                 />
 
                 <Button
-                  title={loading ? "Sedang Masuk..." : "Masuk"}
+                  mode="contained"
                   onPress={handleLogin}
-                  disabled={loading}
                   loading={loading}
-                  variant="primary"
-                  size="lg"
+                  disabled={loading}
                   style={styles.loginButton}
-                />
-              </VStack>
-            </VStack>
+                  contentStyle={styles.loginButtonContent}
+                  icon="login-variant"
+                >
+                  {loading ? "Memproses..." : "Masuk"}
+                </Button>
+              </Card.Content>
+            </Card>
+          </Animated.View>
 
-            {/* Footer */}
-            <Center style={styles.footer}>
-              <Text style={styles.footerText}>
-                Sistem Pengelolaan Jimpitan Warga
-              </Text>
-            </Center>
-          </VStack>
+          {/* Features */}
+          <Animated.View entering={FadeInUp.delay(600)} style={styles.featuresSection}>
+            <Text variant="titleMedium" style={styles.featuresTitle}>
+              Fitur untuk Warga:
+            </Text>
+            <View style={styles.featuresList}>
+              <View style={styles.featureItem}>
+                <Avatar.Icon 
+                  size={36} 
+                  icon="credit-card-check" 
+                  style={{ backgroundColor: theme.colors.successContainer }}
+                  color={theme.colors.onSuccessContainer}
+                />
+                <Text variant="bodyMedium" style={styles.featureText}>
+                  Cek status setoran
+                </Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Avatar.Icon 
+                  size={36} 
+                  icon="history" 
+                  style={{ backgroundColor: theme.colors.infoContainer }}
+                  color={theme.colors.onInfoContainer}
+                />
+                <Text variant="bodyMedium" style={styles.featureText}>
+                  Riwayat pembayaran
+                </Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Avatar.Icon 
+                  size={36} 
+                  icon="account-edit" 
+                  style={{ backgroundColor: theme.colors.warningContainer }}
+                  color={theme.colors.onWarningContainer}
+                />
+                <Text variant="bodyMedium" style={styles.featureText}>
+                  Kelola profil
+                </Text>
+              </View>
+            </View>
+          </Animated.View>
+
+          {/* Footer */}
+          <Animated.View entering={FadeInUp.delay(700)} style={styles.footer}>
+            <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+              © 2024 Sistem Jimpitan Warga
+            </Text>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeArea>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary + "10",
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-
-  // Header
-  header: {
-    paddingVertical: 16,
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   backButton: {
-    alignItems: "center",
+    alignSelf: 'flex-start',
+    marginLeft: -8,
   },
-  backIcon: {
-    fontSize: 20,
-    color: Colors.primary,
-    marginRight: 4,
+  illustrationContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 30,
   },
-  backText: {
-    color: Colors.primary,
-    fontSize: 16,
-    fontWeight: "500",
+  illustrationSurface: {
+    padding: 20,
+    borderRadius: 80,
+    backgroundColor: 'transparent',
   },
-
-  // Main Content
-  mainContent: {
-    flex: 1,
-    justifyContent: "center",
+  welcomeSection: {
+    alignItems: 'center',
+    marginBottom: 20,
   },
-
-  // Logo
-  logoSection: {
-    marginBottom: 32,
-  },
-  logoContainer: {
-    backgroundColor: Colors.white,
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 3,
-    borderColor: Colors.primary + "30",
-  },
-  logoIcon: {
-    fontSize: 40,
-  },
-
-  // Title
-  titleSection: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  title: {
-    color: Colors.gray800,
+  welcomeTitle: {
+    fontWeight: '700',
     marginBottom: 8,
   },
-  subtitle: {
-    fontSize: 16,
-    color: Colors.gray600,
-    textAlign: "center",
+  welcomeSubtitle: {
+    opacity: 0.8,
+  },
+  banner: {
+    marginBottom: 20,
+    borderRadius: 12,
+  },
+  formCard: {
+    borderRadius: 16,
+    marginBottom: 30,
+  },
+  formTitle: {
+    marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  input: {
     marginBottom: 16,
-    paddingHorizontal: 16,
-  },
-  infoBox: {
-    backgroundColor: Colors.blue + "10",
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.blue + "30",
-    width: "100%",
-  },
-  infoContent: {
-    alignItems: "flex-start",
-  },
-  infoIcon: {
-    fontSize: 16,
-    marginRight: 8,
-    marginTop: 2,
-  },
-  infoText: {
-    fontSize: 14,
-    color: Colors.gray800,
-    flex: 1,
-    lineHeight: 20,
-  },
-
-  // Form
-  formSection: {
-    marginBottom: 32,
   },
   loginButton: {
     marginTop: 8,
+    borderRadius: 24,
   },
-
-  // Footer
+  loginButtonContent: {
+    paddingVertical: 6,
+  },
+  featuresSection: {
+    marginBottom: 30,
+  },
+  featuresTitle: {
+    marginBottom: 16,
+    fontWeight: '600',
+  },
+  featuresList: {
+    gap: 12,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  featureText: {
+    flex: 1,
+  },
   footer: {
-    paddingVertical: 24,
-  },
-  footerText: {
-    fontSize: 12,
-    color: Colors.gray500,
+    alignItems: 'center',
+    paddingVertical: 20,
   },
 });

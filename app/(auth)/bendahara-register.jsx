@@ -1,28 +1,22 @@
 import React, { useState } from "react";
+import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { 
+  Surface, 
+  Text, 
+  TextInput, 
+  Button, 
+  IconButton,
+  useTheme,
+  Avatar,
+  Card,
+  Divider,
+  ProgressBar
+} from "react-native-paper";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  Platform,
-  Alert,
-  TouchableOpacity,
-  StyleSheet,
-  View,
-} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  SafeArea,
-  VStack,
-  HStack,
-  CustomText as Text,
-  Heading,
-  Box,
-  Center,
-  Button,
-  Input,
-  Colors,
-} from "../../components/ui/CoreComponents";
 import { signUpWithEmail } from "../../services/authService";
+import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 
 export default function BendaharaRegister() {
   const [formData, setFormData] = useState({
@@ -33,14 +27,18 @@ export default function BendaharaRegister() {
     noHp: "",
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const validateForm = () => {
+  const validateStep1 = () => {
     if (!formData.email.trim()) {
       Alert.alert("Error", "Email wajib diisi");
       return false;
@@ -57,6 +55,10 @@ export default function BendaharaRegister() {
       Alert.alert("Error", "Konfirmasi password tidak cocok");
       return false;
     }
+    return true;
+  };
+
+  const validateStep2 = () => {
     if (!formData.nama.trim()) {
       Alert.alert("Error", "Nama wajib diisi");
       return false;
@@ -68,8 +70,14 @@ export default function BendaharaRegister() {
     return true;
   };
 
+  const handleNext = () => {
+    if (validateStep1()) {
+      setCurrentStep(2);
+    }
+  };
+
   const handleRegister = async () => {
-    if (!validateForm()) return;
+    if (!validateStep2()) return;
 
     setLoading(true);
     const profileData = {
@@ -94,256 +102,300 @@ export default function BendaharaRegister() {
     setLoading(false);
   };
 
+  const progress = currentStep / 2;
+
   return (
-    <SafeArea style={[styles.container, { paddingTop: insets.top }]}>
+    <LinearGradient
+      colors={[theme.colors.primaryContainer, theme.colors.surface]}
+      style={styles.container}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
           showsVerticalScrollIndicator={false}
         >
-          <VStack style={styles.content}>
-            {/* Header */}
-            <HStack style={styles.header}>
-              <TouchableOpacity onPress={() => router.back()}>
-                <HStack style={styles.backButton}>
-                  <Text style={styles.backIcon}>←</Text>
-                  <Text style={styles.backText}>Kembali</Text>
-                </HStack>
-              </TouchableOpacity>
-            </HStack>
+          {/* Header */}
+          <Animated.View entering={FadeInDown.delay(100)}>
+            <IconButton
+              icon="arrow-left"
+              size={28}
+              onPress={() => {
+                if (currentStep === 1) {
+                  router.back();
+                } else {
+                  setCurrentStep(1);
+                }
+              }}
+              style={styles.backButton}
+              iconColor={theme.colors.primary}
+            />
+          </Animated.View>
 
-            {/* Content */}
-            <VStack style={styles.mainContent}>
-              {/* Logo/Illustration Area */}
-              <Center style={styles.logoSection}>
-                <Box style={styles.logoContainer}>
-                  <Text style={styles.logoIcon}>👤➕</Text>
-                </Box>
-              </Center>
+          {/* Progress */}
+          <Animated.View entering={FadeInDown.delay(200)} style={styles.progressSection}>
+            <Text variant="labelLarge" style={{ color: theme.colors.onSurface, marginBottom: 8 }}>
+              Langkah {currentStep} dari 2
+            </Text>
+            <ProgressBar 
+              progress={progress} 
+              color={theme.colors.primary}
+              style={styles.progressBar}
+            />
+          </Animated.View>
 
-              {/* Title Section */}
-              <VStack style={styles.titleSection}>
-                <Heading size="lg" style={styles.title}>
-                  Daftar Bendahara
-                </Heading>
-                <Text style={styles.subtitle}>
-                  Buat akun bendahara untuk mengelola jimpitan warga
-                </Text>
-              </VStack>
+          {/* Logo Section */}
+          <Animated.View 
+            entering={FadeInDown.delay(300)}
+            style={styles.logoSection}
+          >
+            <Surface style={[styles.logoContainer, { backgroundColor: theme.colors.primary }]} elevation={5}>
+              <Avatar.Icon 
+                size={80} 
+                icon="account-plus" 
+                style={{ backgroundColor: 'transparent' }}
+                color={theme.colors.onPrimary}
+              />
+            </Surface>
+            
+            <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+              Daftar Bendahara
+            </Text>
+            
+            <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+              Buat akun untuk mengelola jimpitan warga
+            </Text>
+          </Animated.View>
 
-              {/* Form Section */}
-              <VStack style={styles.formSection}>
-                <VStack style={styles.formGroup}>
-                  <HStack style={styles.formHeader}>
-                    <Text style={styles.sectionIcon}>📧</Text>
-                    <Heading size="sm" style={styles.sectionTitle}>
+          {/* Step 1: Account Info */}
+          {currentStep === 1 && (
+            <Animated.View entering={SlideInRight.springify()}>
+              <Card style={styles.formCard} mode="elevated">
+                <Card.Content>
+                  <View style={styles.stepHeader}>
+                    <Avatar.Icon 
+                      size={40} 
+                      icon="email" 
+                      style={{ backgroundColor: theme.colors.primaryContainer }}
+                      color={theme.colors.onPrimaryContainer}
+                    />
+                    <Text variant="titleLarge" style={styles.stepTitle}>
                       Informasi Akun
-                    </Heading>
-                  </HStack>
+                    </Text>
+                  </View>
 
-                  <Input
-                    label="Email"
-                    placeholder="Masukkan email bendahara"
+                  <TextInput
+                    label="Email Bendahara"
                     value={formData.email}
                     onChangeText={(value) => updateForm("email", value)}
+                    mode="outlined"
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    left={<TextInput.Icon icon="email-outline" />}
+                    style={styles.input}
+                    outlineStyle={{ borderRadius: 16 }}
                   />
 
-                  <Input
+                  <TextInput
                     label="Password"
-                    placeholder="Masukkan password (min. 6 karakter)"
                     value={formData.password}
                     onChangeText={(value) => updateForm("password", value)}
-                    secureTextEntry
+                    mode="outlined"
+                    secureTextEntry={!showPassword}
+                    left={<TextInput.Icon icon="lock-outline" />}
+                    right={
+                      <TextInput.Icon 
+                        icon={showPassword ? "eye-off" : "eye"} 
+                        onPress={() => setShowPassword(!showPassword)}
+                      />
+                    }
+                    style={styles.input}
+                    outlineStyle={{ borderRadius: 16 }}
+                    helperText="Minimal 6 karakter"
                   />
 
-                  <Input
+                  <TextInput
                     label="Konfirmasi Password"
-                    placeholder="Masukkan ulang password"
                     value={formData.confirmPassword}
                     onChangeText={(value) => updateForm("confirmPassword", value)}
-                    secureTextEntry
+                    mode="outlined"
+                    secureTextEntry={!showConfirmPassword}
+                    left={<TextInput.Icon icon="lock-check-outline" />}
+                    right={
+                      <TextInput.Icon 
+                        icon={showConfirmPassword ? "eye-off" : "eye"} 
+                        onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                      />
+                    }
+                    style={styles.input}
+                    outlineStyle={{ borderRadius: 16 }}
                   />
-                </VStack>
 
-                <View style={styles.divider} />
+                  <Button
+                    mode="contained"
+                    onPress={handleNext}
+                    style={styles.nextButton}
+                    contentStyle={styles.buttonContent}
+                    icon="arrow-right"
+                  >
+                    Lanjutkan
+                  </Button>
+                </Card.Content>
+              </Card>
+            </Animated.View>
+          )}
 
-                <VStack style={styles.formGroup}>
-                  <HStack style={styles.formHeader}>
-                    <Text style={styles.sectionIcon}>👤</Text>
-                    <Heading size="sm" style={styles.sectionTitle}>
+          {/* Step 2: Personal Info */}
+          {currentStep === 2 && (
+            <Animated.View entering={SlideInRight.springify()}>
+              <Card style={styles.formCard} mode="elevated">
+                <Card.Content>
+                  <View style={styles.stepHeader}>
+                    <Avatar.Icon 
+                      size={40} 
+                      icon="account" 
+                      style={{ backgroundColor: theme.colors.secondaryContainer }}
+                      color={theme.colors.onSecondaryContainer}
+                    />
+                    <Text variant="titleLarge" style={styles.stepTitle}>
                       Informasi Pribadi
-                    </Heading>
-                  </HStack>
+                    </Text>
+                  </View>
 
-                  <Input
+                  <TextInput
                     label="Nama Lengkap"
-                    placeholder="Masukkan nama lengkap"
                     value={formData.nama}
                     onChangeText={(value) => updateForm("nama", value)}
+                    mode="outlined"
+                    left={<TextInput.Icon icon="account-outline" />}
+                    style={styles.input}
+                    outlineStyle={{ borderRadius: 16 }}
                   />
 
-                  <Input
-                    label="No. HP"
-                    placeholder="Masukkan nomor HP"
+                  <TextInput
+                    label="Nomor HP"
                     value={formData.noHp}
                     onChangeText={(value) => updateForm("noHp", value)}
+                    mode="outlined"
                     keyboardType="phone-pad"
+                    left={<TextInput.Icon icon="phone-outline" />}
+                    style={styles.input}
+                    outlineStyle={{ borderRadius: 16 }}
                   />
-                </VStack>
 
-                <Button
-                  title={loading ? "Sedang Daftar..." : "Daftar Akun"}
-                  onPress={handleRegister}
-                  disabled={loading}
-                  loading={loading}
-                  variant="primary"
-                  size="lg"
-                  style={[styles.registerButton, { backgroundColor: Colors.green }]}
-                />
-              </VStack>
+                  <Button
+                    mode="contained"
+                    onPress={handleRegister}
+                    loading={loading}
+                    disabled={loading}
+                    style={styles.registerButton}
+                    contentStyle={styles.buttonContent}
+                    icon="account-plus"
+                  >
+                    {loading ? "Membuat Akun..." : "Daftar Sekarang"}
+                  </Button>
+                </Card.Content>
+              </Card>
+            </Animated.View>
+          )}
 
-              {/* Login Link */}
-              <Center style={styles.loginSection}>
-                <VStack style={styles.loginContent}>
-                  <Text style={styles.loginQuestion}>
-                    Sudah memiliki akun?
-                  </Text>
-                  <TouchableOpacity onPress={() => router.push("/(auth)/bendahara-login")}>
-                    <Text style={styles.loginLink}>
-                      Masuk Sekarang
-                    </Text>
-                  </TouchableOpacity>
-                </VStack>
-              </Center>
-            </VStack>
-          </VStack>
+          {/* Login Link */}
+          <Animated.View 
+            entering={FadeInUp.delay(400)}
+            style={styles.loginSection}
+          >
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+              Sudah punya akun bendahara?
+            </Text>
+            <Button
+              mode="text"
+              onPress={() => router.push("/(auth)/bendahara-login")}
+              style={styles.loginButton}
+              labelStyle={{ color: theme.colors.primary }}
+            >
+              Masuk Sekarang
+            </Button>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeArea>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.green + '10',
   },
-  content: {
-    flex: 1,
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
-  },
-  
-  // Header
-  header: {
-    paddingVertical: 16,
+    paddingBottom: 40,
   },
   backButton: {
-    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginLeft: -8,
   },
-  backIcon: {
-    fontSize: 20,
-    color: Colors.green,
-    marginRight: 4,
-  },
-  backText: {
-    color: Colors.green,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  
-  // Main Content
-  mainContent: {
-    flex: 1,
-  },
-  
-  // Logo
-  logoSection: {
+  progressSection: {
     marginBottom: 24,
   },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
+  },
+  logoSection: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
   logoContainer: {
-    backgroundColor: Colors.white,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 3,
-    borderColor: Colors.green + '30',
-  },
-  logoIcon: {
-    fontSize: 32,
-  },
-  
-  // Title
-  titleSection: {
-    alignItems: 'center',
     marginBottom: 24,
   },
   title: {
-    color: Colors.gray800,
+    fontWeight: 'bold',
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
-    color: Colors.gray600,
+    marginBottom: 16,
     textAlign: 'center',
-    paddingHorizontal: 16,
   },
-  
-  // Form
-  formSection: {
+  formCard: {
+    borderRadius: 24,
     marginBottom: 24,
   },
-  formGroup: {
-    marginBottom: 16,
-  },
-  formHeader: {
+  stepHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 24,
+    gap: 12,
+  },
+  stepTitle: {
+    fontWeight: '600',
+  },
+  input: {
     marginBottom: 16,
-    paddingHorizontal: 4,
   },
-  sectionIcon: {
-    fontSize: 20,
-    marginRight: 8,
-  },
-  sectionTitle: {
-    color: Colors.gray700,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.gray200,
-    marginVertical: 16,
+  nextButton: {
+    marginTop: 8,
+    borderRadius: 28,
   },
   registerButton: {
+    marginTop: 8,
+    borderRadius: 28,
+  },
+  buttonContent: {
+    paddingVertical: 8,
+  },
+  loginSection: {
+    alignItems: 'center',
     marginTop: 16,
   },
-  
-  // Login
-  loginSection: {
-    marginBottom: 16,
-  },
-  loginContent: {
-    alignItems: 'center',
-  },
-  loginQuestion: {
-    fontSize: 14,
-    color: Colors.gray600,
-    marginBottom: 8,
-  },
-  loginLink: {
-    color: Colors.green,
-    fontSize: 14,
-    fontWeight: '600',
-    textDecorationLine: 'underline',
+  loginButton: {
+    marginTop: 4,
   },
 });

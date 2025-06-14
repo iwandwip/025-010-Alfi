@@ -1,33 +1,27 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { View, ScrollView, RefreshControl, AppState, StyleSheet } from "react-native";
 import {
-  Box,
-  VStack,
-  HStack,
+  Surface,
   Text,
-  Heading,
-  FlatList,
-  Pressable,
-  Badge,
-  Icon,
-  Progress,
-  Center,
-  Spinner,
+  Card,
+  Button,
+  Chip,
+  Avatar,
+  IconButton,
+  ProgressBar,
+  useTheme,
   Modal,
-  useToast,
-} from "native-base";
-import { RefreshControl, AppState } from "react-native";
+  Portal,
+  ActivityIndicator,
+  Divider,
+  FAB
+} from "react-native-paper";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import { getColors } from "../../constants/Colors";
-import NBCard, { NBInfoCard } from "../../components/ui/NBCard";
-import NBButton from "../../components/ui/NBButton";
-import NBLoadingSpinner from "../../components/ui/NBLoadingSpinner";
-import PaymentModal from "../../components/ui/PaymentModal";
-import CreditBalance from "../../components/ui/CreditBalance";
 import { formatDate } from "../../utils/dateUtils";
 import { paymentStatusManager } from "../../services/paymentStatusManager";
 import {
@@ -37,6 +31,7 @@ import {
   getCreditBalance,
   processPaymentWithCredit,
 } from "../../services/wargaPaymentService";
+import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 
 function StatusSetoran() {
   const { userProfile } = useAuth();
@@ -47,7 +42,7 @@ function StatusSetoran() {
     showPaymentWithCreditNotification,
     showCreditBalanceNotification
   } = useNotification();
-  const colors = getColors(theme);
+  const paperTheme = useTheme();
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
   const [timeline, setTimeline] = useState(null);
@@ -121,7 +116,7 @@ function StatusSetoran() {
     if (!settingsLoading) {
       loadData(false, true);
     }
-  }, [loadData, settingsLoading]); // loadData changes when userProfile.id changes
+  }, [loadData, settingsLoading]);
 
   useFocusEffect(
     useCallback(() => {
@@ -144,102 +139,6 @@ function StatusSetoran() {
     return () => subscription?.remove();
   }, [userProfile?.id]);
 
-  useEffect(() => {
-    const unsubscribe = paymentStatusManager.addListener((type, data) => {
-      if (type === "user_payment_updated" && data.userId === userProfile?.id) {
-        if (data.data.success) {
-          setPayments(data.data.payments || []);
-          setTimeline(data.data.timeline);
-          setSummary(getPaymentSummary(data.data.payments || []));
-        }
-      }
-    });
-
-    return unsubscribe;
-  }, [userProfile?.id]);
-
-  const handlePayNow = useCallback((payment) => {
-    setSelectedPayment(payment);
-    setPaymentModalVisible(true);
-  }, []);
-
-  const handlePaymentSuccess = useCallback(
-    async (payment, paymentMethod, customAmount = null) => {
-      setUpdatingPayment(true);
-
-      try {
-        // Determine payment amount
-        const paymentAmount = customAmount || (payment.remainingAmount || payment.amount);
-        
-        const result = await processPaymentWithCredit(
-          timeline.id,
-          payment.periodKey,
-          userProfile.id,
-          paymentAmount,
-          paymentMethod
-        );
-
-        if (result.success) {
-          await loadData(true, false);
-          
-          // Show appropriate notification based on result
-          if (result.excessCredit > 0) {
-            showPaymentWithCreditNotification(
-              payment, 
-              result.creditApplied, 
-              0 // remaining amount is 0 since payment is complete
-            );
-            showCreditBalanceNotification(result.newCreditBalance);
-          } else if (result.creditApplied > 0) {
-            showPaymentWithCreditNotification(
-              payment, 
-              result.creditApplied, 
-              0
-            );
-          } else {
-            showPaymentSuccessNotification(payment);
-          }
-
-          paymentStatusManager.clearUserCache(userProfile.id);
-        } else {
-          showErrorNotification(
-            "Gagal memperbarui status pembayaran: " + result.error
-          );
-        }
-      } catch (error) {
-        showErrorNotification("Terjadi kesalahan saat memperbarui pembayaran");
-        console.error("Error updating payment:", error);
-      }
-
-      setUpdatingPayment(false);
-    },
-    [
-      timeline?.id,
-      userProfile?.id,
-      loadData,
-      showPaymentSuccessNotification,
-      showPaymentWithCreditNotification,
-      showCreditBalanceNotification,
-      showErrorNotification,
-    ]
-  );
-
-  const getStatusColor = useCallback(
-    (status) => {
-      switch (status) {
-        case "lunas":
-          return colors.success;
-        case "belum_bayar":
-          return colors.error;
-        case "terlambat":
-          return colors.warning;
-        default:
-          return colors.gray500;
-      }
-    },
-    [colors]
-  );
-
   const formatCurrency = useCallback((amount) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -248,655 +147,481 @@ function StatusSetoran() {
     }).format(amount);
   }, []);
 
-
-  const getStatusLabel = useCallback((status) => {
+  const getStatusInfo = useCallback((status) => {
     switch (status) {
       case "lunas":
-        return "Lunas";
+        return { label: "Lunas", icon: "check-circle", color: paperTheme.colors.success };
       case "belum_bayar":
-        return "Belum Bayar";
+        return { label: "Belum Bayar", icon: "clock", color: paperTheme.colors.error };
       case "terlambat":
-        return "Terlambat";
+        return { label: "Terlambat", icon: "alert-circle", color: paperTheme.colors.warning };
       default:
-        return "Unknown";
+        return { label: "Unknown", icon: "help-circle", color: paperTheme.colors.outline };
     }
-  }, []);
+  }, [paperTheme]);
 
-  const getStatusIcon = useCallback((status) => {
-    switch (status) {
-      case "lunas":
-        return "✅";
-      case "belum_bayar":
-        return "❌";
-      case "terlambat":
-        return "⚠️";
-      default:
-        return "❓";
-    }
+  const handlePayNow = useCallback((payment) => {
+    setSelectedPayment(payment);
+    setPaymentModalVisible(true);
   }, []);
 
   const renderSummaryCard = useMemo(() => {
     if (!summary) return null;
 
     return (
-      <NBCard
-        title="Ringkasan Setoran"
-        icon="assessment"
-        variant="elevated"
-        shadow={3}
-        bg={colors.white}
-      >
-        <VStack space={4}>
-          <VStack space={2}>
-            <HStack justifyContent="space-between" alignItems="center">
-              <Text fontSize="sm" color={colors.gray700}>
-                Progress: {summary.lunas || 0}/{summary.total || 0} periode
-              </Text>
-              <Text fontSize="md" fontWeight="bold" color="teal.600">
-                {summary.progressPercentage || 0}%
-              </Text>
-            </HStack>
-            <Progress
-              value={summary.progressPercentage || 0}
-              colorScheme="teal"
-              bg={colors.gray200}
-              size="sm"
-            />
-          </VStack>
-
-          <HStack justifyContent="space-around">
-            <VStack alignItems="center">
-              <Heading size="lg" color={colors.success}>
-                {summary.lunas || 0}
-              </Heading>
-              <Text fontSize="xs" color={colors.gray600}>
-                Lunas
-              </Text>
-            </VStack>
-
-            <VStack alignItems="center">
-              <Heading size="lg" color={colors.error}>
-                {summary.belumBayar || 0}
-              </Heading>
-              <Text fontSize="xs" color={colors.gray600}>
-                Belum Bayar
-              </Text>
-            </VStack>
-
-            {(summary.terlambat || 0) > 0 && (
-              <VStack alignItems="center">
-                <Heading size="lg" color={colors.warning}>
-                  {summary.terlambat || 0}
-                </Heading>
-                <Text fontSize="xs" color={colors.gray600}>
-                  Terlambat
+      <Animated.View entering={FadeInDown.delay(100)}>
+        <Card style={styles.summaryCard} mode="elevated">
+          <Card.Content>
+            <View style={styles.summaryHeader}>
+              <Avatar.Icon 
+                size={48} 
+                icon="chart-pie" 
+                style={{ backgroundColor: paperTheme.colors.primaryContainer }}
+                color={paperTheme.colors.onPrimaryContainer}
+              />
+              <View style={styles.summaryTitle}>
+                <Text variant="titleLarge" style={{ fontWeight: '600' }}>
+                  Ringkasan Setoran
                 </Text>
-              </VStack>
-            )}
-          </HStack>
+                <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  Progress pembayaran Anda
+                </Text>
+              </View>
+            </View>
 
-          <VStack space={2} borderTopWidth={1} borderTopColor={colors.gray200} pt={3}>
-            <HStack justifyContent="space-between">
-              <Text fontSize="sm" color={colors.gray600}>
-                Total Tagihan:
-              </Text>
-              <Text fontSize="sm" fontWeight="bold" color={colors.gray900}>
-                {formatCurrency(summary.totalAmount || 0)}
-              </Text>
-            </HStack>
+            <View style={styles.progressSection}>
+              <View style={styles.progressHeader}>
+                <Text variant="bodyMedium">
+                  Progress: {summary.lunas || 0}/{summary.total || 0} periode
+                </Text>
+                <Text variant="titleMedium" style={{ color: paperTheme.colors.primary, fontWeight: 'bold' }}>
+                  {summary.progressPercentage || 0}%
+                </Text>
+              </View>
+              <ProgressBar 
+                progress={(summary.progressPercentage || 0) / 100} 
+                color={paperTheme.colors.primary}
+                style={styles.progressBar}
+              />
+            </View>
 
-            <HStack justifyContent="space-between">
-              <Text fontSize="sm" color={colors.gray600}>
-                Sudah Disetor:
-              </Text>
-              <Text fontSize="sm" fontWeight="bold" color={colors.success}>
-                {formatCurrency(summary.paidAmount || 0)}
-              </Text>
-            </HStack>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text variant="headlineMedium" style={{ color: paperTheme.colors.success, fontWeight: 'bold' }}>
+                  {summary.lunas || 0}
+                </Text>
+                <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  Lunas
+                </Text>
+              </View>
+              
+              <View style={styles.statItem}>
+                <Text variant="headlineMedium" style={{ color: paperTheme.colors.error, fontWeight: 'bold' }}>
+                  {summary.belumBayar || 0}
+                </Text>
+                <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  Belum Bayar
+                </Text>
+              </View>
 
-            <HStack justifyContent="space-between">
-              <Text fontSize="sm" color={colors.gray600}>
-                Belum Disetor:
-              </Text>
-              <Text fontSize="sm" fontWeight="bold" color={colors.error}>
-                {formatCurrency(summary.unpaidAmount || 0)}
-              </Text>
-            </HStack>
-          </VStack>
-        </VStack>
-      </NBCard>
+              {(summary.terlambat || 0) > 0 && (
+                <View style={styles.statItem}>
+                  <Text variant="headlineMedium" style={{ color: paperTheme.colors.warning, fontWeight: 'bold' }}>
+                    {summary.terlambat || 0}
+                  </Text>
+                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Terlambat
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <Divider style={styles.divider} />
+
+            <View style={styles.amountSection}>
+              <View style={styles.amountRow}>
+                <Text variant="bodyMedium">Total Tagihan:</Text>
+                <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
+                  {formatCurrency(summary.totalAmount || 0)}
+                </Text>
+              </View>
+              <View style={styles.amountRow}>
+                <Text variant="bodyMedium">Sudah Disetor:</Text>
+                <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.success }}>
+                  {formatCurrency(summary.paidAmount || 0)}
+                </Text>
+              </View>
+              <View style={styles.amountRow}>
+                <Text variant="bodyMedium">Belum Disetor:</Text>
+                <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.error }}>
+                  {formatCurrency(summary.unpaidAmount || 0)}
+                </Text>
+              </View>
+            </View>
+          </Card.Content>
+        </Card>
+      </Animated.View>
     );
-  }, [summary, colors, formatCurrency]);
+  }, [summary, paperTheme, formatCurrency]);
 
-  const renderPaymentItem = useCallback(
-    ({ item }) => {
-      const statusColorScheme = item.status === "lunas" ? "success" : 
-                               item.status === "belum_bayar" ? "error" : "warning";
-      
-      return (
-        <NBCard
-          variant="outline"
-          borderColor={colors.gray200}
-          bg={colors.white}
-          mb={3}
-        >
-          <VStack space={3}>
-            <HStack justifyContent="space-between" alignItems="flex-start">
-              <VStack flex="1">
-                <Text fontSize="md" fontWeight="600" color={colors.gray900}>
-                  {item.periodData.label}
-                </Text>
-                <Text fontSize="sm" color={colors.gray500}>
-                  Periode {item.periodData.number}
-                </Text>
-              </VStack>
+  const renderCreditCard = useMemo(() => {
+    if (!creditBalance || creditBalance <= 0) return null;
 
-              <Badge
-                colorScheme={statusColorScheme}
-                variant="subtle"
-                borderRadius="full"
-                px={3}
-                py={1}
+    return (
+      <Animated.View entering={FadeInDown.delay(200)}>
+        <Card style={styles.creditCard} mode="elevated">
+          <Card.Content>
+            <View style={styles.creditHeader}>
+              <Avatar.Icon 
+                size={40} 
+                icon="wallet" 
+                style={{ backgroundColor: paperTheme.colors.tertiaryContainer }}
+                color={paperTheme.colors.onTertiaryContainer}
+              />
+              <View style={styles.creditInfo}>
+                <Text variant="titleMedium" style={{ fontWeight: '600' }}>
+                  Saldo Kredit
+                </Text>
+                <Text variant="headlineSmall" style={{ color: paperTheme.colors.tertiary, fontWeight: 'bold' }}>
+                  {formatCurrency(creditBalance)}
+                </Text>
+              </View>
+              <Chip icon="star" mode="flat" style={{ backgroundColor: paperTheme.colors.successContainer }}>
+                Aktif
+              </Chip>
+            </View>
+          </Card.Content>
+        </Card>
+      </Animated.View>
+    );
+  }, [creditBalance, paperTheme, formatCurrency]);
+
+  const renderPaymentItem = useCallback((item, index) => {
+    const statusInfo = getStatusInfo(item.status);
+    
+    return (
+      <Animated.View 
+        entering={SlideInRight.delay(300 + (index * 100)).springify()}
+        key={item.id}
+      >
+        <Card style={styles.paymentCard} mode="outlined">
+          <Card.Content>
+            <View style={styles.paymentHeader}>
+              <View style={styles.paymentInfo}>
+                <Text variant="titleMedium" style={{ fontWeight: '600' }}>
+                  {item.periodData?.label}
+                </Text>
+                <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  Periode {item.periodData?.number}
+                </Text>
+              </View>
+              
+              <Chip 
+                icon={statusInfo.icon}
+                mode="flat"
+                style={{ backgroundColor: `${statusInfo.color}20` }}
+                textStyle={{ color: statusInfo.color }}
               >
-                <HStack alignItems="center" space={1}>
-                  <Text fontSize="sm">{getStatusIcon(item.status)}</Text>
-                  <Text fontSize="sm">{getStatusLabel(item.status)}</Text>
-                </HStack>
-              </Badge>
-            </HStack>
+                {statusInfo.label}
+              </Chip>
+            </View>
 
-            <VStack space={2}>
-              <HStack justifyContent="space-between">
-                <Text fontSize="sm" color={colors.gray600}>
-                  Nominal:
-                </Text>
-                <Text fontSize="sm" fontWeight="bold" color={colors.gray900}>
+            <View style={styles.paymentDetails}>
+              <View style={styles.detailRow}>
+                <Text variant="bodyMedium">Nominal:</Text>
+                <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
                   {formatCurrency(item.amount || 0)}
                 </Text>
-              </HStack>
+              </View>
 
               {(item.creditApplied || 0) > 0 && (
-                <HStack justifyContent="space-between">
-                  <HStack alignItems="center" space={1}>
-                    <Icon as={MaterialIcons} name="account-balance-wallet" size={4} color="teal.600" />
-                    <Text fontSize="sm" color="teal.600">
-                      Credit Applied:
-                    </Text>
-                  </HStack>
-                  <Text fontSize="sm" fontWeight="bold" color="teal.600">
+                <View style={styles.detailRow}>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.tertiary }}>
+                    Credit Applied:
+                  </Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.tertiary }}>
                     -{formatCurrency(item.creditApplied || 0)}
                   </Text>
-                </HStack>
-              )}
-
-              {(item.remainingAmount || 0) > 0 && (item.remainingAmount || 0) < (item.amount || 0) && (
-                <HStack justifyContent="space-between">
-                  <Text fontSize="sm" color="teal.600">
-                    Sisa Bayar:
-                  </Text>
-                  <Text fontSize="sm" fontWeight="bold" color="teal.600">
-                    {formatCurrency(item.remainingAmount || 0)}
-                  </Text>
-                </HStack>
+                </View>
               )}
 
               {item.paymentDate && (
-                <HStack justifyContent="space-between">
-                  <Text fontSize="sm" color={colors.gray600}>
-                    Tanggal Bayar:
-                  </Text>
-                  <Text fontSize="sm" color={colors.gray900}>
+                <View style={styles.detailRow}>
+                  <Text variant="bodyMedium">Tanggal Bayar:</Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
                     {formatDate(item.paymentDate)}
                   </Text>
-                </HStack>
+                </View>
               )}
 
               {item.paymentMethod && (
-                <HStack justifyContent="space-between">
-                  <Text fontSize="sm" color={colors.gray600}>
-                    Metode:
-                  </Text>
-                  <Text fontSize="sm" color={colors.gray900}>
+                <View style={styles.detailRow}>
+                  <Text variant="bodyMedium">Metode:</Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
                     {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
                   </Text>
-                </HStack>
+                </View>
               )}
+            </View>
 
-              {item.notes && (
-                <VStack>
-                  <Text fontSize="sm" color={colors.gray600}>
-                    Catatan:
-                  </Text>
-                  <Text fontSize="sm" color={colors.gray700}>
-                    {item.notes}
-                  </Text>
-                </VStack>
-              )}
-            </VStack>
-
-            {item.status === "belum_bayar" && (
-              <NBButton
-                title="Bayar Sekarang"
+            {(item.status === "belum_bayar" || item.status === "terlambat") && (
+              <Button
+                mode="contained"
                 onPress={() => handlePayNow(item)}
                 disabled={updatingPayment}
-                variant="primary"
-                size="md"
-                leftIcon={<Icon as={MaterialIcons} name="payment" size={5} color="white" />}
-              />
+                style={[styles.payButton, item.status === "terlambat" && { backgroundColor: paperTheme.colors.warning }]}
+                icon="credit-card"
+              >
+                {item.status === "terlambat" ? "Bayar Segera" : "Bayar Sekarang"}
+              </Button>
             )}
-
-            {item.status === "terlambat" && (
-              <NBButton
-                title="Bayar Segera"
-                onPress={() => handlePayNow(item)}
-                disabled={updatingPayment}
-                variant="primary"
-                style={{ backgroundColor: colors.warning }}
-                size="md"
-                leftIcon={<Icon as={MaterialIcons} name="flash-on" size={5} color="white" />}
-              />
-            )}
-          </VStack>
-        </NBCard>
-      );
-    },
-    [
-      colors,
-      getStatusIcon,
-      getStatusLabel,
-      formatCurrency,
-      handlePayNow,
-      updatingPayment,
-    ]
-  );
-
-  const listData = useMemo(() => {
-    const items = [{ type: "summary" }];
-    if ((creditBalance || 0) > 0) {
-      items.push({ type: "credit", creditBalance: creditBalance || 0 });
-    }
-    return [...items, ...(payments || [])];
-  }, [payments, creditBalance]);
-
-  const keyExtractor = useCallback(
-    (item, index) => {
-      if (item.type === "summary") return "summary";
-      if (item.type === "credit") return "credit";
-      return item.id;
-    },
-    []
-  );
-
-  const renderItem = useCallback(
-    ({ item }) => {
-      if (item.type === "summary") {
-        return renderSummaryCard;
-      }
-      if (item.type === "credit") {
-        return <CreditBalance creditBalance={item.creditBalance} />;
-      }
-      return renderPaymentItem({ item });
-    },
-    [renderSummaryCard, renderPaymentItem]
-  );
+          </Card.Content>
+        </Card>
+      </Animated.View>
+    );
+  }, [getStatusInfo, paperTheme, formatCurrency, handlePayNow, updatingPayment]);
 
   if (settingsLoading || loading) {
     return (
-      <Box flex="1" bg={colors.background} safeAreaTop>
-        <VStack
-          px={6}
-          py={5}
-          bg={colors.white}
-          borderBottomWidth={1}
-          borderBottomColor={colors.gray200}
-          shadow={2}
-        >
-          <Heading size="md" textAlign="center" color={colors.gray900}>
+      <View style={[styles.container, { backgroundColor: paperTheme.colors.background }]}>
+        <Surface style={styles.header} elevation={2}>
+          <Text variant="headlineMedium" style={styles.headerTitle}>
             Status Setoran Jimpitan
-          </Heading>
+          </Text>
           {userProfile && (
-            <Text fontSize="sm" textAlign="center" color={colors.gray600} mt={1}>
+            <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
               Warga: {userProfile.namaWarga}
             </Text>
           )}
-        </VStack>
+        </Surface>
 
-        <NBLoadingSpinner text="Memuat data pembayaran..." />
-      </Box>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" animating />
+          <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+            Memuat data pembayaran...
+          </Text>
+        </View>
+      </View>
     );
   }
 
   return (
-    <Box flex="1" bg={colors.background} safeAreaTop>
-      <VStack
-        px={6}
-        py={5}
-        bg={colors.white}
-        borderBottomWidth={1}
-        borderBottomColor={colors.gray200}
-        shadow={2}
-      >
-        <Heading size="md" textAlign="center" color={colors.gray900}>
+    <View style={[styles.container, { backgroundColor: paperTheme.colors.background }]}>
+      <Surface style={styles.header} elevation={2}>
+        <Text variant="headlineMedium" style={styles.headerTitle}>
           Status Setoran Jimpitan
-        </Heading>
+        </Text>
         {userProfile && (
-          <Text fontSize="sm" textAlign="center" color={colors.gray600} mt={1}>
+          <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
             Warga: {userProfile.namaWarga}
           </Text>
         )}
         {timeline && (
-          <Text fontSize="xs" textAlign="center" color="teal.600" mt={1} fontWeight="500">
+          <Text variant="bodySmall" style={{ color: paperTheme.colors.primary, fontWeight: '500' }}>
             Timeline: {timeline.name}
           </Text>
         )}
-      </VStack>
+      </Surface>
 
-      {payments.length > 0 ? (
-        <FlatList
-          data={listData}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          contentContainerStyle={{
-            padding: 24,
-            paddingBottom: insets.bottom + 24,
-          }}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={["#14b8a6"]}
-              tintColor="#14b8a6"
-              title="Memuat ulang..."
-              titleColor={colors.gray600}
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[paperTheme.colors.primary]}
+            tintColor={paperTheme.colors.primary}
+            title="Memuat ulang..."
+          />
+        }
+      >
+        {renderSummaryCard}
+        {renderCreditCard}
+
+        {payments.length > 0 ? (
+          <View style={styles.paymentsSection}>
+            <Text variant="titleLarge" style={[styles.sectionTitle, { marginBottom: 16 }]}>
+              Riwayat Pembayaran
+            </Text>
+            {payments.map(renderPaymentItem)}
+          </View>
+        ) : (
+          <Animated.View entering={FadeInUp.delay(400)} style={styles.emptyContainer}>
+            <Avatar.Icon 
+              size={80} 
+              icon="calendar-clock" 
+              style={{ backgroundColor: paperTheme.colors.surfaceVariant }}
+              color={paperTheme.colors.onSurfaceVariant}
             />
-          }
-          initialNumToRender={5}
-          maxToRenderPerBatch={5}
-          windowSize={10}
-          removeClippedSubviews={true}
-        />
-      ) : (
-        <Center flex="1" px={6}>
-          <VStack alignItems="center" space={3}>
-            <Icon as={MaterialIcons} name="assessment" size={16} color={colors.gray400} />
-            <Heading size="md" color={colors.gray600} textAlign="center">
-              {timeline
-                ? "Belum ada data pembayaran"
-                : "Belum ada timeline aktif"}
-            </Heading>
-            <Text fontSize="sm" color={colors.gray500} textAlign="center">
+            <Text variant="headlineSmall" style={[styles.emptyTitle, { color: paperTheme.colors.onSurfaceVariant }]}>
+              {timeline ? "Belum ada data pembayaran" : "Belum ada timeline aktif"}
+            </Text>
+            <Text variant="bodyMedium" style={[styles.emptyText, { color: paperTheme.colors.onSurfaceVariant }]}>
               {timeline
                 ? "Data pembayaran akan muncul setelah admin membuat timeline"
                 : "Admin belum membuat timeline pembayaran"}
             </Text>
-          </VStack>
-        </Center>
-      )}
+          </Animated.View>
+        )}
+      </ScrollView>
 
-      <PaymentModal
-        visible={paymentModalVisible}
-        payment={selectedPayment}
-        creditBalance={creditBalance}
-        onClose={() => setPaymentModalVisible(false)}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
+      <Portal>
+        <Modal visible={updatingPayment} dismissable={false}>
+          <Card style={styles.loadingModal}>
+            <Card.Content style={styles.loadingModalContent}>
+              <ActivityIndicator size="large" animating />
+              <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+                Memperbarui status pembayaran...
+              </Text>
+            </Card.Content>
+          </Card>
+        </Modal>
+      </Portal>
 
-      <Modal isOpen={updatingPayment} size="lg">
-        <Modal.Content maxWidth="400px">
-          <Modal.Body>
-            <Center py={6}>
-              <VStack space={4} alignItems="center">
-                <Spinner size="lg" color="teal.600" />
-                <Text fontSize="md" color={colors.gray900}>
-                  Memperbarui status pembayaran...
-                </Text>
-              </VStack>
-            </Center>
-          </Modal.Body>
-        </Modal.Content>
-      </Modal>
-    </Box>
+      {/* TODO: Implement PaymentModal with Paper */}
+    </View>
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 20,
-    borderBottomWidth: 1,
+    alignItems: 'center',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 600,
-    textAlign: "center",
+  headerTitle: {
+    fontWeight: '600',
     marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: "center",
-  },
-  timelineInfo: {
-    fontSize: 12,
-    textAlign: "center",
-    marginTop: 4,
-    fontWeight: 500,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 24,
   },
-  loadingText: {
-    fontSize: 16,
-    marginTop: 16,
-    textAlign: "center",
+  scrollView: {
+    flex: 1,
   },
-  listContent: {
+  scrollContent: {
     padding: 24,
   },
   summaryCard: {
+    marginBottom: 16,
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+  },
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 16,
   },
   summaryTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    textAlign: "center",
-    marginBottom: 20,
+    flex: 1,
   },
-  progressContainer: {
+  progressSection: {
     marginBottom: 20,
   },
   progressHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
-  },
-  progressText: {
-    fontSize: 14,
-    fontWeight: 500,
-  },
-  progressPercentage: {
-    fontSize: 16,
-    fontWeight: 700,
   },
   progressBar: {
     height: 8,
     borderRadius: 4,
-    overflow: "hidden",
   },
-  progressFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
-  summaryStats: {
-    marginBottom: 16,
-  },
-  statRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginBottom: 20,
   },
   statItem: {
-    alignItems: "center",
+    alignItems: 'center',
   },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    fontWeight: 500,
-  },
-  amountSummary: {
-    borderTopWidth: 1,
-    paddingTop: 16,
-  },
-  amountRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  amountLabel: {
-    fontSize: 14,
-    fontWeight: 500,
-  },
-  amountValue: {
-    fontSize: 14,
-    fontWeight: 600,
-  },
-  paymentCard: {
-    borderRadius: 12,
-    padding: 16,
+  divider: {
     marginBottom: 16,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  periodInfo: {
-    flex: 1,
-  },
-  periodText: {
-    fontSize: 16,
-    fontWeight: 600,
-    marginBottom: 2,
-  },
-  periodNumber: {
-    fontSize: 12,
-    fontWeight: 500,
-  },
-  statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    gap: 6,
-  },
-  statusIcon: {
-    fontSize: 14,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: 600,
-  },
-  cardContent: {
-    marginBottom: 12,
-  },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  labelText: {
-    fontSize: 14,
-    fontWeight: 500,
-    flex: 1,
-  },
-  valueText: {
-    fontSize: 14,
-    fontWeight: 600,
-    flex: 1.5,
-    textAlign: "right",
-  },
-  payButton: {
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "center",
+  amountSection: {
     gap: 8,
   },
-  payButtonText: {
-    fontSize: 14,
-    fontWeight: 600,
+  amountRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  creditCard: {
+    marginBottom: 16,
+    borderRadius: 16,
+  },
+  creditHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  creditInfo: {
+    flex: 1,
+  },
+  paymentsSection: {
+    marginTop: 8,
+  },
+  sectionTitle: {
+    fontWeight: '600',
+  },
+  paymentCard: {
+    marginBottom: 12,
+    borderRadius: 16,
+  },
+  paymentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  paymentInfo: {
+    flex: 1,
+  },
+  paymentDetails: {
+    gap: 8,
+    marginBottom: 16,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  payButton: {
+    borderRadius: 24,
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+  emptyTitle: {
+    fontWeight: '600',
+    marginTop: 16,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: 600,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptySubtext: {
-    fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
     lineHeight: 20,
   },
-  updateOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  updateModal: {
+  loadingModal: {
+    margin: 20,
     borderRadius: 16,
-    padding: 32,
-    alignItems: "center",
-    minWidth: 200,
   },
-  updateText: {
-    fontSize: 16,
-    marginTop: 16,
-    textAlign: "center",
+  loadingModalContent: {
+    alignItems: 'center',
+    paddingVertical: 20,
   },
-};
+});
 
 export default StatusSetoran;
