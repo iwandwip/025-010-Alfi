@@ -1,31 +1,37 @@
 import React, { useState } from "react";
 import {
-  View,
-  Text,
   StyleSheet,
   Alert,
   ScrollView,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
-  SafeAreaView,
 } from "react-native";
+import {
+  Surface,
+  Text,
+  Card,
+  Avatar,
+  IconButton,
+  ActivityIndicator,
+  useTheme,
+  TextInput,
+  Button,
+  Divider
+} from "react-native-paper";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
 import { updateUserProfile } from "../../services/userService";
-import { getColors } from "../../constants/Colors";
+import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
 
 export default function EditProfile() {
   const { userProfile, refreshProfile } = useAuth();
   const { theme, loading: settingsLoading } = useSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const colors = getColors(theme);
+  const paperTheme = useTheme();
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -93,75 +99,53 @@ export default function EditProfile() {
 
   if (settingsLoading || !userProfile) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          { paddingTop: insets.top, backgroundColor: colors.background },
-        ]}
+      <LinearGradient
+        colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+        style={[styles.container, { paddingTop: insets.top }]}
       >
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: colors.white,
-              borderBottomColor: colors.gray200,
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.backButton}
+        <Surface style={styles.header} elevation={2}>
+          <IconButton
+            icon="arrow-left"
             onPress={() => router.back()}
-          >
-            <Text style={[styles.backButtonText, { color: colors.primary }]}>
-              ← Kembali
-            </Text>
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
+            style={styles.backButton}
+          />
+          <Text variant="headlineMedium" style={styles.headerTitle}>
             Edit Profil
           </Text>
-        </View>
+          <View style={styles.placeholder} />
+        </Surface>
+        
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
+          <ActivityIndicator size="large" animating />
+          <Text variant="bodyLarge" style={{ marginTop: 16 }}>
             Memuat profil...
           </Text>
         </View>
-      </SafeAreaView>
+      </LinearGradient>
     );
   }
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { paddingTop: insets.top, backgroundColor: colors.background },
-      ]}
+    <LinearGradient
+      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      style={[styles.container, { paddingTop: insets.top }]}
     >
+      <Surface style={styles.header} elevation={2}>
+        <IconButton
+          icon="arrow-left"
+          onPress={() => router.back()}
+          style={styles.backButton}
+        />
+        <Text variant="headlineMedium" style={styles.headerTitle}>
+          Edit Profil
+        </Text>
+        <View style={styles.placeholder} />
+      </Surface>
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: colors.white,
-              borderBottomColor: colors.gray200,
-            },
-          ]}
-        >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={[styles.backButtonText, { color: colors.primary }]}>
-              ← Kembali
-            </Text>
-          </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
-            Edit Profil
-          </Text>
-        </View>
 
         <ScrollView
           style={styles.scrollView}
@@ -172,87 +156,130 @@ export default function EditProfile() {
           ]}
         >
           <View style={styles.content}>
-            <View style={styles.section}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  { color: colors.gray900, borderBottomColor: colors.primary },
-                ]}
-              >
-                Informasi Pribadi
-              </Text>
+            {/* Profile Header Card */}
+            <Animated.View entering={FadeInDown.delay(100)}>
+              <Card style={styles.profileCard} mode="elevated">
+                <Card.Content>
+                  <View style={styles.profileHeader}>
+                    <Avatar.Text 
+                      size={64} 
+                      label={userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
+                      style={{ backgroundColor: paperTheme.colors.primary }}
+                      color={paperTheme.colors.onPrimary}
+                    />
+                    <View style={styles.profileInfo}>
+                      <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
+                        {userProfile?.namaWarga || 'Nama Warga'}
+                      </Text>
+                      <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                        {userProfile?.email}
+                      </Text>
+                    </View>
+                  </View>
+                </Card.Content>
+              </Card>
+            </Animated.View>
 
-              <Input
-                label="Nama Warga"
-                placeholder="Masukkan nama lengkap warga"
-                value={formData.namaWarga}
-                onChangeText={(value) => updateFormData("namaWarga", value)}
-                autoCapitalize="words"
-                error={errors.namaWarga}
-              />
+            {/* Personal Information Form */}
+            <Animated.View entering={SlideInUp.delay(200)}>
+              <Card style={styles.formCard} mode="outlined">
+                <Card.Content>
+                  <View style={styles.section}>
+                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: paperTheme.colors.primary }]}>Informasi Pribadi</Text>
+                    <Divider style={{ marginBottom: 16 }} />
 
-              <Input
-                label="No HP Warga"
-                placeholder="Masukkan nomor HP warga"
-                value={formData.noHpWarga}
-                onChangeText={(value) => updateFormData("noHpWarga", value)}
-                keyboardType="phone-pad"
-                error={errors.noHpWarga}
-              />
-            </View>
+                    <TextInput
+                      label="Nama Warga"
+                      placeholder="Masukkan nama lengkap warga"
+                      value={formData.namaWarga}
+                      onChangeText={(value) => updateFormData("namaWarga", value)}
+                      autoCapitalize="words"
+                      error={!!errors.namaWarga}
+                      mode="outlined"
+                      style={styles.textInput}
+                    />
+                    {errors.namaWarga && (
+                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, marginTop: 4 }}>
+                        {errors.namaWarga}
+                      </Text>
+                    )}
 
-            <View style={styles.section}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  { color: colors.gray900, borderBottomColor: colors.primary },
-                ]}
-              >
-                Informasi Alamat
-              </Text>
+                    <TextInput
+                      label="No HP Warga"
+                      placeholder="Masukkan nomor HP warga"
+                      value={formData.noHpWarga}
+                      onChangeText={(value) => updateFormData("noHpWarga", value)}
+                      keyboardType="phone-pad"
+                      error={!!errors.noHpWarga}
+                      mode="outlined"
+                      style={styles.textInput}
+                    />
+                    {errors.noHpWarga && (
+                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, marginTop: 4 }}>
+                        {errors.noHpWarga}
+                      </Text>
+                    )}
+                  </View>
 
-              <Input
-                label="Alamat"
-                placeholder="Masukkan alamat lengkap"
-                value={formData.alamat}
-                onChangeText={(value) => updateFormData("alamat", value)}
-                multiline
-                numberOfLines={3}
-                error={errors.alamat}
-              />
+                  <Divider style={{ marginVertical: 16 }} />
 
-              <View
-                style={[
-                  styles.infoBox,
-                  { backgroundColor: colors.primary + "20" },
-                ]}
-              >
-                <Text style={[styles.infoText, { color: colors.primary }]}>
-                  ℹ️ RFID warga hanya dapat diatur oleh bendahara
-                </Text>
-              </View>
-            </View>
+                  <View style={styles.section}>
+                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: paperTheme.colors.primary }]}>Informasi Alamat</Text>
+                    <Divider style={{ marginBottom: 16 }} />
 
-            <View style={styles.buttonSection}>
+                    <TextInput
+                      label="Alamat"
+                      placeholder="Masukkan alamat lengkap"
+                      value={formData.alamat}
+                      onChangeText={(value) => updateFormData("alamat", value)}
+                      multiline
+                      numberOfLines={3}
+                      error={!!errors.alamat}
+                      mode="outlined"
+                      style={styles.textInput}
+                    />
+                    {errors.alamat && (
+                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, marginTop: 4 }}>
+                        {errors.alamat}
+                      </Text>
+                    )}
+
+                    <Card style={[styles.infoCard, { backgroundColor: paperTheme.colors.primaryContainer }]} mode="contained">
+                      <Card.Content style={{ paddingVertical: 12 }}>
+                        <Text variant="bodySmall" style={{ color: paperTheme.colors.onPrimaryContainer, lineHeight: 18 }}>
+                          ℹ️ RFID warga hanya dapat diatur oleh bendahara
+                        </Text>
+                      </Card.Content>
+                    </Card>
+                  </View>
+                </Card.Content>
+              </Card>
+            </Animated.View>
+
+            <Animated.View entering={SlideInUp.delay(400)} style={styles.buttonSection}>
               <Button
-                title="Batal"
+                mode="outlined"
                 onPress={() => router.back()}
-                variant="outline"
-                style={[styles.cancelButton, { borderColor: colors.gray400 }]}
+                style={styles.cancelButton}
                 disabled={loading}
-              />
+              >
+                Batal
+              </Button>
 
               <Button
-                title={loading ? "Menyimpan..." : "Simpan Perubahan"}
+                mode="contained"
                 onPress={handleSave}
                 disabled={loading}
-                style={[styles.saveButton, { backgroundColor: colors.success }]}
-              />
-            </View>
+                loading={loading}
+                style={styles.saveButton}
+              >
+                {loading ? "Menyimpan..." : "Simpan Perubahan"}
+              </Button>
+            </Animated.View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -260,71 +287,77 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  keyboardContainer: {
-    flex: 1,
-  },
   header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    justifyContent: 'space-between',
   },
   backButton: {
-    alignSelf: "flex-start",
-    marginBottom: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: 500,
+    margin: 0,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 600,
-    textAlign: "center",
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 48,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 24,
   },
-  loadingText: {
-    fontSize: 16,
-    marginTop: 16,
-    textAlign: "center",
+  keyboardContainer: {
+    flex: 1,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
+    padding: 16,
     paddingVertical: 24,
   },
   content: {
     flex: 1,
   },
+  profileCard: {
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  formCard: {
+    borderRadius: 16,
+    marginBottom: 16,
+  },
   section: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 600,
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 2,
+    fontWeight: '600',
+    marginBottom: 8,
   },
-  infoBox: {
-    padding: 12,
+  textInput: {
+    marginBottom: 12,
+  },
+  infoCard: {
     borderRadius: 8,
     marginTop: 8,
   },
-  infoText: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
   buttonSection: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
-    marginTop: 16,
+    marginTop: 8,
     marginBottom: 32,
   },
   cancelButton: {

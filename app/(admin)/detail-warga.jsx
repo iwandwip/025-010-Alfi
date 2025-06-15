@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from "react";
 import {
-  View,
-  Text,
   StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
   Alert,
   ScrollView,
 } from "react-native";
+import {
+  Surface,
+  Text,
+  Card,
+  Avatar,
+  Chip,
+  IconButton,
+  ActivityIndicator,
+  useTheme,
+  Button,
+  Divider
+} from "react-native-paper";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Button from "../../components/ui/Button";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import Animated, { FadeInDown, SlideInUp, SlideInRight } from 'react-native-reanimated';
 import {
   getUserProfile,
   deleteWarga,
@@ -34,6 +42,7 @@ export default function DetailWarga() {
   const [pairingLoading, setPairingLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const paperTheme = useTheme();
 
   const loadWargaData = async () => {
     setLoading(true);
@@ -258,39 +267,62 @@ export default function DetailWarga() {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
+      <LinearGradient
+        colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+        style={[styles.container, { paddingTop: insets.top }]}
+      >
+        <Surface style={styles.header} elevation={2}>
+          <IconButton
+            icon="arrow-left"
             onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>← Kembali</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Detail Warga</Text>
-        </View>
+            style={styles.backButton}
+          />
+          <Text variant="headlineMedium" style={styles.headerTitle}>
+            Detail Warga
+          </Text>
+          <View style={styles.placeholder} />
+        </Surface>
+        
         <View style={styles.loadingContainer}>
-          <LoadingSpinner text="Memuat data warga..." />
+          <ActivityIndicator size="large" animating />
+          <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+            Memuat data warga...
+          </Text>
         </View>
-      </SafeAreaView>
+      </LinearGradient>
     );
   }
 
   if (!warga) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
+      <LinearGradient
+        colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+        style={[styles.container, { paddingTop: insets.top }]}
+      >
+        <Surface style={styles.header} elevation={2}>
+          <IconButton
+            icon="arrow-left"
             onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>← Kembali</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Detail Warga</Text>
-        </View>
+            style={styles.backButton}
+          />
+          <Text variant="headlineMedium" style={styles.headerTitle}>
+            Detail Warga
+          </Text>
+          <View style={styles.placeholder} />
+        </Surface>
+        
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Data warga tidak ditemukan</Text>
+          <Avatar.Icon 
+            size={80} 
+            icon="account-off" 
+            style={{ backgroundColor: paperTheme.colors.errorContainer }}
+            color={paperTheme.colors.onErrorContainer}
+          />
+          <Text variant="headlineSmall" style={{ color: paperTheme.colors.error, marginTop: 16 }}>
+            Data warga tidak ditemukan
+          </Text>
         </View>
-      </SafeAreaView>
+      </LinearGradient>
     );
   }
 
@@ -299,413 +331,377 @@ export default function DetailWarga() {
   const canStartPairing = !warga.rfidWarga && !pairingStatus?.isActive;
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
+    <LinearGradient
+      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      <Surface style={styles.header} elevation={2}>
+        <IconButton
+          icon="arrow-left"
           onPress={() => router.back()}
+          style={styles.backButton}
+        />
+        <Text variant="headlineMedium" style={styles.headerTitle}>
+          Detail Warga
+        </Text>
+        <View style={styles.placeholder} />
+      </Surface>
+
+      <View style={styles.content}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 24 },
+          ]}
         >
-          <Text style={styles.backButtonText}>← Kembali</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detail Warga</Text>
+          {/* Profile Card */}
+          <Animated.View entering={FadeInDown.delay(100)}>
+            <Card style={styles.profileCard} mode="elevated">
+              <Card.Content>
+                <View style={styles.profileSection}>
+                  <Avatar.Text 
+                    size={80} 
+                    label={warga.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
+                    style={{ backgroundColor: paperTheme.colors.primary }}
+                    color={paperTheme.colors.onPrimary}
+                  />
+                  <View style={styles.profileInfo}>
+                    <Text variant="headlineSmall" style={[styles.namaWarga, { fontWeight: 'bold' }]}>{warga.namaWarga}</Text>
+                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>ID: {warga.id}</Text>
+                    <Chip 
+                      icon={warga.rfidWarga ? "check-circle" : "alert-circle"}
+                      mode="flat"
+                      style={{ 
+                        backgroundColor: warga.rfidWarga ? paperTheme.colors.successContainer : paperTheme.colors.warningContainer,
+                        alignSelf: 'flex-start',
+                        marginTop: 8
+                      }}
+                      textStyle={{ 
+                        color: warga.rfidWarga ? paperTheme.colors.onSuccessContainer : paperTheme.colors.onWarningContainer,
+                        fontSize: 12
+                      }}
+                    >
+                      {warga.rfidWarga ? "RFID OK" : "No RFID"}
+                    </Chip>
+                  </View>
+                </View>
+              </Card.Content>
+            </Card>
+          </Animated.View>
+
+          {/* Action Buttons */}
+          <Animated.View entering={SlideInUp.delay(200)} style={styles.actionSection}>
+            <View style={styles.actionButtons}>
+              <Button
+                mode="contained"
+                icon="pencil"
+                onPress={handleEditWarga}
+                style={styles.editButton}
+                disabled={deleting}
+              >
+                Edit Data
+              </Button>
+              <Button
+                mode="outlined"
+                icon="delete"
+                onPress={handleDeleteWarga}
+                style={styles.deleteButton}
+                disabled={deleting}
+                loading={deleting}
+              >
+                {deleting ? "Menghapus..." : "Hapus Warga"}
+              </Button>
+            </View>
+          </Animated.View>
+
+          {deleting && (
+            <Animated.View entering={SlideInUp.delay(300)}>
+              <Card style={[styles.deletingInfo, { backgroundColor: paperTheme.colors.warningContainer }]} mode="contained">
+                <Card.Content style={{ alignItems: 'center', paddingVertical: 16 }}>
+                  <ActivityIndicator size="small" animating style={{ marginBottom: 8 }} />
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onWarningContainer, marginBottom: 4, fontWeight: '600' }}>
+                    Menghapus data warga dari sistem...
+                  </Text>
+                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onWarningContainer }}>
+                    Mohon tunggu sebentar
+                  </Text>
+                </Card.Content>
+              </Card>
+            </Animated.View>
+          )}
+
+          {/* Information Card */}
+          <Animated.View entering={SlideInRight.delay(300)} style={styles.infoSection}>
+            <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>Informasi Warga</Text>
+
+            <Card style={styles.infoCard} mode="outlined">
+              <Card.Content>
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>Nama Warga:</Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurface, fontWeight: '600' }}>{warga.namaWarga}</Text>
+                </View>
+                <Divider style={{ marginVertical: 8 }} />
+
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>Alamat:</Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurface, fontWeight: '600' }}>{warga.alamat || 'Belum diisi'}</Text>
+                </View>
+                <Divider style={{ marginVertical: 8 }} />
+
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>No HP Warga:</Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurface, fontWeight: '600' }}>{warga.noHpWarga}</Text>
+                </View>
+                <Divider style={{ marginVertical: 8 }} />
+
+                <View style={styles.infoRow}>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>Email Warga:</Text>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurface, fontWeight: '600' }}>{warga.email}</Text>
+                </View>
+              </Card.Content>
+            </Card>
+          </Animated.View>
+
+          {/* RFID Section */}
+          <Animated.View entering={SlideInRight.delay(400)} style={styles.rfidSection}>
+            <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>Status RFID</Text>
+
+            <Card style={styles.rfidCard} mode="outlined">
+              <Card.Content>
+                <View style={styles.rfidStatus}>
+                  {warga.rfidWarga ? (
+                    <Card style={[styles.rfidActive, { backgroundColor: paperTheme.colors.successContainer }]} mode="contained">
+                      <Card.Content style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}>
+                        <Avatar.Icon 
+                          size={40} 
+                          icon="check-circle" 
+                          style={{ backgroundColor: paperTheme.colors.success }}
+                          color={paperTheme.colors.onSuccess}
+                        />
+                        <View style={styles.rfidInfo}>
+                          <Text variant="titleMedium" style={{ color: paperTheme.colors.onSuccessContainer, fontWeight: '600' }}>RFID Terpasang</Text>
+                          <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSuccessContainer }}>{warga.rfidWarga}</Text>
+                        </View>
+                      </Card.Content>
+                    </Card>
+                  ) : (
+                    <Card style={[styles.rfidInactive, { backgroundColor: paperTheme.colors.warningContainer }]} mode="contained">
+                      <Card.Content style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}>
+                        <Avatar.Icon 
+                          size={40} 
+                          icon="alert-circle" 
+                          style={{ backgroundColor: paperTheme.colors.warning }}
+                          color={paperTheme.colors.onWarning}
+                        />
+                        <View style={styles.rfidInfo}>
+                          <Text variant="titleMedium" style={{ color: paperTheme.colors.onWarningContainer, fontWeight: '600' }}>RFID Belum Terpasang</Text>
+                          <Text variant="bodyMedium" style={{ color: paperTheme.colors.onWarningContainer }}>
+                            Silakan lakukan pairing RFID
+                          </Text>
+                        </View>
+                      </Card.Content>
+                    </Card>
+                  )}
+                </View>
+
+                {isPairingActive && (
+                  <Card style={[styles.pairingActive, { backgroundColor: paperTheme.colors.primaryContainer }]} mode="contained">
+                    <Card.Content style={{ alignItems: 'center', paddingVertical: 12 }}>
+                      <ActivityIndicator size="small" animating style={{ marginBottom: 8 }} />
+                      <Text variant="titleMedium" style={{ color: paperTheme.colors.onPrimaryContainer, fontWeight: '600', marginBottom: 4 }}>
+                        Menunggu RFID...
+                      </Text>
+                      <Text variant="bodyMedium" style={{ color: paperTheme.colors.onPrimaryContainer, textAlign: 'center' }}>
+                        Tap kartu RFID pada device ESP32
+                      </Text>
+                    </Card.Content>
+                  </Card>
+                )}
+
+                <View style={styles.rfidActions}>
+                  {canStartPairing && (
+                    <Button
+                      mode="contained"
+                      icon="wifi"
+                      onPress={handleStartPairing}
+                      disabled={pairingLoading || deleting}
+                      loading={pairingLoading}
+                      style={styles.pairingButton}
+                    >
+                      {pairingLoading ? "Memulai Pairing..." : "Mulai Pairing RFID"}
+                    </Button>
+                  )}
+
+                  {isPairingActive && (
+                    <Button
+                      mode="outlined"
+                      icon="close"
+                      onPress={handleCancelPairing}
+                      style={styles.cancelButton}
+                      disabled={deleting}
+                    >
+                      Batalkan Pairing
+                    </Button>
+                  )}
+
+                  {warga.rfidWarga && !isPairingActive && (
+                    <View style={styles.rfidManagement}>
+                      <Button
+                        mode="contained-tonal"
+                        icon="swap-horizontal"
+                        onPress={handleRePairing}
+                        style={styles.rePairingButton}
+                        disabled={deleting}
+                      >
+                        Ganti RFID
+                      </Button>
+                      <Button
+                        mode="outlined"
+                        icon="delete"
+                        onPress={handleDeleteRFID}
+                        style={styles.deleteRFIDButton}
+                        disabled={deleting}
+                      >
+                        Hapus RFID
+                      </Button>
+                    </View>
+                  )}
+                </View>
+              </Card.Content>
+            </Card>
+          </Animated.View>
+        </ScrollView>
       </View>
-
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 24 },
-        ]}
-      >
-        <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>👤</Text>
-          </View>
-          <Text style={styles.namaWarga}>{warga.namaWarga}</Text>
-          <Text style={styles.wargaId}>ID: {warga.id}</Text>
-        </View>
-
-        <View style={styles.actionSection}>
-          <View style={styles.actionButtons}>
-            <Button
-              title="✏️ Edit Data"
-              onPress={handleEditWarga}
-              variant="secondary"
-              style={styles.editButton}
-              disabled={deleting}
-            />
-            <Button
-              title={deleting ? "Menghapus..." : "🗑️ Hapus Warga"}
-              onPress={handleDeleteWarga}
-              variant="outline"
-              style={styles.deleteButton}
-              disabled={deleting}
-            />
-          </View>
-        </View>
-
-        {deleting && (
-          <View style={styles.deletingInfo}>
-            <Text style={styles.deletingText}>
-              🔄 Menghapus data warga dari sistem...
-            </Text>
-            <Text style={styles.deletingSubtext}>Mohon tunggu sebentar</Text>
-          </View>
-        )}
-
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Informasi Warga</Text>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nama Warga:</Text>
-              <Text style={styles.infoValue}>{warga.namaWarga}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Alamat:</Text>
-              <Text style={styles.infoValue}>{warga.alamat || 'Belum diisi'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>No HP Warga:</Text>
-              <Text style={styles.infoValue}>{warga.noHpWarga}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email Warga:</Text>
-              <Text style={styles.infoValue}>{warga.email}</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.rfidSection}>
-          <Text style={styles.sectionTitle}>Status RFID</Text>
-
-          <View style={styles.rfidCard}>
-            <View style={styles.rfidStatus}>
-              {warga.rfidWarga ? (
-                <View style={styles.rfidActive}>
-                  <Text style={styles.rfidIcon}>✅</Text>
-                  <View style={styles.rfidInfo}>
-                    <Text style={styles.rfidLabel}>RFID Terpasang</Text>
-                    <Text style={styles.rfidCode}>{warga.rfidWarga}</Text>
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.rfidInactive}>
-                  <Text style={styles.rfidIcon}>⚠️</Text>
-                  <View style={styles.rfidInfo}>
-                    <Text style={styles.rfidLabel}>RFID Belum Terpasang</Text>
-                    <Text style={styles.rfidDesc}>
-                      Silakan lakukan pairing RFID
-                    </Text>
-                  </View>
-                </View>
-              )}
-            </View>
-
-            {isPairingActive && (
-              <View style={styles.pairingActive}>
-                <Text style={styles.pairingText}>🔄 Menunggu RFID...</Text>
-                <Text style={styles.pairingDesc}>
-                  Tap kartu RFID pada device ESP32
-                </Text>
-              </View>
-            )}
-
-            <View style={styles.rfidActions}>
-              {canStartPairing && (
-                <Button
-                  title={
-                    pairingLoading ? "Memulai Pairing..." : "Mulai Pairing RFID"
-                  }
-                  onPress={handleStartPairing}
-                  disabled={pairingLoading || deleting}
-                  style={styles.pairingButton}
-                />
-              )}
-
-              {isPairingActive && (
-                <Button
-                  title="Batalkan Pairing"
-                  onPress={handleCancelPairing}
-                  variant="outline"
-                  style={styles.cancelButton}
-                  disabled={deleting}
-                />
-              )}
-
-              {warga.rfidWarga && !isPairingActive && (
-                <View style={styles.rfidManagement}>
-                  <Button
-                    title="🔄 Ganti RFID"
-                    onPress={handleRePairing}
-                    variant="secondary"
-                    style={styles.rePairingButton}
-                    disabled={deleting}
-                  />
-                  <Button
-                    title="🗑️ Hapus RFID"
-                    onPress={handleDeleteRFID}
-                    variant="outline"
-                    style={styles.deleteRFIDButton}
-                    disabled={deleting}
-                  />
-                </View>
-              )}
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
   },
   header: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    justifyContent: 'space-between',
   },
   backButton: {
-    alignSelf: "flex-start",
-    marginBottom: 8,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: "#3b82f6",
-    fontWeight: 500,
+    margin: 0,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: 600,
-    color: "#1e293b",
-    textAlign: "center",
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 48,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
   },
   errorContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorText: {
-    fontSize: 16,
-    color: "#ef4444",
-    textAlign: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
+    padding: 16,
   },
   scrollContent: {
-    paddingBottom: 24,
+    padding: 4,
   },
-  profileSection: {
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#3b82f6",
-    alignItems: "center",
-    justifyContent: "center",
+  profileCard: {
+    borderRadius: 16,
     marginBottom: 16,
   },
-  avatarText: {
-    fontSize: 32,
-    color: "#fff",
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  profileInfo: {
+    flex: 1,
   },
   namaWarga: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1e293b",
     marginBottom: 4,
-    textAlign: "center",
-  },
-  wargaId: {
-    fontSize: 14,
-    color: "#64748b",
-    fontFamily: "Poppins-Regular",
   },
   actionSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   actionButtons: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
   },
   editButton: {
     flex: 1,
-    backgroundColor: "#10b981",
   },
   deleteButton: {
     flex: 1,
-    borderColor: "#ef4444",
   },
   deletingInfo: {
-    backgroundColor: "#fef3c7",
-    padding: 16,
     borderRadius: 12,
-    marginBottom: 24,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#f59e0b",
-  },
-  deletingText: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#92400e",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  deletingSubtext: {
-    fontSize: 14,
-    color: "#92400e",
-    textAlign: "center",
-    lineHeight: 20,
+    marginBottom: 16,
   },
   infoSection: {
-    marginBottom: 32,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 600,
-    color: "#1e293b",
+    fontWeight: '600',
     marginBottom: 16,
   },
   infoCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderRadius: 16,
   },
   infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: "#64748b",
-    fontWeight: 500,
-    flex: 1,
-  },
-  infoValue: {
-    fontSize: 14,
-    color: "#1e293b",
-    flex: 2,
-    textAlign: "right",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
   },
   rfidSection: {
-    marginBottom: 32,
+    marginBottom: 24,
   },
   rfidCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderRadius: 16,
   },
   rfidStatus: {
     marginBottom: 16,
   },
   rfidActive: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#dcfce7",
-    padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
+    marginBottom: 12,
   },
   rfidInactive: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fef3c7",
-    padding: 12,
-    borderRadius: 8,
-  },
-  rfidIcon: {
-    fontSize: 24,
-    marginRight: 12,
+    borderRadius: 12,
+    marginBottom: 12,
   },
   rfidInfo: {
     flex: 1,
-  },
-  rfidLabel: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#1e293b",
-    marginBottom: 2,
-  },
-  rfidCode: {
-    fontSize: 14,
-    color: "#059669",
-    fontFamily: "Poppins-Regular",
-  },
-  rfidDesc: {
-    fontSize: 14,
-    color: "#92400e",
+    marginLeft: 12,
   },
   pairingActive: {
-    backgroundColor: "#dbeafe",
-    padding: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     marginBottom: 16,
-    alignItems: "center",
-  },
-  pairingText: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: "#1e40af",
-    marginBottom: 4,
-  },
-  pairingDesc: {
-    fontSize: 14,
-    color: "#1e40af",
-    textAlign: "center",
   },
   rfidActions: {
     gap: 12,
   },
   pairingButton: {
-    backgroundColor: "#10b981",
   },
   cancelButton: {
-    borderColor: "#ef4444",
-  },
-  infoBox: {
-    backgroundColor: "#f0f9ff",
-    padding: 12,
-    borderRadius: 8,
-  },
-  infoBoxText: {
-    fontSize: 14,
-    color: "#0369a1",
-    lineHeight: 20,
-    textAlign: "center",
   },
   rfidManagement: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
-    marginTop: 12,
+    marginTop: 8,
   },
   rePairingButton: {
     flex: 1,

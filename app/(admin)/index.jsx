@@ -401,77 +401,108 @@ function AdminHome() {
           onDismiss={() => !seederLoading && setSeederModalVisible(false)}
           contentContainerStyle={styles.modalContainer}
         >
-          <View style={styles.modalHeader}>
-            <Text variant="titleLarge" style={styles.modalTitle}>Generate Data Warga</Text>
-            <IconButton
-              icon="close"
-              onPress={() => setSeederModalVisible(false)}
-              style={styles.closeButton}
-            />
-          </View>
+          <View style={styles.modalInner}>
+            <View style={styles.modalHeader}>
+              <Avatar.Icon 
+                size={32} 
+                icon="database-plus" 
+                style={{ backgroundColor: paperTheme.colors.primaryContainer }}
+                color={paperTheme.colors.onPrimaryContainer}
+              />
+              <Text variant="titleLarge" style={styles.modalTitle}>Generate Data Warga</Text>
+              <IconButton
+                icon="close"
+                onPress={() => setSeederModalVisible(false)}
+                style={styles.closeButton}
+                size={20}
+              />
+            </View>
+            
+            <Divider />
 
-          <View style={styles.modalContent}>
-            <Text variant="bodyLarge" style={styles.inputLabel}>
-              Jumlah Akun (1-10):
-            </Text>
-            <TextInput
-              value={seederCount}
-              onChangeText={setSeederCount}
-              mode="outlined"
-              keyboardType="numeric"
-              placeholder="Masukkan jumlah"
-              style={styles.numberInput}
-              maxLength={2}
-              outlineStyle={{ borderRadius: 12 }}
-            />
-
-            <Card style={styles.previewCard} mode="outlined">
-              <Card.Content style={styles.previewCardContent}>
-                <Text variant="bodyMedium" style={styles.previewTitle}>
-                  Preview Email:
+            <ScrollView style={styles.modalContentScrollable} showsVerticalScrollIndicator={false}>
+              <View style={styles.modalContent}>
+                <Text variant="bodyLarge" style={styles.inputLabel}>
+                  Jumlah Akun (1-10):
                 </Text>
-                <ScrollView style={styles.previewScrollView} showsVerticalScrollIndicator={false}>
-                  {(() => {
-                    const count = parseInt(seederCount) || 0;
-                    if (count >= 1 && count <= 10) {
-                      const emails = [];
-                      for (let i = 0; i < count; i++) {
-                        emails.push(
-                          `user${seederStats.nextUserNumber + i}@gmail.com`
-                        );
-                      }
-                      return emails.map((email, index) => (
-                        <Text key={index} variant="bodySmall" style={styles.previewEmail}>
-                          {email}
-                        </Text>
-                      ));
-                    }
-                    return (
-                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, fontStyle: 'italic' }}>
-                        Jumlah harus 1-10
-                      </Text>
-                    );
-                  })()}
-                </ScrollView>
-              </Card.Content>
-            </Card>
-          </View>
+                <TextInput
+                  value={seederCount}
+                  onChangeText={setSeederCount}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  placeholder="Masukkan jumlah"
+                  style={styles.numberInput}
+                  maxLength={2}
+                  outlineStyle={{ borderRadius: 12 }}
+                />
 
-          <View style={styles.modalActions}>
-            <Button
-              mode="outlined"
-              onPress={() => setSeederModalVisible(false)}
-              style={styles.modalButton}
-            >
-              Batal
-            </Button>
-            <Button
-              mode="contained"
-              onPress={handleSeederConfirm}
-              style={styles.modalButton}
-            >
-              Generate
-            </Button>
+                <Card style={styles.previewCard} mode="outlined">
+                  <Card.Content style={styles.previewCardContent}>
+                    <Text variant="bodyMedium" style={styles.previewTitle}>
+                      📧 Preview Email:
+                    </Text>
+                    <ScrollView style={styles.previewScrollView} showsVerticalScrollIndicator={false}>
+                      {(() => {
+                        const count = parseInt(seederCount) || 0;
+                        if (count >= 1 && count <= 10) {
+                          const emails = [];
+                          for (let i = 0; i < count; i++) {
+                            emails.push(
+                              `user${seederStats.nextUserNumber + i}@gmail.com`
+                            );
+                          }
+                          return emails.map((email, index) => (
+                            <View key={index} style={styles.emailRow}>
+                              <Avatar.Icon 
+                                size={16} 
+                                icon="account" 
+                                style={{ backgroundColor: paperTheme.colors.primaryContainer }}
+                                color={paperTheme.colors.onPrimaryContainer}
+                              />
+                              <Text variant="bodySmall" style={styles.previewEmail}>
+                                {email}
+                              </Text>
+                            </View>
+                          ));
+                        }
+                        return (
+                          <Text variant="bodySmall" style={{ color: paperTheme.colors.error, fontStyle: 'italic' }}>
+                            ⚠️ Jumlah harus 1-10
+                          </Text>
+                        );
+                      })()}
+                    </ScrollView>
+                  </Card.Content>
+                </Card>
+
+                <Card style={[styles.infoCard, { backgroundColor: paperTheme.colors.tertiaryContainer }]} mode="contained">
+                  <Card.Content style={{ paddingVertical: 12 }}>
+                    <Text variant="bodySmall" style={{ color: paperTheme.colors.onTertiaryContainer, lineHeight: 18 }}>
+                      💡 Password untuk semua akun: <Text style={{ fontWeight: 'bold' }}>admin123</Text>
+                    </Text>
+                  </Card.Content>
+                </Card>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalActions}>
+              <Button
+                mode="outlined"
+                onPress={() => setSeederModalVisible(false)}
+                style={styles.modalButton}
+                icon="close"
+              >
+                Batal
+              </Button>
+              <Button
+                mode="contained"
+                onPress={handleSeederConfirm}
+                style={styles.modalButton}
+                icon="database-plus"
+              >
+                Generate
+              </Button>
+            </View>
           </View>
         </Modal>
 
@@ -621,6 +652,14 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     maxHeight: '80%',
     alignSelf: 'center',
+    overflow: 'hidden',
+  },
+  modalInner: {
+    flexDirection: 'column',
+  },
+  modalContentScrollable: {
+    flexGrow: 0,
+    flexShrink: 1,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -638,7 +677,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     paddingHorizontal: 24,
-    paddingBottom: 8,
+    paddingBottom: 20,
   },
   inputLabel: {
     fontWeight: '600',
@@ -650,28 +689,44 @@ const styles = StyleSheet.create({
   },
   previewCard: {
     borderRadius: 12,
-    maxHeight: 100,
+    maxHeight: 120,
+    marginBottom: 8,
   },
   previewCardContent: {
     paddingBottom: 4,
   },
   previewScrollView: {
-    maxHeight: 60,
+    maxHeight: 80,
+    paddingVertical: 4,
   },
   previewTitle: {
     fontWeight: '600',
     marginBottom: 8,
   },
+  emailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+    gap: 8,
+  },
   previewEmail: {
     fontFamily: 'Poppins-Regular',
-    marginBottom: 2,
     fontSize: 11,
+    flex: 1,
+  },
+  infoCard: {
+    borderRadius: 8,
+    marginTop: 12,
   },
   modalActions: {
     flexDirection: 'row',
     paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
     gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+    backgroundColor: '#fafafa',
   },
   modalButton: {
     flex: 1,

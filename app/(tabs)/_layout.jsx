@@ -1,13 +1,20 @@
 import React from "react";
-import { Text, ActivityIndicator, View, Alert } from "react-native";
+import { Alert } from "react-native";
+import {
+  Surface,
+  Text,
+  ActivityIndicator,
+  useTheme,
+  MD3Colors
+} from "react-native-paper";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs, useRouter } from "expo-router";
 import { useSettings } from "../../contexts/SettingsContext";
-import { getColors } from "../../constants/Colors";
 import { signOutUser } from "../../services/authService";
 
 export default function TabsLayout() {
   const { theme, loading } = useSettings();
-  const colors = getColors(theme);
+  const paperTheme = useTheme();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -37,16 +44,18 @@ export default function TabsLayout() {
 
   if (loading) {
     return (
-      <View
+      <Surface
         style={{
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: colors.background,
         }}
       >
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+        <ActivityIndicator size="large" animating />
+        <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+          Memuat...
+        </Text>
+      </Surface>
     );
   }
 
@@ -54,11 +63,20 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.gray500,
+        tabBarActiveTintColor: paperTheme.colors.primary,
+        tabBarInactiveTintColor: paperTheme.colors.onSurfaceVariant,
         tabBarStyle: {
-          backgroundColor: colors.white,
-          borderTopColor: colors.border,
+          backgroundColor: paperTheme.colors.surface,
+          borderTopColor: paperTheme.colors.outline,
+          elevation: 8,
+          shadowColor: paperTheme.colors.shadow,
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
         },
       }}
     >
@@ -67,7 +85,11 @@ export default function TabsLayout() {
         options={{
           title: "Status Pembayaran",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>💳</Text>
+            <MaterialCommunityIcons 
+              name="credit-card-check" 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
       />
@@ -76,7 +98,11 @@ export default function TabsLayout() {
         options={{
           title: "Profil",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>👨‍💼</Text>
+            <MaterialCommunityIcons 
+              name="account" 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
       />
@@ -85,7 +111,11 @@ export default function TabsLayout() {
         options={{
           title: "Keluar",
           tabBarIcon: ({ color, size }) => (
-            <Text style={{ color, fontSize: size }}>🔓</Text>
+            <MaterialCommunityIcons 
+              name="logout" 
+              size={size} 
+              color={color} 
+            />
           ),
         }}
         listeners={{

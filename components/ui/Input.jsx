@@ -1,13 +1,12 @@
-import React, { useState } from "react";
-import {
-  View,
-  TextInput,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import { Colors } from "../../constants/Colors";
+import React from "react";
+import { View } from "react-native";
+import { TextInput, Text, IconButton, useTheme } from "react-native-paper";
 
+/**
+ * Wrapper component for React Native Paper TextInput
+ * Maintains compatibility with existing Input usage
+ * while providing Material Design styling
+ */
 const Input = ({
   label,
   placeholder,
@@ -20,116 +19,60 @@ const Input = ({
   style,
   multiline = false,
   numberOfLines,
+  mode = "outlined",
   ...props
 }) => {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+  const paperTheme = useTheme();
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
   return (
-    <View style={[styles.container, style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View
-        style={[
-          styles.inputContainer,
-          isFocused && styles.inputContainerFocused,
-          error && styles.inputContainerError,
-          multiline && styles.inputContainerMultiline,
-        ]}
-      >
-        <TextInput
-          style={[styles.input, multiline && styles.inputMultiline]}
-          placeholder={placeholder}
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry && !isPasswordVisible}
-          keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          placeholderTextColor={Colors.gray400}
-          multiline={multiline}
-          numberOfLines={numberOfLines}
-          textAlignVertical={multiline ? "top" : "center"}
-          blurOnSubmit={!multiline}
-          returnKeyType={multiline ? "default" : "done"}
-          autoCorrect={false}
-          spellCheck={false}
-          {...props}
-        />
-        {secureTextEntry && (
-          <TouchableOpacity
-            style={styles.eyeButton}
-            onPress={togglePasswordVisibility}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.eyeText}>
-              {isPasswordVisible ? "👁️" : "🙈"}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+    <View style={[{ marginBottom: 16 }, style]}>
+      <TextInput
+        label={label}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry && !isPasswordVisible}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        mode={mode}
+        multiline={multiline}
+        numberOfLines={numberOfLines}
+        error={!!error}
+        style={{
+          backgroundColor: paperTheme.colors.surface,
+        }}
+        contentStyle={{
+          fontSize: 16,
+        }}
+        right={
+          secureTextEntry ? (
+            <TextInput.Icon
+              icon={isPasswordVisible ? "eye" : "eye-off"}
+              onPress={togglePasswordVisibility}
+            />
+          ) : null
+        }
+        {...props}
+      />
+      {error && (
+        <Text
+          variant="bodySmall"
+          style={{
+            color: paperTheme.colors.error,
+            marginTop: 4,
+            marginLeft: 16,
+          }}
+        >
+          {error}
+        </Text>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: 500,
-    color: Colors.gray700,
-    marginBottom: 8,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.gray300,
-    borderRadius: 8,
-    backgroundColor: Colors.white,
-    minHeight: 48,
-  },
-  inputContainerFocused: {
-    borderColor: Colors.primary,
-  },
-  inputContainerError: {
-    borderColor: Colors.error,
-  },
-  inputContainerMultiline: {
-    alignItems: "flex-start",
-    minHeight: 80,
-  },
-  input: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: Colors.gray900,
-  },
-  inputMultiline: {
-    paddingTop: 12,
-    paddingBottom: 12,
-    textAlignVertical: "top",
-  },
-  eyeButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  eyeText: {
-    fontSize: 16,
-  },
-  errorText: {
-    fontSize: 12,
-    color: Colors.error,
-    marginTop: 4,
-  },
-});
 
 export default Input;

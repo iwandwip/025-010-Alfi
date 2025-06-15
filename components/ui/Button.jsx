@@ -1,7 +1,11 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
-import { Colors } from "../../constants/Colors";
+import { Button as PaperButton } from "react-native-paper";
 
+/**
+ * Wrapper component for React Native Paper Button
+ * Maintains compatibility with existing Button usage
+ * while providing Material Design styling
+ */
 const Button = ({
   title,
   onPress,
@@ -10,77 +14,57 @@ const Button = ({
   style,
   textStyle,
   accessibilityLabel,
+  loading = false,
+  icon,
+  children,
+  ...props
 }) => {
+  // Map custom variants to Paper Button modes
+  const getMode = () => {
+    switch (variant) {
+      case "primary":
+        return "contained";
+      case "secondary":
+        return "contained-tonal";
+      case "outline":
+        return "outlined";
+      default:
+        return "contained";
+    }
+  };
+
   return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        styles[variant],
-        disabled && styles.disabled,
-        style,
-      ]}
+    <PaperButton
+      mode={getMode()}
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.8}
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel || title}
-      accessibilityState={{ disabled }}
+      loading={loading}
+      icon={icon}
+      style={[
+        {
+          borderRadius: 8,
+          minHeight: 48,
+        },
+        style,
+      ]}
+      contentStyle={{
+        paddingVertical: 6,
+        paddingHorizontal: 16,
+        minHeight: 48,
+      }}
+      labelStyle={[
+        {
+          fontSize: 16,
+          fontWeight: '600',
+        },
+        textStyle,
+      ]}
+      accessibilityLabel={accessibilityLabel || title || children}
+      {...props}
     >
-      <Text
-        style={[
-          styles.text,
-          styles[`${variant}Text`],
-          disabled && styles.disabledText,
-          textStyle,
-        ]}
-      >
-        {title}
-      </Text>
-    </TouchableOpacity>
+      {children || title}
+    </PaperButton>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 48,
-  },
-  primary: {
-    backgroundColor: Colors.primary,
-  },
-  secondary: {
-    backgroundColor: Colors.secondary,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  outline: {
-    backgroundColor: "transparent",
-    borderWidth: 1,
-    borderColor: Colors.primary,
-  },
-  disabled: {
-    backgroundColor: Colors.gray300,
-  },
-  text: {
-    fontSize: 16,
-    fontWeight: 600,
-  },
-  primaryText: {
-    color: Colors.white,
-  },
-  secondaryText: {
-    color: Colors.primary,
-  },
-  outlineText: {
-    color: Colors.primary,
-  },
-  disabledText: {
-    color: Colors.gray500,
-  },
-});
 
 export default Button;
