@@ -15,9 +15,14 @@ import { toISOString } from '../utils/dateUtils';
 let cachedPayments = new Map();
 let cachedTimeline = null;
 let cacheTimestamp = null;
+let cachedTimelineId = null;
 const CACHE_DURATION = 30000;
 
-const isCacheValid = () => {
+const isCacheValid = (currentTimelineId) => {
+  // Cache is invalid if timeline ID has changed
+  if (cachedTimelineId && currentTimelineId && cachedTimelineId !== currentTimelineId) {
+    return false;
+  }
   return cacheTimestamp && (Date.now() - cacheTimestamp) < CACHE_DURATION;
 };
 
@@ -34,14 +39,7 @@ export const getWargaPaymentHistory = async (wargaId) => {
     let timeline;
     const cacheKey = wargaId;
 
-    if (isCacheValid() && cachedTimeline && cachedPayments.has(cacheKey)) {
-      return {
-        success: true,
-        payments: cachedPayments.get(cacheKey),
-        timeline: cachedTimeline
-      };
-    }
-
+    // Get timeline first to check if it changed
     const timelineResult = await getActiveTimeline();
     if (!timelineResult.success) {
       return { 
@@ -53,6 +51,15 @@ export const getWargaPaymentHistory = async (wargaId) => {
     }
 
     timeline = timelineResult.timeline;
+    
+    // Check cache validity with timeline ID
+    if (isCacheValid(timeline.id) && cachedTimeline && cachedPayments.has(cacheKey)) {
+      return {
+        success: true,
+        payments: cachedPayments.get(cacheKey),
+        timeline: cachedTimeline
+      };
+    }
     const activePeriods = Object.keys(timeline.periods).filter(
       periodKey => timeline.periods[periodKey].active
     );
@@ -144,6 +151,7 @@ export const getWargaPaymentHistory = async (wargaId) => {
 
     cachedPayments.set(cacheKey, allPayments);
     cachedTimeline = timeline;
+    cachedTimelineId = timeline.id;
     cacheTimestamp = Date.now();
 
     return { success: true, payments: allPayments, timeline };
@@ -224,13 +232,20 @@ export const getPaymentSummary = (payments) => {
   const total = payments.length;
   const lunas = payments.filter(p => p.status === 'lunas').length;
   const belumBayar = payments.filter(p => p.status === 'belum_bayar').length;
+  const belumLunas = payments.filter(p => p.status === 'belum_lunas').length;
   const terlambat = payments.filter(p => p.status === 'terlambat').length;
   
   const totalAmount = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const paidAmount = payments
     .filter(p => p.status === 'lunas')
     .reduce((sum, p) => sum + (p.amount || 0), 0);
-  const unpaidAmount = totalAmount - paidAmount;
+  
+  // Hitung partial payment amount
+  const partialAmount = payments
+    .filter(p => p.partialPayment && p.totalPaid > 0)
+    .reduce((sum, p) => sum + (p.totalPaid || 0), 0);
+  
+  const unpaidAmount = totalAmount - paidAmount - partialAmount;
 
   const progressPercentage = total > 0 ? Math.round((lunas / total) * 100) : 0;
 
@@ -238,9 +253,11 @@ export const getPaymentSummary = (payments) => {
     total,
     lunas,
     belumBayar,
+    belumLunas,
     terlambat,
     totalAmount,
     paidAmount,
+    partialAmount,
     unpaidAmount,
     progressPercentage
   };
@@ -514,16 +531,20 @@ export const processCustomPaymentWithAutoAllocation = async (wargaId, paymentAmo
           });
         }
       } else if (totalPaidForThisPayment > 0) {
-        // Pembayaran partial (jarang terjadi, tapi untuk completeness)
+        // Pembayaran parsial - status tetap sesuai timeline tapi ada informasi terbayar
+        const currentStatus = calculatePaymentStatus(payment, timeline);
+        const partialStatus = currentStatus === 'terlambat' ? 'terlambat' : 'belum_lunas';
+        
         const updateData = {
-          status: 'partial',
+          status: partialStatus,
           paymentDate: toISOString(),
           paymentMethod: paymentMethod,
           creditApplied,
           remainingAmount: payment.amount - totalPaidForThisPayment,
           paidAmount: cashPaid,
           totalPaid: totalPaidForThisPayment,
-          notes: `Partial payment: ${creditApplied > 0 ? `Credit applied: ${creditApplied}, ` : ''}Cash: ${cashPaid}`
+          partialPayment: true, // Flag untuk menandai pembayaran parsial
+          notes: `Terbayar parsial: Rp ${totalPaidForThisPayment.toLocaleString()} dari Rp ${payment.amount.toLocaleString()}${creditApplied > 0 ? ` (Credit: Rp ${creditApplied.toLocaleString()})` : ''}`
         };
 
         const paymentResult = await updateWargaPaymentStatus(timeline.id, payment.periodKey, wargaId, updateData);
@@ -534,7 +555,8 @@ export const processCustomPaymentWithAutoAllocation = async (wargaId, paymentAmo
             amount: payment.amount,
             creditApplied,
             cashPaid,
-            status: 'partial'
+            status: partialStatus,
+            isPartial: true
           });
         }
       }
@@ -574,5 +596,6 @@ export const processCustomPaymentWithAutoAllocation = async (wargaId, paymentAmo
 export const clearWargaCache = () => {
   cachedPayments.clear();
   cachedTimeline = null;
+  cachedTimelineId = null;
   cacheTimestamp = null;
 };

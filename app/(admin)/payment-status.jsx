@@ -244,6 +244,17 @@ function PaymentStatus() {
                   </Text>
                 </View>
 
+                {user.paymentSummary.belumLunas > 0 && (
+                  <View style={styles.summaryItem}>
+                    <Text variant="titleMedium" style={{ color: paperTheme.colors.tertiary, fontWeight: 'bold' }}>
+                      {user.paymentSummary.belumLunas}
+                    </Text>
+                    <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                      Parsial
+                    </Text>
+                  </View>
+                )}
+
                 {user.paymentSummary.terlambat > 0 && (
                   <View style={styles.summaryItem}>
                     <Text variant="titleMedium" style={{ color: paperTheme.colors.warning, fontWeight: 'bold' }}>
@@ -274,6 +285,17 @@ function PaymentStatus() {
                     {formatCurrency(user.paymentSummary.paidAmount)}
                   </Text>
                 </View>
+
+                {user.paymentSummary.partialAmount > 0 && (
+                  <View style={styles.amountRow}>
+                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                      Terbayar Parsial:
+                    </Text>
+                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.tertiary, fontWeight: '600' }}>
+                      {formatCurrency(user.paymentSummary.partialAmount)}
+                    </Text>
+                  </View>
+                )}
 
                 <View style={styles.amountRow}>
                   <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>

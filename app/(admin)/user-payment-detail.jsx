@@ -178,6 +178,8 @@ function UserPaymentDetail() {
           return colors.success;
         case "belum_bayar":
           return colors.error;
+        case "belum_lunas":
+          return colors.tertiary;
         case "terlambat":
           return colors.warning;
         default:
@@ -193,6 +195,8 @@ function UserPaymentDetail() {
         return "Lunas";
       case "belum_bayar":
         return "Belum Bayar";
+      case "belum_lunas":
+        return "Belum Lunas";
       case "terlambat":
         return "Terlambat";
       default:
@@ -206,6 +210,8 @@ function UserPaymentDetail() {
         return "✅";
       case "belum_bayar":
         return "❌";
+      case "belum_lunas":
+        return "🔄";
       case "terlambat":
         return "⚠️";
       default:
@@ -394,6 +400,39 @@ function UserPaymentDetail() {
               </Text>
               <Text style={[styles.valueText, { color: colors.gray900 }]}>
                 {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
+              </Text>
+            </View>
+          )}
+
+          {item.partialPayment && item.totalPaid > 0 && (
+            <View style={styles.infoRow}>
+              <Text style={[styles.labelText, { color: colors.gray600 }]}>
+                Terbayar:
+              </Text>
+              <Text style={[styles.valueText, { color: colors.tertiary, fontWeight: 'bold' }]}>
+                {formatCurrency(item.totalPaid)}
+              </Text>
+            </View>
+          )}
+
+          {item.remainingAmount && item.remainingAmount > 0 && (
+            <View style={styles.infoRow}>
+              <Text style={[styles.labelText, { color: colors.gray600 }]}>
+                Sisa:
+              </Text>
+              <Text style={[styles.valueText, { color: colors.error, fontWeight: 'bold' }]}>
+                {formatCurrency(item.remainingAmount)}
+              </Text>
+            </View>
+          )}
+
+          {item.creditApplied && item.creditApplied > 0 && (
+            <View style={styles.infoRow}>
+              <Text style={[styles.labelText, { color: colors.gray600 }]}>
+                Credit Applied:
+              </Text>
+              <Text style={[styles.valueText, { color: colors.tertiary, fontWeight: 'bold' }]}>
+                {formatCurrency(item.creditApplied)}
               </Text>
             </View>
           )}

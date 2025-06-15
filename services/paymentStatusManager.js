@@ -247,6 +247,14 @@ class PaymentStatusManager {
     this.cache.clear();
     this.lastUpdateTimes.clear();
     this.isUpdating.clear();
+    
+    // Also clear warga payment service cache
+    try {
+      const { clearWargaCache } = require('./wargaPaymentService');
+      clearWargaCache();
+    } catch (error) {
+      console.warn('Error clearing warga cache:', error);
+    }
   }
 
   getDebugInfo() {

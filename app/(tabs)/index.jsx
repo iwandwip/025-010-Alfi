@@ -149,6 +149,8 @@ function StatusSetoran() {
         return { label: "Lunas", icon: "check-circle", color: paperTheme.colors.success };
       case "belum_bayar":
         return { label: "Belum Bayar", icon: "clock", color: paperTheme.colors.error };
+      case "belum_lunas":
+        return { label: "Belum Lunas", icon: "progress-clock", color: paperTheme.colors.tertiary };
       case "terlambat":
         return { label: "Terlambat", icon: "alert-circle", color: paperTheme.colors.warning };
       default:
@@ -354,7 +356,39 @@ function StatusSetoran() {
                   </Text>
                 </View>
               )}
+
+              {/* Show partial payment info */}
+              {item.partialPayment && item.totalPaid > 0 && (
+                <View style={styles.detailRow}>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.tertiary }}>
+                    Terbayar:
+                  </Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.tertiary }}>
+                    {formatCurrency(item.totalPaid || 0)}
+                  </Text>
+                </View>
+              )}
+
+              {item.remainingAmount && item.remainingAmount > 0 && (
+                <View style={styles.detailRow}>
+                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.error }}>
+                    Sisa:
+                  </Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.error }}>
+                    {formatCurrency(item.remainingAmount || 0)}
+                  </Text>
+                </View>
+              )}
             </View>
+
+            {item.status === "belum_lunas" && (
+              <View style={styles.paymentInfoBox}>
+                <MaterialIcons name="info-outline" size={20} color={paperTheme.colors.tertiary} />
+                <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant, flex: 1, marginLeft: 8 }}>
+                  Pembayaran masih kurang {formatCurrency(item.remainingAmount || 0)}. Lengkapi pembayaran melalui alat ESP32.
+                </Text>
+              </View>
+            )}
 
             {(item.status === "belum_bayar" || item.status === "terlambat") && (
               <View style={styles.paymentInfoBox}>

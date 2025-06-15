@@ -89,6 +89,11 @@ export const createActiveTimeline = async (timelineData) => {
     };
 
     await setDoc(doc(db, 'active_timeline', 'current'), activeTimeline);
+    
+    // Clear cache when new timeline is created
+    const { clearWargaCache } = await import('./wargaPaymentService');
+    clearWargaCache();
+    
     return { success: true, timeline: activeTimeline };
   } catch (error) {
     console.error('Error creating active timeline:', error);
@@ -211,6 +216,10 @@ export const deleteActiveTimeline = async (deletePaymentData = false) => {
     batch.delete(timelineRef);
 
     await batch.commit();
+    
+    // Clear cache when timeline is deleted
+    const { clearWargaCache } = await import('./wargaPaymentService');
+    clearWargaCache();
     
     return { 
       success: true, 
@@ -355,6 +364,18 @@ export const calculatePaymentStatus = (payment, timeline) => {
   if (!payment || !timeline) return payment?.status || 'belum_bayar';
   
   if (payment.status === 'lunas') return 'lunas';
+  
+  // Jika ada pembayaran parsial, gunakan status yang sesuai
+  if (payment.partialPayment && payment.totalPaid > 0) {
+    const currentDate = getCurrentDate(timeline);
+    const dueDate = new Date(payment.dueDate);
+    
+    if (currentDate > dueDate) {
+      return 'terlambat'; // Terlambat tapi ada pembayaran parsial
+    }
+    
+    return 'belum_lunas'; // Belum lunas tapi sudah ada pembayaran
+  }
   
   const currentDate = getCurrentDate(timeline);
   const dueDate = new Date(payment.dueDate);
