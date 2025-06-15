@@ -1,4 +1,5 @@
-import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
+import { MD3LightTheme, MD3DarkTheme, configureFonts } from 'react-native-paper';
+import { Platform } from 'react-native';
 
 // Custom color palette
 const colors = {
@@ -29,8 +30,187 @@ const colors = {
   gray900: '#212121',
 };
 
+// Custom font configuration
+const fontConfig = {
+  displayLarge: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Light',
+      android: 'Poppins-Light',
+      default: 'Poppins-Light',
+    }),
+    fontSize: 57,
+    fontWeight: '300',
+    letterSpacing: 0,
+    lineHeight: 64,
+  },
+  displayMedium: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontSize: 45,
+    fontWeight: '400',
+    letterSpacing: 0,
+    lineHeight: 52,
+  },
+  displaySmall: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontSize: 36,
+    fontWeight: '400',
+    letterSpacing: 0,
+    lineHeight: 44,
+  },
+  headlineLarge: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontSize: 32,
+    fontWeight: '400',
+    letterSpacing: 0,
+    lineHeight: 40,
+  },
+  headlineMedium: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontSize: 28,
+    fontWeight: '400',
+    letterSpacing: 0,
+    lineHeight: 36,
+  },
+  headlineSmall: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Medium',
+      android: 'Poppins-Medium',
+      default: 'Poppins-Medium',
+    }),
+    fontSize: 24,
+    fontWeight: '500',
+    letterSpacing: 0,
+    lineHeight: 32,
+  },
+  titleLarge: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Medium',
+      android: 'Poppins-Medium',
+      default: 'Poppins-Medium',
+    }),
+    fontSize: 22,
+    fontWeight: '500',
+    letterSpacing: 0,
+    lineHeight: 28,
+  },
+  titleMedium: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Medium',
+      android: 'Poppins-Medium',
+      default: 'Poppins-Medium',
+    }),
+    fontSize: 16,
+    fontWeight: '500',
+    letterSpacing: 0.15,
+    lineHeight: 24,
+  },
+  titleSmall: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Medium',
+      android: 'Poppins-Medium',
+      default: 'Poppins-Medium',
+    }),
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+    lineHeight: 20,
+  },
+  labelLarge: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Medium',
+      android: 'Poppins-Medium',
+      default: 'Poppins-Medium',
+    }),
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.1,
+    lineHeight: 20,
+  },
+  labelMedium: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Medium',
+      android: 'Poppins-Medium',
+      default: 'Poppins-Medium',
+    }),
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    lineHeight: 16,
+  },
+  labelSmall: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Medium',
+      android: 'Poppins-Medium',
+      default: 'Poppins-Medium',
+    }),
+    fontSize: 11,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+    lineHeight: 16,
+  },
+  bodyLarge: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontSize: 16,
+    fontWeight: '400',
+    letterSpacing: 0.15,
+    lineHeight: 24,
+  },
+  bodyMedium: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontSize: 14,
+    fontWeight: '400',
+    letterSpacing: 0.25,
+    lineHeight: 20,
+  },
+  bodySmall: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontSize: 12,
+    fontWeight: '400',
+    letterSpacing: 0.4,
+    lineHeight: 16,
+  },
+  default: {
+    fontFamily: Platform.select({
+      ios: 'Poppins-Regular',
+      android: 'Poppins-Regular',
+      default: 'Poppins-Regular',
+    }),
+    fontWeight: '400',
+    letterSpacing: 0,
+  },
+};
+
 export const lightTheme = {
   ...MD3LightTheme,
+  fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3LightTheme.colors,
     primary: colors.primary,
@@ -72,6 +252,7 @@ export const lightTheme = {
 
 export const darkTheme = {
   ...MD3DarkTheme,
+  fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3DarkTheme.colors,
     primary: colors.primaryLight,

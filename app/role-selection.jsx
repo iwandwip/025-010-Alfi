@@ -1,5 +1,5 @@
 import React from "react";
-import { View, ScrollView, StyleSheet, TouchableRipple } from "react-native";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { 
   Surface, 
   Text, 
@@ -7,7 +7,8 @@ import {
   Avatar,
   Card,
   Chip,
-  IconButton
+  IconButton,
+  TouchableRipple
 } from "react-native-paper";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
