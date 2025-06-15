@@ -250,7 +250,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               
               {creditApplied > 0 && (
                 <View style={styles.creditSection}>
-                  <Text style={[styles.creditText, { color: colors.green }]}>
+                  <Text style={[styles.creditText, { color: colors.success }]}>
                     💰 Credit: -{formatCurrency(creditApplied || 0)}
                   </Text>
                   <View style={[styles.divider, { backgroundColor: colors.gray300 }]} />
@@ -262,7 +262,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               </Text>
               
               {(amountAfterCredit || 0) === 0 && (
-                <Text style={[styles.paidWithCreditText, { color: colors.green }]}>
+                <Text style={[styles.paidWithCreditText, { color: colors.success }]}>
                   ✅ Lunas dengan Credit
                 </Text>
               )}
@@ -463,7 +463,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               <Button
                 title="Gunakan Credit"
                 onPress={handlePayNow}
-                style={[styles.payButton, { backgroundColor: colors.green }]}
+                style={[styles.payButton, { backgroundColor: colors.success }]}
                 disabled={processing}
               />
             ) : (

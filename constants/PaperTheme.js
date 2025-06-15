@@ -3,19 +3,19 @@ import { Platform } from 'react-native';
 
 // Custom color palette
 const colors = {
-  primary: '#1E88E5',
-  secondary: '#00ACC1',
-  tertiary: '#7B1FA2',
-  success: '#43A047',
-  warning: '#FB8C00',
-  error: '#E53935',
-  info: '#039BE5',
+  primary: '#2196F3',
+  secondary: '#1976D2',
+  tertiary: '#3F51B5',
+  success: '#2196F3',
+  warning: '#FF9800',
+  error: '#F44336',
+  info: '#2196F3',
   
   // Additional custom colors
   primaryLight: '#64B5F6',
   primaryDark: '#1565C0',
-  secondaryLight: '#4DD0E1',
-  secondaryDark: '#00838F',
+  secondaryLight: '#42A5F5',
+  secondaryDark: '#1976D2',
   
   // Grays
   gray50: '#FAFAFA',

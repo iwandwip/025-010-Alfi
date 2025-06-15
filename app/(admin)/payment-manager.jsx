@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSettings } from "../../contexts/SettingsContext";
+import { getColors } from "../../constants/Colors";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import {
@@ -21,6 +23,9 @@ import {
 
 export default function PaymentManager() {
   const { timelineId } = useLocalSearchParams();
+  const { theme } = useSettings();
+  const colors = getColors(theme);
+  const styles = getStyles(colors);
   const [timeline, setTimeline] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [payments, setPayments] = useState([]);
@@ -140,13 +145,13 @@ export default function PaymentManager() {
   const getStatusColor = (status) => {
     switch (status) {
       case "lunas":
-        return "#10b981";
+        return colors.success;
       case "belum_bayar":
-        return "#ef4444";
+        return colors.error;
       case "terlambat":
-        return "#f59e0b";
+        return colors.warning;
       default:
-        return "#64748b";
+        return colors.gray500;
     }
   };
 
@@ -345,13 +350,13 @@ export default function PaymentManager() {
               <Text style={styles.statLabel}>Total</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: "#10b981" }]}>
+              <Text style={[styles.statNumber, { color: colors.success }]}>
                 {summary.lunas}
               </Text>
               <Text style={styles.statLabel}>Lunas</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: "#ef4444" }]}>
+              <Text style={[styles.statNumber, { color: colors.error }]}>
                 {summary.belumBayar}
               </Text>
               <Text style={styles.statLabel}>Belum Bayar</Text>
@@ -371,8 +376,8 @@ export default function PaymentManager() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#3b82f6"]}
-            tintColor="#3b82f6"
+            colors={[colors.primary]}
+            tintColor={colors.primary}
           />
         }
         ListEmptyComponent={
@@ -388,17 +393,17 @@ export default function PaymentManager() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    borderBottomColor: colors.border,
+    backgroundColor: colors.white,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -406,13 +411,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: colors.primary,
     fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 600,
-    color: "#1e293b",
+    color: colors.gray900,
     textAlign: "center",
   },
   loadingContainer: {
@@ -421,50 +426,50 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   timelineInfo: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: colors.border,
   },
   timelineName: {
     fontSize: 18,
     fontWeight: 600,
-    color: "#1e293b",
+    color: colors.gray900,
     textAlign: "center",
     marginBottom: 4,
   },
   periodInfo: {
     fontSize: 14,
-    color: "#64748b",
+    color: colors.gray500,
     textAlign: "center",
   },
   periodTabs: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: colors.border,
   },
   periodTab: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginHorizontal: 4,
     borderRadius: 8,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.gray50,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: colors.border,
   },
   periodTabActive: {
-    backgroundColor: "#3b82f6",
-    borderColor: "#3b82f6",
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   periodTabText: {
     fontSize: 12,
-    color: "#64748b",
+    color: colors.gray500,
     fontWeight: 500,
   },
   periodTabTextActive: {
-    color: "#fff",
+    color: colors.white,
     fontWeight: 600,
   },
   summarySection: {
@@ -472,16 +477,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   summaryCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: colors.border,
   },
   summaryTitle: {
     fontSize: 16,
     fontWeight: 600,
-    color: "#1e293b",
+    color: colors.gray900,
     textAlign: "center",
     marginBottom: 12,
   },
@@ -495,12 +500,12 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: colors.gray900,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: "#64748b",
+    color: colors.gray500,
   },
   paymentsList: {
     flex: 1,
@@ -510,13 +515,13 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   paymentCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    shadowColor: "#000",
+    borderColor: colors.border,
+    shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -534,12 +539,12 @@ const styles = StyleSheet.create({
   wargaName: {
     fontSize: 16,
     fontWeight: 600,
-    color: "#1e293b",
+    color: colors.gray900,
     marginBottom: 4,
   },
   alamatName: {
     fontSize: 14,
-    color: "#64748b",
+    color: colors.gray500,
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -561,12 +566,12 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: "#64748b",
+    color: colors.gray500,
     fontWeight: 500,
   },
   detailValue: {
     fontSize: 14,
-    color: "#1e293b",
+    color: colors.gray900,
     fontWeight: 600,
   },
   paymentActions: {
@@ -584,13 +589,13 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: 500,
-    color: "#64748b",
+    color: colors.gray500,
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#94a3b8",
+    color: colors.gray400,
     textAlign: "center",
     lineHeight: 20,
   },

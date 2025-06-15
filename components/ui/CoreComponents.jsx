@@ -13,9 +13,9 @@ import {
 
 // Theme Colors
 export const Colors = {
-  primary: '#F50057',
-  secondary: '#FFC107',
-  success: '#4CAF50',
+  primary: '#2196F3',
+  secondary: '#1976D2',
+  success: '#2196F3',
   error: '#F44336',
   warning: '#FF9800',
   info: '#2196F3',
@@ -31,7 +31,7 @@ export const Colors = {
   gray700: '#616161',
   gray800: '#424242',
   gray900: '#212121',
-  green: '#4CAF50',
+  green: '#2196F3',
   blue: '#2196F3',
   red: '#F44336',
   orange: '#FF9800',
