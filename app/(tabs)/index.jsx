@@ -27,9 +27,7 @@ import { paymentStatusManager } from "../../services/paymentStatusManager";
 import {
   getWargaPaymentHistory,
   getPaymentSummary,
-  updateWargaPaymentStatus,
   getCreditBalance,
-  processPaymentWithCredit,
 } from "../../services/wargaPaymentService";
 import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 
@@ -49,8 +47,6 @@ function StatusSetoran() {
   const [payments, setPayments] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState(null);
   const [updatingPayment, setUpdatingPayment] = useState(false);
   const [creditBalance, setCreditBalance] = useState(0);
 
@@ -160,10 +156,6 @@ function StatusSetoran() {
     }
   }, [paperTheme]);
 
-  const handlePayNow = useCallback((payment) => {
-    setSelectedPayment(payment);
-    setPaymentModalVisible(true);
-  }, []);
 
   const renderSummaryCard = useMemo(() => {
     if (!summary) return null;
@@ -365,21 +357,18 @@ function StatusSetoran() {
             </View>
 
             {(item.status === "belum_bayar" || item.status === "terlambat") && (
-              <Button
-                mode="contained"
-                onPress={() => handlePayNow(item)}
-                disabled={updatingPayment}
-                style={[styles.payButton, item.status === "terlambat" && { backgroundColor: paperTheme.colors.warning }]}
-                icon="credit-card"
-              >
-                {item.status === "terlambat" ? "Bayar Segera" : "Bayar Sekarang"}
-              </Button>
+              <View style={styles.paymentInfoBox}>
+                <MaterialIcons name="info-outline" size={20} color={paperTheme.colors.primary} />
+                <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant, flex: 1, marginLeft: 8 }}>
+                  Pembayaran dilakukan melalui alat ESP32 dengan tap RFID
+                </Text>
+              </View>
             )}
           </Card.Content>
         </Card>
       </Animated.View>
     );
-  }, [getStatusInfo, paperTheme, formatCurrency, handlePayNow, updatingPayment]);
+  }, [getStatusInfo, paperTheme, formatCurrency, updatingPayment]);
 
   if (settingsLoading || loading) {
     return (
@@ -467,20 +456,7 @@ function StatusSetoran() {
         )}
       </ScrollView>
 
-      <Portal>
-        <Modal visible={updatingPayment} dismissable={false}>
-          <Card style={styles.loadingModal}>
-            <Card.Content style={styles.loadingModalContent}>
-              <ActivityIndicator size="large" animating />
-              <Text variant="bodyLarge" style={{ marginTop: 16 }}>
-                Memperbarui status pembayaran...
-              </Text>
-            </Card.Content>
-          </Card>
-        </Modal>
-      </Portal>
 
-      {/* TODO: Implement PaymentModal with Paper */}
     </View>
   );
 }
@@ -595,8 +571,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  payButton: {
-    borderRadius: 24,
+  paymentInfoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E3F2FD',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
   },
   emptyContainer: {
     flex: 1,

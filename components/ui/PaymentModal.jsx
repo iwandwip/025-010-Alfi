@@ -160,9 +160,26 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
       : (amountAfterCredit || 0);
 
     setTimeout(() => {
-      const successMessage = (excessAmount || 0) > 0 
-        ? `Pembayaran ${payment.periodData?.label} berhasil! Kelebihan ${formatCurrency(willBecomeCredit || 0)} menjadi credit.`
-        : `Pembayaran ${payment.periodData?.label} sebesar ${formatCurrency(finalAmount || 0)} berhasil diproses.`;
+      let successMessage = '';
+      
+      if (paymentMode === 'custom' && finalAmount > (amountAfterCredit || 0)) {
+        // Ada kelebihan pembayaran
+        const excess = finalAmount - (amountAfterCredit || 0);
+        const nextPeriodAllocation = Math.min(excess, payment.amount || 0); // Asumsi: kelebihan ke periode berikutnya
+        const creditAmount = excess - nextPeriodAllocation;
+        
+        successMessage = `Pembayaran ${payment.periodData?.label} berhasil! `;
+        
+        if (nextPeriodAllocation > 0) {
+          successMessage += `Kelebihan ${formatCurrency(nextPeriodAllocation)} dialokasikan ke periode berikutnya. `;
+        }
+        
+        if (creditAmount > 0) {
+          successMessage += `Sisa ${formatCurrency(creditAmount)} menjadi credit.`;
+        }
+      } else {
+        successMessage = `Pembayaran ${payment.periodData?.label} sebesar ${formatCurrency(finalAmount || 0)} berhasil diproses.`;
+      }
 
       Alert.alert(
         "Pembayaran Berhasil! 🎉",
@@ -175,7 +192,12 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               setSelectedMethod(null);
               setPaymentMode('exact');
               setCustomAmount('');
-              onPaymentSuccess(payment, selectedMethod?.id || 'credit', finalAmount);
+              onPaymentSuccess({
+                ...payment,
+                paymentAmount: finalAmount,
+                paymentMode: paymentMode,
+                autoAllocate: paymentMode === 'custom' && finalAmount > (amountAfterCredit || 0)
+              }, selectedMethod?.id || 'credit', finalAmount);
               onClose();
             },
           },
@@ -337,16 +359,36 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
                     {(excessAmount || 0) > 0 && (
                       <View style={[styles.excessPreview, { backgroundColor: colors.primary + '10' }]}>
                         <Text style={[styles.excessText, { color: colors.primary }]}>
-                          💡 Kelebihan Pembayaran:
+                          💡 Alokasi Kelebihan Pembayaran:
                         </Text>
-                        <Text style={[styles.excessAmount, { color: colors.gray700 }]}>
-                          {formatCurrency(excessAmount || 0)} → Credit {formatCurrency(willBecomeCredit || 0)}
-                        </Text>
-                        {(willBecomeCredit || 0) < (excessAmount || 0) && (
-                          <Text style={[styles.excessWarning, { color: colors.warning }]}>
-                            ⚠️ Credit dibatasi maksimal 3x nominal periode
-                          </Text>
-                        )}
+                        
+                        {(() => {
+                          const nextPeriodAllocation = Math.min(excessAmount, payment.amount || 0);
+                          const creditFromExcess = excessAmount - nextPeriodAllocation;
+                          const finalCredit = Math.min(creditFromExcess, (payment.amount * 3) - (creditBalance || 0));
+                          
+                          return (
+                            <>
+                              {nextPeriodAllocation > 0 && (
+                                <Text style={[styles.excessAmount, { color: colors.success }]}>
+                                  ✅ Periode berikutnya: {formatCurrency(nextPeriodAllocation)}
+                                </Text>
+                              )}
+                              
+                              {finalCredit > 0 && (
+                                <Text style={[styles.excessAmount, { color: colors.gray700 }]}>
+                                  💰 Menjadi credit: {formatCurrency(finalCredit)}
+                                </Text>
+                              )}
+                              
+                              {creditFromExcess > finalCredit && (
+                                <Text style={[styles.excessWarning, { color: colors.warning }]}>
+                                  ⚠️ Sisa {formatCurrency(creditFromExcess - finalCredit)} tidak dapat diproses (batas credit maksimal)
+                                </Text>
+                              )}
+                            </>
+                          );
+                        })()}
                       </View>
                     )}
                   </View>

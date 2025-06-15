@@ -408,6 +408,169 @@ export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, p
   }
 };
 
+export const processCustomPaymentWithAutoAllocation = async (wargaId, paymentAmount, paymentMethod = 'cash') => {
+  try {
+    if (!db || !wargaId || !paymentAmount || paymentAmount <= 0) {
+      throw new Error('Parameter tidak valid');
+    }
+
+    // 1. Get credit balance dan payment history
+    const [creditResult, paymentHistory] = await Promise.all([
+      getCreditBalance(wargaId),
+      getWargaPaymentHistory(wargaId)
+    ]);
+
+    if (!creditResult.success) {
+      throw new Error('Gagal mengambil saldo credit');
+    }
+
+    if (!paymentHistory.success) {
+      throw new Error('Gagal mengambil riwayat pembayaran');
+    }
+
+    const timeline = paymentHistory.timeline;
+    if (!timeline) {
+      throw new Error('Timeline tidak ditemukan');
+    }
+
+    let remainingPayment = paymentAmount;
+    let currentCredit = creditResult.creditBalance;
+    const paymentResults = [];
+    
+    // 2. Filter pembayaran yang belum lunas, urutkan berdasarkan periode
+    const unpaidPayments = paymentHistory.payments
+      .filter(p => p.status === 'belum_bayar' || p.status === 'terlambat')
+      .sort((a, b) => {
+        const periodA = parseInt(a.periodKey.replace('period_', ''));
+        const periodB = parseInt(b.periodKey.replace('period_', ''));
+        return periodA - periodB;
+      });
+
+    if (unpaidPayments.length === 0) {
+      // Tidak ada tagihan yang belum dibayar, semua menjadi credit
+      const maxCredit = paymentAmount * 3; // Batas maksimal credit
+      const finalCredit = Math.min(paymentAmount, maxCredit - currentCredit);
+      
+      const creditUpdateResult = await updateCreditBalance(wargaId, currentCredit + finalCredit);
+      if (!creditUpdateResult.success) {
+        throw new Error('Gagal update saldo credit');
+      }
+
+      return {
+        success: true,
+        totalProcessed: finalCredit,
+        remainingAmount: paymentAmount - finalCredit,
+        newCreditBalance: currentCredit + finalCredit,
+        processedPayments: [],
+        message: `Semua tagihan sudah lunas. ${finalCredit > 0 ? `Rp ${finalCredit.toLocaleString()} ditambahkan ke credit.` : 'Pembayaran melebihi batas credit maksimal.'}`
+      };
+    }
+
+    // 3. Proses pembayaran satu per satu
+    for (const payment of unpaidPayments) {
+      if (remainingPayment <= 0) break;
+
+      let creditApplied = 0;
+      let cashPaid = 0;
+      
+      // Gunakan credit terlebih dahulu
+      if (currentCredit > 0 && payment.amount > 0) {
+        creditApplied = Math.min(currentCredit, payment.amount);
+        currentCredit -= creditApplied;
+      }
+      
+      const amountAfterCredit = payment.amount - creditApplied;
+      
+      // Gunakan cash untuk sisa pembayaran
+      if (amountAfterCredit > 0 && remainingPayment > 0) {
+        cashPaid = Math.min(remainingPayment, amountAfterCredit);
+        remainingPayment -= cashPaid;
+      }
+      
+      const totalPaidForThisPayment = creditApplied + cashPaid;
+      
+      if (totalPaidForThisPayment >= payment.amount) {
+        // Pembayaran lunas
+        const updateData = {
+          status: 'lunas',
+          paymentDate: toISOString(),
+          paymentMethod: paymentMethod,
+          creditApplied,
+          remainingAmount: 0,
+          paidAmount: cashPaid,
+          totalPaid: totalPaidForThisPayment,
+          notes: creditApplied > 0 ? `Credit applied: ${creditApplied}` : ''
+        };
+
+        const paymentResult = await updateWargaPaymentStatus(timeline.id, payment.periodKey, wargaId, updateData);
+        if (paymentResult.success) {
+          paymentResults.push({
+            periodKey: payment.periodKey,
+            periodLabel: payment.periodLabel,
+            amount: payment.amount,
+            creditApplied,
+            cashPaid,
+            status: 'lunas'
+          });
+        }
+      } else if (totalPaidForThisPayment > 0) {
+        // Pembayaran partial (jarang terjadi, tapi untuk completeness)
+        const updateData = {
+          status: 'partial',
+          paymentDate: toISOString(),
+          paymentMethod: paymentMethod,
+          creditApplied,
+          remainingAmount: payment.amount - totalPaidForThisPayment,
+          paidAmount: cashPaid,
+          totalPaid: totalPaidForThisPayment,
+          notes: `Partial payment: ${creditApplied > 0 ? `Credit applied: ${creditApplied}, ` : ''}Cash: ${cashPaid}`
+        };
+
+        const paymentResult = await updateWargaPaymentStatus(timeline.id, payment.periodKey, wargaId, updateData);
+        if (paymentResult.success) {
+          paymentResults.push({
+            periodKey: payment.periodKey,
+            periodLabel: payment.periodLabel,
+            amount: payment.amount,
+            creditApplied,
+            cashPaid,
+            status: 'partial'
+          });
+        }
+      }
+    }
+
+    // 4. Jika masih ada sisa pembayaran, jadikan credit
+    if (remainingPayment > 0) {
+      const maxTotalCredit = paymentAmount * 3; // Batas maksimal credit berdasarkan pembayaran
+      const finalExcessCredit = Math.min(remainingPayment, maxTotalCredit - currentCredit);
+      
+      if (finalExcessCredit > 0) {
+        currentCredit += finalExcessCredit;
+        remainingPayment -= finalExcessCredit;
+      }
+    }
+
+    // 5. Update credit balance
+    const creditUpdateResult = await updateCreditBalance(wargaId, currentCredit);
+    if (!creditUpdateResult.success) {
+      throw new Error('Gagal update saldo credit');
+    }
+
+    return {
+      success: true,
+      totalProcessed: paymentAmount - remainingPayment,
+      remainingAmount: remainingPayment,
+      newCreditBalance: currentCredit,
+      processedPayments: paymentResults,
+      message: `Berhasil memproses ${paymentResults.length} pembayaran. ${remainingPayment > 0 ? `Sisa Rp ${remainingPayment.toLocaleString()} tidak dapat diproses (melebihi batas credit maksimal).` : ''}`
+    };
+  } catch (error) {
+    console.error('Error processing custom payment with auto allocation:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 export const clearWargaCache = () => {
   cachedPayments.clear();
   cachedTimeline = null;
