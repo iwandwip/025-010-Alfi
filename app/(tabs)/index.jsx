@@ -383,7 +383,7 @@ function StatusSetoran() {
 
   if (settingsLoading || loading) {
     return (
-      <View style={[styles.container, { backgroundColor: paperTheme.colors.background }]}>
+      <View style={[styles.container, { backgroundColor: paperTheme.colors.background, paddingTop: insets.top }]}>
         <Surface style={styles.header} elevation={2}>
           <Text variant="headlineMedium" style={styles.headerTitle}>
             Status Setoran Jimpitan
@@ -406,7 +406,7 @@ function StatusSetoran() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: paperTheme.colors.background }]}>
+    <View style={[styles.container, { backgroundColor: paperTheme.colors.background, paddingTop: insets.top }]}>
       <Surface style={styles.header} elevation={2}>
         <Text variant="headlineMedium" style={styles.headerTitle}>
           Status Setoran Jimpitan

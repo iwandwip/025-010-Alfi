@@ -540,7 +540,7 @@ const styles = StyleSheet.create({
   wargaId: {
     fontSize: 14,
     color: "#64748b",
-    fontFamily: "monospace",
+    fontFamily: "Poppins-Regular",
   },
   actionSection: {
     marginBottom: 24,
@@ -658,7 +658,7 @@ const styles = StyleSheet.create({
   rfidCode: {
     fontSize: 14,
     color: "#059669",
-    fontFamily: "monospace",
+    fontFamily: "Poppins-Regular",
   },
   rfidDesc: {
     fontSize: 14,

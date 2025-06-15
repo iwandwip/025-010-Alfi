@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Text, TextInput } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import { SettingsProvider, useSettings } from "../contexts/SettingsContext";
@@ -8,6 +9,7 @@ import { NotificationProvider } from "../contexts/NotificationContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import ToastNotification from "../components/ui/ToastNotification";
 import { lightTheme, darkTheme } from "../constants/PaperTheme";
+import { defaultTextStyle } from "../constants/fonts";
 import * as Font from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 
@@ -48,6 +50,17 @@ export default function RootLayout() {
           'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
           'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
         });
+        
+        // Set global default fonts for all Text and TextInput components
+        Text.defaultProps = {
+          ...Text.defaultProps,
+          style: [defaultTextStyle, Text.defaultProps?.style],
+        };
+        
+        TextInput.defaultProps = {
+          ...TextInput.defaultProps,
+          style: [defaultTextStyle, TextInput.defaultProps?.style],
+        };
       } catch (e) {
         console.warn('Font loading error:', e);
       } finally {

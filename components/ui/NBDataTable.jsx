@@ -119,7 +119,7 @@ const NBDataTable = ({
     // DateTime column (assuming it's column 0)
     if (columnIndex === 0 && value && (value instanceof Date || typeof value === "string")) {
       return (
-        <Text fontSize="xs" fontFamily="monospace" color="gray.700">
+        <Text fontSize="xs" fontFamily="Poppins-Regular" color="gray.700">
           {formatDateTime(value)}
         </Text>
       );
@@ -128,7 +128,7 @@ const NBDataTable = ({
     // Number columns (assuming columns 1 and 2)
     if ((columnIndex === 1 || columnIndex === 2) && typeof value === "number") {
       return (
-        <Text fontSize="sm" fontFamily="monospace" fontWeight="500" color="gray.700">
+        <Text fontSize="sm" fontFamily="Poppins-Regular" fontWeight="500" color="gray.700">
           {formatNumber(value)}
         </Text>
       );

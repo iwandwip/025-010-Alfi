@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet, RefreshControl, Alert } from "react-native";
+import { View, ScrollView, StyleSheet, RefreshControl, Alert, TouchableOpacity, Text as RNText } from "react-native";
 import {
   Surface,
   Text,
@@ -244,150 +244,136 @@ function AdminHome() {
         }
       >
 
-        {/* Menu Cards */}
-        <View style={styles.menuSection}>
-          <Animated.View entering={FadeInDown.delay(100)}>
-            <Card style={styles.menuCard} mode="elevated" onPress={handleTambahWarga}>
-              <Card.Content style={styles.cardContent}>
-                <Avatar.Icon 
-                  size={56} 
-                  icon="account-plus" 
-                  style={{ backgroundColor: paperTheme.colors.primaryContainer }}
-                  color={paperTheme.colors.onPrimaryContainer}
-                />
-                <View style={styles.cardTextSection}>
-                  <Text variant="titleMedium" style={styles.cardTitle}>
-                    Tambah Data Warga
-                  </Text>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                    Daftarkan warga baru dan buat akun warga
-                  </Text>
-                </View>
-                <IconButton 
-                  icon="chevron-right" 
-                  iconColor={paperTheme.colors.onSurfaceVariant}
-                />
-              </Card.Content>
-            </Card>
-          </Animated.View>
-
-          <Animated.View entering={FadeInDown.delay(200)}>
-            <Card style={styles.menuCard} mode="elevated" onPress={handleDaftarWarga}>
-              <Card.Content style={styles.cardContent}>
-                <Avatar.Icon 
-                  size={56} 
-                  icon="account-group" 
-                  style={{ backgroundColor: paperTheme.colors.secondaryContainer }}
-                  color={paperTheme.colors.onSecondaryContainer}
-                />
-                <View style={styles.cardTextSection}>
-                  <Text variant="titleMedium" style={styles.cardTitle}>
-                    Daftar Warga
-                  </Text>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                    Lihat dan kelola data warga yang terdaftar
-                  </Text>
-                </View>
-                <IconButton 
-                  icon="chevron-right" 
-                  iconColor={paperTheme.colors.onSurfaceVariant}
-                />
-              </Card.Content>
-            </Card>
-          </Animated.View>
-
-          <Animated.View entering={FadeInDown.delay(300)}>
-            <Card style={styles.menuCard} mode="elevated" onPress={handleTimelineManager}>
-              <Card.Content style={styles.cardContent}>
-                <Avatar.Icon 
-                  size={56} 
-                  icon="calendar-clock" 
-                  style={{ backgroundColor: paperTheme.colors.tertiaryContainer }}
-                  color={paperTheme.colors.onTertiaryContainer}
-                />
-                <View style={styles.cardTextSection}>
-                  <Text variant="titleMedium" style={styles.cardTitle}>
-                    Timeline Manager
-                  </Text>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                    Kelola timeline dan setoran jimpitan
-                  </Text>
-                </View>
-                <IconButton 
-                  icon="chevron-right" 
-                  iconColor={paperTheme.colors.onSurfaceVariant}
-                />
-              </Card.Content>
-            </Card>
-          </Animated.View>
-
-          <Animated.View entering={FadeInDown.delay(400)}>
-            <Card style={styles.menuCard} mode="elevated" onPress={handleCekPembayaran}>
-              <Card.Content style={styles.cardContent}>
-                <Avatar.Icon 
-                  size={56} 
-                  icon="wallet" 
-                  style={{ backgroundColor: paperTheme.colors.surfaceVariant }}
-                  color={paperTheme.colors.onSurfaceVariant}
-                />
-                <View style={styles.cardTextSection}>
-                  <Text variant="titleMedium" style={styles.cardTitle}>
-                    Cek Status Setoran
-                  </Text>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                    Lihat status setoran jimpitan semua warga
-                  </Text>
-                </View>
-                <IconButton 
-                  icon="chevron-right" 
-                  iconColor={paperTheme.colors.onSurfaceVariant}
-                />
-              </Card.Content>
-            </Card>
-          </Animated.View>
-
-          {/* Seeder Card */}
-          <Animated.View entering={FadeInDown.delay(500)}>
-            <Card 
-              style={[styles.menuCard, { backgroundColor: seederLoading ? paperTheme.colors.errorContainer : paperTheme.colors.errorContainer }]} 
-              mode="elevated" 
-              onPress={seederLoading ? undefined : handleSeeder}
-            >
-              <Card.Content style={styles.cardContent}>
-                {seederLoading ? (
-                  <ActivityIndicator size={56} animating color={paperTheme.colors.onErrorContainer} />
-                ) : (
+        {/* Menu Grid */}
+        <View style={styles.menuGrid}>
+          {/* Row 1 */}
+          <View style={styles.menuRow}>
+            <Animated.View entering={FadeInDown.delay(100)} style={styles.gridItem}>
+              <TouchableOpacity onPress={handleTambahWarga} activeOpacity={0.7} style={styles.menuButton}>
+                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
                   <Avatar.Icon 
-                    size={56} 
-                    icon="database-plus" 
-                    style={{ backgroundColor: paperTheme.colors.error }}
-                    color={paperTheme.colors.onError}
+                    size={40} 
+                    icon="account-plus" 
+                    style={{ backgroundColor: paperTheme.colors.primary }}
+                    color={paperTheme.colors.onPrimary}
                   />
-                )}
-                <View style={styles.cardTextSection}>
-                  <Text variant="titleMedium" style={[styles.cardTitle, { color: paperTheme.colors.onErrorContainer }]}>
-                    {seederLoading ? "Generating Data..." : "Generate Data Warga"}
-                  </Text>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onErrorContainer }}>
-                    {seederLoading
-                      ? "Sedang membuat akun warga dengan data sequential..."
-                      : "Buat akun warga dengan email sequential untuk testing"}
-                  </Text>
-                  <View style={{ marginTop: 8 }}>
-                    <Text variant="bodySmall" style={{ color: paperTheme.colors.onErrorContainer, fontWeight: 'bold' }}>
-                      Total: {seederStats.total} | Generated: {seederStats.seederUsers}
-                    </Text>
-                    <Text variant="bodySmall" style={{ color: paperTheme.colors.success, fontWeight: 'bold', fontFamily: 'monospace' }}>
-                      Next: user{seederStats.nextUserNumber}@gmail.com
-                    </Text>
+                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
+                    Tambah Data Warga
+                  </RNText>
+                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
+                    Daftarkan warga baru dan buat akun warga
+                  </RNText>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+
+            <Animated.View entering={FadeInDown.delay(150)} style={styles.gridItem}>
+              <TouchableOpacity onPress={handleDaftarWarga} activeOpacity={0.7} style={styles.menuButton}>
+                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
+                  <Avatar.Icon 
+                    size={40} 
+                    icon="account-group" 
+                    style={{ backgroundColor: paperTheme.colors.secondary }}
+                    color={paperTheme.colors.onSecondary}
+                  />
+                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
+                    Daftar Warga
+                  </RNText>
+                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
+                    Lihat dan kelola data warga yang terdaftar
+                  </RNText>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+
+          {/* Row 2 */}
+          <View style={styles.menuRow}>
+            <Animated.View entering={FadeInDown.delay(200)} style={styles.gridItem}>
+              <TouchableOpacity onPress={handleTimelineManager} activeOpacity={0.7} style={styles.menuButton}>
+                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
+                  <Avatar.Icon 
+                    size={40} 
+                    icon="calendar-clock" 
+                    style={{ backgroundColor: paperTheme.colors.tertiary }}
+                    color={paperTheme.colors.onTertiary}
+                  />
+                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
+                    Timeline Manager
+                  </RNText>
+                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
+                    Kelola timeline dan setoran jimpitan
+                  </RNText>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+
+            <Animated.View entering={FadeInDown.delay(250)} style={styles.gridItem}>
+              <TouchableOpacity onPress={handleCekPembayaran} activeOpacity={0.7} style={styles.menuButton}>
+                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
+                  <Avatar.Icon 
+                    size={40} 
+                    icon="wallet" 
+                    style={{ backgroundColor: paperTheme.colors.onSurfaceVariant }}
+                    color={paperTheme.colors.surfaceVariant}
+                  />
+                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
+                    Cek Status Setoran
+                  </RNText>
+                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
+                    Lihat status setoran jimpitan semua warga
+                  </RNText>
+                </View>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+
+          {/* Row 3 - Seeder Card (Full Width) */}
+          <Animated.View entering={FadeInDown.delay(300)} style={styles.fullWidthItem}>
+            <TouchableOpacity onPress={seederLoading ? undefined : handleSeeder} activeOpacity={0.7} disabled={seederLoading}>
+              <View style={[styles.seederCard, { backgroundColor: paperTheme.colors.errorContainer }]}>
+                <View style={styles.seederContent}>
+                  <View style={styles.seederIconSection}>
+                    {seederLoading ? (
+                      <ActivityIndicator size={40} animating color={paperTheme.colors.onErrorContainer} />
+                    ) : (
+                      <Avatar.Icon 
+                        size={40} 
+                        icon="database-plus" 
+                        style={{ backgroundColor: paperTheme.colors.error }}
+                        color={paperTheme.colors.onError}
+                      />
+                    )}
+                  </View>
+                  <View style={styles.seederTextSection}>
+                    <RNText style={[styles.seederTitle, { color: paperTheme.colors.onErrorContainer }]}>
+                      {seederLoading ? "Generating Data..." : "Generate Data Warga"}
+                    </RNText>
+                    <RNText style={[styles.seederSubtitle, { color: paperTheme.colors.onErrorContainer }]}>
+                      {seederLoading
+                        ? "Sedang membuat akun warga dengan data sequential..."
+                        : "Buat akun warga dengan email sequential untuk testing"}
+                    </RNText>
+                    <View style={styles.seederStats}>
+                      <RNText style={[styles.seederStatsText, { color: paperTheme.colors.onErrorContainer }]}>
+                        Total: {seederStats.total} | Generated: {seederStats.seederUsers}
+                      </RNText>
+                      <RNText style={[styles.seederNextText, { color: paperTheme.colors.success }]}>
+                        Next: user{seederStats.nextUserNumber}@gmail.com
+                      </RNText>
+                    </View>
+                  </View>
+                  <View style={styles.seederIconEnd}>
+                    <Avatar.Icon 
+                      size={24} 
+                      icon={seederLoading ? "clock" : "chevron-right"}
+                      style={{ backgroundColor: 'transparent' }}
+                      color={paperTheme.colors.onErrorContainer}
+                    />
                   </View>
                 </View>
-                <IconButton 
-                  icon={seederLoading ? "clock" : "chevron-right"}
-                  iconColor={paperTheme.colors.onErrorContainer}
-                />
-              </Card.Content>
-            </Card>
+              </View>
+            </TouchableOpacity>
           </Animated.View>
         </View>
 
@@ -440,31 +426,33 @@ function AdminHome() {
             />
 
             <Card style={styles.previewCard} mode="outlined">
-              <Card.Content>
+              <Card.Content style={styles.previewCardContent}>
                 <Text variant="bodyMedium" style={styles.previewTitle}>
                   Preview Email:
                 </Text>
-                {(() => {
-                  const count = parseInt(seederCount) || 0;
-                  if (count >= 1 && count <= 10) {
-                    const emails = [];
-                    for (let i = 0; i < count; i++) {
-                      emails.push(
-                        `user${seederStats.nextUserNumber + i}@gmail.com`
-                      );
+                <ScrollView style={styles.previewScrollView} showsVerticalScrollIndicator={false}>
+                  {(() => {
+                    const count = parseInt(seederCount) || 0;
+                    if (count >= 1 && count <= 10) {
+                      const emails = [];
+                      for (let i = 0; i < count; i++) {
+                        emails.push(
+                          `user${seederStats.nextUserNumber + i}@gmail.com`
+                        );
+                      }
+                      return emails.map((email, index) => (
+                        <Text key={index} variant="bodySmall" style={styles.previewEmail}>
+                          {email}
+                        </Text>
+                      ));
                     }
-                    return emails.map((email, index) => (
-                      <Text key={index} variant="bodySmall" style={styles.previewEmail}>
-                        {email}
+                    return (
+                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, fontStyle: 'italic' }}>
+                        Jumlah harus 1-10
                       </Text>
-                    ));
-                  }
-                  return (
-                    <Text variant="bodySmall" style={{ color: paperTheme.colors.error, fontStyle: 'italic' }}>
-                      Jumlah harus 1-10
-                    </Text>
-                  );
-                })()}
+                    );
+                  })()}
+                </ScrollView>
               </Card.Content>
             </Card>
           </View>
@@ -528,26 +516,96 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 24,
   },
-  menuSection: {
+  menuGrid: {
     gap: 16,
     marginBottom: 24,
   },
-  menuCard: {
-    borderRadius: 16,
-    marginBottom: 4,
-  },
-  cardContent: {
+  menuRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    gap: 16,
+    gap: 12,
   },
-  cardTextSection: {
+  gridItem: {
     flex: 1,
   },
-  cardTitle: {
-    fontWeight: '600',
+  fullWidthItem: {
+    width: '100%',
+  },
+  menuButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  menuCard: {
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 16,
+  },
+  menuTitle: {
+    fontWeight: 'bold',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 8,
     marginBottom: 4,
+  },
+  menuSubtitle: {
+    fontSize: 9,
+    textAlign: 'center',
+    lineHeight: 11,
+    opacity: 0.8,
+  },
+  seederCard: {
+    borderRadius: 16,
+    marginTop: 8,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  seederContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  seederIconSection: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  seederTextSection: {
+    flex: 1,
+  },
+  seederTitle: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  seederSubtitle: {
+    fontSize: 11,
+    marginBottom: 8,
+    opacity: 0.8,
+  },
+  seederStats: {
+    gap: 2,
+  },
+  seederStatsText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  seederNextText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
+  },
+  seederIconEnd: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logoutButton: {
     borderRadius: 28,
@@ -561,6 +619,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     margin: 20,
     maxWidth: 400,
+    maxHeight: '80%',
     alignSelf: 'center',
   },
   modalHeader: {
@@ -591,14 +650,22 @@ const styles = StyleSheet.create({
   },
   previewCard: {
     borderRadius: 12,
+    maxHeight: 100,
+  },
+  previewCardContent: {
+    paddingBottom: 4,
+  },
+  previewScrollView: {
+    maxHeight: 60,
   },
   previewTitle: {
     fontWeight: '600',
     marginBottom: 8,
   },
   previewEmail: {
-    fontFamily: 'monospace',
+    fontFamily: 'Poppins-Regular',
     marginBottom: 2,
+    fontSize: 11,
   },
   modalActions: {
     flexDirection: 'row',
@@ -633,7 +700,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   loadingNext: {
-    fontFamily: 'monospace',
+    fontFamily: 'Poppins-Regular',
     textAlign: 'center',
     fontWeight: '600',
   },

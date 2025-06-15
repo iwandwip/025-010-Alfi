@@ -58,7 +58,7 @@ export default function WargaLogin() {
             <IconButton
               icon="arrow-left"
               size={24}
-              onPress={() => router.back()}
+              onPress={() => router.push("/role-selection")}
               style={styles.backButton}
             />
           </Animated.View>

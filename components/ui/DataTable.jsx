@@ -211,11 +211,11 @@ const styles = StyleSheet.create({
   },
   dateTimeText: {
     fontSize: 11,
-    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
+    fontFamily: "Poppins-Regular",
     lineHeight: 14,
   },
   numberText: {
-    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
+    fontFamily: "Poppins-Regular",
     fontWeight: 500,
   },
   statusText: {

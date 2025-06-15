@@ -237,7 +237,7 @@ function Profile() {
                           style={{ 
                             fontWeight: 'bold', 
                             color: paperTheme.colors.onSurface,
-                            fontFamily: 'monospace',
+                            fontFamily: 'Poppins-Regular',
                             textAlign: 'right',
                             flex: 1
                           }}
@@ -276,7 +276,7 @@ function Profile() {
                       style={{ 
                         fontWeight: 'bold', 
                         color: paperTheme.colors.onSurface,
-                        fontFamily: 'monospace',
+                        fontFamily: 'Poppins-Regular',
                         textAlign: 'right',
                         flex: 1
                       }}
