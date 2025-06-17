@@ -143,13 +143,21 @@ function StatusSetoran() {
     }).format(amount);
   }, []);
 
-  const getStatusInfo = useCallback((status) => {
+  const getStatusInfo = useCallback((status, item = null) => {
     switch (status) {
       case "lunas":
         return { label: "Lunas", icon: "check-circle", color: paperTheme.colors.success };
       case "belum_bayar":
         return { label: "Belum Bayar", icon: "clock", color: paperTheme.colors.error };
       case "belum_lunas":
+        if (item && item.totalPaid && item.amount) {
+          const percentage = ((item.totalPaid / item.amount) * 100).toFixed(1);
+          return { 
+            label: `Sebagian (${percentage}%)`, 
+            icon: "progress-clock", 
+            color: paperTheme.colors.tertiary 
+          };
+        }
         return { label: "Belum Lunas", icon: "progress-clock", color: paperTheme.colors.tertiary };
       case "terlambat":
         return { label: "Terlambat", icon: "alert-circle", color: paperTheme.colors.warning };
@@ -218,6 +226,17 @@ function StatusSetoran() {
                 </Text>
               </View>
 
+              {(summary.belumLunas || 0) > 0 && (
+                <View style={styles.statItem}>
+                  <Text variant="headlineMedium" style={{ color: paperTheme.colors.tertiary, fontWeight: 'bold' }}>
+                    {summary.belumLunas || 0}
+                  </Text>
+                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    Sebagian
+                  </Text>
+                </View>
+              )}
+
               {(summary.terlambat || 0) > 0 && (
                 <View style={styles.statItem}>
                   <Text variant="headlineMedium" style={{ color: paperTheme.colors.warning, fontWeight: 'bold' }}>
@@ -245,6 +264,14 @@ function StatusSetoran() {
                   {formatCurrency(summary.paidAmount || 0)}
                 </Text>
               </View>
+              {(summary.partialAmount || 0) > 0 && (
+                <View style={styles.amountRow}>
+                  <Text variant="bodyMedium">Terbayar Sebagian:</Text>
+                  <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.tertiary }}>
+                    {formatCurrency(summary.partialAmount || 0)}
+                  </Text>
+                </View>
+              )}
               <View style={styles.amountRow}>
                 <Text variant="bodyMedium">Belum Disetor:</Text>
                 <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.error }}>
@@ -291,7 +318,7 @@ function StatusSetoran() {
   }, [creditBalance, paperTheme, formatCurrency]);
 
   const renderPaymentItem = useCallback((item, index) => {
-    const statusInfo = getStatusInfo(item.status);
+    const statusInfo = getStatusInfo(item.status, item);
     
     return (
       <Animated.View 

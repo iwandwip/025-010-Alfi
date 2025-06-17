@@ -11,7 +11,6 @@
     "reset": "expo start --clear",
     "test": "node .\\testing\\esp32-simulator.js",
     "cleanup": "node .\\firebase-cleanup\\cleanup.js",
-
     "clean": "rimraf node_modules package-lock.json",
     "reinstall": "npm run clean && npm install"
   },

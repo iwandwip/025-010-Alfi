@@ -141,12 +141,79 @@ async function getAllRelatedData() {
   return relatedData;
 }
 
+async function getAllTimelineData() {
+  const timelineData = {
+    activeTimeline: null,
+    allPayments: [],
+    templates: []
+  };
+  
+  try {
+    const timelineDoc = await db.collection('active_timeline').doc('current').get();
+    if (timelineDoc.exists()) {
+      timelineData.activeTimeline = {
+        id: 'current',
+        path: timelineDoc.ref.path,
+        data: timelineDoc.data()
+      };
+      
+      const allPaymentData = await getPaymentData(timelineDoc.data().id);
+      timelineData.allPayments = allPaymentData;
+    }
+  } catch (error) {
+    console.log('No timeline data found');
+  }
+  
+  try {
+    const templatesSnapshot = await db.collection('timeline_templates').get();
+    templatesSnapshot.forEach(doc => {
+      timelineData.templates.push({
+        id: doc.id,
+        path: doc.ref.path,
+        data: doc.data()
+      });
+    });
+  } catch (error) {
+    console.log('No template data found');
+  }
+  
+  return timelineData;
+}
+
+async function getAllUserTimelineData() {
+  const allUsers = await getAllFirestoreUsers();
+  const userTimelineData = [];
+  
+  for (const user of allUsers) {
+    try {
+      const userTimelineRef = db.collection('users').doc(user.id).collection('timelines');
+      const userTimelineSnapshot = await userTimelineRef.get();
+      
+      userTimelineSnapshot.forEach(doc => {
+        userTimelineData.push({
+          userId: user.id,
+          userName: user.namaWarga || user.email,
+          timelineId: doc.id,
+          path: doc.ref.path,
+          data: doc.data()
+        });
+      });
+    } catch (error) {
+      console.log(`No timeline data found for user ${user.id}`);
+    }
+  }
+  
+  return userTimelineData;
+}
+
 async function showDryRun(deleteOptions) {
   console.log('\n=== DRY RUN MODE ===');
   console.log('Analisis data yang akan dihapus...\n');
   
   const authUsers = deleteOptions.includes('auth') ? await getAuthUsersToDelete() : [];
   const relatedData = deleteOptions.includes('firestore') ? await getAllRelatedData() : null;
+  const timelineData = deleteOptions.includes('timeline') ? await getAllTimelineData() : null;
+  const userTimelineData = deleteOptions.includes('user-timeline') ? await getAllUserTimelineData() : null;
   
   if (deleteOptions.includes('auth')) {
     console.log(`📧 AUTH USERS (${authUsers.length}):`);
@@ -193,13 +260,44 @@ async function showDryRun(deleteOptions) {
     }
   }
   
+  if (deleteOptions.includes('timeline') && timelineData) {
+    console.log(`⏰ TIMELINE DATA:`);
+    if (!timelineData.activeTimeline) {
+      console.log('  Tidak ada active timeline\n');
+    } else {
+      console.log(`  Active Timeline: ${timelineData.activeTimeline.data.id || 'current'}`);
+      console.log(`  Payment Records: ${timelineData.allPayments.length}`);
+      console.log(`  Timeline Templates: ${timelineData.templates.length}\n`);
+    }
+  }
+  
+  if (deleteOptions.includes('user-timeline') && userTimelineData) {
+    console.log(`👥 USER TIMELINE DATA (${userTimelineData.length}):`);
+    if (userTimelineData.length === 0) {
+      console.log('  Tidak ada timeline data di user collection\n');
+    } else {
+      const userGroups = {};
+      userTimelineData.forEach(item => {
+        if (!userGroups[item.userId]) {
+          userGroups[item.userId] = { name: item.userName, count: 0 };
+        }
+        userGroups[item.userId].count++;
+      });
+      
+      Object.values(userGroups).forEach((group, index) => {
+        console.log(`  ${index + 1}. ${group.name} - ${group.count} timeline(s)`);
+      });
+      console.log('');
+    }
+  }
+  
   console.log('🛡️  PROTECTED EMAILS:');
   PROTECTED_EMAILS.forEach(email => {
     console.log(`  - ${email}`);
   });
   console.log('');
   
-  return { authUsers, relatedData };
+  return { authUsers, relatedData, timelineData, userTimelineData };
 }
 
 async function deleteAuthUsers(users) {
@@ -270,8 +368,65 @@ async function deleteFirestoreData(relatedData) {
   }
 }
 
+async function deleteTimelineData(timelineData) {
+  console.log('\n⏰ MENGHAPUS TIMELINE DATA...');
+  
+  const batch = db.batch();
+  let deleteCount = 0;
+  
+  if (timelineData.activeTimeline) {
+    const timelineRef = db.doc(timelineData.activeTimeline.path);
+    batch.delete(timelineRef);
+    deleteCount++;
+    console.log(`🗑️  Menghapus active timeline: ${timelineData.activeTimeline.data.id || 'current'}`);
+  }
+  
+  timelineData.allPayments.forEach(payment => {
+    const paymentRef = db.doc(payment.path);
+    batch.delete(paymentRef);
+    deleteCount++;
+  });
+  
+  timelineData.templates.forEach(template => {
+    const templateRef = db.doc(template.path);
+    batch.delete(templateRef);
+    deleteCount++;
+  });
+  
+  try {
+    await batch.commit();
+    console.log(`✅ Berhasil menghapus ${deleteCount} dokumen timeline`);
+    return { successCount: deleteCount, errorCount: 0 };
+  } catch (error) {
+    console.log(`❌ Error menghapus timeline data: ${error.message}`);
+    return { successCount: 0, errorCount: deleteCount };
+  }
+}
+
+async function deleteUserTimelineData(userTimelineData) {
+  console.log('\n👥 MENGHAPUS USER TIMELINE DATA...');
+  
+  const batch = db.batch();
+  let deleteCount = 0;
+  
+  userTimelineData.forEach(timeline => {
+    const timelineRef = db.doc(timeline.path);
+    batch.delete(timelineRef);
+    deleteCount++;
+  });
+  
+  try {
+    await batch.commit();
+    console.log(`✅ Berhasil menghapus ${deleteCount} timeline data dari user collections`);
+    return { successCount: deleteCount, errorCount: 0 };
+  } catch (error) {
+    console.log(`❌ Error menghapus user timeline data: ${error.message}`);
+    return { successCount: 0, errorCount: deleteCount };
+  }
+}
+
 async function handleDryRun() {
-  const deleteOptions = ['auth', 'firestore'];
+  const deleteOptions = ['auth', 'firestore', 'timeline', 'user-timeline'];
   await showDryRun(deleteOptions);
   console.log('✅ Dry run selesai. Tidak ada data yang dihapus.');
   
@@ -285,16 +440,25 @@ async function handleDryRun() {
 
 async function handleDeleteOperation(operation) {
   const deleteOptions = [];
-  if (operation === 'auth-only' || operation === 'both') deleteOptions.push('auth');
-  if (operation === 'firestore-only' || operation === 'both') deleteOptions.push('firestore');
+  if (operation === 'auth-only' || operation === 'both' || operation === 'delete-all') deleteOptions.push('auth');
+  if (operation === 'firestore-only' || operation === 'both' || operation === 'delete-all') deleteOptions.push('firestore');
+  if (operation === 'timeline-only' || operation === 'delete-all') deleteOptions.push('timeline');
+  if (operation === 'timeline-with-users' || operation === 'delete-all') {
+    deleteOptions.push('timeline');
+    deleteOptions.push('user-timeline');
+  }
   
-  const { authUsers, relatedData } = await showDryRun(deleteOptions);
+  const { authUsers, relatedData, timelineData, userTimelineData } = await showDryRun(deleteOptions);
   
   const totalItems = (authUsers?.length || 0) + 
                    (relatedData?.users?.length || 0) + 
                    (relatedData?.payments?.length || 0) + 
                    (relatedData?.templates?.length || 0) + 
-                   (relatedData?.pairing?.length || 0);
+                   (relatedData?.pairing?.length || 0) +
+                   (timelineData?.activeTimeline ? 1 : 0) +
+                   (timelineData?.allPayments?.length || 0) +
+                   (timelineData?.templates?.length || 0) +
+                   (userTimelineData?.length || 0);
   
   if (totalItems === 0) {
     console.log('✅ Tidak ada data yang perlu dihapus.');
@@ -360,6 +524,18 @@ async function handleDeleteOperation(operation) {
     totalErrors += firestoreResult.errorCount;
   }
   
+  if (deleteOptions.includes('timeline') && timelineData) {
+    const timelineResult = await deleteTimelineData(timelineData);
+    totalSuccess += timelineResult.successCount;
+    totalErrors += timelineResult.errorCount;
+  }
+  
+  if (deleteOptions.includes('user-timeline') && userTimelineData) {
+    const userTimelineResult = await deleteUserTimelineData(userTimelineData);
+    totalSuccess += userTimelineResult.successCount;
+    totalErrors += userTimelineResult.errorCount;
+  }
+  
   console.log('\n' + '='.repeat(40));
   console.log('📊 HASIL AKHIR');
   console.log('='.repeat(40));
@@ -394,6 +570,11 @@ async function showMainMenu() {
         { name: '📧 Hapus Auth Users saja', value: 'auth-only' },
         { name: '🗃️  Hapus Firestore Data saja', value: 'firestore-only' },
         { name: '💥 Hapus Keduanya (Auth + Firestore)', value: 'both' },
+        { name: '─────────────────────────', disabled: true },
+        { name: '⏰ Hapus Timeline saja', value: 'timeline-only' },
+        { name: '🗂️  Hapus Timeline + Timeline Data di semua User', value: 'timeline-with-users' },
+        { name: '─────────────────────────', disabled: true },
+        { name: '🔥 HAPUS SEMUA DATA (Auth + Firestore + Timeline + User Timeline)', value: 'delete-all' },
         { name: '─────────────────────────', disabled: true },
         { name: '❌ Keluar', value: 'exit' }
       ]

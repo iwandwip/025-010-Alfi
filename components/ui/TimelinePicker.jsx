@@ -619,12 +619,12 @@ const TimelinePicker = ({
     return (
       <View key={level} style={styles.pickerLevel}>
         <Text style={styles.pickerLevelTitle}>
-          {level === "year" && "Tahun"}
-          {level === "month" && "Bulan"}
-          {level === "week" && "Minggu"}
-          {level === "day" && "Tanggal"}
-          {level === "hour" && "Jam"}
-          {level === "minute" && "Menit"}
+          {level === "year" ? "Tahun" :
+           level === "month" ? "Bulan" :
+           level === "week" ? "Minggu" :
+           level === "day" ? "Tanggal" :
+           level === "hour" ? "Jam" :
+           level === "minute" ? "Menit" : ""}
         </Text>
 
         <ScrollView
@@ -691,7 +691,7 @@ const TimelinePicker = ({
 
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {formatRangeText() && (
+      {!!formatRangeText() && (
         <View style={styles.rangeInfo}>
           <Text style={styles.rangeText}>{formatRangeText()}</Text>
         </View>
