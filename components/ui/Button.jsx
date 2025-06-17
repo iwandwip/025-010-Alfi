@@ -1,10 +1,9 @@
 import React from "react";
-import { Button as PaperButton } from "react-native-paper";
+import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native";
 
 /**
- * Wrapper component for React Native Paper Button
+ * Custom Button component with Material Design styling
  * Maintains compatibility with existing Button usage
- * while providing Material Design styling
  */
 const Button = ({
   title,
@@ -19,51 +18,96 @@ const Button = ({
   children,
   ...props
 }) => {
-  // Map custom variants to Paper Button modes
-  const getMode = () => {
+  // Get button styles based on variant
+  const getButtonStyle = () => {
+    const baseStyle = {
+      borderRadius: 8,
+      minHeight: 48,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+    };
+
     switch (variant) {
       case "primary":
-        return "contained";
+        return {
+          ...baseStyle,
+          backgroundColor: disabled ? '#ccc' : '#F50057',
+        };
       case "secondary":
-        return "contained-tonal";
+        return {
+          ...baseStyle,
+          backgroundColor: disabled ? '#f0f0f0' : '#f5f5f5',
+          borderWidth: 1,
+          borderColor: disabled ? '#ccc' : '#F50057',
+        };
       case "outline":
-        return "outlined";
+        return {
+          ...baseStyle,
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          borderColor: disabled ? '#ccc' : '#F50057',
+        };
       default:
-        return "contained";
+        return {
+          ...baseStyle,
+          backgroundColor: disabled ? '#ccc' : '#F50057',
+        };
+    }
+  };
+
+  const getTextStyle = () => {
+    const baseTextStyle = {
+      fontSize: 16,
+      fontWeight: '600',
+    };
+
+    switch (variant) {
+      case "primary":
+        return {
+          ...baseTextStyle,
+          color: disabled ? '#999' : '#FFFFFF',
+        };
+      case "secondary":
+      case "outline":
+        return {
+          ...baseTextStyle,
+          color: disabled ? '#999' : '#F50057',
+        };
+      default:
+        return {
+          ...baseTextStyle,
+          color: disabled ? '#999' : '#FFFFFF',
+        };
     }
   };
 
   return (
-    <PaperButton
-      mode={getMode()}
-      onPress={onPress}
-      disabled={disabled}
-      loading={loading}
-      icon={icon}
-      style={[
-        {
-          borderRadius: 8,
-          minHeight: 48,
-        },
-        style,
-      ]}
-      contentStyle={{
-        paddingVertical: 6,
-        paddingHorizontal: 16,
-        minHeight: 48,
-      }}
-      labelStyle={[
-        {
-          fontSize: 16,
-          fontWeight: '600',
-        },
-        textStyle,
-      ]}
+    <TouchableOpacity
+      onPress={disabled || loading ? undefined : onPress}
+      style={[getButtonStyle(), style]}
       accessibilityLabel={accessibilityLabel || title || children}
+      activeOpacity={0.8}
       {...props}
     >
-      {children || title}
-    </PaperButton>
+      {loading && (
+        <ActivityIndicator 
+          size="small" 
+          color={variant === 'primary' ? '#FFFFFF' : '#F50057'} 
+          style={{ marginRight: 8 }}
+        />
+      )}
+      {icon && (
+        <View style={{ marginRight: 8 }}>
+          {icon}
+        </View>
+      )}
+      <Text style={[getTextStyle(), textStyle]}>
+        {children || title}
+      </Text>
+    </TouchableOpacity>
   );
 };
 

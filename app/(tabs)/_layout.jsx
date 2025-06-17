@@ -1,20 +1,14 @@
 import React from "react";
-import { Alert } from "react-native";
-import {
-  Surface,
-  Text,
-  ActivityIndicator,
-  useTheme,
-  MD3Colors
-} from "react-native-paper";
+import { Alert, View, Text, ActivityIndicator } from "react-native";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs, useRouter } from "expo-router";
 import { useSettings } from "../../contexts/SettingsContext";
 import { signOutUser } from "../../services/authService";
+import { Colors } from '../../constants/theme';
 
 export default function TabsLayout() {
   const { theme, loading } = useSettings();
-  const paperTheme = useTheme();
+  // Using custom theme from constants
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -44,18 +38,19 @@ export default function TabsLayout() {
 
   if (loading) {
     return (
-      <Surface
+      <View
         style={{
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
+          backgroundColor: Colors.background,
         }}
       >
-        <ActivityIndicator size="large" animating />
-        <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={{ marginTop: 16, fontSize: 16, color: Colors.text }}>
           Memuat...
         </Text>
-      </Surface>
+      </View>
     );
   }
 
@@ -63,13 +58,13 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: paperTheme.colors.primary,
-        tabBarInactiveTintColor: paperTheme.colors.onSurfaceVariant,
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: paperTheme.colors.surface,
-          borderTopColor: paperTheme.colors.outline,
+          backgroundColor: Colors.surface,
+          borderTopColor: Colors.border,
           elevation: 8,
-          shadowColor: paperTheme.colors.shadow,
+          shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,

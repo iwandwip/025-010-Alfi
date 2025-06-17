@@ -1,17 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, StyleSheet, Alert } from "react-native";
-import {
-  Surface,
-  Text,
-  Card,
-  Avatar,
-  Button,
-  Chip,
-  IconButton,
-  useTheme,
-  ActivityIndicator,
-  Divider
-} from "react-native-paper";
+import { View, ScrollView, StyleSheet, Alert, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,6 +7,9 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { signOutUser } from "../../services/authService";
 import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors, Shadows } from '../../constants/theme';
+import Button from '../../components/ui/Button';
 
 function Profile() {
   const { currentUser, userProfile } = useAuth();
@@ -26,7 +17,7 @@ function Profile() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [loggingOut, setLoggingOut] = useState(false);
-  const paperTheme = useTheme();
+  // Using custom theme from constants
 
   const handleLogout = async () => {
     Alert.alert("Konfirmasi Logout", "Apakah Anda yakin ingin keluar?", [
@@ -54,16 +45,16 @@ function Profile() {
 
   if (settingsLoading || !userProfile) {
     return (
-      <View style={[styles.container, { backgroundColor: paperTheme.colors.background, paddingTop: insets.top }]}>
-        <Surface style={styles.header} elevation={2}>
-          <Text variant="headlineMedium" style={styles.headerTitle}>
+      <View style={[styles.container, { backgroundColor: Colors.background, paddingTop: insets.top }]}>
+        <View style={[styles.header, Shadows.md]}>
+          <Text style={styles.headerTitle}>
             Profil Warga
           </Text>
-        </Surface>
+        </View>
         
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" animating />
-          <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>
             Memuat profil...
           </Text>
         </View>
@@ -73,17 +64,17 @@ function Profile() {
 
   return (
     <LinearGradient
-      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      colors={[Colors.primary + '20', Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <Surface style={styles.header} elevation={2}>
-        <Text variant="headlineMedium" style={styles.headerTitle}>
+      <View style={[styles.header, Shadows.md]}>
+        <Text style={styles.headerTitle}>
           Profil Warga
         </Text>
-        <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+        <Text style={[styles.headerSubtitle, { color: Colors.textSecondary }]}>
           Informasi akun dan pengaturan
         </Text>
-      </Surface>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
@@ -92,215 +83,201 @@ function Profile() {
       >
         {/* Profile Header */}
         <Animated.View entering={FadeInDown.delay(100)}>
-          <Card style={styles.profileCard} mode="elevated">
-            <Card.Content style={styles.profileContent}>
+          <View style={[styles.profileCard, Shadows.lg]}>
+            <View style={styles.profileContent}>
               <View style={styles.avatarSection}>
-                <Avatar.Text 
-                  size={80} 
-                  label={userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
-                  style={{ backgroundColor: paperTheme.colors.primary }}
-                  color={paperTheme.colors.onPrimary}
-                />
+                <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
+                  <Text style={[styles.avatarText, { color: Colors.textInverse }]}>
+                    {userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
+                  </Text>
+                </View>
               </View>
               
               <View style={styles.profileInfo}>
-                <Text variant="headlineSmall" style={[styles.profileName, { color: paperTheme.colors.onSurface }]}>
+                <Text style={[styles.profileName, { color: Colors.text }]}>
                   {userProfile?.namaWarga || "Nama Warga"}
                 </Text>
                 
-                <Chip 
-                  icon="account" 
-                  mode="flat"
-                  style={{ backgroundColor: paperTheme.colors.secondaryContainer, alignSelf: 'center', marginTop: 8 }}
-                  textStyle={{ color: paperTheme.colors.onSecondaryContainer }}
-                >
-                  Warga RT
-                </Chip>
+                <View style={[styles.chip, { backgroundColor: Colors.secondary + '20' }]}>
+                  <MaterialIcons name="person" size={16} color={Colors.secondary} />
+                  <Text style={[styles.chipText, { color: Colors.secondary }]}>
+                    Warga RT
+                  </Text>
+                </View>
               </View>
-            </Card.Content>
-          </Card>
+            </View>
+          </View>
         </Animated.View>
 
         {userProfile && (
           <View style={styles.infoSection}>
             {/* Personal Information */}
             <Animated.View entering={SlideInRight.delay(200)}>
-              <Card style={styles.infoCard} mode="outlined">
-                <Card.Content>
-                  <View style={styles.cardHeader}>
-                    <Avatar.Icon 
-                      size={40} 
-                      icon="account-details" 
-                      style={{ backgroundColor: paperTheme.colors.primaryContainer }}
-                      color={paperTheme.colors.onPrimaryContainer}
+              <View style={[styles.infoCard, Shadows.md]}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.cardIcon, { backgroundColor: Colors.primary + '20' }]}>
+                    <MaterialIcons 
+                      name="person" 
+                      size={24} 
+                      color={Colors.primary}
                     />
-                    <Text variant="titleLarge" style={styles.cardTitle}>
-                      Informasi Warga
-                    </Text>
                   </View>
+                  <Text style={styles.cardTitle}>
+                    Informasi Warga
+                  </Text>
+                </View>
 
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                      Nama Warga:
-                    </Text>
-                    <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.onSurface }}>
-                      {userProfile.namaWarga}
-                    </Text>
-                  </View>
+                <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                    Nama Warga:
+                  </Text>
+                  <Text style={[styles.infoValue, { color: Colors.text }]}>
+                    {userProfile.namaWarga}
+                  </Text>
+                </View>
 
-                  <Divider style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                      No HP:
-                    </Text>
-                    <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.onSurface }}>
-                      {userProfile.noHpWarga}
-                    </Text>
-                  </View>
+                <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                    No HP:
+                  </Text>
+                  <Text style={[styles.infoValue, { color: Colors.text }]}>
+                    {userProfile.noHpWarga}
+                  </Text>
+                </View>
 
-                  <Divider style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                      Email:
-                    </Text>
-                    <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.onSurface }}>
-                      {userProfile.email}
-                    </Text>
-                  </View>
-                </Card.Content>
-              </Card>
+                <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                    Email:
+                  </Text>
+                  <Text style={[styles.infoValue, { color: Colors.text }]}>
+                    {userProfile.email}
+                  </Text>
+                </View>
+              </View>
             </Animated.View>
 
             {/* Address & RFID Information */}
             <Animated.View entering={SlideInRight.delay(300)}>
-              <Card style={styles.infoCard} mode="outlined">
-                <Card.Content>
-                  <View style={styles.cardHeader}>
-                    <Avatar.Icon 
-                      size={40} 
-                      icon="map-marker" 
-                      style={{ backgroundColor: paperTheme.colors.secondaryContainer }}
-                      color={paperTheme.colors.onSecondaryContainer}
+              <View style={[styles.infoCard, Shadows.md]}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.cardIcon, { backgroundColor: Colors.secondary + '20' }]}>
+                    <MaterialIcons 
+                      name="location-on" 
+                      size={24} 
+                      color={Colors.secondary}
                     />
-                    <Text variant="titleLarge" style={styles.cardTitle}>
-                      Informasi Alamat
-                    </Text>
                   </View>
+                  <Text style={styles.cardTitle}>
+                    Informasi Alamat
+                  </Text>
+                </View>
 
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                      Alamat:
-                    </Text>
-                    <Text variant="bodyMedium" style={{ fontWeight: 'bold', color: paperTheme.colors.onSurface, textAlign: 'right', flex: 1 }}>
-                      {userProfile.alamat || 'Belum diisi'}
-                    </Text>
-                  </View>
+                <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                    Alamat:
+                  </Text>
+                  <Text style={[styles.infoValue, { color: Colors.text, textAlign: 'right', flex: 1 }]}>
+                    {userProfile.alamat || 'Belum diisi'}
+                  </Text>
+                </View>
 
-                  <Divider style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                      Status RFID:
-                    </Text>
-                    <View style={styles.statusRow}>
-                      <Avatar.Icon
-                        size={24}
-                        icon={userProfile.rfidWarga ? "check-circle" : "alert-circle"}
-                        style={{ 
-                          backgroundColor: userProfile.rfidWarga ? paperTheme.colors.successContainer : paperTheme.colors.errorContainer 
-                        }}
-                        color={userProfile.rfidWarga ? paperTheme.colors.onSuccessContainer : paperTheme.colors.onErrorContainer}
+                <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                    Status RFID:
+                  </Text>
+                  <View style={styles.statusRow}>
+                    <View style={[styles.statusIcon, { 
+                      backgroundColor: userProfile.rfidWarga ? Colors.success + '20' : Colors.error + '20' 
+                    }]}>
+                      <MaterialIcons
+                        name={userProfile.rfidWarga ? "check-circle" : "error"}
+                        size={16}
+                        color={userProfile.rfidWarga ? Colors.success : Colors.error}
                       />
+                    </View>
+                    <Text
+                      style={[styles.statusText, { 
+                        color: userProfile.rfidWarga ? Colors.success : Colors.error 
+                      }]}
+                    >
+                      {userProfile.rfidWarga ? "Terpasang" : "Belum Terpasang"}
+                    </Text>
+                  </View>
+                </View>
+
+                {userProfile.rfidWarga && (
+                  <>
+                    <View style={styles.divider} />
+                    <View style={styles.infoRow}>
+                      <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                        Kode RFID:
+                      </Text>
                       <Text
-                        variant="bodyMedium"
-                        style={{ 
-                          fontWeight: 'bold', 
-                          color: userProfile.rfidWarga ? paperTheme.colors.success : paperTheme.colors.error 
-                        }}
+                        style={[styles.infoValue, { 
+                          color: Colors.text,
+                          textAlign: 'right',
+                          flex: 1
+                        }]}
                       >
-                        {userProfile.rfidWarga ? "Terpasang" : "Belum Terpasang"}
+                        {userProfile.rfidWarga}
                       </Text>
                     </View>
-                  </View>
-
-                  {userProfile.rfidWarga && (
-                    <>
-                      <Divider style={styles.divider} />
-                      <View style={styles.infoRow}>
-                        <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                          Kode RFID:
-                        </Text>
-                        <Text
-                          variant="bodyMedium"
-                          style={{ 
-                            fontWeight: 'bold', 
-                            color: paperTheme.colors.onSurface,
-                            fontFamily: 'Poppins-Regular',
-                            textAlign: 'right',
-                            flex: 1
-                          }}
-                        >
-                          {userProfile.rfidWarga}
-                        </Text>
-                      </View>
-                    </>
-                  )}
-                </Card.Content>
-              </Card>
+                  </>
+                )}
+              </View>
             </Animated.View>
 
             {/* Account Information */}
             <Animated.View entering={SlideInRight.delay(400)}>
-              <Card style={styles.infoCard} mode="outlined">
-                <Card.Content>
-                  <View style={styles.cardHeader}>
-                    <Avatar.Icon 
-                      size={40} 
-                      icon="shield-account" 
-                      style={{ backgroundColor: paperTheme.colors.tertiaryContainer }}
-                      color={paperTheme.colors.onTertiaryContainer}
+              <View style={[styles.infoCard, Shadows.md]}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.cardIcon, { backgroundColor: Colors.success + '20' }]}>
+                    <MaterialIcons 
+                      name="security" 
+                      size={24} 
+                      color={Colors.success}
                     />
-                    <Text variant="titleLarge" style={styles.cardTitle}>
-                      Informasi Akun
-                    </Text>
                   </View>
+                  <Text style={styles.cardTitle}>
+                    Informasi Akun
+                  </Text>
+                </View>
 
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                      User ID:
-                    </Text>
-                    <Text
-                      variant="bodySmall"
-                      style={{ 
-                        fontWeight: 'bold', 
-                        color: paperTheme.colors.onSurface,
-                        fontFamily: 'Poppins-Regular',
-                        textAlign: 'right',
-                        flex: 1
-                      }}
-                    >
-                      {userProfile.id}
-                    </Text>
-                  </View>
+                <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                    User ID:
+                  </Text>
+                  <Text
+                    style={[styles.infoValue, { 
+                      color: Colors.text,
+                      textAlign: 'right',
+                      flex: 1,
+                      fontSize: 12
+                    }]}
+                  >
+                    {userProfile.id}
+                  </Text>
+                </View>
 
-                  <Divider style={styles.divider} />
+                <View style={styles.divider} />
 
-                  <View style={styles.infoRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                      Role:
-                    </Text>
-                    <Chip 
-                      mode="flat"
-                      style={{ backgroundColor: paperTheme.colors.primaryContainer }}
-                      textStyle={{ color: paperTheme.colors.onPrimaryContainer }}
-                    >
+                <View style={styles.infoRow}>
+                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                    Role:
+                  </Text>
+                  <View style={[styles.chip, { backgroundColor: Colors.primary + '20' }]}>
+                    <Text style={[styles.chipText, { color: Colors.primary }]}>
                       {userProfile.role}
-                    </Chip>
+                    </Text>
                   </View>
-                </Card.Content>
-              </Card>
+                </View>
+              </View>
             </Animated.View>
           </View>
         )}
@@ -308,24 +285,20 @@ function Profile() {
         {/* Action Buttons */}
         <Animated.View entering={FadeInUp.delay(500)} style={styles.actionSection}>
           <Button
-            mode="contained"
+            variant="primary"
             onPress={handleEditProfile}
             style={styles.editButton}
-            contentStyle={styles.buttonContent}
-            icon="account-edit"
           >
             Edit Profil
           </Button>
 
           <Button
-            mode="outlined"
+            variant="outline"
             onPress={handleLogout}
             disabled={loggingOut}
             loading={loggingOut}
-            style={[styles.logoutButton, { borderColor: paperTheme.colors.error }]}
-            contentStyle={styles.buttonContent}
-            labelStyle={{ color: paperTheme.colors.error }}
-            icon="logout"
+            style={[styles.logoutButton, { borderColor: Colors.error }]}
+            textStyle={{ color: Colors.error }}
           >
             {loggingOut ? "Sedang Keluar..." : "Keluar"}
           </Button>
@@ -343,16 +316,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 20,
     alignItems: 'center',
+    backgroundColor: Colors.surface,
   },
   headerTitle: {
+    fontSize: 20,
     fontWeight: '600',
     marginBottom: 4,
+    color: Colors.text,
+  },
+  headerSubtitle: {
+    fontSize: 14,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: Colors.text,
+    marginTop: 16,
   },
   scrollView: {
     flex: 1,
@@ -363,6 +347,8 @@ const styles = StyleSheet.create({
   profileCard: {
     marginBottom: 24,
     borderRadius: 20,
+    backgroundColor: Colors.surface,
+    padding: 20,
   },
   profileContent: {
     alignItems: 'center',
@@ -375,14 +361,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileName: {
+    fontSize: 20,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignSelf: 'center',
+    marginTop: 8,
+    gap: 4,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
   infoSection: {
     gap: 16,
   },
   infoCard: {
     borderRadius: 16,
+    backgroundColor: Colors.surface,
+    padding: 20,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -390,8 +404,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     gap: 12,
   },
+  cardIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   cardTitle: {
+    fontSize: 18,
     fontWeight: '600',
+    color: Colors.text,
   },
   infoRow: {
     flexDirection: 'row',
@@ -399,12 +422,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 4,
   },
+  infoLabel: {
+    fontSize: 14,
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
+  statusIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   divider: {
+    height: 1,
+    backgroundColor: Colors.border,
     marginVertical: 12,
   },
   actionSection: {
@@ -416,9 +459,6 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     borderRadius: 28,
-  },
-  buttonContent: {
-    paddingVertical: 8,
   },
 });
 

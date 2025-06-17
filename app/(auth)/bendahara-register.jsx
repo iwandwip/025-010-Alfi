@@ -1,17 +1,9 @@
 import React, { useState } from "react";
-import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert } from "react-native";
-import { 
-  Surface, 
-  Text, 
-  TextInput, 
-  Button, 
-  IconButton,
-  useTheme,
-  Avatar,
-  Card,
-  Divider,
-  ProgressBar
-} from "react-native-paper";
+import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert, Text, TouchableOpacity } from "react-native";
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors, Shadows } from '../../constants/theme';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,7 +24,7 @@ export default function BendaharaRegister() {
   const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const theme = useTheme();
+  // Using custom theme from constants
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -106,7 +98,7 @@ export default function BendaharaRegister() {
 
   return (
     <LinearGradient
-      colors={[theme.colors.primaryContainer, theme.colors.surface]}
+      colors={[Colors.primaryContainer, Colors.surface]}
       style={styles.container}
     >
       <KeyboardAvoidingView
@@ -119,9 +111,7 @@ export default function BendaharaRegister() {
         >
           {/* Header */}
           <Animated.View entering={FadeInDown.delay(100)}>
-            <IconButton
-              icon="arrow-left"
-              size={28}
+            <TouchableOpacity
               onPress={() => {
                 if (currentStep === 1) {
                   router.back();
@@ -130,20 +120,27 @@ export default function BendaharaRegister() {
                 }
               }}
               style={styles.backButton}
-              iconColor={theme.colors.primary}
-            />
+            >
+              <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
+            </TouchableOpacity>
           </Animated.View>
 
           {/* Progress */}
           <Animated.View entering={FadeInDown.delay(200)} style={styles.progressSection}>
-            <Text variant="labelLarge" style={{ color: theme.colors.onSurface, marginBottom: 8 }}>
+            <Text style="labelLarge" style={{ color: Colors.onView, marginBottom: 8 }}>
               Langkah {currentStep} dari 2
             </Text>
-            <ProgressBar 
-              progress={progress} 
-              color={theme.colors.primary}
-              style={styles.progressBar}
-            />
+            <View style={[styles.progressBar, { backgroundColor: Colors.outline }]}>
+              <View 
+                style={[
+                  styles.progressFill, 
+                  { 
+                    width: `${progress * 100}%`, 
+                    backgroundColor: Colors.primary 
+                  }
+                ]} 
+              />
+            </View>
           </Animated.View>
 
           {/* Logo Section */}
@@ -151,20 +148,15 @@ export default function BendaharaRegister() {
             entering={FadeInDown.delay(300)}
             style={styles.logoSection}
           >
-            <Surface style={[styles.logoContainer, { backgroundColor: theme.colors.primary }]} elevation={5}>
-              <Avatar.Icon 
-                size={80} 
-                icon="account-plus" 
-                style={{ backgroundColor: 'transparent' }}
-                color={theme.colors.onPrimary}
-              />
-            </Surface>
+            <View style={[styles.logoContainer, { backgroundColor: Colors.primary }, Shadows.md]}>
+              <MaterialIcons name="person-add" size={80} color={Colors.onPrimary} />
+            </View>
             
-            <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+            <Text style="headlineMedium" style={[styles.title, { color: Colors.onView }]}>
               Daftar Bendahara
             </Text>
             
-            <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+            <Text style="bodyLarge" style={[styles.subtitle, { color: Colors.onViewVariant }]}>
               Buat akun untuk mengelola jimpitan warga
             </Text>
           </Animated.View>
@@ -172,41 +164,36 @@ export default function BendaharaRegister() {
           {/* Step 1: Account Info */}
           {currentStep === 1 && (
             <Animated.View entering={SlideInRight.springify()}>
-              <Card style={styles.formCard} mode="elevated">
-                <Card.Content>
+              <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
+                <View style={{ padding: 20 }}>
                   <View style={styles.stepHeader}>
-                    <Avatar.Icon 
-                      size={40} 
-                      icon="email" 
-                      style={{ backgroundColor: theme.colors.primaryContainer }}
-                      color={theme.colors.onPrimaryContainer}
-                    />
-                    <Text variant="titleLarge" style={styles.stepTitle}>
+                    <View style={[styles.stepIcon, { backgroundColor: Colors.primaryContainer }]}>
+                      <MaterialIcons name="email" size={24} color={Colors.onPrimaryContainer} />
+                    </View>
+                    <Text style="titleLarge" style={styles.stepTitle}>
                       Informasi Akun
                     </Text>
                   </View>
 
-                  <TextInput
+                  <Input
                     label="Email Bendahara"
                     value={formData.email}
                     onChangeText={(value) => updateForm("email", value)}
-                    mode="outlined"
-                    keyboardType="email-address"
+                                        keyboardType="email-address"
                     autoCapitalize="none"
-                    left={<TextInput.Icon icon="email-outline" />}
+                    left={<Input.Icon icon="email-outline" />}
                     style={styles.input}
                     outlineStyle={{ borderRadius: 16 }}
                   />
 
-                  <TextInput
+                  <Input
                     label="Password"
                     value={formData.password}
                     onChangeText={(value) => updateForm("password", value)}
-                    mode="outlined"
-                    secureTextEntry={!showPassword}
-                    left={<TextInput.Icon icon="lock-outline" />}
+                                        secureTextEntry={!showPassword}
+                    left={<Input.Icon icon="lock-outline" />}
                     right={
-                      <TextInput.Icon 
+                      <Input.Icon 
                         icon={showPassword ? "eye-off" : "eye"} 
                         onPress={() => setShowPassword(!showPassword)}
                       />
@@ -216,15 +203,14 @@ export default function BendaharaRegister() {
                     helperText="Minimal 6 karakter"
                   />
 
-                  <TextInput
+                  <Input
                     label="Konfirmasi Password"
                     value={formData.confirmPassword}
                     onChangeText={(value) => updateForm("confirmPassword", value)}
-                    mode="outlined"
-                    secureTextEntry={!showConfirmPassword}
-                    left={<TextInput.Icon icon="lock-check-outline" />}
+                                        secureTextEntry={!showConfirmPassword}
+                    left={<Input.Icon icon="lock-check-outline" />}
                     right={
-                      <TextInput.Icon 
+                      <Input.Icon 
                         icon={showConfirmPassword ? "eye-off" : "eye"} 
                         onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                       />
@@ -234,7 +220,7 @@ export default function BendaharaRegister() {
                   />
 
                   <Button
-                    mode="contained"
+                    variant="primary"
                     onPress={handleNext}
                     style={styles.nextButton}
                     contentStyle={styles.buttonContent}
@@ -242,51 +228,46 @@ export default function BendaharaRegister() {
                   >
                     Lanjutkan
                   </Button>
-                </Card.Content>
-              </Card>
+                </View>
+              </View>
             </Animated.View>
           )}
 
           {/* Step 2: Personal Info */}
           {currentStep === 2 && (
             <Animated.View entering={SlideInRight.springify()}>
-              <Card style={styles.formCard} mode="elevated">
-                <Card.Content>
+              <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
+                <View style={{ padding: 20 }}>
                   <View style={styles.stepHeader}>
-                    <Avatar.Icon 
-                      size={40} 
-                      icon="account" 
-                      style={{ backgroundColor: theme.colors.secondaryContainer }}
-                      color={theme.colors.onSecondaryContainer}
-                    />
-                    <Text variant="titleLarge" style={styles.stepTitle}>
+                    <View style={[styles.stepIcon, { backgroundColor: Colors.secondaryContainer }]}>
+                      <MaterialIcons name="person" size={24} color={Colors.onSecondaryContainer} />
+                    </View>
+                    <Text style="titleLarge" style={styles.stepTitle}>
                       Informasi Pribadi
                     </Text>
                   </View>
 
-                  <TextInput
+                  <Input
                     label="Nama Lengkap"
                     value={formData.nama}
                     onChangeText={(value) => updateForm("nama", value)}
-                    mode="outlined"
-                    left={<TextInput.Icon icon="account-outline" />}
+                                        left={<Input.Icon icon="account-outline" />}
                     style={styles.input}
                     outlineStyle={{ borderRadius: 16 }}
                   />
 
-                  <TextInput
+                  <Input
                     label="Nomor HP"
                     value={formData.noHp}
                     onChangeText={(value) => updateForm("noHp", value)}
-                    mode="outlined"
-                    keyboardType="phone-pad"
-                    left={<TextInput.Icon icon="phone-outline" />}
+                                        keyboardType="phone-pad"
+                    left={<Input.Icon icon="phone-outline" />}
                     style={styles.input}
                     outlineStyle={{ borderRadius: 16 }}
                   />
 
                   <Button
-                    mode="contained"
+                    variant="primary"
                     onPress={handleRegister}
                     loading={loading}
                     disabled={loading}
@@ -296,8 +277,8 @@ export default function BendaharaRegister() {
                   >
                     {loading ? "Membuat Akun..." : "Daftar Sekarang"}
                   </Button>
-                </Card.Content>
-              </Card>
+                </View>
+              </View>
             </Animated.View>
           )}
 
@@ -306,14 +287,14 @@ export default function BendaharaRegister() {
             entering={FadeInUp.delay(400)}
             style={styles.loginSection}
           >
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
               Sudah punya akun bendahara?
             </Text>
             <Button
-              mode="text"
+              variant="outline"
               onPress={() => router.push("/(auth)/bendahara-login")}
               style={styles.loginButton}
-              labelStyle={{ color: theme.colors.primary }}
+              labelStyle={{ color: Colors.primary }}
             >
               Masuk Sekarang
             </Button>
@@ -343,6 +324,18 @@ const styles = StyleSheet.create({
   progressBar: {
     height: 8,
     borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  stepIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logoSection: {
     alignItems: 'center',

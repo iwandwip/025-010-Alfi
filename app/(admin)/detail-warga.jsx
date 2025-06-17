@@ -4,19 +4,13 @@ import {
   Alert,
   ScrollView,
   View,
-} from "react-native";
-import {
-  Surface,
   Text,
-  Card,
-  Avatar,
-  Chip,
-  IconButton,
+  TouchableOpacity,
   ActivityIndicator,
-  useTheme,
-  Button,
-  Divider
-} from "react-native-paper";
+} from "react-native";
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors, Shadows } from '../../constants/theme';
+import Button from '../../components/ui/Button';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -43,7 +37,6 @@ export default function DetailWarga() {
   const [pairingLoading, setPairingLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const paperTheme = useTheme();
 
   const loadWargaData = async () => {
     setLoading(true);

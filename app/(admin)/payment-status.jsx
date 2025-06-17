@@ -5,19 +5,11 @@ import {
   FlatList,
   RefreshControl,
   AppState,
-} from "react-native";
-import {
-  Surface,
   Text,
-  Card,
-  Avatar,
-  Chip,
-  IconButton,
+  TouchableOpacity,
   ActivityIndicator,
-  useTheme,
-  Searchbar,
-  Divider
-} from "react-native-paper";
+  TextInput,
+} from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -29,12 +21,14 @@ import { formatDate } from "../../utils/dateUtils";
 import { paymentStatusManager } from "../../services/paymentStatusManager";
 import { getAllUsersPaymentStatus } from "../../services/adminPaymentService";
 import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors, Shadows } from '../../constants/theme';
 
 function PaymentStatus() {
   const { theme, loading: settingsLoading } = useSettings();
   const { showUpdateNotification, showErrorNotification } = useNotification();
   const colors = getColors(theme);
-  const paperTheme = useTheme();
+  // Using custom theme from constants
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [users, setUsers] = useState([]);
@@ -172,85 +166,86 @@ function PaymentStatus() {
   const renderUserItem = useCallback(
     ({ item: user, index }) => (
       <Animated.View entering={SlideInRight.delay(index * 100)}>
-        <Card 
-          style={styles.userCard} 
-          mode="outlined" 
+        <TouchableOpacity 
+          style={[styles.userCard, { backgroundColor: Colors.surface }, Shadows.sm]} 
           onPress={() => handleUserPress(user)}
         >
-          <Card.Content style={styles.cardContent}>
+          <View style={styles.cardContent}>
             <View style={styles.userHeader}>
               <View style={styles.avatarSection}>
-                <Avatar.Text 
-                  size={48} 
-                  label={user.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
-                  style={{ backgroundColor: paperTheme.colors.primaryContainer }}
-                  color={paperTheme.colors.onPrimaryContainer}
-                />
+                <View style={[styles.avatarCircle, { backgroundColor: Colors.primaryContainer }]}>
+                  <Text style={[styles.avatarText, { color: Colors.onPrimaryContainer }]}>
+                    {user.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
+                  </Text>
+                </View>
               </View>
               
               <View style={styles.userInfo}>
-                <Text variant="titleMedium" style={[styles.userName, { fontWeight: '600', marginBottom: 4 }]}>
+                <Text style="titleMedium" style={[styles.userName, { fontWeight: '600', marginBottom: 4 }]}>
                   {user.namaWarga || "Nama Warga"}
                 </Text>
-                <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant, fontStyle: 'italic' }}>
+                <Text style="bodySmall" style={{ color: Colors.onViewVariant, fontStyle: 'italic' }}>
                   {user.email}
                 </Text>
-                <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
                   Progress: {user.paymentSummary.progressPercentage}%
                 </Text>
               </View>
 
               <View style={styles.statusSection}>
-                <Chip 
-                  icon={user.paymentSummary.progressPercentage === 100 ? "check-circle" : user.paymentSummary.belumLunas > 0 ? "clock-outline" : user.paymentSummary.progressPercentage >= 70 ? "alert-circle" : "close-circle"}
-                  mode="flat"
-                  style={{ 
-                    backgroundColor: user.paymentSummary.progressPercentage === 100 ? paperTheme.colors.successContainer : user.paymentSummary.belumLunas > 0 ? paperTheme.colors.tertiaryContainer : user.paymentSummary.progressPercentage >= 70 ? paperTheme.colors.warningContainer : paperTheme.colors.errorContainer,
+                <View style={[
+                  styles.statusChip,
+                  { 
+                    backgroundColor: user.paymentSummary.progressPercentage === 100 ? Colors.successContainer : user.paymentSummary.belumLunas > 0 ? Colors.tertiaryContainer : user.paymentSummary.progressPercentage >= 70 ? Colors.warningContainer : Colors.errorContainer,
                     marginBottom: 8
-                  }}
-                  textStyle={{ 
-                    color: user.paymentSummary.progressPercentage === 100 ? paperTheme.colors.onSuccessContainer : user.paymentSummary.belumLunas > 0 ? paperTheme.colors.onTertiaryContainer : user.paymentSummary.progressPercentage >= 70 ? paperTheme.colors.onWarningContainer : paperTheme.colors.onErrorContainer,
-                    fontSize: 11
-                  }}
-                >
-                  {getStatusText(user.paymentSummary)}
-                </Chip>
-                <IconButton 
-                  icon="chevron-right" 
-                  size={20}
-                  iconColor={paperTheme.colors.onSurfaceVariant}
-                />
+                  }
+                ]}>
+                  <MaterialIcons 
+                    name={user.paymentSummary.progressPercentage === 100 ? "check-circle" : user.paymentSummary.belumLunas > 0 ? "schedule" : user.paymentSummary.progressPercentage >= 70 ? "warning" : "cancel"}
+                    size={12}
+                    color={user.paymentSummary.progressPercentage === 100 ? Colors.onSuccessContainer : user.paymentSummary.belumLunas > 0 ? Colors.onTertiaryContainer : user.paymentSummary.progressPercentage >= 70 ? Colors.onWarningContainer : Colors.onErrorContainer}
+                  />
+                  <Text style={[
+                    styles.statusText,
+                    { 
+                      color: user.paymentSummary.progressPercentage === 100 ? Colors.onSuccessContainer : user.paymentSummary.belumLunas > 0 ? Colors.onTertiaryContainer : user.paymentSummary.progressPercentage >= 70 ? Colors.onWarningContainer : Colors.onErrorContainer
+                    }
+                  ]}>
+                    {getStatusText(user.paymentSummary)}
+                  </Text>
+                </View>
+                <MaterialIcons name="chevron-right" size={20} color={Colors.onViewVariant} />
               </View>
             </View>
 
-            <Divider style={{ marginVertical: 12 }} />
+            <View style={{ marginVertical: 12 }} />
 
             <View style={styles.paymentSummary}>
               <View style={styles.summaryRow}>
                 <View style={styles.summaryItem}>
-                  <Text variant="titleMedium" style={{ color: paperTheme.colors.success, fontWeight: 'bold' }}>
+                  <Text style="titleMedium" style={{ color: Colors.success, fontWeight: 'bold' }}>
                     {user.paymentSummary.lunas}
                   </Text>
-                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
                     Lunas
                   </Text>
                 </View>
 
                 <View style={styles.summaryItem}>
-                  <Text variant="titleMedium" style={{ color: paperTheme.colors.error, fontWeight: 'bold' }}>
+                  <Text style="titleMedium" style={{ color: Colors.error, fontWeight: 'bold' }}>
                     {user.paymentSummary.belumBayar}
                   </Text>
-                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
                     Belum
                   </Text>
                 </View>
 
                 {user.paymentSummary.belumLunas > 0 && (
                   <View style={styles.summaryItem}>
-                    <Text variant="titleMedium" style={{ color: paperTheme.colors.tertiary, fontWeight: 'bold' }}>
+                    <Text style="titleMedium" style={{ color: Colors.tertiary, fontWeight: 'bold' }}>
                       {user.paymentSummary.belumLunas}
                     </Text>
-                    <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
                       Parsial
                     </Text>
                   </View>
@@ -258,20 +253,20 @@ function PaymentStatus() {
 
                 {user.paymentSummary.terlambat > 0 && (
                   <View style={styles.summaryItem}>
-                    <Text variant="titleMedium" style={{ color: paperTheme.colors.warning, fontWeight: 'bold' }}>
+                    <Text style="titleMedium" style={{ color: Colors.warning, fontWeight: 'bold' }}>
                       {user.paymentSummary.terlambat}
                     </Text>
-                    <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
                       Terlambat
                     </Text>
                   </View>
                 )}
 
                 <View style={styles.summaryItem}>
-                  <Text variant="titleMedium" style={{ color: paperTheme.colors.onSurface, fontWeight: 'bold' }}>
+                  <Text style="titleMedium" style={{ color: Colors.onView, fontWeight: 'bold' }}>
                     {user.paymentSummary.total}
                   </Text>
-                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
                     Total
                   </Text>
                 </View>
@@ -279,30 +274,30 @@ function PaymentStatus() {
 
               <View style={styles.amountInfo}>
                 <View style={styles.amountRow}>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
                     Sudah Dibayar:
                   </Text>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.success, fontWeight: '600' }}>
+                  <Text style="bodyMedium" style={{ color: Colors.success, fontWeight: '600' }}>
                     {formatCurrency(user.paymentSummary.paidAmount)}
                   </Text>
                 </View>
 
                 {user.paymentSummary.partialAmount > 0 && (
                   <View style={styles.amountRow}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
                       Terbayar Parsial:
                     </Text>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.tertiary, fontWeight: '600' }}>
+                    <Text style="bodyMedium" style={{ color: Colors.tertiary, fontWeight: '600' }}>
                       {formatCurrency(user.paymentSummary.partialAmount)}
                     </Text>
                   </View>
                 )}
 
                 <View style={styles.amountRow}>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                  <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
                     Belum Dibayar:
                   </Text>
-                  <Text variant="bodyMedium" style={{ color: paperTheme.colors.error, fontWeight: '600' }}>
+                  <Text style="bodyMedium" style={{ color: Colors.error, fontWeight: '600' }}>
                     {formatCurrency(user.paymentSummary.unpaidAmount)}
                   </Text>
                 </View>
@@ -310,15 +305,15 @@ function PaymentStatus() {
 
               {user.paymentSummary.lastPaymentDate && (
                 <View style={styles.lastPayment}>
-                  <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant, fontStyle: 'italic' }}>
+                  <Text style="bodySmall" style={{ color: Colors.onViewVariant, fontStyle: 'italic' }}>
                     Terakhir bayar: {formatDate(user.paymentSummary.lastPaymentDate)}
                   </Text>
                 </View>
               )}
             </View>
 
-          </Card.Content>
-        </Card>
+          </View>
+        </TouchableOpacity>
       </Animated.View>
     ),
     [
@@ -334,30 +329,31 @@ function PaymentStatus() {
   const renderEmptyState = useCallback(
     () => (
       <Animated.View entering={FadeInDown.delay(200)} style={styles.emptyContainer}>
-        <Avatar.Icon 
-          size={80} 
-          icon={timeline ? "account-off" : "calendar-blank"} 
-          style={{ backgroundColor: paperTheme.colors.surfaceVariant }}
-          color={paperTheme.colors.onSurfaceVariant}
-        />
-        <Text variant="headlineSmall" style={[styles.emptyText, { color: paperTheme.colors.onSurfaceVariant, marginTop: 16, marginBottom: 8, fontWeight: '600' }]}>
+        <View style={[styles.emptyIcon, { backgroundColor: Colors.surfaceVariant }]}>
+          <MaterialIcons 
+            name={timeline ? "person-off" : "event"} 
+            size={80} 
+            color={Colors.onViewVariant} 
+          />
+        </View>
+        <Text style="headlineSmall" style={[styles.emptyText, { color: Colors.onViewVariant, marginTop: 16, marginBottom: 8, fontWeight: '600' }]}>
           {timeline ? "Belum ada data warga" : "Belum ada timeline aktif"}
         </Text>
-        <Text variant="bodyMedium" style={[styles.emptySubtext, { color: paperTheme.colors.onSurfaceVariant, textAlign: 'center' }]}>
+        <Text style="bodyMedium" style={[styles.emptySubtext, { color: Colors.onViewVariant, textAlign: 'center' }]}>
           {timeline
             ? "Data warga akan muncul setelah ada yang mendaftar"
             : "Buat timeline terlebih dahulu"}
         </Text>
       </Animated.View>
     ),
-    [paperTheme, timeline]
+    [timeline]
   );
 
   const renderLoadingState = useCallback(
     () => (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" animating />
-        <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+        <Text style="bodyLarge" style={{ marginTop: 16 }}>
           Memuat data setoran warga...
         </Text>
       </View>
@@ -370,20 +366,21 @@ function PaymentStatus() {
   if (settingsLoading || loading) {
     return (
       <LinearGradient
-        colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+        colors={[Colors.primaryContainer, Colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
-        <Surface style={styles.header} elevation={2}>
-          <IconButton
-            icon="arrow-left"
+        <View style={[styles.header, Shadows.md, { backgroundColor: Colors.surface }]}>
+          <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
-          />
-          <Text variant="headlineMedium" style={styles.headerTitle}>
+          >
+            <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+          </TouchableOpacity>
+          <Text style="headlineMedium" style={styles.headerTitle}>
             Status Pembayaran Warga
           </Text>
           <View style={styles.placeholder} />
-        </Surface>
+        </View>
         {renderLoadingState()}
       </LinearGradient>
     );
@@ -391,56 +388,53 @@ function PaymentStatus() {
 
   return (
     <LinearGradient
-      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      colors={[Colors.primaryContainer, Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <Surface style={styles.header} elevation={2}>
-        <IconButton
+      <View style={styles.header} ...Shadows.md, //elevation=2}>
+        <TouchableOpacity
           icon="arrow-left"
           onPress={() => router.back()}
           style={styles.backButton}
         />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
+        <Text style="headlineMedium" style={styles.headerTitle}>
           Status Pembayaran Warga
         </Text>
         <View style={styles.placeholder} />
-      </Surface>
+      </View>
 
       <View style={styles.content}>
         {/* Summary Card */}
         {timeline && (
           <Animated.View entering={FadeInDown.delay(100)}>
-            <Card style={styles.summaryCard} mode="elevated">
-              <Card.Content>
+            <View style={[styles.summaryCard, Shadows.md, { backgroundColor: Colors.surface }]}>
+              <View style={{ padding: 20 }}>
                 <View style={styles.summaryHeader}>
-                  <Avatar.Icon 
-                    size={48} 
-                    icon="chart-line" 
-                    style={{ backgroundColor: paperTheme.colors.primary }}
-                    color={paperTheme.colors.onPrimary}
-                  />
+                  <View style={[styles.summaryIcon, { backgroundColor: Colors.primary }]}>
+                    <MaterialIcons name="show-chart" size={32} color={Colors.onPrimary} />
+                  </View>
                   <View style={styles.summaryInfo}>
-                    <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
+                    <Text style="titleLarge" style={{ fontWeight: 'bold' }}>
                       {filteredUsers.length}
                     </Text>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
                       Total Warga
                     </Text>
                   </View>
                   <View style={styles.summaryInfo}>
-                    <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                    <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
                       Timeline: {timeline.name}
                     </Text>
                   </View>
                 </View>
-              </Card.Content>
-            </Card>
+              </View>
+            </View>
           </Animated.View>
         )}
 
         {timeline && (
           <View style={styles.searchContainer}>
-            <Searchbar
+            <TextInput
               placeholder="Cari nama warga atau email..."
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -461,8 +455,8 @@ function PaymentStatus() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={[paperTheme.colors.primary || '#F50057']}
-                tintColor={paperTheme.colors.primary || '#F50057'}
+                colors={[Colors.primary || '#F50057']}
+                tintColor={Colors.primary || '#F50057'}
               />
             }
           />
@@ -587,6 +581,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
+  },
+  avatarCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  statusChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  statusText: {
+    fontSize: 11,
+    fontWeight: '500',
+  },
+  emptyIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  summaryIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

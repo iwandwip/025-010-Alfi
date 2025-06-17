@@ -7,7 +7,6 @@ import { getAllWarga } from "../../services/userService";
 import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
-import NBCard from '../../components/ui/NBCard';
 
 export default function DaftarWarga() {
   const [wargaList, setWargaList] = useState([]);

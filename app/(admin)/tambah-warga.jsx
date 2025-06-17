@@ -6,17 +6,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from "react-native";
-import {
-  Surface,
   Text,
-  Card,
-  Avatar,
-  IconButton,
+  TouchableOpacity,
   ActivityIndicator,
-  useTheme,
-  Divider
-} from "react-native-paper";
+} from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,6 +17,8 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
 import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors, Shadows } from '../../constants/theme';
 
 export default function TambahWarga() {
   const [formData, setFormData] = useState({
@@ -36,7 +31,7 @@ export default function TambahWarga() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const paperTheme = useTheme();
+  // Using custom theme from constants
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -123,16 +118,17 @@ export default function TambahWarga() {
 
   return (
     <LinearGradient
-      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      colors={[Colors.primaryContainer, Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <Surface style={styles.header} elevation={2}>
-        <IconButton
-          icon="arrow-left"
+      <View style={[styles.header, Shadows.md]}>
+        <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
-        />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
+        >
+          <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
           Tambah Data Warga
         </Text>
         <View style={styles.placeholder} />
@@ -154,34 +150,31 @@ export default function TambahWarga() {
           <View style={styles.content}>
             {/* Header Card */}
             <Animated.View entering={FadeInDown.delay(100)}>
-              <Card style={styles.headerCard} mode="elevated">
-                <Card.Content>
+              <View style={[styles.headerCard, Shadows.md]}>
+                <View style={{ padding: 20 }}>
                   <View style={styles.headerCardContent}>
-                    <Avatar.Icon 
-                      size={48} 
-                      icon="account-plus" 
-                      style={{ backgroundColor: paperTheme.colors.primary }}
-                      color={paperTheme.colors.onPrimary}
-                    />
+                    <View style={[styles.headerIcon, { backgroundColor: Colors.primary }]}>
+                      <MaterialIcons name="person-add" size={32} color={Colors.onPrimary} />
+                    </View>
                     <View style={styles.headerCardInfo}>
-                      <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
+                      <Text style={[styles.headerCardTitle, { fontWeight: 'bold' }]}>
                         Form Data Warga
                       </Text>
-                      <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
+                      <Text style={[styles.headerCardSubtitle, { color: Colors.onSurfaceVariant }]}>
                         Tambah warga baru ke sistem
                       </Text>
                     </View>
                   </View>
-                </Card.Content>
-              </Card>
+                </View>
+              </View>
             </Animated.View>
 
             <Animated.View entering={SlideInUp.delay(200)}>
-              <Card style={styles.formCard} mode="outlined">
-                <Card.Content>
+              <View style={[styles.formCard, { borderWidth: 1, borderColor: Colors.outline }]}>
+                <View style={{ padding: 20 }}>
                   <View style={styles.section}>
-                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: paperTheme.colors.primary }]}>Data Warga</Text>
-                    <Divider style={{ marginBottom: 16 }} />
+                    <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Warga</Text>
+                    <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
 
                     <Input
                       label="Nama Warga"
@@ -199,20 +192,20 @@ export default function TambahWarga() {
                       autoCapitalize="words"
                     />
 
-                    <Card style={[styles.infoCard, { backgroundColor: paperTheme.colors.primaryContainer }]} mode="contained">
-                      <Card.Content style={{ paddingVertical: 12 }}>
-                        <Text variant="bodySmall" style={{ color: paperTheme.colors.onPrimaryContainer, lineHeight: 18 }}>
+                    <View style={[styles.infoCard, { backgroundColor: Colors.primaryContainer }]}>
+                      <View style={{ paddingVertical: 12 }}>
+                        <Text style={[styles.infoText, { color: Colors.onPrimaryContainer }]}>
                           ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu Daftar Warga
                         </Text>
-                      </Card.Content>
-                    </Card>
+                      </View>
+                    </View>
                   </View>
 
-                  <Divider style={{ marginVertical: 16 }} />
+                  <View style={[styles.divider, { backgroundColor: Colors.outline, marginVertical: 16 }]} />
 
                   <View style={styles.section}>
-                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: paperTheme.colors.primary }]}>Data Akun Warga</Text>
-                    <Divider style={{ marginBottom: 16 }} />
+                    <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Akun Warga</Text>
+                    <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
 
                     <Input
                       label="No HP Warga"
@@ -239,8 +232,8 @@ export default function TambahWarga() {
                       secureTextEntry
                     />
                   </View>
-                </Card.Content>
-              </Card>
+                </View>
+              </View>
             </Animated.View>
 
             <Animated.View entering={SlideInUp.delay(400)}>
@@ -268,14 +261,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
   },
   backButton: {
-    margin: 0,
+    padding: 8,
+    borderRadius: 20,
   },
   headerTitle: {
+    fontSize: 20,
     fontWeight: '600',
     flex: 1,
     textAlign: 'center',
+    color: Colors.text,
   },
   placeholder: {
     width: 48,
@@ -296,6 +293,8 @@ const styles = StyleSheet.create({
   headerCard: {
     borderRadius: 16,
     marginBottom: 16,
+    backgroundColor: Colors.surface,
+    padding: 20,
   },
   headerCardContent: {
     flexDirection: 'row',
@@ -305,20 +304,48 @@ const styles = StyleSheet.create({
   headerCardInfo: {
     flex: 1,
   },
+  headerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerCardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  headerCardSubtitle: {
+    fontSize: 14,
+  },
   formCard: {
     borderRadius: 16,
     marginBottom: 16,
+    backgroundColor: Colors.surface,
+    padding: 20,
   },
   section: {
     marginBottom: 16,
   },
   sectionTitle: {
+    fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginBottom: 16,
   },
   infoCard: {
     borderRadius: 12,
     marginTop: 8,
+    padding: 12,
+  },
+  infoText: {
+    fontSize: 12,
+    lineHeight: 18,
   },
   simpanButton: {
     marginTop: 8,

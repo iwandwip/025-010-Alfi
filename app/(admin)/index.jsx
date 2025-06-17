@@ -1,21 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet, RefreshControl, Alert, TouchableOpacity, Text as RNText } from "react-native";
-import {
-  Surface,
+import { 
+  View, 
+  ScrollView, 
+  StyleSheet, 
+  RefreshControl, 
+  Alert, 
+  TouchableOpacity, 
   Text,
-  Card,
-  Button,
-  IconButton,
-  Avatar,
-  Chip,
-  Divider,
-  Modal,
-  Portal,
-  TextInput,
   ActivityIndicator,
-  useTheme,
-  FAB
-} from "react-native-paper";
+  Modal
+} from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,14 +17,18 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
 import { signOutUser } from "../../services/authService";
 import { seederService } from "../../services/seederService";
-import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
+import { MaterialIcons } from "@expo/vector-icons";
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from "../../constants/theme";
+import NativeButton from "../../components/ui/NativeButton";
+import NativeCard from "../../components/ui/NativeCard";
+import NativeChip from "../../components/ui/NativeChip";
 
 function AdminHome() {
   const { currentUser, userProfile } = useAuth();
   const { showGeneralNotification } = useNotification();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const paperTheme = useTheme();
   const [loggingOut, setLoggingOut] = useState(false);
   const [seederLoading, setSeederLoading] = useState(false);
   const [seederModalVisible, setSeederModalVisible] = useState(false);
@@ -189,45 +187,25 @@ function AdminHome() {
     );
   };
 
-  const handleTambahWarga = () => {
-    router.push("/(admin)/tambah-warga");
-  };
-
-  const handleDaftarWarga = () => {
-    router.push("/(admin)/daftar-warga");
-  };
-
-  const handleTimelineManager = () => {
-    router.push("/(admin)/timeline-manager");
-  };
-
-  const handleCekPembayaran = () => {
-    router.push("/(admin)/payment-status");
-  };
-
   return (
     <LinearGradient
-      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      colors={[Colors.primaryLight + '20', Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <Surface style={styles.header} elevation={2}>
-        <Text variant="headlineMedium" style={styles.headerTitle}>
-          Dashboard Bendahara
-        </Text>
-        <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-          RT 01 RW 02 Sukajadi
-        </Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Dashboard Bendahara</Text>
+        <Text style={styles.headerSubtitle}>RT 01 RW 02 Sukajadi</Text>
         {userProfile && (
-          <Chip 
-            icon="account-tie" 
-            mode="flat"
-            style={{ backgroundColor: paperTheme.colors.successContainer, marginTop: 8 }}
-            textStyle={{ color: paperTheme.colors.onSuccessContainer }}
+          <NativeChip 
+            icon={<MaterialIcons name="person" size={16} color={Colors.success} />}
+            backgroundColor={Colors.success + '20'}
+            textColor={Colors.success}
+            style={{ marginTop: 8 }}
           >
-            {userProfile.nama}
-          </Chip>
+            {userProfile.nama || userProfile.namaWarga || 'Admin'}
+          </NativeChip>
         )}
-      </Surface>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
@@ -237,52 +215,49 @@ function AdminHome() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[paperTheme.colors.primary]}
-            tintColor={paperTheme.colors.primary}
+            colors={[Colors.primary]}
+            tintColor={Colors.primary}
             title="Tarik untuk memuat ulang..."
           />
         }
       >
-
         {/* Menu Grid */}
         <View style={styles.menuGrid}>
           {/* Row 1 */}
           <View style={styles.menuRow}>
             <Animated.View entering={FadeInDown.delay(100)} style={styles.gridItem}>
-              <TouchableOpacity onPress={handleTambahWarga} activeOpacity={0.7} style={styles.menuButton}>
-                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
-                  <Avatar.Icon 
-                    size={40} 
-                    icon="account-plus" 
-                    style={{ backgroundColor: paperTheme.colors.primary }}
-                    color={paperTheme.colors.onPrimary}
-                  />
-                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
-                    Tambah Data Warga
-                  </RNText>
-                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
-                    Daftarkan warga baru dan buat akun warga
-                  </RNText>
-                </View>
+              <TouchableOpacity 
+                onPress={() => router.push("/(admin)/tambah-warga")} 
+                activeOpacity={0.7} 
+                style={styles.menuButton}
+              >
+                <NativeCard style={styles.menuCard}>
+                  <NativeCard.Content style={styles.menuContent}>
+                    <MaterialIcons name="person-add" size={40} color={Colors.primary} />
+                    <Text style={styles.menuTitle}>Tambah Data Warga</Text>
+                    <Text style={styles.menuSubtitle}>
+                      Daftarkan warga baru dan buat akun warga
+                    </Text>
+                  </NativeCard.Content>
+                </NativeCard>
               </TouchableOpacity>
             </Animated.View>
 
             <Animated.View entering={FadeInDown.delay(150)} style={styles.gridItem}>
-              <TouchableOpacity onPress={handleDaftarWarga} activeOpacity={0.7} style={styles.menuButton}>
-                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
-                  <Avatar.Icon 
-                    size={40} 
-                    icon="account-group" 
-                    style={{ backgroundColor: paperTheme.colors.secondary }}
-                    color={paperTheme.colors.onSecondary}
-                  />
-                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
-                    Daftar Warga
-                  </RNText>
-                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
-                    Lihat dan kelola data warga yang terdaftar
-                  </RNText>
-                </View>
+              <TouchableOpacity 
+                onPress={() => router.push("/(admin)/daftar-warga")} 
+                activeOpacity={0.7} 
+                style={styles.menuButton}
+              >
+                <NativeCard style={styles.menuCard}>
+                  <NativeCard.Content style={styles.menuContent}>
+                    <MaterialIcons name="group" size={40} color={Colors.secondary} />
+                    <Text style={styles.menuTitle}>Daftar Warga</Text>
+                    <Text style={styles.menuSubtitle}>
+                      Lihat dan kelola data warga yang terdaftar
+                    </Text>
+                  </NativeCard.Content>
+                </NativeCard>
               </TouchableOpacity>
             </Animated.View>
           </View>
@@ -290,157 +265,131 @@ function AdminHome() {
           {/* Row 2 */}
           <View style={styles.menuRow}>
             <Animated.View entering={FadeInDown.delay(200)} style={styles.gridItem}>
-              <TouchableOpacity onPress={handleTimelineManager} activeOpacity={0.7} style={styles.menuButton}>
-                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
-                  <Avatar.Icon 
-                    size={40} 
-                    icon="calendar-clock" 
-                    style={{ backgroundColor: paperTheme.colors.tertiary }}
-                    color={paperTheme.colors.onTertiary}
-                  />
-                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
-                    Timeline Manager
-                  </RNText>
-                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
-                    Kelola timeline dan setoran jimpitan
-                  </RNText>
-                </View>
+              <TouchableOpacity 
+                onPress={() => router.push("/(admin)/timeline-manager")} 
+                activeOpacity={0.7} 
+                style={styles.menuButton}
+              >
+                <NativeCard style={styles.menuCard}>
+                  <NativeCard.Content style={styles.menuContent}>
+                    <MaterialIcons name="schedule" size={40} color={Colors.warning} />
+                    <Text style={styles.menuTitle}>Timeline Manager</Text>
+                    <Text style={styles.menuSubtitle}>
+                      Kelola timeline dan setoran jimpitan
+                    </Text>
+                  </NativeCard.Content>
+                </NativeCard>
               </TouchableOpacity>
             </Animated.View>
 
             <Animated.View entering={FadeInDown.delay(250)} style={styles.gridItem}>
-              <TouchableOpacity onPress={handleCekPembayaran} activeOpacity={0.7} style={styles.menuButton}>
-                <View style={[styles.menuCard, { backgroundColor: 'white' }]}>
-                  <Avatar.Icon 
-                    size={40} 
-                    icon="wallet" 
-                    style={{ backgroundColor: paperTheme.colors.onSurfaceVariant }}
-                    color={paperTheme.colors.surfaceVariant}
-                  />
-                  <RNText style={[styles.menuTitle, { color: '#000' }]}>
-                    Cek Status Setoran
-                  </RNText>
-                  <RNText style={[styles.menuSubtitle, { color: '#666' }]}>
-                    Lihat status setoran jimpitan semua warga
-                  </RNText>
-                </View>
+              <TouchableOpacity 
+                onPress={() => router.push("/(admin)/payment-status")} 
+                activeOpacity={0.7} 
+                style={styles.menuButton}
+              >
+                <NativeCard style={styles.menuCard}>
+                  <NativeCard.Content style={styles.menuContent}>
+                    <MaterialIcons name="wallet" size={40} color={Colors.success} />
+                    <Text style={styles.menuTitle}>Cek Status Setoran</Text>
+                    <Text style={styles.menuSubtitle}>
+                      Lihat status setoran jimpitan semua warga
+                    </Text>
+                  </NativeCard.Content>
+                </NativeCard>
               </TouchableOpacity>
             </Animated.View>
           </View>
 
           {/* Row 3 - Seeder Card (Full Width) */}
           <Animated.View entering={FadeInDown.delay(300)} style={styles.fullWidthItem}>
-            <TouchableOpacity onPress={seederLoading ? undefined : handleSeeder} activeOpacity={0.7} disabled={seederLoading}>
-              <View style={[styles.seederCard, { backgroundColor: paperTheme.colors.errorContainer }]}>
-                <View style={styles.seederContent}>
+            <TouchableOpacity 
+              onPress={seederLoading ? undefined : handleSeeder} 
+              activeOpacity={0.7} 
+              disabled={seederLoading}
+            >
+              <NativeCard style={[styles.seederCard, { backgroundColor: Colors.error + '10' }]}>
+                <NativeCard.Content style={styles.seederContent}>
                   <View style={styles.seederIconSection}>
                     {seederLoading ? (
-                      <ActivityIndicator size={40} animating color={paperTheme.colors.onErrorContainer} />
+                      <ActivityIndicator size={40} color={Colors.error} />
                     ) : (
-                      <Avatar.Icon 
-                        size={40} 
-                        icon="database-plus" 
-                        style={{ backgroundColor: paperTheme.colors.error }}
-                        color={paperTheme.colors.onError}
-                      />
+                      <MaterialIcons name="storage" size={40} color={Colors.error} />
                     )}
                   </View>
                   <View style={styles.seederTextSection}>
-                    <RNText style={[styles.seederTitle, { color: paperTheme.colors.onErrorContainer }]}>
+                    <Text style={[styles.seederTitle, { color: Colors.error }]}>
                       {seederLoading ? "Generating Data..." : "Generate Data Warga"}
-                    </RNText>
-                    <RNText style={[styles.seederSubtitle, { color: paperTheme.colors.onErrorContainer }]}>
+                    </Text>
+                    <Text style={[styles.seederSubtitle, { color: Colors.textSecondary }]}>
                       {seederLoading
                         ? "Sedang membuat akun warga dengan data sequential..."
                         : "Buat akun warga dengan email sequential untuk testing"}
-                    </RNText>
+                    </Text>
                     <View style={styles.seederStats}>
-                      <RNText style={[styles.seederStatsText, { color: paperTheme.colors.onErrorContainer }]}>
+                      <Text style={[styles.seederStatsText, { color: Colors.textSecondary }]}>
                         Total: {seederStats.total} | Generated: {seederStats.seederUsers}
-                      </RNText>
-                      <RNText style={[styles.seederNextText, { color: paperTheme.colors.success }]}>
+                      </Text>
+                      <Text style={[styles.seederNextText, { color: Colors.success }]}>
                         Next: user{seederStats.nextUserNumber}@gmail.com
-                      </RNText>
+                      </Text>
                     </View>
                   </View>
                   <View style={styles.seederIconEnd}>
-                    <Avatar.Icon 
+                    <MaterialIcons 
+                      name={seederLoading ? "hourglass-empty" : "chevron-right"} 
                       size={24} 
-                      icon={seederLoading ? "clock" : "chevron-right"}
-                      style={{ backgroundColor: 'transparent' }}
-                      color={paperTheme.colors.onErrorContainer}
+                      color={Colors.error}
                     />
                   </View>
-                </View>
-              </View>
+                </NativeCard.Content>
+              </NativeCard>
             </TouchableOpacity>
           </Animated.View>
         </View>
 
         {/* Logout Button */}
         <Animated.View entering={FadeInUp.delay(600)}>
-          <Button
-            mode="outlined"
+          <NativeButton
+            title={loggingOut ? "Sedang Keluar..." : "Keluar"}
             onPress={handleLogout}
             disabled={loggingOut}
             loading={loggingOut}
-            style={[styles.logoutButton, { borderColor: paperTheme.colors.error }]}
-            contentStyle={styles.buttonContent}
-            labelStyle={{ color: paperTheme.colors.error }}
-            icon="logout"
-          >
-            {loggingOut ? "Sedang Keluar..." : "Keluar"}
-          </Button>
+            variant="outlined"
+            style={[styles.logoutButton, { borderColor: Colors.error }]}
+            textStyle={{ color: Colors.error }}
+          />
         </Animated.View>
       </ScrollView>
 
       {/* Seeder Modal */}
-      <Portal>
-        <Modal 
-          visible={seederModalVisible} 
-          onDismiss={() => !seederLoading && setSeederModalVisible(false)}
-          contentContainerStyle={styles.modalContainer}
-        >
-          <View style={styles.modalInner}>
-            <View style={styles.modalHeader}>
-              <Avatar.Icon 
-                size={32} 
-                icon="database-plus" 
-                style={{ backgroundColor: paperTheme.colors.primaryContainer }}
-                color={paperTheme.colors.onPrimaryContainer}
-              />
-              <Text variant="titleLarge" style={styles.modalTitle}>Generate Data Warga</Text>
-              <IconButton
-                icon="close"
-                onPress={() => setSeederModalVisible(false)}
-                style={styles.closeButton}
-                size={20}
-              />
-            </View>
-            
-            <Divider />
-
-            <ScrollView style={styles.modalContentScrollable} showsVerticalScrollIndicator={false}>
+      <Modal 
+        visible={seederModalVisible} 
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => !seederLoading && setSeederModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <NativeCard style={styles.modalContainer}>
+            <NativeCard.Content>
+              <View style={styles.modalHeader}>
+                <MaterialIcons name="storage" size={32} color={Colors.primary} />
+                <Text style={styles.modalTitle}>Generate Data Warga</Text>
+                <TouchableOpacity
+                  onPress={() => setSeederModalVisible(false)}
+                  style={styles.closeButton}
+                >
+                  <MaterialIcons name="close" size={24} color={Colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+              
               <View style={styles.modalContent}>
-                <Text variant="bodyLarge" style={styles.inputLabel}>
-                  Jumlah Akun (1-10):
-                </Text>
-                <TextInput
-                  value={seederCount}
-                  onChangeText={setSeederCount}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  placeholder="Masukkan jumlah"
-                  style={styles.numberInput}
-                  maxLength={2}
-                  outlineStyle={{ borderRadius: 12 }}
-                />
+                <Text style={styles.inputLabel}>Jumlah Akun (1-10):</Text>
+                <Text style={styles.numberInput}>{seederCount}</Text>
 
-                <Card style={styles.previewCard} mode="outlined">
-                  <Card.Content style={styles.previewCardContent}>
-                    <Text variant="bodyMedium" style={styles.previewTitle}>
-                      📧 Preview Email:
-                    </Text>
+                <NativeCard mode="outlined" style={styles.previewCard}>
+                  <NativeCard.Content>
+                    <Text style={styles.previewTitle}>📧 Preview Email:</Text>
                     <ScrollView style={styles.previewScrollView} showsVerticalScrollIndicator={false}>
                       {(() => {
                         const count = parseInt(seederCount) || 0;
@@ -453,77 +402,67 @@ function AdminHome() {
                           }
                           return emails.map((email, index) => (
                             <View key={index} style={styles.emailRow}>
-                              <Avatar.Icon 
-                                size={16} 
-                                icon="account" 
-                                style={{ backgroundColor: paperTheme.colors.primaryContainer }}
-                                color={paperTheme.colors.onPrimaryContainer}
-                              />
-                              <Text variant="bodySmall" style={styles.previewEmail}>
-                                {email}
-                              </Text>
+                              <MaterialIcons name="person" size={16} color={Colors.primary} />
+                              <Text style={styles.previewEmail}>{email}</Text>
                             </View>
                           ));
                         }
                         return (
-                          <Text variant="bodySmall" style={{ color: paperTheme.colors.error, fontStyle: 'italic' }}>
+                          <Text style={{ color: Colors.error, fontStyle: 'italic' }}>
                             ⚠️ Jumlah harus 1-10
                           </Text>
                         );
                       })()}
                     </ScrollView>
-                  </Card.Content>
-                </Card>
+                  </NativeCard.Content>
+                </NativeCard>
 
-                <Card style={[styles.infoCard, { backgroundColor: paperTheme.colors.tertiaryContainer }]} mode="contained">
-                  <Card.Content style={{ paddingVertical: 12 }}>
-                    <Text variant="bodySmall" style={{ color: paperTheme.colors.onTertiaryContainer, lineHeight: 18 }}>
+                <NativeCard style={[styles.infoCard, { backgroundColor: Colors.info + '10' }]}>
+                  <NativeCard.Content style={{ paddingVertical: 12 }}>
+                    <Text style={{ color: Colors.info, lineHeight: 18 }}>
                       💡 Password untuk semua akun: <Text style={{ fontWeight: 'bold' }}>admin123</Text>
                     </Text>
-                  </Card.Content>
-                </Card>
+                  </NativeCard.Content>
+                </NativeCard>
               </View>
-            </ScrollView>
 
-            <View style={styles.modalActions}>
-              <Button
-                mode="outlined"
-                onPress={() => setSeederModalVisible(false)}
-                style={styles.modalButton}
-                icon="close"
-              >
-                Batal
-              </Button>
-              <Button
-                mode="contained"
-                onPress={handleSeederConfirm}
-                style={styles.modalButton}
-                icon="database-plus"
-              >
-                Generate
-              </Button>
-            </View>
+              <View style={styles.modalActions}>
+                <NativeButton
+                  title="Batal"
+                  onPress={() => setSeederModalVisible(false)}
+                  variant="outlined"
+                  style={styles.modalButton}
+                />
+                <NativeButton
+                  title="Generate"
+                  onPress={handleSeederConfirm}
+                  style={styles.modalButton}
+                />
+              </View>
+            </NativeCard.Content>
+          </NativeCard>
+        </View>
+      </Modal>
+
+      {/* Loading Modal */}
+      {seederLoading && (
+        <Modal transparent={true} visible={seederLoading}>
+          <View style={styles.loadingModalOverlay}>
+            <NativeCard style={styles.loadingCard}>
+              <NativeCard.Content style={styles.loadingContent}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={styles.loadingTitle}>Generating Data Warga</Text>
+                <Text style={styles.loadingSubtitle}>
+                  Membuat {seederCount} akun dengan email sequential...
+                </Text>
+                <Text style={styles.loadingNext}>
+                  Next: user{seederStats.nextUserNumber}@gmail.com
+                </Text>
+              </NativeCard.Content>
+            </NativeCard>
           </View>
         </Modal>
-
-        {/* Loading Modal */}
-        <Modal visible={seederLoading} dismissable={false} contentContainerStyle={styles.loadingModalContainer}>
-          <Card style={styles.loadingCard}>
-            <Card.Content style={styles.loadingContent}>
-              <ActivityIndicator size="large" animating />
-              <Text variant="titleMedium" style={styles.loadingTitle}>
-                Generating Data Warga
-              </Text>
-              <Text variant="bodyMedium" style={styles.loadingSubtitle}>
-                Membuat {seederCount} akun dengan email sequential...
-              </Text>
-              <Text variant="bodySmall" style={styles.loadingNext}>
-                Next: user{seederStats.nextUserNumber}@gmail.com
-              </Text>
-            </Card.Content>
-          </Card>
-        </Modal>
-      </Portal>
+      )}
     </LinearGradient>
   );
 }
@@ -533,27 +472,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
+    backgroundColor: Colors.surface,
+    ...Shadows.sm,
   },
   headerTitle: {
+    ...Typography.h3,
     fontWeight: '600',
     marginBottom: 4,
+  },
+  headerSubtitle: {
+    ...Typography.body2,
+    color: Colors.textSecondary,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
+    padding: Spacing.lg,
   },
   menuGrid: {
-    gap: 16,
-    marginBottom: 24,
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   menuRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing.sm,
   },
   gridItem: {
     flex: 1,
@@ -562,48 +508,37 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   menuButton: {
-    borderRadius: 16,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   menuCard: {
     aspectRatio: 1,
+  },
+  menuContent: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
-    borderRadius: 16,
+    flex: 1,
   },
   menuTitle: {
+    ...Typography.body2,
     fontWeight: 'bold',
-    fontSize: 12,
     textAlign: 'center',
     marginTop: 8,
     marginBottom: 4,
   },
   menuSubtitle: {
-    fontSize: 9,
+    ...Typography.caption,
     textAlign: 'center',
-    lineHeight: 11,
+    lineHeight: 16,
     opacity: 0.8,
   },
   seederCard: {
-    borderRadius: 16,
     marginTop: 8,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   seederContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    gap: 12,
+    gap: Spacing.sm,
   },
   seederIconSection: {
     alignItems: 'center',
@@ -613,12 +548,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   seederTitle: {
+    ...Typography.body2,
     fontWeight: 'bold',
-    fontSize: 14,
     marginBottom: 4,
   },
   seederSubtitle: {
-    fontSize: 11,
+    ...Typography.caption,
     marginBottom: 8,
     opacity: 0.8,
   },
@@ -626,80 +561,74 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   seederStatsText: {
-    fontSize: 10,
+    ...Typography.caption,
     fontWeight: 'bold',
   },
   seederNextText: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: 'bold',
-    fontFamily: 'Poppins-Regular',
   },
   seederIconEnd: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoutButton: {
-    borderRadius: 28,
-    marginTop: 16,
+    borderRadius: BorderRadius.xxl,
+    marginTop: Spacing.md,
   },
-  buttonContent: {
-    paddingVertical: 8,
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.md,
   },
   modalContainer: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    margin: 20,
     maxWidth: 400,
     maxHeight: '80%',
-    alignSelf: 'center',
-    overflow: 'hidden',
-  },
-  modalInner: {
-    flexDirection: 'column',
-  },
-  modalContentScrollable: {
-    flexGrow: 0,
-    flexShrink: 1,
+    width: '100%',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 16,
+    marginBottom: Spacing.md,
   },
   modalTitle: {
+    ...Typography.h4,
     fontWeight: '600',
-  },
-  closeButton: {
-    margin: 0,
-  },
-  modalContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 20,
-  },
-  inputLabel: {
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  numberInput: {
-    marginBottom: 16,
+    flex: 1,
     textAlign: 'center',
   },
-  previewCard: {
-    borderRadius: 12,
-    maxHeight: 120,
-    marginBottom: 8,
+  closeButton: {
+    padding: 4,
   },
-  previewCardContent: {
-    paddingBottom: 4,
+  modalContent: {
+    marginBottom: Spacing.md,
+  },
+  inputLabel: {
+    ...Typography.body2,
+    fontWeight: '600',
+    marginBottom: Spacing.sm,
+  },
+  numberInput: {
+    ...Typography.h4,
+    textAlign: 'center',
+    padding: Spacing.md,
+    backgroundColor: Colors.surfaceVariant,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.md,
+  },
+  previewCard: {
+    maxHeight: 120,
+    marginBottom: Spacing.sm,
   },
   previewScrollView: {
     maxHeight: 80,
     paddingVertical: 4,
   },
   previewTitle: {
+    ...Typography.body2,
     fontWeight: '600',
     marginBottom: 8,
   },
@@ -710,52 +639,47 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   previewEmail: {
-    fontFamily: 'Poppins-Regular',
-    fontSize: 11,
+    ...Typography.caption,
     flex: 1,
   },
   infoCard: {
-    borderRadius: 8,
-    marginTop: 12,
+    marginTop: Spacing.sm,
   },
   modalActions: {
     flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 16,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
-    backgroundColor: '#fafafa',
+    gap: Spacing.sm,
   },
   modalButton: {
     flex: 1,
-    borderRadius: 24,
   },
-  loadingModalContainer: {
-    margin: 20,
+  loadingModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
     alignItems: 'center',
+    padding: Spacing.md,
   },
   loadingCard: {
-    borderRadius: 20,
     minWidth: 280,
   },
   loadingContent: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical: Spacing.lg,
   },
   loadingTitle: {
+    ...Typography.h4,
     fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
     textAlign: 'center',
   },
   loadingSubtitle: {
+    ...Typography.body2,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   loadingNext: {
-    fontFamily: 'Poppins-Regular',
+    ...Typography.caption,
     textAlign: 'center',
     fontWeight: '600',
   },

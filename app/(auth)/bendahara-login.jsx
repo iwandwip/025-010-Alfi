@@ -1,18 +1,9 @@
 import React, { useState } from "react";
-import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert } from "react-native";
-import { 
-  Surface, 
-  Text, 
-  TextInput, 
-  Button, 
-  IconButton,
-  useTheme,
-  ActivityIndicator,
-  Avatar,
-  Chip,
-  Card,
-  Divider
-} from "react-native-paper";
+import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors, Shadows } from '../../constants/theme';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -26,7 +17,7 @@ export default function BendaharaLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const theme = useTheme();
+  // Using custom theme from constants
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -47,7 +38,7 @@ export default function BendaharaLogin() {
 
   return (
     <LinearGradient
-      colors={[theme.colors.primaryContainer, theme.colors.surface]}
+      colors={[Colors.primaryContainer, Colors.surface]}
       style={styles.container}
     >
       <KeyboardAvoidingView
@@ -60,13 +51,12 @@ export default function BendaharaLogin() {
         >
           {/* Header */}
           <Animated.View entering={FadeInDown.delay(100).springify()}>
-            <IconButton
-              icon="arrow-left"
-              size={28}
+            <TouchableOpacity
               onPress={() => router.back()}
               style={styles.backButton}
-              iconColor={theme.colors.primary}
-            />
+            >
+              <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
+            </TouchableOpacity>
           </Animated.View>
 
           {/* Logo Section */}
@@ -74,64 +64,55 @@ export default function BendaharaLogin() {
             entering={FadeInDown.delay(200).springify()}
             style={styles.logoSection}
           >
-            <Surface style={[styles.logoContainer, { backgroundColor: theme.colors.primary }]} elevation={5}>
-              <Avatar.Icon 
-                size={80} 
-                icon="account-tie" 
-                style={{ backgroundColor: 'transparent' }}
-                color={theme.colors.onPrimary}
-              />
-            </Surface>
+            <View style={[styles.logoContainer, { backgroundColor: Colors.primary }, Shadows.md]}>
+              <MaterialIcons name="business-center" size={80} color={Colors.onPrimary} />
+            </View>
             
-            <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onSurface }]}>
+            <Text style="headlineMedium" style={[styles.title, { color: Colors.onView }]}>
               Portal Bendahara
             </Text>
             
-            <Text variant="bodyLarge" style={[styles.subtitle, { color: theme.colors.onSurfaceVariant }]}>
+            <Text style="bodyLarge" style={[styles.subtitle, { color: Colors.onViewVariant }]}>
               Sistem Pengelolaan Jimpitan RT
             </Text>
 
             <View style={styles.chipContainer}>
-              <Chip 
-                icon="shield-check" 
-                mode="flat"
-                style={{ backgroundColor: theme.colors.tertiaryContainer }}
-                textStyle={{ color: theme.colors.onTertiaryContainer }}
-              >
-                Akses Khusus Bendahara
-              </Chip>
+              <View style={[styles.accessChip, { backgroundColor: Colors.tertiaryContainer }]}>
+                <MaterialIcons name="verified-user" size={16} color={Colors.onTertiaryContainer} />
+                <Text style={[styles.chipText, { color: Colors.onTertiaryContainer }]}>
+                  Akses Khusus Bendahara
+                </Text>
+              </View>
             </View>
           </Animated.View>
 
           {/* Login Form */}
           <Animated.View entering={FadeInUp.delay(300).springify()}>
-            <Card style={styles.formCard} mode="elevated">
-              <Card.Content>
-                <Text variant="titleLarge" style={styles.formTitle}>
+            <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
+              <View style={{ padding: 20 }}>
+                <Text style="titleLarge" style={styles.formTitle}>
                   Masuk ke Akun Anda
                 </Text>
 
-                <TextInput
+                <Input
                   label="Email Bendahara"
                   value={email}
                   onChangeText={setEmail}
-                  mode="outlined"
-                  keyboardType="email-address"
+                                    keyboardType="email-address"
                   autoCapitalize="none"
-                  left={<TextInput.Icon icon="email" />}
+                  left={<Input.Icon icon="email" />}
                   style={styles.input}
                   outlineStyle={{ borderRadius: 16 }}
                 />
 
-                <TextInput
+                <Input
                   label="Password"
                   value={password}
                   onChangeText={setPassword}
-                  mode="outlined"
-                  secureTextEntry={!showPassword}
-                  left={<TextInput.Icon icon="lock" />}
+                                    secureTextEntry={!showPassword}
+                  left={<Input.Icon icon="lock" />}
                   right={
-                    <TextInput.Icon 
+                    <Input.Icon 
                       icon={showPassword ? "eye-off" : "eye"} 
                       onPress={() => setShowPassword(!showPassword)}
                     />
@@ -141,7 +122,7 @@ export default function BendaharaLogin() {
                 />
 
                 <Button
-                  mode="contained"
+                  variant="primary"
                   onPress={handleLogin}
                   loading={loading}
                   disabled={loading}
@@ -153,30 +134,27 @@ export default function BendaharaLogin() {
                   {loading ? "Memproses..." : "Masuk"}
                 </Button>
 
-                <Divider style={styles.divider} />
+                <View style={styles.divider} />
 
                 <View style={styles.infoSection}>
-                  <Surface style={styles.infoCard} elevation={0}>
-                    <Avatar.Icon 
-                      size={40} 
-                      icon="information" 
-                      style={{ backgroundColor: theme.colors.infoContainer }}
-                      color={theme.colors.onInfoContainer}
-                    />
+                  <View style={[styles.infoCard, Shadows.md]}>
+                    <View style={[styles.infoIcon, { backgroundColor: Colors.infoContainer }]}>
+                      <MaterialIcons name="info" size={24} color={Colors.onInfoContainer} />
+                    </View>
                     <View style={styles.infoTextContainer}>
-                      <Text variant="labelLarge" style={{ color: theme.colors.onSurface }}>
+                      <Text style="labelLarge" style={{ color: Colors.onView }}>
                         Fitur Bendahara
                       </Text>
-                      <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant }}>
+                      <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
                         • Kelola data warga & RFID{'\n'}
                         • Catat setoran jimpitan{'\n'}
                         • Laporan keuangan RT
                       </Text>
                     </View>
-                  </Surface>
+                  </View>
                 </View>
-              </Card.Content>
-            </Card>
+              </View>
+            </View>
           </Animated.View>
 
           {/* Register Link */}
@@ -184,14 +162,14 @@ export default function BendaharaLogin() {
             entering={FadeInUp.delay(400).springify()}
             style={styles.registerSection}
           >
-            <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
               Belum punya akun bendahara?
             </Text>
             <Button
-              mode="text"
+              variant="outline"
               onPress={() => router.push("/(auth)/bendahara-register")}
               style={styles.registerButton}
-              labelStyle={{ color: theme.colors.primary }}
+              labelStyle={{ color: Colors.primary }}
             >
               Daftar Sekarang
             </Button>
@@ -237,6 +215,25 @@ const styles = StyleSheet.create({
   },
   chipContainer: {
     marginTop: 8,
+  },
+  accessChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  infoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   formCard: {
     borderRadius: 24,

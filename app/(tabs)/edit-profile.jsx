@@ -5,19 +5,11 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-} from "react-native";
-import {
-  Surface,
+  View,
   Text,
-  Card,
-  Avatar,
-  IconButton,
+  TouchableOpacity,
   ActivityIndicator,
-  useTheme,
-  TextInput,
-  Button,
-  Divider
-} from "react-native-paper";
+} from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,13 +17,17 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { updateUserProfile } from "../../services/userService";
 import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Colors, Shadows } from '../../constants/theme';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 
 export default function EditProfile() {
   const { userProfile, refreshProfile } = useAuth();
   const { theme, loading: settingsLoading } = useSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const paperTheme = useTheme();
+  // Using custom theme from constants
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -100,24 +96,25 @@ export default function EditProfile() {
   if (settingsLoading || !userProfile) {
     return (
       <LinearGradient
-        colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+        colors={[Colors.primary + '20', Colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
-        <Surface style={styles.header} elevation={2}>
-          <IconButton
-            icon="arrow-left"
+        <View style={[styles.header, Shadows.md]}>
+          <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
-          />
-          <Text variant="headlineMedium" style={styles.headerTitle}>
+          >
+            <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>
             Edit Profil
           </Text>
           <View style={styles.placeholder} />
-        </Surface>
+        </View>
         
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" animating />
-          <Text variant="bodyLarge" style={{ marginTop: 16 }}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>
             Memuat profil...
           </Text>
         </View>
@@ -127,20 +124,21 @@ export default function EditProfile() {
 
   return (
     <LinearGradient
-      colors={[paperTheme.colors.primaryContainer, paperTheme.colors.background]}
+      colors={[Colors.primary + '20', Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <Surface style={styles.header} elevation={2}>
-        <IconButton
-          icon="arrow-left"
+      <View style={[styles.header, Shadows.md]}>
+        <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
-        />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
+        >
+          <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
           Edit Profil
         </Text>
         <View style={styles.placeholder} />
-      </Surface>
+      </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -158,107 +156,79 @@ export default function EditProfile() {
           <View style={styles.content}>
             {/* Profile Header Card */}
             <Animated.View entering={FadeInDown.delay(100)}>
-              <Card style={styles.profileCard} mode="elevated">
-                <Card.Content>
-                  <View style={styles.profileHeader}>
-                    <Avatar.Text 
-                      size={64} 
-                      label={userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
-                      style={{ backgroundColor: paperTheme.colors.primary }}
-                      color={paperTheme.colors.onPrimary}
-                    />
-                    <View style={styles.profileInfo}>
-                      <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
-                        {userProfile?.namaWarga || 'Nama Warga'}
-                      </Text>
-                      <Text variant="bodyMedium" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                        {userProfile?.email}
-                      </Text>
-                    </View>
+              <View style={[styles.profileCard, Shadows.lg]}>
+                <View style={styles.profileHeader}>
+                  <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
+                    <Text style={[styles.avatarText, { color: Colors.textInverse }]}>
+                      {userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
+                    </Text>
                   </View>
-                </Card.Content>
-              </Card>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.profileName}>
+                      {userProfile?.namaWarga || 'Nama Warga'}
+                    </Text>
+                    <Text style={[styles.profileEmail, { color: Colors.textSecondary }]}>
+                      {userProfile?.email}
+                    </Text>
+                  </View>
+                </View>
+              </View>
             </Animated.View>
 
             {/* Personal Information Form */}
             <Animated.View entering={SlideInUp.delay(200)}>
-              <Card style={styles.formCard} mode="outlined">
-                <Card.Content>
-                  <View style={styles.section}>
-                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: paperTheme.colors.primary }]}>Informasi Pribadi</Text>
-                    <Divider style={{ marginBottom: 16 }} />
+              <View style={[styles.formCard, Shadows.md]}>
+                <View style={styles.section}>
+                  <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Informasi Pribadi</Text>
+                  <View style={styles.divider} />
 
-                    <TextInput
-                      label="Nama Warga"
-                      placeholder="Masukkan nama lengkap warga"
-                      value={formData.namaWarga}
-                      onChangeText={(value) => updateFormData("namaWarga", value)}
-                      autoCapitalize="words"
-                      error={!!errors.namaWarga}
-                      mode="outlined"
-                      style={styles.textInput}
-                    />
-                    {errors.namaWarga && (
-                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, marginTop: 4 }}>
-                        {errors.namaWarga}
-                      </Text>
-                    )}
+                  <Input
+                    label="Nama Warga"
+                    placeholder="Masukkan nama lengkap warga"
+                    value={formData.namaWarga}
+                    onChangeText={(value) => updateFormData("namaWarga", value)}
+                    autoCapitalize="words"
+                    error={errors.namaWarga}
+                  />
 
-                    <TextInput
-                      label="No HP Warga"
-                      placeholder="Masukkan nomor HP warga"
-                      value={formData.noHpWarga}
-                      onChangeText={(value) => updateFormData("noHpWarga", value)}
-                      keyboardType="phone-pad"
-                      error={!!errors.noHpWarga}
-                      mode="outlined"
-                      style={styles.textInput}
-                    />
-                    {errors.noHpWarga && (
-                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, marginTop: 4 }}>
-                        {errors.noHpWarga}
-                      </Text>
-                    )}
+                  <Input
+                    label="No HP Warga"
+                    placeholder="Masukkan nomor HP warga"
+                    value={formData.noHpWarga}
+                    onChangeText={(value) => updateFormData("noHpWarga", value)}
+                    keyboardType="phone-pad"
+                    error={errors.noHpWarga}
+                  />
+                </View>
+
+                <View style={styles.divider} />
+
+                <View style={styles.section}>
+                  <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Informasi Alamat</Text>
+                  <View style={styles.divider} />
+
+                  <Input
+                    label="Alamat"
+                    placeholder="Masukkan alamat lengkap"
+                    value={formData.alamat}
+                    onChangeText={(value) => updateFormData("alamat", value)}
+                    multiline
+                    numberOfLines={3}
+                    error={errors.alamat}
+                  />
+
+                  <View style={[styles.infoCard, { backgroundColor: Colors.primary + '20' }]}>
+                    <Text style={[styles.infoText, { color: Colors.primary }]}>
+                      ℹ️ RFID warga hanya dapat diatur oleh bendahara
+                    </Text>
                   </View>
-
-                  <Divider style={{ marginVertical: 16 }} />
-
-                  <View style={styles.section}>
-                    <Text variant="titleMedium" style={[styles.sectionTitle, { color: paperTheme.colors.primary }]}>Informasi Alamat</Text>
-                    <Divider style={{ marginBottom: 16 }} />
-
-                    <TextInput
-                      label="Alamat"
-                      placeholder="Masukkan alamat lengkap"
-                      value={formData.alamat}
-                      onChangeText={(value) => updateFormData("alamat", value)}
-                      multiline
-                      numberOfLines={3}
-                      error={!!errors.alamat}
-                      mode="outlined"
-                      style={styles.textInput}
-                    />
-                    {errors.alamat && (
-                      <Text variant="bodySmall" style={{ color: paperTheme.colors.error, marginTop: 4 }}>
-                        {errors.alamat}
-                      </Text>
-                    )}
-
-                    <Card style={[styles.infoCard, { backgroundColor: paperTheme.colors.primaryContainer }]} mode="contained">
-                      <Card.Content style={{ paddingVertical: 12 }}>
-                        <Text variant="bodySmall" style={{ color: paperTheme.colors.onPrimaryContainer, lineHeight: 18 }}>
-                          ℹ️ RFID warga hanya dapat diatur oleh bendahara
-                        </Text>
-                      </Card.Content>
-                    </Card>
-                  </View>
-                </Card.Content>
-              </Card>
+                </View>
+              </View>
             </Animated.View>
 
             <Animated.View entering={SlideInUp.delay(400)} style={styles.buttonSection}>
               <Button
-                mode="outlined"
+                variant="outline"
                 onPress={() => router.back()}
                 style={styles.cancelButton}
                 disabled={loading}
@@ -267,7 +237,7 @@ export default function EditProfile() {
               </Button>
 
               <Button
-                mode="contained"
+                variant="primary"
                 onPress={handleSave}
                 disabled={loading}
                 loading={loading}
@@ -293,14 +263,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     justifyContent: 'space-between',
+    backgroundColor: Colors.surface,
   },
   backButton: {
-    margin: 0,
+    padding: 8,
+    borderRadius: 20,
   },
   headerTitle: {
+    fontSize: 20,
     fontWeight: '600',
     flex: 1,
     textAlign: 'center',
+    color: Colors.text,
   },
   placeholder: {
     width: 48,
@@ -310,6 +284,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: Colors.text,
+    marginTop: 16,
   },
   keyboardContainer: {
     flex: 1,
@@ -327,6 +306,8 @@ const styles = StyleSheet.create({
   profileCard: {
     borderRadius: 16,
     marginBottom: 16,
+    backgroundColor: Colors.surface,
+    padding: 20,
   },
   profileHeader: {
     flexDirection: 'row',
@@ -336,23 +317,52 @@ const styles = StyleSheet.create({
   profileInfo: {
     flex: 1,
   },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.text,
+  },
+  profileEmail: {
+    fontSize: 14,
+  },
   formCard: {
     borderRadius: 16,
     marginBottom: 16,
+    backgroundColor: Colors.surface,
+    padding: 20,
   },
   section: {
     marginBottom: 16,
   },
   sectionTitle: {
+    fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
   },
-  textInput: {
-    marginBottom: 12,
+  divider: {
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: 16,
   },
   infoCard: {
     borderRadius: 8,
     marginTop: 8,
+    padding: 12,
+  },
+  infoText: {
+    fontSize: 12,
+    lineHeight: 18,
   },
   buttonSection: {
     flexDirection: 'row',
