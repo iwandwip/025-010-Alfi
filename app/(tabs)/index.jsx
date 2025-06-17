@@ -330,10 +330,10 @@ function StatusSetoran() {
             <View style={styles.paymentHeader}>
               <View style={styles.paymentInfo}>
                 <Text variant="titleMedium" style={{ fontWeight: '600' }}>
-                  {item.periodData?.label}
+                  {item.periodData?.label || 'Unknown Period'}
                 </Text>
                 <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-                  Periode {item.periodData?.number}
+                  Periode {item.periodData?.number || 'N/A'}
                 </Text>
               </View>
               

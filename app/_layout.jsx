@@ -54,12 +54,12 @@ export default function RootLayout() {
         // Set global default fonts for all Text and TextInput components
         Text.defaultProps = {
           ...Text.defaultProps,
-          style: [defaultTextStyle, Text.defaultProps?.style],
+          style: [defaultTextStyle, Text.defaultProps?.style].filter(Boolean),
         };
         
         TextInput.defaultProps = {
           ...TextInput.defaultProps,
-          style: [defaultTextStyle, TextInput.defaultProps?.style],
+          style: [defaultTextStyle, TextInput.defaultProps?.style].filter(Boolean),
         };
       } catch (e) {
         console.warn('Font loading error:', e);

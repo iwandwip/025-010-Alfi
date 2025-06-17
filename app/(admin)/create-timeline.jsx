@@ -467,7 +467,7 @@ export default function CreateTimeline() {
                         {
                           getTimelineTypes().find(
                             (t) => t.value === template.type
-                          )?.label
+                          )?.label || 'Unknown Type'
                         }{" "}
                         - {template.duration} periode
                       </Text>
@@ -508,8 +508,8 @@ export default function CreateTimeline() {
               </View>
 
               <Input
-                label={`Durasi (${getSelectedType()?.unit})`}
-                placeholder={`Masukkan jumlah ${getSelectedType()?.unit.toLowerCase()}`}
+                label={`Durasi (${getSelectedType()?.unit || 'periode'})`}
+                placeholder={`Masukkan jumlah ${getSelectedType()?.unit?.toLowerCase() || 'periode'}`}
                 value={formData.duration.toString()}
                 onChangeText={handleDurationChange}
                 keyboardType="numeric"
@@ -538,11 +538,11 @@ export default function CreateTimeline() {
               </View>
 
               <TimelinePicker
-                label={`Waktu Mulai Timeline (${getSelectedType()?.label})`}
+                label={`Waktu Mulai Timeline (${getSelectedType()?.label || 'Timeline'})`}
                 value={formData.startDate}
                 onChange={(value) => updateFormData("startDate", value)}
                 timelineType={formData.type}
-                placeholder={`Pilih waktu mulai ${getSelectedType()?.label.toLowerCase()}`}
+                placeholder={`Pilih waktu mulai ${getSelectedType()?.label?.toLowerCase() || 'timeline'}`}
               />
 
               <View style={styles.timelineRangeInfo}>
@@ -608,7 +608,7 @@ export default function CreateTimeline() {
                 <View style={styles.manualModeSection}>
                   <TimelinePicker
                     label={`Simulasi Waktu Sekarang (${
-                      getSelectedType()?.label
+                      getSelectedType()?.label || 'Timeline'
                     })`}
                     value={formData.simulationDate}
                     onChange={(value) =>
@@ -641,7 +641,7 @@ export default function CreateTimeline() {
                 <Text style={styles.infoText}>
                   {formData.mode === "realtime"
                     ? "ℹ️ Mode real-time akan menggunakan tanggal sekarang untuk menghitung status terlambat"
-                    : `ℹ️ Mode manual memungkinkan Anda mengatur waktu simulasi dengan presisi ${getSelectedType()?.label.toLowerCase()} dalam range timeline untuk testing dan demo`}
+                    : `ℹ️ Mode manual memungkinkan Anda mengatur waktu simulasi dengan presisi ${getSelectedType()?.label?.toLowerCase() || 'timeline'} dalam range timeline untuk testing dan demo`}
                 </Text>
               </View>
             </View>
@@ -688,7 +688,7 @@ export default function CreateTimeline() {
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>Tipe:</Text>
                   <Text style={styles.summaryValue}>
-                    {getSelectedType()?.label}
+                    {getSelectedType()?.label || 'Unknown Type'}
                   </Text>
                 </View>
 
