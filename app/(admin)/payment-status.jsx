@@ -162,6 +162,7 @@ function PaymentStatus() {
 
   const getStatusText = useCallback((summary) => {
     if (summary.progressPercentage === 100) return "Lunas Semua";
+    if (summary.belumLunas > 0) return "Ada Terbayar Parsial";
     if (summary.belumBayar > 0 && summary.terlambat > 0) return "Ada Tunggakan";
     if (summary.belumBayar > 0) return "Belum Bayar";
     if (summary.terlambat > 0) return "Terlambat";
@@ -201,14 +202,14 @@ function PaymentStatus() {
 
               <View style={styles.statusSection}>
                 <Chip 
-                  icon={user.paymentSummary.progressPercentage === 100 ? "check-circle" : user.paymentSummary.progressPercentage >= 70 ? "alert-circle" : "close-circle"}
+                  icon={user.paymentSummary.progressPercentage === 100 ? "check-circle" : user.paymentSummary.belumLunas > 0 ? "clock-outline" : user.paymentSummary.progressPercentage >= 70 ? "alert-circle" : "close-circle"}
                   mode="flat"
                   style={{ 
-                    backgroundColor: user.paymentSummary.progressPercentage === 100 ? paperTheme.colors.successContainer : user.paymentSummary.progressPercentage >= 70 ? paperTheme.colors.warningContainer : paperTheme.colors.errorContainer,
+                    backgroundColor: user.paymentSummary.progressPercentage === 100 ? paperTheme.colors.successContainer : user.paymentSummary.belumLunas > 0 ? paperTheme.colors.tertiaryContainer : user.paymentSummary.progressPercentage >= 70 ? paperTheme.colors.warningContainer : paperTheme.colors.errorContainer,
                     marginBottom: 8
                   }}
                   textStyle={{ 
-                    color: user.paymentSummary.progressPercentage === 100 ? paperTheme.colors.onSuccessContainer : user.paymentSummary.progressPercentage >= 70 ? paperTheme.colors.onWarningContainer : paperTheme.colors.onErrorContainer,
+                    color: user.paymentSummary.progressPercentage === 100 ? paperTheme.colors.onSuccessContainer : user.paymentSummary.belumLunas > 0 ? paperTheme.colors.onTertiaryContainer : user.paymentSummary.progressPercentage >= 70 ? paperTheme.colors.onWarningContainer : paperTheme.colors.onErrorContainer,
                     fontSize: 11
                   }}
                 >
@@ -460,8 +461,8 @@ function PaymentStatus() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={[paperTheme.colors.primary]}
-                tintColor={paperTheme.colors.primary}
+                colors={[paperTheme.colors.primary || '#F50057']}
+                tintColor={paperTheme.colors.primary || '#F50057'}
               />
             }
           />

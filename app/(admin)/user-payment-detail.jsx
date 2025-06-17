@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Modal,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSettings } from "../../contexts/SettingsContext";
@@ -20,6 +21,7 @@ import {
   getUserDetailedPayments,
   updateUserPaymentStatus,
 } from "../../services/adminPaymentService";
+import { processCustomPaymentWithAutoAllocation } from "../../services/wargaPaymentService";
 import Button from "../../components/ui/Button";
 
 function UserPaymentDetail() {
@@ -35,6 +37,8 @@ function UserPaymentDetail() {
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [actionModalVisible, setActionModalVisible] = useState(false);
   const [updatingPayment, setUpdatingPayment] = useState(false);
+  const [customPaymentModalVisible, setCustomPaymentModalVisible] = useState(false);
+  const [customPaymentAmount, setCustomPaymentAmount] = useState('');
 
   const loadData = useCallback(
     async (isRefresh = false) => {
@@ -81,13 +85,20 @@ function UserPaymentDetail() {
     const belumBayar = payments.filter(
       (p) => p.status === "belum_bayar"
     ).length;
+    const belumLunas = payments.filter((p) => p.status === "belum_lunas").length;
     const terlambat = payments.filter((p) => p.status === "terlambat").length;
 
     const totalAmount = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
     const paidAmount = payments
       .filter((p) => p.status === "lunas")
       .reduce((sum, p) => sum + (p.amount || 0), 0);
-    const unpaidAmount = totalAmount - paidAmount;
+    
+    // Calculate partial payment amount
+    const partialAmount = payments
+      .filter(p => p.partialPayment && p.totalPaid > 0)
+      .reduce((sum, p) => sum + (p.totalPaid || 0), 0);
+    
+    const unpaidAmount = totalAmount - paidAmount - partialAmount;
 
     const progressPercentage =
       total > 0 ? Math.round((lunas / total) * 100) : 0;
@@ -96,9 +107,11 @@ function UserPaymentDetail() {
       total,
       lunas,
       belumBayar,
+      belumLunas,
       terlambat,
       totalAmount,
       paidAmount,
+      partialAmount,
       unpaidAmount,
       progressPercentage,
     };
@@ -170,6 +183,53 @@ function UserPaymentDetail() {
     },
     [selectedPayment, timeline, userId, loadData]
   );
+
+  const handleCustomPayment = useCallback(async () => {
+    if (!customPaymentAmount || !userId) return;
+
+    const amount = parseInt(customPaymentAmount);
+    if (amount <= 0) {
+      Alert.alert("Error", "Jumlah pembayaran harus lebih dari 0");
+      return;
+    }
+
+    setUpdatingPayment(true);
+
+    try {
+      const result = await processCustomPaymentWithAutoAllocation(userId, amount, 'tunai');
+      
+      if (result.success) {
+        await loadData(true);
+        
+        let message = `Berhasil memproses pembayaran sebesar ${formatCurrency(amount)}.\n\n`;
+        message += `Total diproses: ${formatCurrency(result.totalProcessed)}\n`;
+        message += `Sisa saldo credit: ${formatCurrency(result.newCreditBalance)}\n\n`;
+        
+        if (result.processedPayments.length > 0) {
+          message += "Pembayaran yang diproses:\n";
+          result.processedPayments.forEach(payment => {
+            message += `• ${payment.periodLabel}: ${payment.status} ${payment.isPartial ? '(Parsial)' : ''}\n`;
+          });
+        }
+        
+        if (result.remainingAmount > 0) {
+          message += `\nSisa ${formatCurrency(result.remainingAmount)} tidak dapat diproses (melebihi batas credit maksimal).`;
+        }
+
+        Alert.alert("Pembayaran Berhasil! 🎉", message, [{ text: "OK" }]);
+        
+        setCustomPaymentAmount('');
+        setCustomPaymentModalVisible(false);
+      } else {
+        Alert.alert("Error", "Gagal memproses pembayaran: " + result.error);
+      }
+    } catch (error) {
+      Alert.alert("Error", "Terjadi kesalahan saat memproses pembayaran");
+      console.error("Error processing payment:", error);
+    }
+
+    setUpdatingPayment(false);
+  }, [customPaymentAmount, userId, loadData, formatCurrency]);
 
   const getStatusColor = useCallback(
     (status) => {
@@ -289,6 +349,17 @@ function UserPaymentDetail() {
               </Text>
             </View>
 
+            {summary.belumLunas > 0 && (
+              <View style={styles.statItem}>
+                <Text style={[styles.statNumber, { color: colors.tertiary }]}>
+                  {summary.belumLunas}
+                </Text>
+                <Text style={[styles.statLabel, { color: colors.gray600 }]}>
+                  Parsial
+                </Text>
+              </View>
+            )}
+
             {summary.terlambat > 0 && (
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, { color: colors.warning }]}>
@@ -319,6 +390,17 @@ function UserPaymentDetail() {
                 {formatCurrency(summary.paidAmount)}
               </Text>
             </View>
+
+            {summary.partialAmount > 0 && (
+              <View style={styles.amountRow}>
+                <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
+                  Terbayar Parsial:
+                </Text>
+                <Text style={[styles.amountValue, { color: colors.tertiary }]}>
+                  {formatCurrency(summary.partialAmount)}
+                </Text>
+              </View>
+            )}
 
             <View style={styles.amountRow}>
               <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
@@ -669,6 +751,13 @@ function UserPaymentDetail() {
             Timeline: {timeline.name}
           </Text>
         )}
+        
+        <Button
+          title="Proses Pembayaran Custom"
+          onPress={() => setCustomPaymentModalVisible(true)}
+          style={[styles.customPaymentButton, { backgroundColor: colors.success }]}
+          textStyle={{ color: colors.white }}
+        />
       </View>
 
       {payments.length > 0 ? (
@@ -706,6 +795,98 @@ function UserPaymentDetail() {
       )}
 
       {renderActionModal()}
+      
+      {/* Custom Payment Modal */}
+      <Modal
+        visible={customPaymentModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => !updatingPayment && setCustomPaymentModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContainer, { backgroundColor: colors.white }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.gray200 }]}>
+              <Text style={[styles.modalTitle, { color: colors.gray900 }]}>
+                Pembayaran Custom dengan Auto Alokasi
+              </Text>
+              {!updatingPayment && (
+                <TouchableOpacity
+                  style={[styles.closeButton, { backgroundColor: colors.gray100 }]}
+                  onPress={() => setCustomPaymentModalVisible(false)}
+                >
+                  <Text style={[styles.closeButtonText, { color: colors.gray600 }]}>
+                    ✕
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            <ScrollView style={styles.modalContent}>
+              <View style={styles.inputSection}>
+                <Text style={[styles.inputLabel, { color: colors.gray700 }]}>
+                  Jumlah Pembayaran (Rp):
+                </Text>
+                <TextInput
+                  style={[
+                    styles.customAmountInput,
+                    {
+                      backgroundColor: colors.white,
+                      borderColor: colors.gray300,
+                      color: colors.gray900,
+                    },
+                  ]}
+                  placeholder="Contoh: 100000 untuk test skenario"
+                  value={customPaymentAmount}
+                  onChangeText={setCustomPaymentAmount}
+                  keyboardType="numeric"
+                  editable={!updatingPayment}
+                />
+                
+                <Text style={[styles.helpText, { color: colors.gray600 }]}>
+                  💡 Sistem akan otomatis mengalokasikan pembayaran ke periode yang belum lunas secara berurutan, 
+                  dan kelebihan akan menjadi credit saldo (maksimal 3x nominal periode).
+                </Text>
+                
+                <Text style={[styles.helpText, { color: colors.success }]}>
+                  ✅ Contoh: Bayar Rp 100.000 untuk nominal Rp 40.000/bulan = 2 bulan lunas + Rp 20.000 credit
+                </Text>
+              </View>
+
+              {updatingPayment && (
+                <View style={styles.processingSection}>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                  <Text style={[styles.processingText, { color: colors.gray900 }]}>
+                    Memproses pembayaran...
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+
+            <View style={[styles.modalFooter, { borderTopColor: colors.gray200 }]}>
+              <Button
+                title="Batal"
+                onPress={() => setCustomPaymentModalVisible(false)}
+                variant="outline"
+                style={[styles.cancelButton, { borderColor: colors.gray400 }]}
+                disabled={updatingPayment}
+              />
+              <Button
+                title={updatingPayment ? "Memproses..." : "Proses Pembayaran"}
+                onPress={handleCustomPayment}
+                style={[
+                  styles.payButton,
+                  {
+                    backgroundColor: customPaymentAmount
+                      ? colors.success
+                      : colors.gray400,
+                  },
+                ]}
+                disabled={!customPaymentAmount || updatingPayment}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1006,6 +1187,54 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     lineHeight: 20,
+  },
+  customPaymentButton: {
+    marginTop: 12,
+    marginHorizontal: 16,
+  },
+  inputSection: {
+    paddingVertical: 20,
+  },
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: 600,
+    marginBottom: 8,
+  },
+  customAmountInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  helpText: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  processingSection: {
+    alignItems: "center",
+    paddingVertical: 30,
+  },
+  processingText: {
+    fontSize: 16,
+    fontWeight: 600,
+    marginTop: 16,
+    textAlign: "center",
+  },
+  modalFooter: {
+    flexDirection: "row",
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderTopWidth: 1,
+    gap: 12,
+  },
+  cancelButton: {
+    flex: 1,
+  },
+  payButton: {
+    flex: 2,
   },
 });
 

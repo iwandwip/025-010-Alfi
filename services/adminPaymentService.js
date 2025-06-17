@@ -150,13 +150,20 @@ export const getUserPaymentSummaryOptimized = async (userId, timeline) => {
     const total = allPayments.length;
     const lunas = allPayments.filter(p => p.status === 'lunas').length;
     const belumBayar = allPayments.filter(p => p.status === 'belum_bayar').length;
+    const belumLunas = allPayments.filter(p => p.status === 'belum_lunas').length;
     const terlambat = allPayments.filter(p => p.status === 'terlambat').length;
     
     const totalAmount = allPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
     const paidAmount = allPayments
       .filter(p => p.status === 'lunas')
       .reduce((sum, p) => sum + (p.amount || 0), 0);
-    const unpaidAmount = totalAmount - paidAmount;
+    
+    // Calculate partial payment amount
+    const partialAmount = allPayments
+      .filter(p => p.partialPayment && p.totalPaid > 0)
+      .reduce((sum, p) => sum + (p.totalPaid || 0), 0);
+    
+    const unpaidAmount = totalAmount - paidAmount - partialAmount;
 
     const progressPercentage = total > 0 ? Math.round((lunas / total) * 100) : 0;
 
@@ -164,9 +171,11 @@ export const getUserPaymentSummaryOptimized = async (userId, timeline) => {
       total,
       lunas,
       belumBayar,
+      belumLunas,
       terlambat,
       totalAmount,
       paidAmount,
+      partialAmount,
       unpaidAmount,
       progressPercentage,
       lastPaymentDate: getLastPaymentDate(allPayments)
@@ -177,9 +186,11 @@ export const getUserPaymentSummaryOptimized = async (userId, timeline) => {
       total: 0,
       lunas: 0,
       belumBayar: 0,
+      belumLunas: 0,
       terlambat: 0,
       totalAmount: 0,
       paidAmount: 0,
+      partialAmount: 0,
       unpaidAmount: 0,
       progressPercentage: 0,
       lastPaymentDate: null
