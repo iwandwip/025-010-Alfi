@@ -448,12 +448,13 @@ export default function TimelineManager() {
       colors={[Colors.primaryContainer, Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <View style={styles.header} elevation={2}>
+      <View style={[styles.header, Shadows.md, { backgroundColor: Colors.surface }]}>
         <TouchableOpacity
-          icon="arrow-left"
           onPress={() => router.back()}
           style={styles.backButton}
-        />
+        >
+          <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>
           Timeline Manager 
         </Text>
