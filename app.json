@@ -33,7 +33,10 @@
     ],
     "scheme": "firebase-auth-template",
     "extra": {
-      "router": {}
+      "router": {},
+      "eas": {
+        "projectId": "fe0bef48-816b-4494-8380-edc0f7a2c0b9"
+      }
     }
   }
 }

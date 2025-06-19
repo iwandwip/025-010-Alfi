@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Colors } from "../../constants/Colors";
+import { Colors, Shadows } from "../../constants/theme";
 
 const IllustrationContainer = ({ children, style }) => {
   return (
@@ -17,21 +17,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   illustrationWrapper: {
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.background,
     borderRadius: 20,
     padding: 20,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: Colors.shadow.color,
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 12,
+    ...Shadows.md,
     borderWidth: 1,
-    borderColor: Colors.gray100,
+    borderColor: Colors.border,
   },
 });
 

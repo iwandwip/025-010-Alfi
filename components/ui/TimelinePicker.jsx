@@ -7,7 +7,7 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "../../constants/theme";
 
 const TimelinePicker = ({
   label,

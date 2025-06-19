@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "../../constants/theme";
 
 const DataTable = ({ headers, data, onEdit, onDelete, keyExtractor }) => {
   const getStatusColor = (status) => {
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: '600',
     color: Colors.gray900,
     textAlign: "center",
   },

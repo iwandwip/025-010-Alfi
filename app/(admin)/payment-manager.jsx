@@ -12,7 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSettings } from "../../contexts/SettingsContext";
-import { getColors } from "../../constants/Colors";
+import { Colors } from "../../constants/theme";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import {
@@ -24,7 +24,7 @@ import {
 export default function PaymentManager() {
   const { timelineId } = useLocalSearchParams();
   const { theme } = useSettings();
-  const colors = getColors(theme);
+  const colors = Colors;
   const styles = getStyles(colors);
   const [timeline, setTimeline] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);

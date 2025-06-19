@@ -4,7 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
-import { LinearGradient } from 'expo-linear-gradient';
+// import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { signInWithEmail } from "../../services/authService";
@@ -37,10 +37,7 @@ export default function BendaharaLogin() {
   };
 
   return (
-    <LinearGradient
-      colors={[Colors.primaryContainer, Colors.surface]}
-      style={styles.container}
-    >
+    <View style={[styles.container, { backgroundColor: Colors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
@@ -68,29 +65,21 @@ export default function BendaharaLogin() {
               <MaterialIcons name="business-center" size={80} color={Colors.onPrimary} />
             </View>
             
-            <Text style="headlineMedium" style={[styles.title, { color: Colors.onView }]}>
+            <Text style={[styles.title, { color: Colors.onView }]}>
               Portal Bendahara
             </Text>
             
-            <Text style="bodyLarge" style={[styles.subtitle, { color: Colors.onViewVariant }]}>
+            <Text style={[styles.subtitle, { color: Colors.onViewVariant }]}>
               Sistem Pengelolaan Jimpitan RT
             </Text>
 
-            <View style={styles.chipContainer}>
-              <View style={[styles.accessChip, { backgroundColor: Colors.tertiaryContainer }]}>
-                <MaterialIcons name="verified-user" size={16} color={Colors.onTertiaryContainer} />
-                <Text style={[styles.chipText, { color: Colors.onTertiaryContainer }]}>
-                  Akses Khusus Bendahara
-                </Text>
-              </View>
-            </View>
           </Animated.View>
 
           {/* Login Form */}
           <Animated.View entering={FadeInUp.delay(300).springify()}>
             <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
               <View style={{ padding: 20 }}>
-                <Text style="titleLarge" style={styles.formTitle}>
+                <Text style={styles.formTitle}>
                   Masuk ke Akun Anda
                 </Text>
 
@@ -98,27 +87,17 @@ export default function BendaharaLogin() {
                   label="Email Bendahara"
                   value={email}
                   onChangeText={setEmail}
-                                    keyboardType="email-address"
+                  keyboardType="email-address"
                   autoCapitalize="none"
-                  left={<Input.Icon icon="email" />}
                   style={styles.input}
-                  outlineStyle={{ borderRadius: 16 }}
                 />
 
                 <Input
                   label="Password"
                   value={password}
                   onChangeText={setPassword}
-                                    secureTextEntry={!showPassword}
-                  left={<Input.Icon icon="lock" />}
-                  right={
-                    <Input.Icon 
-                      icon={showPassword ? "eye-off" : "eye"} 
-                      onPress={() => setShowPassword(!showPassword)}
-                    />
-                  }
+                  secureTextEntry={true}
                   style={styles.input}
-                  outlineStyle={{ borderRadius: 16 }}
                 />
 
                 <Button
@@ -127,32 +106,10 @@ export default function BendaharaLogin() {
                   loading={loading}
                   disabled={loading}
                   style={styles.loginButton}
-                  contentStyle={styles.loginButtonContent}
-                  labelStyle={styles.loginButtonLabel}
-                  icon="login"
                 >
                   {loading ? "Memproses..." : "Masuk"}
                 </Button>
 
-                <View style={styles.divider} />
-
-                <View style={styles.infoSection}>
-                  <View style={[styles.infoCard, Shadows.md]}>
-                    <View style={[styles.infoIcon, { backgroundColor: Colors.infoContainer }]}>
-                      <MaterialIcons name="info" size={24} color={Colors.onInfoContainer} />
-                    </View>
-                    <View style={styles.infoTextContainer}>
-                      <Text style="labelLarge" style={{ color: Colors.onView }}>
-                        Fitur Bendahara
-                      </Text>
-                      <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
-                        • Kelola data warga & RFID{'\n'}
-                        • Catat setoran jimpitan{'\n'}
-                        • Laporan keuangan RT
-                      </Text>
-                    </View>
-                  </View>
-                </View>
               </View>
             </View>
           </Animated.View>
@@ -162,21 +119,20 @@ export default function BendaharaLogin() {
             entering={FadeInUp.delay(400).springify()}
             style={styles.registerSection}
           >
-            <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
+            <Text style={{ color: Colors.onViewVariant }}>
               Belum punya akun bendahara?
             </Text>
             <Button
               variant="outline"
               onPress={() => router.push("/(auth)/bendahara-register")}
               style={styles.registerButton}
-              labelStyle={{ color: Colors.primary }}
             >
               Daftar Sekarang
             </Button>
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -213,28 +169,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
-  chipContainer: {
-    marginTop: 8,
-  },
-  accessChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 6,
-  },
-  chipText: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  infoIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   formCard: {
     borderRadius: 24,
     marginBottom: 24,
@@ -257,22 +191,6 @@ const styles = StyleSheet.create({
   loginButtonLabel: {
     fontSize: 16,
     fontWeight: '600',
-  },
-  divider: {
-    marginVertical: 24,
-  },
-  infoSection: {
-    marginTop: 8,
-  },
-  infoCard: {
-    flexDirection: 'row',
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: 'rgba(33, 150, 243, 0.08)',
-  },
-  infoTextContainer: {
-    flex: 1,
-    marginLeft: 16,
   },
   registerSection: {
     alignItems: 'center',

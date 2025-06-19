@@ -8,7 +8,7 @@ import {
   Keyboard,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "../../constants/theme";
 
 const DatePicker = ({
   label,

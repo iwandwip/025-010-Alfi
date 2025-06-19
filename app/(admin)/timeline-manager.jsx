@@ -427,7 +427,7 @@ export default function TimelineManager() {
           >
             <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
           </TouchableOpacity>
-          <Text style="headlineMedium" style={styles.headerTitle}>
+          <Text style={styles.headerTitle}>
             Timeline Manager
           </Text>
           <View style={styles.placeholder} />
@@ -435,7 +435,7 @@ export default function TimelineManager() {
         
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style="bodyLarge" style={{ marginTop: 16 }}>
+          <Text style={{ marginTop: 16 }}>
             Memuat data timeline...
           </Text>
         </View>
@@ -454,7 +454,7 @@ export default function TimelineManager() {
           onPress={() => router.back()}
           style={styles.backButton}
         />
-        <Text style="headlineMedium" style={styles.headerTitle}>
+        <Text style={styles.headerTitle}>
           Timeline Manager 
         </Text>
         <View style={styles.placeholder} />
@@ -484,20 +484,22 @@ export default function TimelineManager() {
                       <MaterialIcons name="timeline" size={32} color={Colors.onPrimary} />
                     </View>
                     <View style={styles.timelineHeaderInfo}>
-                      <Text style="titleLarge" style={[styles.timelineName, { fontWeight: 'bold' }]}>{activeTimeline.name}</Text>
+                      <Text style={[styles.timelineName, { fontWeight: 'bold' }]}>{activeTimeline.name}</Text>
                       <View 
-                        icon="check-circle"
-                        mode="flat"
                         style={{ 
                           backgroundColor: Colors.successContainer,
-                          alignSelf: 'flex-start'
-                        }}
-                        textStyle={{ 
-                          color: Colors.onSuccessContainer,
-                          fontSize: 12
+                          alignSelf: 'flex-start',
+                          flexDirection: 'row',
+                          paddingHorizontal: 12,
+                          paddingVertical: 6,
+                          borderRadius: 16,
+                          alignItems: 'center'
                         }}
                       >
-                        Aktif
+                        <MaterialIcons name="check-circle" size={16} color={Colors.onSuccessContainer} />
+                        <Text style={{ color: Colors.onSuccessContainer, fontSize: 12, marginLeft: 4 }}>
+                          Aktif
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -506,36 +508,36 @@ export default function TimelineManager() {
 
                   <View style={styles.timelineDetails}>
                     <View style={styles.detailRow}>
-                      <Text style="bodyMedium" style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Tipe:</Text>
-                      <Text style="bodyMedium" style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
+                      <Text style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Tipe:</Text>
+                      <Text style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
                         {getTypeLabel(activeTimeline.type)}
                       </Text>
                     </View>
 
                     <View style={styles.detailRow}>
-                      <Text style="bodyMedium" style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Durasi:</Text>
-                      <Text style="bodyMedium" style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
+                      <Text style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Durasi:</Text>
+                      <Text style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
                         {getTotalTimelineDuration(activeTimeline)}
                       </Text>
                     </View>
 
                     <View style={styles.detailRow}>
-                      <Text style="bodyMedium" style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Range Timeline:</Text>
-                      <Text style="bodyMedium" style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
+                      <Text style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Range Timeline:</Text>
+                      <Text style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
                         {formatTimelineRange(activeTimeline)}
                       </Text>
                     </View>
 
                     <View style={styles.detailRow}>
-                      <Text style="bodyMedium" style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Periode Aktif:</Text>
-                      <Text style="bodyMedium" style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
+                      <Text style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Periode Aktif:</Text>
+                      <Text style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
                         {getActivePeriods(activeTimeline)} periode
                       </Text>
                     </View>
 
                     <View style={styles.detailRow}>
-                      <Text style="bodyMedium" style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Mode:</Text>
-                      <Text style="bodyMedium" style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
+                      <Text style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Mode:</Text>
+                      <Text style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
                         {activeTimeline.mode === "manual"
                           ? "⚙️ Manual"
                           : "🕐 Real-time"}
@@ -543,15 +545,15 @@ export default function TimelineManager() {
                     </View>
 
                     <View style={styles.detailRow}>
-                      <Text style="bodyMedium" style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Total Amount:</Text>
-                      <Text style="bodyMedium" style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
+                      <Text style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Total Amount:</Text>
+                      <Text style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
                         {formatCurrency(activeTimeline.totalAmount)}
                       </Text>
                     </View>
 
                     <View style={styles.detailRow}>
-                      <Text style="bodyMedium" style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Per Periode:</Text>
-                      <Text style="bodyMedium" style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
+                      <Text style={[styles.detailLabel, { color: Colors.onViewVariant }]}>Per Periode:</Text>
+                      <Text style={[styles.detailValue, { color: Colors.onView, fontWeight: '600' }]}>
                         {formatCurrency(activeTimeline.amountPerPeriod)}
                       </Text>
                     </View>
@@ -559,20 +561,20 @@ export default function TimelineManager() {
 
                   {activeTimeline.mode === "manual" && (
                     <View style={[styles.simulationSection, { backgroundColor: Colors.primaryContainer }]}>
-                      <Text style="titleMedium" style={[styles.simulationTitle, { color: Colors.onPrimaryContainer }]}>
+                      <Text style={[styles.simulationTitle, { color: Colors.onPrimaryContainer }]}>
                         🕐 Kontrol Waktu Manual
                       </Text>
 
-                      <View style={[styles.currentSimulationInfo, { backgroundColor: Colors.surface }]} mode="contained">
+                      <View style={[styles.currentSimulationInfo, { backgroundColor: Colors.surface }]}>
                         <View style={{ paddingVertical: 12 }}>
-                          <Text style="bodySmall" style={[styles.currentSimulationLabel, { color: Colors.onViewVariant }]}>
+                          <Text style={[styles.currentSimulationLabel, { color: Colors.onViewVariant }]}>
                             Waktu Simulasi Saat Ini:
                           </Text>
-                          <Text style="bodyMedium" style={[styles.currentSimulationValue, { color: Colors.onView, fontWeight: '600' }]}>
+                          <Text style={[styles.currentSimulationValue, { color: Colors.onView, fontWeight: '600' }]}>
                             {formatSimulationDateTime(activeTimeline.simulationDate)}
                           </Text>
                         </View>
-                      </Card>
+                      </View>
 
                       <TimelinePicker
                         label={`Atur Waktu Simulasi (${getTypeLabel(
@@ -595,21 +597,21 @@ export default function TimelineManager() {
                         style={styles.updateDateButton}
                       />
 
-                      <View style={[styles.infoCard, { backgroundColor: Colors.tertiaryContainer }]} mode="contained">
+                      <View style={[styles.infoCard, { backgroundColor: Colors.tertiaryContainer }]}>
                         <View style={{ paddingVertical: 12 }}>
-                          <Text style="bodySmall" style={{ color: Colors.onTertiaryContainer, lineHeight: 18 }}>
+                          <Text style={{ color: Colors.onTertiaryContainer, lineHeight: 18 }}>
                             ℹ️ Mengubah waktu simulasi akan mempengaruhi perhitungan status "terlambat" untuk semua pembayaran berdasarkan timeline {getTypeLabel(activeTimeline.type).toLowerCase()}
                           </Text>
                         </View>
-                      </Card>
+                      </View>
 
-                      <View style={[styles.rangeInfoCard, { backgroundColor: Colors.successContainer }]} mode="contained">
+                      <View style={[styles.rangeInfoCard, { backgroundColor: Colors.successContainer }]}>
                         <View style={{ paddingVertical: 8 }}>
-                          <Text style="bodySmall" style={{ color: Colors.onSuccessContainer, textAlign: 'center' }}>
+                          <Text style={{ color: Colors.onSuccessContainer, textAlign: 'center' }}>
                             📅 Range simulasi yang diizinkan: {formatTimelineRange(activeTimeline)}
                           </Text>
                         </View>
-                      </Card>
+                      </View>
                     </View>
                   )}
 
@@ -650,24 +652,28 @@ export default function TimelineManager() {
                     </View>
                   </View>
                 </View>
-              </Card>
+              </View>
             ) : (
-              <View style={styles.noTimelineCard} mode="outlined">
+              <View style={styles.noTimelineCard}>
                 <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                  <View 
-                    size={80} 
-                    icon="calendar-blank" 
-                    style={{ backgroundColor: Colors.surfaceVariant }}
-                    color={Colors.onViewVariant}
-                  />
-                  <Text style="headlineSmall" style={[styles.noTimelineText, { color: Colors.onViewVariant, marginTop: 16, marginBottom: 8 }]}>
+                  <View style={{ 
+                    width: 80, 
+                    height: 80, 
+                    backgroundColor: Colors.surfaceVariant,
+                    borderRadius: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <MaterialIcons name="calendar-today" size={40} color={Colors.onViewVariant} />
+                  </View>
+                  <Text style={[styles.noTimelineText, { color: Colors.onViewVariant, marginTop: 16, marginBottom: 8 }]}>
                     Belum ada timeline aktif
                   </Text>
-                  <Text style="bodyMedium" style={[styles.noTimelineDesc, { color: Colors.onViewVariant, textAlign: 'center' }]}>
+                  <Text style={[styles.noTimelineDesc, { color: Colors.onViewVariant, textAlign: 'center' }]}>
                     Buat timeline baru untuk mulai mengelola setoran jimpitan
                   </Text>
                 </View>
-              </Card>
+              </View>
             )}
           </Animated.View>
 
@@ -681,34 +687,38 @@ export default function TimelineManager() {
             />
 
             {activeTimeline && (
-              <View style={[styles.warningCard, { backgroundColor: Colors.warningContainer }]} mode="contained">
+              <View style={[styles.warningCard, { backgroundColor: Colors.warningContainer }]}>
                 <View style={{ paddingVertical: 12 }}>
-                  <Text style="bodySmall" style={{ color: Colors.onWarningContainer, textAlign: 'center', lineHeight: 18 }}>
+                  <Text style={{ color: Colors.onWarningContainer, textAlign: 'center', lineHeight: 18 }}>
                     ⚠️ Membuat timeline baru akan mengganti timeline aktif saat ini
                   </Text>
                 </View>
-              </Card>
+              </View>
             )}
           </Animated.View>
 
           <Animated.View entering={SlideInRight.delay(300)} style={styles.templatesSection}>
-            <Text style="headlineSmall" style={[styles.sectionTitle, { color: Colors.onView }]}>Template Tersimpan</Text>
+            <Text style={[styles.sectionTitle, { color: Colors.onView }]}>Template Tersimpan</Text>
 
             {templates.length > 0 ? (
               templates.map((template, index) => (
                 <Animated.View key={template.id} entering={SlideInRight.delay(400 + index * 100)}>
-                  <View style={styles.templateCard} mode="outlined">
+                  <View style={styles.templateCard}>
                     <View>
                       <View style={styles.templateHeader}>
-                        <View 
-                          size={40} 
-                          icon="file-document" 
-                          style={{ backgroundColor: Colors.secondaryContainer }}
-                          color={Colors.onSecondaryContainer}
-                        />
+                        <View style={{ 
+                          width: 40, 
+                          height: 40, 
+                          backgroundColor: Colors.secondaryContainer,
+                          borderRadius: 20,
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          <MaterialIcons name="description" size={24} color={Colors.onSecondaryContainer} />
+                        </View>
                         <View style={styles.templateHeaderInfo}>
-                          <Text style="titleMedium" style={[styles.templateName, { color: Colors.onView, fontWeight: '600' }]}>{template.name}</Text>
-                          <Text style="bodySmall" style={[styles.templateDate, { color: Colors.onViewVariant }]}>
+                          <Text style={[styles.templateName, { color: Colors.onView, fontWeight: '600' }]}>{template.name}</Text>
+                          <Text style={[styles.templateDate, { color: Colors.onViewVariant }]}>
                             {new Date(template.createdAt?.toDate()).toLocaleDateString(
                               "id-ID"
                             )}
@@ -719,37 +729,41 @@ export default function TimelineManager() {
                       <View style={{ marginVertical: 12 }} />
 
                       <View style={styles.templateDetails}>
-                        <Text style="bodyMedium" style={[styles.templateType, { color: Colors.onViewVariant }]}>
+                        <Text style={[styles.templateType, { color: Colors.onViewVariant }]}>
                           {getTypeLabel(template.type)} - {template.duration} periode
                         </Text>
-                        <Text style="bodyMedium" style={[styles.templateAmount, { color: Colors.success, fontWeight: '500' }]}>
+                        <Text style={[styles.templateAmount, { color: Colors.success, fontWeight: '500' }]}>
                           Base: {formatCurrency(template.baseAmount)}
                         </Text>
                         {template.holidays && template.holidays.length > 0 && (
-                          <Text style="bodySmall" style={[styles.templateHolidays, { color: Colors.warning }]}>
+                          <Text style={[styles.templateHolidays, { color: Colors.warning }]}>
                             Libur: {template.holidays.length} periode
                           </Text>
                         )}
                       </View>
                     </View>
-                  </Card>
+                  </View>
                 </Animated.View>
               ))
             ) : (
-              <View style={styles.noTemplatesCard} mode="outlined">
+              <View style={styles.noTemplatesCard}>
                 <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-                  <View 
-                    size={64} 
-                    icon="file-document-outline" 
-                    style={{ backgroundColor: Colors.surfaceVariant }}
-                    color={Colors.onViewVariant}
-                  />
-                  <Text style="titleMedium" style={[styles.noTemplatesText, { color: Colors.onViewVariant, marginTop: 12, marginBottom: 8 }]}>Belum ada template</Text>
-                  <Text style="bodyMedium" style={[styles.noTemplatesDesc, { color: Colors.onViewVariant, textAlign: 'center' }]}>
+                  <View style={{ 
+                    width: 64, 
+                    height: 64, 
+                    backgroundColor: Colors.surfaceVariant,
+                    borderRadius: 32,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <MaterialIcons name="description" size={32} color={Colors.onViewVariant} />
+                  </View>
+                  <Text style={[styles.noTemplatesText, { color: Colors.onViewVariant, marginTop: 12, marginBottom: 8 }]}>Belum ada template</Text>
+                  <Text style={[styles.noTemplatesDesc, { color: Colors.onViewVariant, textAlign: 'center' }]}>
                     Template akan tersimpan saat Anda membuat timeline dan memilih opsi "Simpan sebagai template"
                   </Text>
                 </View>
-              </Card>
+              </View>
             )}
           </Animated.View>
         </ScrollView>

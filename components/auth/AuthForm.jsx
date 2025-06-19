@@ -11,7 +11,7 @@ import Input from "../ui/Input";
 import DatePicker from "../ui/DatePicker";
 import Button from "../ui/Button";
 import LoadingSpinner from "../ui/LoadingSpinner";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "../../constants/theme";
 import { validateEmail, validatePassword } from "../../utils/validation";
 
 const AuthForm = ({ type = "login", onSubmit, loading = false }) => {

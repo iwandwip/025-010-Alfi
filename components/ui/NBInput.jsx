@@ -1,14 +1,6 @@
-import React, { useState } from "react";
-import {
-  Input as NativeBaseInput,
-  FormControl,
-  Stack,
-  Icon,
-  Pressable,
-  Text,
-  Box,
-} from "native-base";
-import { MaterialIcons } from "@expo/vector-icons";
+import React, { useState } from 'react';
+import { View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const NBInput = ({
   label,
@@ -16,8 +8,8 @@ const NBInput = ({
   value,
   onChangeText,
   secureTextEntry = false,
-  keyboardType = "default",
-  autoCapitalize = "none",
+  keyboardType = 'default',
+  autoCapitalize = 'none',
   error,
   style,
   multiline = false,
@@ -35,41 +27,50 @@ const NBInput = ({
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const passwordToggleElement = secureTextEntry ? (
-    <Pressable onPress={togglePasswordVisibility} mr={3}>
-      <Icon
-        as={MaterialIcons}
-        name={isPasswordVisible ? "visibility" : "visibility-off"}
-        size="sm"
-        color="gray.500"
-      />
-    </Pressable>
-  ) : null;
+  const getInputStyle = () => ({
+    fontSize: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: error ? '#F44336' : (isFocused ? '#F50057' : '#E0E0E0'),
+    backgroundColor: '#FFFFFF',
+    color: '#1A1A1A',
+    minHeight: multiline ? numberOfLines * 20 + 24 : 48,
+    textAlignVertical: multiline ? 'top' : 'center',
+  });
 
   return (
-    <FormControl
-      isInvalid={!!error}
-      isRequired={isRequired}
-      style={style}
-      mb={4}
-    >
-      <Stack>
-        {label && (
-          <FormControl.Label
-            _text={{
-              fontSize: "sm",
-              fontWeight: 500,
-              color: "gray.700",
-            }}
-          >
-            {label}
-          </FormControl.Label>
+    <View style={[{ marginBottom: 16 }, style]}>
+      {label && (
+        <Text style={{
+          fontSize: 14,
+          fontWeight: '500',
+          color: '#4A4A4A',
+          marginBottom: 8,
+        }}>
+          {label}{isRequired && <Text style={{ color: '#F44336' }}> *</Text>}
+        </Text>
+      )}
+      
+      <View style={{ position: 'relative' }}>
+        {leftElement && (
+          <View style={{
+            position: 'absolute',
+            left: 16,
+            top: '50%',
+            transform: [{ translateY: -12 }],
+            zIndex: 1,
+          }}>
+            {leftElement}
+          </View>
         )}
-        
-        <NativeBaseInput
+
+        <TextInput
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
+          placeholderTextColor="#999999"
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
@@ -77,43 +78,66 @@ const NBInput = ({
           numberOfLines={numberOfLines}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          fontSize="md"
-          size="lg"
-          variant={error ? "outline" : "outline"}
-          borderColor={error ? "red.500" : (isFocused ? "primary.500" : "gray.300")}
-          bg="white"
-          _focus={{
-            borderColor: "primary.500",
-            bg: "white",
-          }}
-          InputLeftElement={leftElement}
-          InputRightElement={rightElement || passwordToggleElement}
+          style={[
+            getInputStyle(),
+            leftElement && { paddingLeft: 48 },
+            (rightElement || secureTextEntry) && { paddingRight: 48 },
+          ]}
           {...props}
         />
-        
-        {helperText && !error && (
-          <FormControl.HelperText
-            _text={{
-              fontSize: "xs",
-              color: "gray.600",
+
+        {secureTextEntry && (
+          <TouchableOpacity
+            onPress={togglePasswordVisibility}
+            style={{
+              position: 'absolute',
+              right: 16,
+              top: '50%',
+              transform: [{ translateY: -12 }],
+              zIndex: 1,
             }}
           >
-            {helperText}
-          </FormControl.HelperText>
+            <MaterialIcons
+              name={isPasswordVisible ? 'visibility' : 'visibility-off'}
+              size={20}
+              color="#999999"
+            />
+          </TouchableOpacity>
         )}
-        
-        {error && (
-          <FormControl.ErrorMessage
-            _text={{
-              fontSize: "xs",
-              color: "red.500",
-            }}
-          >
-            {error}
-          </FormControl.ErrorMessage>
+
+        {rightElement && !secureTextEntry && (
+          <View style={{
+            position: 'absolute',
+            right: 16,
+            top: '50%',
+            transform: [{ translateY: -12 }],
+            zIndex: 1,
+          }}>
+            {rightElement}
+          </View>
         )}
-      </Stack>
-    </FormControl>
+      </View>
+      
+      {helperText && !error && (
+        <Text style={{
+          fontSize: 12,
+          color: '#666666',
+          marginTop: 4,
+        }}>
+          {helperText}
+        </Text>
+      )}
+      
+      {error && (
+        <Text style={{
+          fontSize: 12,
+          color: '#F44336',
+          marginTop: 4,
+        }}>
+          {error}
+        </Text>
+      )}
+    </View>
   );
 };
 

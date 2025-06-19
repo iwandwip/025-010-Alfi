@@ -10,6 +10,7 @@ import {
   Modal,
   SafeAreaView,
 } from 'react-native';
+import { Shadows } from '../../constants/theme';
 
 // Theme Colors
 export const Colors = {
@@ -70,24 +71,43 @@ export const Box = ({ children, style, bg, p, px, py, m, mx, my, rounded, shadow
 };
 
 // VStack Component (vertical stack)
-export const VStack = ({ children, space, style, ...props }) => (
-  <View style={[styles.vstack, space && { gap: space * 4 }, style]} {...props}>
-    {children}
-  </View>
-);
+export const VStack = ({ children, space, style, ...props }) => {
+  const childrenWithSpacing = space 
+    ? React.Children.map(children, (child, index) => (
+        index > 0 ? 
+          <View key={index} style={{ marginTop: space * 4 }}>{child}</View> :
+          <View key={index}>{child}</View>
+      ))
+    : children;
+    
+  return (
+    <View style={[styles.vstack, style]} {...props}>
+      {childrenWithSpacing}
+    </View>
+  );
+};
 
 // HStack Component (horizontal stack)
-export const HStack = ({ children, space, style, alignItems, justifyContent, ...props }) => (
-  <View style={[
-    styles.hstack, 
-    space && { gap: space * 4 },
-    alignItems && { alignItems },
-    justifyContent && { justifyContent },
-    style
-  ]} {...props}>
-    {children}
-  </View>
-);
+export const HStack = ({ children, space, style, alignItems, justifyContent, ...props }) => {
+  const childrenWithSpacing = space 
+    ? React.Children.map(children, (child, index) => (
+        index > 0 ? 
+          <View key={index} style={{ marginLeft: space * 4 }}>{child}</View> :
+          <View key={index}>{child}</View>
+      ))
+    : children;
+    
+  return (
+    <View style={[
+      styles.hstack, 
+      alignItems && { alignItems },
+      justifyContent && { justifyContent },
+      style
+    ]} {...props}>
+      {childrenWithSpacing}
+    </View>
+  );
+};
 
 // Center Component
 export const Center = ({ children, style, ...props }) => (
@@ -360,35 +380,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   
-  // Shadow Styles
-  shadow1: {
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  shadow2: {
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  shadow3: {
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  shadow4: {
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 8,
-  },
+  // Shadow Styles - Using consistent theme shadows
+  shadow1: Shadows.sm,
+  shadow2: Shadows.md,
+  shadow3: Shadows.lg,
+  shadow4: Shadows.lg,
   
   // Loading
   loadingContainer: {

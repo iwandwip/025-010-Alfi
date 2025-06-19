@@ -20,24 +20,36 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm test` - Run ESP32 simulator test (testing/esp32-simulator.js)
 - `npm run cleanup` - Run Firebase cleanup script
 
+### Maintenance Commands
+- `npm run clean` - Remove node_modules and package-lock.json
+- `npm run reinstall` - Clean and reinstall all dependencies
+
+### Build Commands (EAS)
+- `eas build --platform android --profile preview` - Build preview APK
+- `eas build --platform android --profile production` - Build production APK
+- `eas build --platform android --profile development` - Build development client
+
 ## Tech Stack
 
 ### Frontend
 - **React Native** (0.79.3) with **Expo SDK 53**
-- **Expo Router** for file-based routing
+- **React** (19.0.0) - Latest React version
+- **Expo Router** (5.1.0) for file-based routing
 - **React Navigation** for navigation management
 - **React Context** pattern for state management
-- **Firebase** (v10.14.0) for backend services
+- **Firebase** (11.9.1) for backend services
 
 ### Key Dependencies
 - **@react-native-async-storage/async-storage** (2.1.2) - Persistent storage
-- **firebase** (10.14.0) + **firebase-admin** (13.4.0) - Backend services
-- **expo-router** (5.0.7) - File-based routing
+- **firebase** (11.9.1) + **firebase-admin** (13.4.0) - Backend services
+- **expo-router** (5.1.0) - File-based routing
 - **react-native-svg** (15.11.2) - SVG illustrations
-- **jspdf & jspdf-autotable** - PDF export functionality
+- **jspdf** (3.0.1) & **jspdf-autotable** (5.0.2) - PDF export functionality
 - **xlsx** (0.18.5) - Excel export capabilities
 - **inquirer** (12.6.3) - CLI interactions for utilities
 - **react-native-chart-kit** (6.12.0) - Data visualization
+- **react-native-vector-icons** (10.2.0) - Icon library
+- **react-native-keyboard-aware-scroll-view** (0.9.5) - Enhanced keyboard handling
 
 ### Hardware Integration
 - **ESP32 firmware** with two versions (R0 and R1)
@@ -116,13 +128,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Automatic UI style adaptation (light/dark)
 
 **Metro Configuration**
-- Custom crypto alias using expo-crypto
-- Disabled package exports for compatibility
+- Custom crypto alias using expo-crypto for Node.js crypto compatibility
+- Disabled package exports for React Native compatibility
 - Cache reset enabled for development
+- Handles Firebase and crypto dependencies properly
 
 ## Firebase Configuration
 
-The app uses Firebase project "haikal-ef006" with:
+The app uses Firebase project "alfi-c6f58" with:
 - Authentication (email/password)
 - Firestore database for user profiles and app data
 - Real-time listeners for data synchronization
@@ -277,12 +290,12 @@ Testing framework available in `testing/` directory with ESP32 simulator.
 - **Development builds**: Internal distribution with development client
 - **Preview builds**: Internal APK distribution for Android
 - **Production builds**: Auto-increment versioning enabled
-- **Project ID**: 878acea5-1787-4765-a329-78bb9b93b718
+- **Project ID**: fe0bef48-816b-4494-8380-edc0f7a2c0b9
 
 ### App Package Details
 - **App Name**: Alfi App
 - **Slug**: alfi-app
-- **Android Package**: com.haikal.haikalapp
+- **Android Package**: com.alfi.alfiapp
 - **Scheme**: firebase-auth-template
 - **Icons**: Money-themed icon throughout (./assets/icon-money.png)
 

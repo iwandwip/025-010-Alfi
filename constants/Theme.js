@@ -4,12 +4,30 @@ export const Colors = {
   primary: '#F50057',
   primaryDark: '#C51162',
   primaryLight: '#FF5983',
+  primaryContainer: '#FFCDD2',
+  onPrimary: '#FFFFFF',
+  onPrimaryContainer: '#8E24AA',
+  
   secondary: '#2196F3',
   secondaryDark: '#1976D2', 
   secondaryLight: '#64B5F6',
+  
+  tertiary: '#9C27B0',
+  tertiaryContainer: '#E1BEE7',
+  onTertiaryContainer: '#6A1B9A',
+  
   success: '#4CAF50',
+  successContainer: '#C8E6C9',
+  onSuccessContainer: '#1B5E20',
+  
   warning: '#FF9800',
+  warningContainer: '#FFE0B2',
+  onWarningContainer: '#E65100',
+  
   error: '#F44336',
+  errorContainer: '#FFCDD2',
+  onErrorContainer: '#B71C1C',
+  
   info: '#2196F3',
   
   // Background colors
@@ -20,6 +38,11 @@ export const Colors = {
   // Surface colors
   surface: '#FFFFFF',
   surfaceVariant: '#F3F4F6',
+  onSurface: '#212121',
+  
+  // View colors
+  onView: '#212121',
+  onViewVariant: '#757575',
   
   // Text colors
   text: '#212121',
@@ -106,34 +129,37 @@ export const Typography = {
 };
 
 export const Shadows = {
-  sm: {
+  sm: Platform.OS === 'ios' ? {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.18,
-    shadowRadius: 1.0,
-    elevation: 1,
+    shadowOpacity: 0.12,
+    shadowRadius: 1.5,
+  } : {
+    elevation: 2,
   },
-  md: {
+  md: Platform.OS === 'ios' ? {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
+    shadowOpacity: 0.16,
+    shadowRadius: 3.5,
+  } : {
     elevation: 4,
   },
-  lg: {
+  lg: Platform.OS === 'ios' ? {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.30,
-    shadowRadius: 4.65,
+    shadowOpacity: 0.20,
+    shadowRadius: 6.0,
+  } : {
     elevation: 8,
   },
 };

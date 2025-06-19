@@ -1,18 +1,7 @@
 import React from "react";
-import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Heading,
-  Divider,
-  Pressable,
-  Badge,
-  Icon,
-  Image,
-} from "native-base";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-// Colors now use NativeBase theme tokens
+import { Shadows } from "../../constants/theme";
 
 const NBCard = ({
   title,
@@ -27,250 +16,331 @@ const NBCard = ({
   imageHeight = 200,
   badge,
   icon,
-  px = 4,
-  py = 4,
-  m = 2,
-  bg = "white",
-  borderColor = "gray.200",
-  shadow = 2,
+  px = 16,
+  py = 16,
+  m = 8,
+  bg = "#FFFFFF",
+  borderColor = "#E5E5E5",
+  shadow = "md",
   style,
   ...props
 }) => {
-  const getVariantProps = () => {
+  const getVariantStyle = () => {
+    const baseStyle = {
+      backgroundColor: bg,
+      borderRadius: 12,
+      paddingHorizontal: px,
+      paddingVertical: py,
+      margin: m,
+      overflow: "hidden",
+    };
+
     switch (variant) {
       case "elevated":
         return {
-          shadow: shadow,
-          borderWidth: 0,
+          ...baseStyle,
+          ...(Shadows[shadow] || Shadows.md),
         };
       case "outline":
         return {
-          shadow: 0,
+          ...baseStyle,
           borderWidth: 1,
           borderColor: borderColor,
         };
       case "filled":
         return {
-          shadow: 0,
-          borderWidth: 0,
-          bg: bg,
+          ...baseStyle,
+          backgroundColor: bg,
         };
       case "ghost":
         return {
-          shadow: 0,
-          borderWidth: 0,
-          bg: "transparent",
+          ...baseStyle,
+          backgroundColor: "transparent",
         };
       default:
         return {
-          shadow: shadow,
-          borderWidth: 0,
+          ...baseStyle,
+          ...(Shadows[shadow] || Shadows.md),
         };
     }
   };
 
-  const variantProps = getVariantProps();
+  const getBadgeColor = (colorScheme) => {
+    switch (colorScheme) {
+      case "success":
+        return { backgroundColor: "#D4EDDA", color: "#155724" };
+      case "warning":
+        return { backgroundColor: "#FFF3CD", color: "#856404" };
+      case "danger":
+        return { backgroundColor: "#F8D7DA", color: "#721C24" };
+      default:
+        return { backgroundColor: "#FCE4EC", color: "#F50057" };
+    }
+  };
 
   const CardContent = () => (
     <>
       {image && (
         <Image
           source={typeof image === "string" ? { uri: image } : image}
-          alt={title || "Card image"}
-          height={imageHeight}
-          width="100%"
-          borderTopRadius="lg"
-          mb="-4"
-          mt="-4"
-          mx="-4"
+          style={{
+            height: imageHeight,
+            width: "100%",
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            marginBottom: -16,
+            marginTop: -16,
+            marginHorizontal: -16,
+          }}
         />
       )}
 
       {(title || subtitle || badge || icon || headerAction) && (
-        <VStack space={2} mb={showDivider ? 3 : 0}>
-          <HStack alignItems="center" justifyContent="space-between">
-            <HStack alignItems="center" space={2} flex={1}>
+        <View style={{ marginBottom: showDivider ? 12 : 0 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <View
+              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+            >
               {icon && (
-                <Icon
-                  as={MaterialIcons}
-                  name={icon}
-                  size={6}
-                  color="primary.500"
-                />
+                <View style={{ marginRight: 8 }}>
+                  <MaterialIcons name={icon} size={24} color="#F50057" />
+                </View>
               )}
-              
-              <VStack flex={1}>
+
+              <View style={{ flex: 1 }}>
                 {title && (
-                  <Heading size="md" color="gray.900">
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: "600",
+                      color: "#1A1A1A",
+                      marginBottom: subtitle ? 2 : 0,
+                    }}
+                  >
                     {title}
-                  </Heading>
+                  </Text>
                 )}
-                
+
                 {subtitle && (
-                  <Text fontSize="sm" color="gray.600" mt={0.5}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: "#666666",
+                    }}
+                  >
                     {subtitle}
                   </Text>
                 )}
-              </VStack>
+              </View>
 
               {badge && (
-                <Badge
-                  colorScheme={badge.colorScheme || "primary"}
-                  variant={badge.variant || "subtle"}
-                  rounded="full"
-                  px={3}
+                <View
+                  style={{
+                    ...getBadgeColor(badge.colorScheme),
+                    paddingHorizontal: 12,
+                    paddingVertical: 4,
+                    borderRadius: 20,
+                  }}
                 >
-                  {badge.text}
-                </Badge>
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: "500",
+                      color: getBadgeColor(badge.colorScheme).color,
+                    }}
+                  >
+                    {badge.text}
+                  </Text>
+                </View>
               )}
-            </HStack>
+            </View>
 
             {headerAction}
-          </HStack>
-        </VStack>
+          </View>
+        </View>
       )}
 
       {showDivider && (title || subtitle) && children && (
-        <Divider bg="gray.200" mb={3} />
+        <View
+          style={{ height: 1, backgroundColor: "#E5E5E5", marginBottom: 12 }}
+        />
       )}
 
       {children}
 
       {footer && (
         <>
-          <Divider bg="gray.200" mt={3} mb={3} />
+          <View
+            style={{
+              height: 1,
+              backgroundColor: "#E5E5E5",
+              marginTop: 12,
+              marginBottom: 12,
+            }}
+          />
           {footer}
         </>
       )}
     </>
   );
 
-  const cardProps = {
-    bg: bg,
-    rounded: "lg",
-    px: px,
-    py: py,
-    m: m,
-    overflow: "hidden",
-    ...variantProps,
-    ...props,
-    style: style,
-  };
+  const cardStyle = [getVariantStyle(), style];
 
   if (onPress) {
     return (
-      <Pressable
+      <TouchableOpacity
         onPress={onPress}
-        _pressed={{
-          opacity: 0.8,
-          transform: [{ scale: 0.98 }],
-        }}
+        activeOpacity={0.8}
+        style={cardStyle}
+        {...props}
       >
-        <Box {...cardProps}>
-          <CardContent />
-        </Box>
-      </Pressable>
+        <CardContent />
+      </TouchableOpacity>
     );
   }
 
   return (
-    <Box {...cardProps}>
+    <View style={cardStyle} {...props}>
       <CardContent />
-    </Box>
+    </View>
   );
 };
 
 // Predefined card variants for common use cases
-export const NBInfoCard = ({ title, value, icon, color = "primary.500", ...props }) => (
-  <NBCard
-    variant="elevated"
-    px={4}
-    py={5}
-    {...props}
-  >
-    <HStack alignItems="center" justifyContent="space-between">
-      <VStack flex={1}>
-        <Text fontSize="sm" color="gray.600" mb={1}>
+export const NBInfoCard = ({
+  title,
+  value,
+  icon,
+  color = "#F50057",
+  ...props
+}) => (
+  <NBCard variant="elevated" px={16} py={20} {...props}>
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <Text
+          style={{
+            fontSize: 14,
+            color: "#666666",
+            marginBottom: 4,
+          }}
+        >
           {title}
         </Text>
-        <Heading size="xl" color="gray.900">
-          {value}
-        </Heading>
-      </VStack>
-      
-      {icon && (
-        <Box
-          bg={`${color}1A`}
-          p={3}
-          rounded="full"
+        <Text
+          style={{
+            fontSize: 24,
+            fontWeight: "bold",
+            color: "#1A1A1A",
+          }}
         >
-          <Icon
-            as={MaterialIcons}
-            name={icon}
-            size={6}
-            color={color}
-          />
-        </Box>
+          {value}
+        </Text>
+      </View>
+
+      {icon && (
+        <View
+          style={{
+            backgroundColor: `${color}1A`,
+            padding: 12,
+            borderRadius: 50,
+          }}
+        >
+          <MaterialIcons name={icon} size={24} color={color} />
+        </View>
       )}
-    </HStack>
+    </View>
   </NBCard>
 );
 
 export const NBListCard = ({ items, onItemPress, ...props }) => (
-  <NBCard variant="outline" p={0} {...props}>
-    <VStack divider={<Divider />} space={0}>
+  <NBCard variant="outline" px={0} py={0} {...props}>
+    <View>
       {items.map((item, index) => (
-        <Pressable
+        <TouchableOpacity
           key={index}
           onPress={() => onItemPress && onItemPress(item)}
-          _pressed={{ bg: "gray.50" }}
+          activeOpacity={0.7}
+          style={{
+            backgroundColor: index % 2 === 1 ? "#F8F8F8" : "transparent",
+          }}
         >
-          <HStack
-            alignItems="center"
-            justifyContent="space-between"
-            px={4}
-            py={3}
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingHorizontal: 16,
+              paddingVertical: 12,
+              borderBottomWidth: index < items.length - 1 ? 1 : 0,
+              borderBottomColor: "#E5E5E5",
+            }}
           >
-            <HStack alignItems="center" space={3} flex={1}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+            >
               {item.icon && (
-                <Icon
-                  as={MaterialIcons}
-                  name={item.icon}
-                  size={5}
-                  color={item.iconColor || "gray.600"}
-                />
+                <View style={{ marginRight: 12 }}>
+                  <MaterialIcons
+                    name={item.icon}
+                    size={20}
+                    color={item.iconColor || "#666666"}
+                  />
+                </View>
               )}
-              
-              <VStack flex={1}>
-                <Text fontSize="md" color="gray.900">
+
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: "#1A1A1A",
+                  }}
+                >
                   {item.title}
                 </Text>
                 {item.subtitle && (
-                  <Text fontSize="sm" color="gray.600">
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      color: "#666666",
+                    }}
+                  >
                     {item.subtitle}
                   </Text>
                 )}
-              </VStack>
-            </HStack>
+              </View>
+            </View>
 
             {item.value && (
-              <Text fontSize="sm" color="gray.700" fontWeight="500">
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: "#4A4A4A",
+                  fontWeight: "500",
+                }}
+              >
                 {item.value}
               </Text>
             )}
 
             {onItemPress && (
-              <Icon
-                as={MaterialIcons}
-                name="chevron-right"
-                size={5}
-                color="gray.400"
-              />
+              <MaterialIcons name="chevron-right" size={20} color="#CCCCCC" />
             )}
-          </HStack>
-        </Pressable>
+          </View>
+        </TouchableOpacity>
       ))}
-    </VStack>
+    </View>
   </NBCard>
 );
 

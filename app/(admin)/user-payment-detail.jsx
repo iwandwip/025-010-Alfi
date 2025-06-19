@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSettings } from "../../contexts/SettingsContext";
-import { getColors } from "../../constants/Colors";
+import { Colors } from "../../constants/theme";
 import { formatDate, toISOString } from "../../utils/dateUtils";
 import {
   getUserDetailedPayments,
@@ -26,7 +26,7 @@ import Button from "../../components/ui/Button";
 
 function UserPaymentDetail() {
   const { theme, loading: settingsLoading } = useSettings();
-  const colors = getColors(theme);
+  const colors = Colors;
   const router = useRouter();
   const { userId, userName, timelineId } = useLocalSearchParams();
 

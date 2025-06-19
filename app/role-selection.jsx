@@ -1,6 +1,6 @@
 import React from "react";
 import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
+// import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeInUp, SlideInLeft, SlideInRight } from 'react-native-reanimated';
@@ -21,10 +21,7 @@ export default function RoleSelection() {
   };
 
   return (
-    <LinearGradient
-      colors={[Colors.primary + '20', Colors.background]}
-      style={[styles.container, { paddingTop: insets.top }]}
-    >
+    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: Colors.background }]}>
       <ScrollView 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -79,10 +76,10 @@ export default function RoleSelection() {
             >
               <View style={styles.cardContent}>
                 <View style={styles.cardLeft}>
-                  <View style={[styles.iconContainer, { backgroundColor: Colors.primary + '20' }, Shadows.md]}>
+                  <View style={[styles.iconContainer, { backgroundColor: Colors.primary + '20' }]}>
                     <MaterialIcons 
                       name="business" 
-                      size={32} 
+                      size={24} 
                       color={Colors.primary}
                     />
                   </View>
@@ -140,10 +137,10 @@ export default function RoleSelection() {
             >
               <View style={styles.cardContent}>
                 <View style={styles.cardLeft}>
-                  <View style={[styles.iconContainer, { backgroundColor: Colors.secondary + '20' }, Shadows.md]}>
+                  <View style={[styles.iconContainer, { backgroundColor: Colors.secondary + '20' }]}>
                     <MaterialIcons 
                       name="home" 
-                      size={32} 
+                      size={24} 
                       color={Colors.secondary}
                     />
                   </View>
@@ -223,7 +220,7 @@ export default function RoleSelection() {
           </Text>
         </Animated.View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -307,10 +304,9 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   iconContainer: {
-    borderRadius: 20,
-    padding: 16,
-    width: 64,
-    height: 64,
+    borderRadius: 16,
+    width: 56,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
   },

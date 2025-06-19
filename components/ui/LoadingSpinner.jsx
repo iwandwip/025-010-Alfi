@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated, ActivityIndicator, Text } from "react-native";
+import { Shadows } from "../../constants/theme";
 
 /**
  * React Native Paper-based LoadingSpinner component
@@ -209,14 +210,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     minWidth: 300,
     backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Shadows.md,
   },
   cardContent: {
     alignItems: "center",
@@ -250,14 +244,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     maxWidth: 280,
     backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Shadows.md,
   },
 });
 

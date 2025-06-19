@@ -476,7 +476,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     alignItems: 'center',
     backgroundColor: Colors.surface,
-    ...Shadows.sm,
   },
   headerTitle: {
     ...Typography.h3,

@@ -127,7 +127,7 @@ export default function BendaharaRegister() {
 
           {/* Progress */}
           <Animated.View entering={FadeInDown.delay(200)} style={styles.progressSection}>
-            <Text style="labelLarge" style={{ color: Colors.onView, marginBottom: 8 }}>
+            <Text style={{ color: Colors.onView, marginBottom: 8 }}>
               Langkah {currentStep} dari 2
             </Text>
             <View style={[styles.progressBar, { backgroundColor: Colors.outline }]}>
@@ -152,11 +152,11 @@ export default function BendaharaRegister() {
               <MaterialIcons name="person-add" size={80} color={Colors.onPrimary} />
             </View>
             
-            <Text style="headlineMedium" style={[styles.title, { color: Colors.onView }]}>
+            <Text style={[styles.title, { color: Colors.onView }]}>
               Daftar Bendahara
             </Text>
             
-            <Text style="bodyLarge" style={[styles.subtitle, { color: Colors.onViewVariant }]}>
+            <Text style={[styles.subtitle, { color: Colors.onViewVariant }]}>
               Buat akun untuk mengelola jimpitan warga
             </Text>
           </Animated.View>
@@ -170,7 +170,7 @@ export default function BendaharaRegister() {
                     <View style={[styles.stepIcon, { backgroundColor: Colors.primaryContainer }]}>
                       <MaterialIcons name="email" size={24} color={Colors.onPrimaryContainer} />
                     </View>
-                    <Text style="titleLarge" style={styles.stepTitle}>
+                    <Text style={styles.stepTitle}>
                       Informasi Akun
                     </Text>
                   </View>
@@ -242,7 +242,7 @@ export default function BendaharaRegister() {
                     <View style={[styles.stepIcon, { backgroundColor: Colors.secondaryContainer }]}>
                       <MaterialIcons name="person" size={24} color={Colors.onSecondaryContainer} />
                     </View>
-                    <Text style="titleLarge" style={styles.stepTitle}>
+                    <Text style={styles.stepTitle}>
                       Informasi Pribadi
                     </Text>
                   </View>
@@ -287,7 +287,7 @@ export default function BendaharaRegister() {
             entering={FadeInUp.delay(400)}
             style={styles.loginSection}
           >
-            <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
+            <Text style={{ color: Colors.onViewVariant }}>
               Sudah punya akun bendahara?
             </Text>
             <Button

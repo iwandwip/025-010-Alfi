@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSettings } from '../../contexts/SettingsContext';
-import { getColors } from '../../constants/Colors';
+import { Colors } from '../../constants/theme';
 
 const CreditBalance = ({ creditBalance = 0, style }) => {
   const { theme } = useSettings();
-  const colors = getColors(theme);
+  const colors = Colors;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {

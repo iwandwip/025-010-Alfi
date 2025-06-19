@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
-import { Colors } from "../constants/Colors";
+import { Colors } from "../constants/theme";
 
 export default function Index() {
   const { currentUser, loading, authInitialized, userProfile } = useAuth();

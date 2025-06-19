@@ -11,12 +11,12 @@ import {
   TextInput,
 } from "react-native";
 import { useSettings } from "../../contexts/SettingsContext";
-import { getColors } from "../../constants/Colors";
+import { Colors } from "../../constants/theme";
 import Button from "./Button";
 
 const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalance = 0 }) => {
   const { theme, loading: settingsLoading } = useSettings();
-  const colors = getColors(theme);
+  const colors = Colors;
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [paymentMode, setPaymentMode] = useState('exact');

@@ -132,7 +132,7 @@ export default function TambahWarga() {
           Tambah Data Warga
         </Text>
         <View style={styles.placeholder} />
-      </Surface>
+      </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}

@@ -1,81 +1,90 @@
-import React from "react";
-import { Button as NativeBaseButton } from "native-base";
+import React from 'react';
+import { TouchableOpacity, Text, View } from 'react-native';
 
 const NBButton = ({
   title,
   onPress,
-  variant = "primary",
+  variant = 'primary',
   disabled = false,
   style,
   textStyle,
   accessibilityLabel,
-  size = "md",
+  size = 'md',
   leftIcon,
   rightIcon,
   ...props
 }) => {
-  // Map custom variants to NativeBase variants
-  const getVariantProps = () => {
+  const getButtonStyle = () => {
+    const baseStyle = {
+      paddingVertical: size === 'sm' ? 8 : size === 'lg' ? 16 : 12,
+      paddingHorizontal: size === 'sm' ? 16 : size === 'lg' ? 24 : 20,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      opacity: disabled ? 0.6 : 1,
+    };
+
     switch (variant) {
-      case "primary":
+      case 'primary':
         return {
-          variant: "solid",
-          colorScheme: "primary",
-          _text: { ...textStyle },
+          ...baseStyle,
+          backgroundColor: '#F50057',
         };
-      case "secondary":
+      case 'secondary':
+      case 'outline':
         return {
-          variant: "outline",
-          colorScheme: "primary",
-          _text: { ...textStyle },
-        };
-      case "outline":
-        return {
-          variant: "outline",
-          colorScheme: "primary",
-          _text: { ...textStyle },
+          ...baseStyle,
+          backgroundColor: 'transparent',
+          borderWidth: 1,
+          borderColor: '#F50057',
         };
       default:
         return {
-          variant: "solid",
-          colorScheme: "primary",
-          _text: { ...textStyle },
+          ...baseStyle,
+          backgroundColor: '#F50057',
         };
     }
   };
 
-  const variantProps = getVariantProps();
+  const getTextStyle = () => {
+    const baseTextStyle = {
+      fontSize: size === 'sm' ? 14 : size === 'lg' ? 18 : 16,
+      fontWeight: '600',
+    };
 
-  // Map size to NativeBase sizes
-  const getSize = () => {
-    switch (size) {
-      case "xs":
-        return "xs";
-      case "sm":
-        return "sm";
-      case "lg":
-        return "lg";
-      case "md":
+    switch (variant) {
+      case 'primary':
+        return {
+          ...baseTextStyle,
+          color: '#FFFFFF',
+        };
+      case 'secondary':
+      case 'outline':
+        return {
+          ...baseTextStyle,
+          color: '#F50057',
+        };
       default:
-        return "md";
+        return {
+          ...baseTextStyle,
+          color: '#FFFFFF',
+        };
     }
   };
 
   return (
-    <NativeBaseButton
+    <TouchableOpacity
       onPress={onPress}
-      isDisabled={disabled}
-      size={getSize()}
-      rounded="lg"
+      disabled={disabled}
+      style={[getButtonStyle(), style]}
       accessibilityLabel={accessibilityLabel || title}
-      leftIcon={leftIcon}
-      rightIcon={rightIcon}
-      {...variantProps}
       {...props}
-      style={style}
     >
-      {title}
-    </NativeBaseButton>
+      {leftIcon && <View style={{ marginRight: 8 }}>{leftIcon}</View>}
+      <Text style={[getTextStyle(), textStyle]}>{title}</Text>
+      {rightIcon && <View style={{ marginLeft: 8 }}>{rightIcon}</View>}
+    </TouchableOpacity>
   );
 };
 

@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useSettings } from "../../contexts/SettingsContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import { getColors } from "../../constants/Colors";
 import { formatDate } from "../../utils/dateUtils";
 import { paymentStatusManager } from "../../services/paymentStatusManager";
 import { getAllUsersPaymentStatus } from "../../services/adminPaymentService";
@@ -27,7 +26,7 @@ import { Colors, Shadows } from '../../constants/theme';
 function PaymentStatus() {
   const { theme, loading: settingsLoading } = useSettings();
   const { showUpdateNotification, showErrorNotification } = useNotification();
-  const colors = getColors(theme);
+  const colors = Colors;
   // Using custom theme from constants
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -181,13 +180,13 @@ function PaymentStatus() {
               </View>
               
               <View style={styles.userInfo}>
-                <Text style="titleMedium" style={[styles.userName, { fontWeight: '600', marginBottom: 4 }]}>
+                <Text style={[styles.userName, { fontWeight: '600', marginBottom: 4 }]}>
                   {user.namaWarga || "Nama Warga"}
                 </Text>
-                <Text style="bodySmall" style={{ color: Colors.onViewVariant, fontStyle: 'italic' }}>
+                <Text style={{ color: Colors.onViewVariant, fontStyle: 'italic' }}>
                   {user.email}
                 </Text>
-                <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
+                <Text style={{ color: Colors.onViewVariant }}>
                   Progress: {user.paymentSummary.progressPercentage}%
                 </Text>
               </View>
@@ -223,29 +222,29 @@ function PaymentStatus() {
             <View style={styles.paymentSummary}>
               <View style={styles.summaryRow}>
                 <View style={styles.summaryItem}>
-                  <Text style="titleMedium" style={{ color: Colors.success, fontWeight: 'bold' }}>
+                  <Text style={{ color: Colors.success, fontWeight: 'bold' }}>
                     {user.paymentSummary.lunas}
                   </Text>
-                  <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
+                  <Text style={{ color: Colors.onViewVariant }}>
                     Lunas
                   </Text>
                 </View>
 
                 <View style={styles.summaryItem}>
-                  <Text style="titleMedium" style={{ color: Colors.error, fontWeight: 'bold' }}>
+                  <Text style={{ color: Colors.error, fontWeight: 'bold' }}>
                     {user.paymentSummary.belumBayar}
                   </Text>
-                  <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
+                  <Text style={{ color: Colors.onViewVariant }}>
                     Belum
                   </Text>
                 </View>
 
                 {user.paymentSummary.belumLunas > 0 && (
                   <View style={styles.summaryItem}>
-                    <Text style="titleMedium" style={{ color: Colors.tertiary, fontWeight: 'bold' }}>
+                    <Text style={{ color: Colors.tertiary, fontWeight: 'bold' }}>
                       {user.paymentSummary.belumLunas}
                     </Text>
-                    <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
+                    <Text style={{ color: Colors.onViewVariant }}>
                       Parsial
                     </Text>
                   </View>
@@ -253,20 +252,20 @@ function PaymentStatus() {
 
                 {user.paymentSummary.terlambat > 0 && (
                   <View style={styles.summaryItem}>
-                    <Text style="titleMedium" style={{ color: Colors.warning, fontWeight: 'bold' }}>
+                    <Text style={{ color: Colors.warning, fontWeight: 'bold' }}>
                       {user.paymentSummary.terlambat}
                     </Text>
-                    <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
+                    <Text style={{ color: Colors.onViewVariant }}>
                       Terlambat
                     </Text>
                   </View>
                 )}
 
                 <View style={styles.summaryItem}>
-                  <Text style="titleMedium" style={{ color: Colors.onView, fontWeight: 'bold' }}>
+                  <Text style={{ color: Colors.onView, fontWeight: 'bold' }}>
                     {user.paymentSummary.total}
                   </Text>
-                  <Text style="bodySmall" style={{ color: Colors.onViewVariant }}>
+                  <Text style={{ color: Colors.onViewVariant }}>
                     Total
                   </Text>
                 </View>
@@ -274,30 +273,30 @@ function PaymentStatus() {
 
               <View style={styles.amountInfo}>
                 <View style={styles.amountRow}>
-                  <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
+                  <Text style={{ color: Colors.onViewVariant }}>
                     Sudah Dibayar:
                   </Text>
-                  <Text style="bodyMedium" style={{ color: Colors.success, fontWeight: '600' }}>
+                  <Text style={{ color: Colors.success, fontWeight: '600' }}>
                     {formatCurrency(user.paymentSummary.paidAmount)}
                   </Text>
                 </View>
 
                 {user.paymentSummary.partialAmount > 0 && (
                   <View style={styles.amountRow}>
-                    <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
+                    <Text style={{ color: Colors.onViewVariant }}>
                       Terbayar Parsial:
                     </Text>
-                    <Text style="bodyMedium" style={{ color: Colors.tertiary, fontWeight: '600' }}>
+                    <Text style={{ color: Colors.tertiary, fontWeight: '600' }}>
                       {formatCurrency(user.paymentSummary.partialAmount)}
                     </Text>
                   </View>
                 )}
 
                 <View style={styles.amountRow}>
-                  <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
+                  <Text style={{ color: Colors.onViewVariant }}>
                     Belum Dibayar:
                   </Text>
-                  <Text style="bodyMedium" style={{ color: Colors.error, fontWeight: '600' }}>
+                  <Text style={{ color: Colors.error, fontWeight: '600' }}>
                     {formatCurrency(user.paymentSummary.unpaidAmount)}
                   </Text>
                 </View>
@@ -305,7 +304,7 @@ function PaymentStatus() {
 
               {user.paymentSummary.lastPaymentDate && (
                 <View style={styles.lastPayment}>
-                  <Text style="bodySmall" style={{ color: Colors.onViewVariant, fontStyle: 'italic' }}>
+                  <Text style={{ color: Colors.onViewVariant, fontStyle: 'italic' }}>
                     Terakhir bayar: {formatDate(user.paymentSummary.lastPaymentDate)}
                   </Text>
                 </View>
@@ -336,10 +335,10 @@ function PaymentStatus() {
             color={Colors.onViewVariant} 
           />
         </View>
-        <Text style="headlineSmall" style={[styles.emptyText, { color: Colors.onViewVariant, marginTop: 16, marginBottom: 8, fontWeight: '600' }]}>
+        <Text style={[styles.emptyText, { color: Colors.onViewVariant, marginTop: 16, marginBottom: 8, fontWeight: '600' }]}>
           {timeline ? "Belum ada data warga" : "Belum ada timeline aktif"}
         </Text>
-        <Text style="bodyMedium" style={[styles.emptySubtext, { color: Colors.onViewVariant, textAlign: 'center' }]}>
+        <Text style={[styles.emptySubtext, { color: Colors.onViewVariant, textAlign: 'center' }]}>
           {timeline
             ? "Data warga akan muncul setelah ada yang mendaftar"
             : "Buat timeline terlebih dahulu"}
@@ -353,7 +352,7 @@ function PaymentStatus() {
     () => (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" animating />
-        <Text style="bodyLarge" style={{ marginTop: 16 }}>
+        <Text style={{ marginTop: 16 }}>
           Memuat data setoran warga...
         </Text>
       </View>
@@ -376,7 +375,7 @@ function PaymentStatus() {
           >
             <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
           </TouchableOpacity>
-          <Text style="headlineMedium" style={styles.headerTitle}>
+          <Text style={styles.headerTitle}>
             Status Pembayaran Warga
           </Text>
           <View style={styles.placeholder} />
@@ -391,13 +390,14 @@ function PaymentStatus() {
       colors={[Colors.primaryContainer, Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <View style={styles.header} ...Shadows.md, //elevation=2}>
+      <View style={[styles.header, Shadows.md]}>
         <TouchableOpacity
-          icon="arrow-left"
           onPress={() => router.back()}
           style={styles.backButton}
-        />
-        <Text style="headlineMedium" style={styles.headerTitle}>
+        >
+          <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
           Status Pembayaran Warga
         </Text>
         <View style={styles.placeholder} />
@@ -414,15 +414,15 @@ function PaymentStatus() {
                     <MaterialIcons name="show-chart" size={32} color={Colors.onPrimary} />
                   </View>
                   <View style={styles.summaryInfo}>
-                    <Text style="titleLarge" style={{ fontWeight: 'bold' }}>
+                    <Text style={{ fontWeight: 'bold' }}>
                       {filteredUsers.length}
                     </Text>
-                    <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
+                    <Text style={{ color: Colors.onViewVariant }}>
                       Total Warga
                     </Text>
                   </View>
                   <View style={styles.summaryInfo}>
-                    <Text style="bodyMedium" style={{ color: Colors.onViewVariant }}>
+                    <Text style={{ color: Colors.onViewVariant }}>
                       Timeline: {timeline.name}
                     </Text>
                   </View>

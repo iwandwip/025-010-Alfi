@@ -1,22 +1,11 @@
-import React, { useEffect, useRef } from "react";
-import {
-  Spinner,
-  HStack,
-  VStack,
-  Text,
-  Progress,
-  Box,
-  Center,
-  Modal,
-  Heading,
-} from "native-base";
-import { Animated } from "react-native";
-// Colors now use NativeBase theme tokens
+import React, { useEffect, useRef } from 'react';
+import { View, Text, Animated, ActivityIndicator, Modal } from 'react-native';
+import { Shadows } from '../../constants/theme';
 
 const NBLoadingSpinner = ({
-  size = "lg",
-  color = "primary.500",
-  text = "Memuat...",
+  size = 'large',
+  color = '#F50057',
+  text = 'Memuat...',
   subText = null,
   style,
   showProgress = false,
@@ -44,7 +33,7 @@ const NBLoadingSpinner = ({
   }, []);
 
   const progressValue = showProgress && progressSteps.length > 0
-    ? ((currentStep + 1) / progressSteps.length) * 100
+    ? ((currentStep + 1) / progressSteps.length)
     : 0;
 
   return (
@@ -57,88 +46,97 @@ const NBLoadingSpinner = ({
         style,
       ]}
     >
-      <VStack space={4} alignItems="center" p={5}>
-        <Box position="relative">
-          <Spinner
+      <View style={{
+        alignItems: 'center',
+        padding: 20,
+      }}>
+        <View style={{ position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator
             size={size}
             color={color}
             accessibilityLabel={accessibilityLabel || text}
           />
-          {/* Pulse effect background */}
-          <Box
-            position="absolute"
-            w={60}
-            h={60}
-            borderRadius="full"
-            bg={color}
-            opacity="0.1"
-            top="-15"
-            left="-15"
-          />
-        </Box>
+          <View style={{
+            position: 'absolute',
+            width: 60,
+            height: 60,
+            borderRadius: 30,
+            backgroundColor: color,
+            opacity: 0.1,
+          }} />
+        </View>
 
         {text && (
-          <Text
-            fontSize="md"
-            fontWeight="600"
-            color={color}
-            textAlign="center"
-          >
+          <Text style={{
+            fontSize: 16,
+            fontWeight: '600',
+            color: color,
+            textAlign: 'center',
+            marginTop: 16,
+          }}>
             {text}
           </Text>
         )}
 
         {subText && (
-          <Text
-            fontSize="sm"
-            color="gray.600"
-            textAlign="center"
-          >
+          <Text style={{
+            fontSize: 14,
+            color: '#666666',
+            textAlign: 'center',
+            marginTop: 8,
+          }}>
             {subText}
           </Text>
         )}
 
         {showProgress && progressSteps.length > 0 && (
-          <VStack space={2} w="100%" alignItems="center">
-            <Progress
-              value={progressValue}
-              w="100%"
-              h={2}
-              bg="gray.200"
-              _filledTrack={{
-                bg: color,
-              }}
-            />
+          <View style={{ width: '100%', alignItems: 'center', marginTop: 16 }}>
+            <View style={{
+              width: '100%',
+              height: 4,
+              backgroundColor: '#E0E0E0',
+              borderRadius: 2,
+              overflow: 'hidden',
+            }}>
+              <View style={{
+                width: `${progressValue * 100}%`,
+                height: '100%',
+                backgroundColor: color,
+                borderRadius: 2,
+              }} />
+            </View>
             
             {progressSteps[currentStep] && (
-              <Text
-                fontSize="sm"
-                color="gray.700"
-                fontWeight="500"
-                textAlign="center"
-              >
+              <Text style={{
+                fontSize: 14,
+                color: '#4A4A4A',
+                fontWeight: '500',
+                textAlign: 'center',
+                marginTop: 8,
+              }}>
                 {progressSteps[currentStep]}
               </Text>
             )}
             
-            <Text
-              fontSize="xs"
-              color="gray.500"
-              textAlign="center"
-            >
+            <Text style={{
+              fontSize: 12,
+              color: '#999999',
+              textAlign: 'center',
+              marginTop: 4,
+            }}>
               {currentStep + 1} dari {progressSteps.length}
             </Text>
-          </VStack>
+          </View>
         )}
-      </VStack>
+      </View>
     </Animated.View>
   );
 };
 
 const NBLoadingCard = ({
-  title = "Memuat Data",
-  subtitle = "Mohon tunggu sebentar...",
-  color = "primary.500",
+  title = 'Memuat Data',
+  subtitle = 'Mohon tunggu sebentar...',
+  color = '#F50057',
   children,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -153,68 +151,78 @@ const NBLoadingCard = ({
 
   return (
     <Animated.View style={{ opacity: fadeAnim, flex: 1 }}>
-      <Center flex={1} px={6}>
-        <Box
-          bg="white"
-          rounded="2xl"
-          p={10}
-          alignItems="center"
-          shadow={9}
-          borderWidth={1}
-          borderColor="gray.200"
-          minW={300}
-        >
-          <NBLoadingSpinner size="lg" color={color} text="" />
+      <View style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+      }}>
+        <View style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: 16,
+          padding: 40,
+          alignItems: 'center',
+          ...Shadows.lg,
+          borderWidth: 1,
+          borderColor: '#E0E0E0',
+          minWidth: 300,
+        }}>
+          <NBLoadingSpinner size="large" color={color} text="" />
           
-          <Heading size="md" mt={4} textAlign="center">
+          <Text style={{
+            fontSize: 18,
+            fontWeight: '600',
+            marginTop: 16,
+            textAlign: 'center',
+            color: '#1A1A1A',
+          }}>
             {title}
-          </Heading>
+          </Text>
           
-          <Text
-            fontSize="sm"
-            color="gray.600"
-            textAlign="center"
-            mt={2}
-          >
+          <Text style={{
+            fontSize: 14,
+            color: '#666666',
+            textAlign: 'center',
+            marginTop: 8,
+          }}>
             {subtitle}
           </Text>
           
           {children}
-        </Box>
-      </Center>
+        </View>
+      </View>
     </Animated.View>
   );
 };
 
 const NBLoadingOverlay = ({
   visible,
-  text = "Memuat...",
-  color = "primary.500",
+  text = 'Memuat...',
+  color = '#F50057',
 }) => {
   return (
-    <Modal isOpen={visible} size="full">
-      <Modal.Content
-        bg="transparent"
-        shadow="none"
-        maxWidth="100%"
-        h="100%"
-      >
-        <Center flex={1} bg="rgba(0, 0, 0, 0.7)">
-          <Box
-            bg="white"
-            rounded="xl"
-            p={8}
-            alignItems="center"
-            maxW={280}
-          >
-            <NBLoadingSpinner
-              size="lg"
-              color={color}
-              text={text}
-            />
-          </Box>
-        </Center>
-      </Modal.Content>
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={{
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+        <View style={{
+          backgroundColor: '#FFFFFF',
+          borderRadius: 12,
+          padding: 32,
+          alignItems: 'center',
+          maxWidth: 280,
+          width: '80%',
+        }}>
+          <NBLoadingSpinner
+            size="large"
+            color={color}
+            text={text}
+          />
+        </View>
+      </View>
     </Modal>
   );
 };
