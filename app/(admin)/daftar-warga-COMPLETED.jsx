@@ -4,7 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getAllWarga } from "../../services/userService";
-import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
 
@@ -52,7 +51,7 @@ export default function DaftarWarga() {
   };
 
   const renderWargaItem = ({ item, index }) => (
-    <Animated.View entering={SlideInRight.delay(index * 100)}>
+    <View>
       <TouchableOpacity style={styles.wargaCard} onPress={() => handleWargaPress(item)}>
         <View style={styles.cardContent}>
           <View style={styles.avatarSection}>
@@ -108,7 +107,7 @@ export default function DaftarWarga() {
           </View>
         </View>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 
   if (loading) {
@@ -160,7 +159,7 @@ export default function DaftarWarga() {
 
       <View style={styles.content}>
         {/* Summary Card */}
-        <Animated.View entering={FadeInDown.delay(100)}>
+        <View>
           <View style={[styles.summaryCard, Shadows.md]}>
             <View style={styles.summaryHeader}>
               <View style={styles.summaryIconContainer}>
@@ -201,10 +200,10 @@ export default function DaftarWarga() {
               </View>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {wargaList.length === 0 ? (
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.emptyContainer}>
+          <View style={styles.emptyContainer}>
             <View style={styles.emptyIcon}>
               <MaterialIcons 
                 name="person-off" 
@@ -218,7 +217,7 @@ export default function DaftarWarga() {
             <Text style={styles.emptyText}>
               Tambah warga baru melalui menu Tambah Data Warga
             </Text>
-          </Animated.View>
+          </View>
         ) : (
           <FlatList
             data={wargaList}

@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { updateUserProfile } from "../../services/userService";
-import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
 import Input from '../../components/ui/Input';
@@ -155,7 +154,6 @@ export default function EditProfile() {
         >
           <View style={styles.content}>
             {/* Profile Header Card */}
-            <Animated.View entering={FadeInDown.delay(100)}>
               <View style={[styles.profileCard, Shadows.lg]}>
                 <View style={styles.profileHeader}>
                   <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
@@ -173,10 +171,8 @@ export default function EditProfile() {
                   </View>
                 </View>
               </View>
-            </Animated.View>
 
             {/* Personal Information Form */}
-            <Animated.View entering={SlideInUp.delay(200)}>
               <View style={[styles.formCard, Shadows.md]}>
                 <View style={styles.section}>
                   <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Informasi Pribadi</Text>
@@ -224,9 +220,8 @@ export default function EditProfile() {
                   </View>
                 </View>
               </View>
-            </Animated.View>
 
-            <Animated.View entering={SlideInUp.delay(400)} style={styles.buttonSection}>
+            <View style={styles.buttonSection}>
               <Button
                 variant="outline"
                 onPress={() => router.back()}
@@ -245,7 +240,7 @@ export default function EditProfile() {
               >
                 {loading ? "Menyimpan..." : "Simpan Perubahan"}
               </Button>
-            </Animated.View>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

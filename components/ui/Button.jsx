@@ -105,7 +105,7 @@ const Button = ({
         </View>
       )}
       <Text style={[getTextStyle(), textStyle]}>
-        {children || title}
+        {String(children || title || '')}
       </Text>
     </TouchableOpacity>
   );

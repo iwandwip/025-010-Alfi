@@ -8,7 +8,6 @@ import Button from '../../components/ui/Button';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { signInWithEmail } from "../../services/authService";
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
 export default function BendaharaLogin() {
   const [email, setEmail] = useState("");
@@ -47,18 +46,17 @@ export default function BendaharaLogin() {
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <Animated.View entering={FadeInDown.delay(100).springify()}>
+          <View>
             <TouchableOpacity
               onPress={() => router.back()}
               style={styles.backButton}
             >
               <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
             </TouchableOpacity>
-          </Animated.View>
+          </View>
 
           {/* Logo Section */}
-          <Animated.View 
-            entering={FadeInDown.delay(200).springify()}
+          <View 
             style={styles.logoSection}
           >
             <View style={[styles.logoContainer, { backgroundColor: Colors.primary }, Shadows.md]}>
@@ -73,10 +71,10 @@ export default function BendaharaLogin() {
               Sistem Pengelolaan Jimpitan RT
             </Text>
 
-          </Animated.View>
+          </View>
 
           {/* Login Form */}
-          <Animated.View entering={FadeInUp.delay(300).springify()}>
+          <View>
             <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
               <View style={{ padding: 20 }}>
                 <Text style={styles.formTitle}>
@@ -112,11 +110,10 @@ export default function BendaharaLogin() {
 
               </View>
             </View>
-          </Animated.View>
+          </View>
 
           {/* Register Link */}
-          <Animated.View 
-            entering={FadeInUp.delay(400).springify()}
+          <View 
             style={styles.registerSection}
           >
             <Text style={{ color: Colors.onViewVariant }}>
@@ -129,7 +126,7 @@ export default function BendaharaLogin() {
             >
               Daftar Sekarang
             </Button>
-          </Animated.View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

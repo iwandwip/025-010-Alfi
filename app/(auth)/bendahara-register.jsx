@@ -8,7 +8,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { signUpWithEmail } from "../../services/authService";
-import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 
 export default function BendaharaRegister() {
   const [formData, setFormData] = useState({
@@ -110,7 +109,7 @@ export default function BendaharaRegister() {
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <Animated.View entering={FadeInDown.delay(100)}>
+          <View>
             <TouchableOpacity
               onPress={() => {
                 if (currentStep === 1) {
@@ -123,10 +122,10 @@ export default function BendaharaRegister() {
             >
               <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
             </TouchableOpacity>
-          </Animated.View>
+          </View>
 
           {/* Progress */}
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.progressSection}>
+          <View style={styles.progressSection}>
             <Text style={{ color: Colors.onView, marginBottom: 8 }}>
               Langkah {currentStep} dari 2
             </Text>
@@ -141,11 +140,10 @@ export default function BendaharaRegister() {
                 ]} 
               />
             </View>
-          </Animated.View>
+          </View>
 
           {/* Logo Section */}
-          <Animated.View 
-            entering={FadeInDown.delay(300)}
+          <View 
             style={styles.logoSection}
           >
             <View style={[styles.logoContainer, { backgroundColor: Colors.primary }, Shadows.md]}>
@@ -159,11 +157,11 @@ export default function BendaharaRegister() {
             <Text style={[styles.subtitle, { color: Colors.onViewVariant }]}>
               Buat akun untuk mengelola jimpitan warga
             </Text>
-          </Animated.View>
+          </View>
 
           {/* Step 1: Account Info */}
           {currentStep === 1 && (
-            <Animated.View entering={SlideInRight.springify()}>
+            <View>
               <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
                 <View style={{ padding: 20 }}>
                   <View style={styles.stepHeader}>
@@ -230,12 +228,12 @@ export default function BendaharaRegister() {
                   </Button>
                 </View>
               </View>
-            </Animated.View>
+            </View>
           )}
 
           {/* Step 2: Personal Info */}
           {currentStep === 2 && (
-            <Animated.View entering={SlideInRight.springify()}>
+            <View>
               <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
                 <View style={{ padding: 20 }}>
                   <View style={styles.stepHeader}>
@@ -279,12 +277,11 @@ export default function BendaharaRegister() {
                   </Button>
                 </View>
               </View>
-            </Animated.View>
+            </View>
           )}
 
           {/* Login Link */}
-          <Animated.View 
-            entering={FadeInUp.delay(400)}
+          <View 
             style={styles.loginSection}
           >
             <Text style={{ color: Colors.onViewVariant }}>
@@ -298,7 +295,7 @@ export default function BendaharaRegister() {
             >
               Masuk Sekarang
             </Button>
-          </Animated.View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>

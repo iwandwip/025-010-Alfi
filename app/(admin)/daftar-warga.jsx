@@ -4,9 +4,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getAllWarga } from "../../services/userService";
-import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Spacing, Typography, BorderRadius } from '../../constants/theme';
+import { CardStyles } from '../../constants/CardStyles';
 import NBCard from '../../components/ui/NBCard';
 
 export default function DaftarWarga() {
@@ -53,8 +53,7 @@ export default function DaftarWarga() {
   };
 
   const renderWargaItem = ({ item, index }) => (
-    <Animated.View entering={SlideInRight.delay(index * 100)}>
-      <TouchableOpacity style={styles.wargaCard} onPress={() => handleWargaPress(item)}>
+    <TouchableOpacity style={styles.wargaCard} onPress={() => handleWargaPress(item)}>
         <View style={styles.cardContent}>
           <View style={styles.avatarSection}>
             <View style={[styles.avatar, { backgroundColor: Colors.primary + '20' }]}>
@@ -109,7 +108,6 @@ export default function DaftarWarga() {
           </View>
         </View>
       </TouchableOpacity>
-    </Animated.View>
   );
 
   if (loading) {
@@ -161,51 +159,49 @@ export default function DaftarWarga() {
 
       <View style={styles.content}>
         {/* Summary Card */}
-        <Animated.View entering={FadeInDown.delay(100)}>
-          <View style={[styles.summaryCard, Shadows.md]}>
-            <View style={styles.summaryHeader}>
-              <View style={styles.summaryIconContainer}>
-                <MaterialIcons 
-                  name="group" 
-                  size={32} 
-                  color={Colors.primary}
-                />
-              </View>
-              <View style={styles.summaryInfo}>
-                <Text style={styles.summaryNumber}>
-                  {wargaList.length}
-                </Text>
-                <Text style={styles.summaryLabel}>
-                  Total Warga
-                </Text>
-              </View>
+        <View style={[styles.summaryCard, Shadows.md]}>
+          <View style={styles.summaryHeader}>
+            <View style={styles.summaryIconContainer}>
+              <MaterialIcons 
+                name="group" 
+                size={32} 
+                color={Colors.primary}
+              />
             </View>
-            
-            <View style={styles.divider} />
-            
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: Colors.success }]}>
-                  {wargaList.filter((w) => w.rfidWarga).length}
-                </Text>
-                <Text style={styles.statLabel}>
-                  RFID Terpasang
-                </Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: Colors.warning }]}>
-                  {wargaList.filter((w) => !w.rfidWarga).length}
-                </Text>
-                <Text style={styles.statLabel}>
-                  Belum RFID
-                </Text>
-              </View>
+            <View style={styles.summaryInfo}>
+              <Text style={styles.summaryNumber}>
+                {wargaList.length}
+              </Text>
+              <Text style={styles.summaryLabel}>
+                Total Warga
+              </Text>
             </View>
           </View>
-        </Animated.View>
+          
+          <View style={styles.divider} />
+          
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={[styles.statNumber, { color: Colors.success }]}>
+                {wargaList.filter((w) => w.rfidWarga).length}
+              </Text>
+              <Text style={styles.statLabel}>
+                RFID Terpasang
+              </Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={[styles.statNumber, { color: Colors.warning }]}>
+                {wargaList.filter((w) => !w.rfidWarga).length}
+              </Text>
+              <Text style={styles.statLabel}>
+                Belum RFID
+              </Text>
+            </View>
+          </View>
+        </View>
 
         {wargaList.length === 0 ? (
-          <Animated.View entering={FadeInDown.delay(200)} style={styles.emptyContainer}>
+          <View style={styles.emptyContainer}>
             <View style={styles.emptyIcon}>
               <MaterialIcons 
                 name="person-off" 
@@ -219,7 +215,7 @@ export default function DaftarWarga() {
             <Text style={styles.emptyText}>
               Tambah warga baru melalui menu Tambah Data Warga
             </Text>
-          </Animated.View>
+          </View>
         ) : (
           <FlatList
             data={wargaList}
@@ -257,20 +253,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
     justifyContent: 'space-between',
     backgroundColor: Colors.surface,
   },
   backButton: {
-    padding: 8,
+    padding: Spacing.sm,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    ...Typography.h5,
     flex: 1,
     textAlign: 'center',
-    color: Colors.text,
   },
   placeholder: {
     width: 48,
@@ -291,34 +285,27 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   summaryCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    marginBottom: 16,
-    padding: 16,
+    ...CardStyles.cardLarge,
+    marginBottom: Spacing.lg,
   },
   summaryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: Spacing.md,
   },
   summaryIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: Colors.primary + '20',
-    alignItems: 'center',
-    justifyContent: 'center',
+    ...CardStyles.cardIcon,
+    backgroundColor: Colors.primaryContainer,
   },
   summaryInfo: {
     flex: 1,
   },
   summaryNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.text,
+    ...Typography.h3,
+    marginBottom: Spacing.xs,
   },
   summaryLabel: {
-    fontSize: 14,
+    ...Typography.body2,
     color: Colors.textSecondary,
   },
   divider: {
@@ -376,46 +363,37 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   wargaCard: {
-    backgroundColor: Colors.surface,
-    borderRadius: 16,
-    marginBottom: 12,
-    ...Shadows.md,
+    ...CardStyles.listCard,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.sm,
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    gap: 12,
+    gap: Spacing.md,
   },
   avatarSection: {
     alignItems: 'center',
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+    ...CardStyles.cardAvatar,
   },
   avatarText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    ...Typography.h6,
+    color: Colors.primary,
   },
   infoSection: {
     flex: 1,
   },
   wargaName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-    color: Colors.text,
+    ...Typography.subtitle1,
+    marginBottom: Spacing.xs,
   },
   emailText: {
-    fontSize: 12,
-    color: Colors.textSecondary,
+    ...Typography.caption,
     fontStyle: 'italic',
-    marginBottom: 2,
+    marginBottom: Spacing.xs,
   },
   detailText: {
     fontSize: 12,

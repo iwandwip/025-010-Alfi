@@ -37,22 +37,28 @@ export const Colors = {
   
   // Surface colors
   surface: '#FFFFFF',
-  surfaceVariant: '#F3F4F6',
-  onSurface: '#212121',
+  surfaceVariant: '#F7F8FA',
+  onSurface: '#1A1A1A',
+  onSurfaceVariant: '#6B7280',
   
   // View colors
-  onView: '#212121',
-  onViewVariant: '#757575',
+  onView: '#1A1A1A',
+  onViewVariant: '#6B7280',
   
   // Text colors
-  text: '#212121',
-  textSecondary: '#757575',
-  textDisabled: '#BDBDBD',
+  text: '#1A1A1A',
+  textSecondary: '#6B7280',
+  textTertiary: '#9CA3AF',
+  textDisabled: '#D1D5DB',
   textInverse: '#FFFFFF',
   
   // Border colors
-  border: '#E0E0E0',
-  borderLight: '#F0F0F0',
+  border: '#E5E7EB',
+  borderLight: '#F3F4F6',
+  divider: '#E5E7EB',
+  
+  // Additional colors
+  outline: '#E5E7EB',
   
   // Status colors
   lunas: '#4CAF50',
@@ -83,60 +89,127 @@ export const Typography = {
     fontSize: 32,
     fontWeight: '700',
     lineHeight: 40,
+    letterSpacing: -0.5,
     color: Colors.text,
   },
   h2: {
     fontSize: 28,
     fontWeight: '600',
     lineHeight: 36,
+    letterSpacing: -0.3,
     color: Colors.text,
   },
   h3: {
     fontSize: 24,
     fontWeight: '600',
     lineHeight: 32,
+    letterSpacing: -0.2,
     color: Colors.text,
   },
   h4: {
     fontSize: 20,
     fontWeight: '600',
     lineHeight: 28,
+    letterSpacing: -0.1,
+    color: Colors.text,
+  },
+  h5: {
+    fontSize: 18,
+    fontWeight: '600',
+    lineHeight: 26,
+    color: Colors.text,
+  },
+  h6: {
+    fontSize: 16,
+    fontWeight: '600',
+    lineHeight: 24,
+    color: Colors.text,
+  },
+  subtitle1: {
+    fontSize: 16,
+    fontWeight: '500',
+    lineHeight: 24,
+    letterSpacing: 0.1,
+    color: Colors.text,
+  },
+  subtitle2: {
+    fontSize: 14,
+    fontWeight: '500',
+    lineHeight: 20,
+    letterSpacing: 0.1,
     color: Colors.text,
   },
   body1: {
     fontSize: 16,
     fontWeight: '400',
     lineHeight: 24,
+    letterSpacing: 0.15,
     color: Colors.text,
   },
   body2: {
     fontSize: 14,
     fontWeight: '400',
     lineHeight: 20,
+    letterSpacing: 0.15,
     color: Colors.text,
   },
   caption: {
     fontSize: 12,
     fontWeight: '400',
     lineHeight: 16,
+    letterSpacing: 0.4,
+    color: Colors.textSecondary,
+  },
+  overline: {
+    fontSize: 10,
+    fontWeight: '500',
+    lineHeight: 14,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
     color: Colors.textSecondary,
   },
   button: {
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0.75,
+    textTransform: 'uppercase',
+    color: Colors.textInverse,
+  },
+  buttonLarge: {
     fontSize: 16,
     fontWeight: '600',
+    letterSpacing: 0.5,
     color: Colors.textInverse,
   },
 };
 
 export const Shadows = {
+  none: {
+    shadowColor: 'transparent',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  xs: Platform.OS === 'ios' ? {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 1.0,
+  } : {
+    elevation: 1,
+  },
   sm: Platform.OS === 'ios' ? {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.12,
-    shadowRadius: 1.5,
+    shadowOpacity: 0.08,
+    shadowRadius: 2.0,
   } : {
     elevation: 2,
   },
@@ -146,21 +219,32 @@ export const Shadows = {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.16,
-    shadowRadius: 3.5,
+    shadowOpacity: 0.10,
+    shadowRadius: 3.0,
   } : {
-    elevation: 4,
+    elevation: 3,
   },
   lg: Platform.OS === 'ios' ? {
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 4.0,
+  } : {
+    elevation: 4,
+  },
+  xl: Platform.OS === 'ios' ? {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
       height: 4,
     },
-    shadowOpacity: 0.20,
+    shadowOpacity: 0.15,
     shadowRadius: 6.0,
   } : {
-    elevation: 8,
+    elevation: 6,
   },
 };
 

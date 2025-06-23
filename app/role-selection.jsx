@@ -3,7 +3,6 @@ import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-nati
 // import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeInDown, FadeInUp, SlideInLeft, SlideInRight } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../constants/theme';
 
@@ -27,10 +26,7 @@ export default function RoleSelection() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Animated.View 
-          entering={FadeInDown.delay(100)}
-          style={styles.header}
-        >
+        <View style={styles.header}>
           <View style={[styles.logoSurface, Shadows.lg]}>
             <View style={[styles.logoIcon, { backgroundColor: Colors.primary }]}>
               <MaterialIcons 
@@ -57,18 +53,18 @@ export default function RoleSelection() {
               </Text>
             </View>
           </View>
-        </Animated.View>
+        </View>
 
         {/* Role Selection */}
         <View style={styles.rolesContainer}>
-          <Animated.View entering={FadeInUp.delay(200)}>
+          <View>
             <Text style={[styles.rolesTitle, { color: Colors.text }]}>
               Pilih Akses Anda
             </Text>
-          </Animated.View>
+          </View>
 
           {/* Bendahara Card */}
-          <Animated.View entering={SlideInLeft.delay(300).springify()}>
+          <View>
             <TouchableOpacity 
               style={[styles.roleCard, Shadows.lg]}
               onPress={handleBendaharaPress}
@@ -126,10 +122,10 @@ export default function RoleSelection() {
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
 
           {/* Warga Card */}
-          <Animated.View entering={SlideInRight.delay(400).springify()}>
+          <View>
             <TouchableOpacity 
               style={[styles.roleCard, Shadows.lg]}
               onPress={handleWargaPress}
@@ -187,14 +183,11 @@ export default function RoleSelection() {
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         </View>
 
         {/* Footer */}
-        <Animated.View 
-          entering={FadeInUp.delay(500)}
-          style={styles.footer}
-        >
+        <View style={styles.footer}>
           <View style={[styles.footerCard, Shadows.sm]}>
             <View style={styles.footerContent}>
               <View style={[styles.infoIcon, { backgroundColor: Colors.info + '20' }]}>
@@ -218,7 +211,7 @@ export default function RoleSelection() {
           <Text style={[styles.copyright, { color: Colors.textSecondary }]}>
             © 2024 Smart Jimpitan System
           </Text>
-        </Animated.View>
+        </View>
       </ScrollView>
     </View>
   );

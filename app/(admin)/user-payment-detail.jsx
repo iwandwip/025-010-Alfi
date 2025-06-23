@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   TouchableOpacity,
   RefreshControl,
@@ -12,22 +11,27 @@ import {
   Modal,
   ScrollView,
   TextInput,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MaterialIcons } from '@expo/vector-icons';
 import { useSettings } from "../../contexts/SettingsContext";
-import { Colors } from "../../constants/theme";
+import { Colors, Shadows } from "../../constants/theme";
 import { formatDate, toISOString } from "../../utils/dateUtils";
 import {
   getUserDetailedPayments,
   updateUserPaymentStatus,
 } from "../../services/adminPaymentService";
 import { processCustomPaymentWithAutoAllocation } from "../../services/wargaPaymentService";
-import Button from "../../components/ui/Button";
 
 function UserPaymentDetail() {
   const { theme, loading: settingsLoading } = useSettings();
   const colors = Colors;
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { userId, userName, timelineId } = useLocalSearchParams();
 
   const [payments, setPayments] = useState([]);
@@ -48,28 +52,25 @@ function UserPaymentDetail() {
         const result = await getUserDetailedPayments(userId);
 
         if (result.success) {
-          setPayments(result.payments);
-          setTimeline(result.timeline);
+          setPayments(result.payments || []);
+          setTimeline(result.timeline || null);
         } else {
+          console.error("Error loading payments:", result.error);
+          Alert.alert("Error", "Gagal memuat data pembayaran: " + (result.error || 'Unknown error'));
           setPayments([]);
           setTimeline(null);
         }
       } catch (error) {
-        console.error("Error loading user payment detail:", error);
+        console.error("Error loading data:", error);
+        Alert.alert("Error", "Terjadi kesalahan saat memuat data: " + error.message);
         setPayments([]);
         setTimeline(null);
       } finally {
-        setLoading(false);
+        if (!isRefresh) setLoading(false);
       }
     },
     [userId]
   );
-
-  useEffect(() => {
-    if (!settingsLoading) {
-      loadData();
-    }
-  }, [loadData, settingsLoading]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -77,38 +78,32 @@ function UserPaymentDetail() {
     setRefreshing(false);
   }, [loadData]);
 
+  useEffect(() => {
+    if (userId) {
+      loadData();
+    }
+  }, [userId, loadData]);
+
   const summary = useMemo(() => {
     if (!payments.length) return null;
 
-    const total = payments.length;
-    const lunas = payments.filter((p) => p.status === "lunas").length;
-    const belumBayar = payments.filter(
-      (p) => p.status === "belum_bayar"
-    ).length;
-    const belumLunas = payments.filter((p) => p.status === "belum_lunas").length;
-    const terlambat = payments.filter((p) => p.status === "terlambat").length;
+    const totalPayments = payments.length;
+    const paidCount = payments.filter((p) => p.status === "lunas").length;
+    const partialCount = payments.filter((p) => p.status === "belum_lunas").length;
+    const unpaidCount = payments.filter((p) => p.status === "belum_bayar" || p.status === "terlambat").length;
 
     const totalAmount = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
-    const paidAmount = payments
-      .filter((p) => p.status === "lunas")
-      .reduce((sum, p) => sum + (p.amount || 0), 0);
-    
-    // Calculate partial payment amount
-    const partialAmount = payments
-      .filter(p => p.partialPayment && p.totalPaid > 0)
-      .reduce((sum, p) => sum + (p.totalPaid || 0), 0);
-    
+    const paidAmount = payments.filter((p) => p.status === "lunas").reduce((sum, p) => sum + (p.amount || 0), 0);
+    const partialAmount = payments.filter((p) => p.status === "belum_lunas").reduce((sum, p) => sum + (p.totalPaid || 0), 0);
     const unpaidAmount = totalAmount - paidAmount - partialAmount;
 
-    const progressPercentage =
-      total > 0 ? Math.round((lunas / total) * 100) : 0;
+    const progressPercentage = totalAmount > 0 ? Math.round(((paidAmount + partialAmount) / totalAmount) * 100) : 0;
 
     return {
-      total,
-      lunas,
-      belumBayar,
-      belumLunas,
-      terlambat,
+      totalPayments,
+      paidCount,
+      partialCount,
+      unpaidCount,
       totalAmount,
       paidAmount,
       partialAmount,
@@ -117,86 +112,94 @@ function UserPaymentDetail() {
     };
   }, [payments]);
 
+  const formatCurrency = useCallback((amount) => {
+    if (!amount || isNaN(amount)) return "Rp 0";
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(amount);
+  }, []);
+
   const handlePaymentPress = useCallback((payment) => {
     setSelectedPayment(payment);
     setActionModalVisible(true);
   }, []);
 
-  const handleUpdatePaymentStatus = useCallback(
-    async (newStatus, notes = "") => {
-      if (!selectedPayment || !timeline) return;
+  const getStatusLabel = useCallback((status) => {
+    switch (status) {
+      case "lunas":
+        return "Lunas";
+      case "belum_bayar":
+        return "Belum Bayar";
+      case "belum_lunas":
+        return "Belum Lunas";
+      case "terlambat":
+        return "Terlambat";
+      default:
+        return "Unknown";
+    }
+  }, []);
+
+  const handleStatusChange = useCallback(
+    async (newStatus) => {
+      if (!selectedPayment) return;
 
       setUpdatingPayment(true);
-
-      const updateData = {
-        status: newStatus,
-        updatedAt: new Date(),
-      };
-
-      if (newStatus === "lunas") {
-        updateData.paymentDate = toISOString();
-        updateData.paymentMethod = "tunai";
-        updateData.notes = notes || "Pembayaran dikonfirmasi oleh admin";
-      }
-
-      if (notes) {
-        updateData.notes = notes;
-      }
+      setActionModalVisible(false);
 
       try {
+        if (!timeline) {
+          Alert.alert("Error", "Timeline tidak ditemukan");
+          return;
+        }
+
+        const updateData = {
+          status: newStatus,
+          paymentMethod: newStatus === "lunas" ? "admin_update" : null,
+          paymentDate: newStatus === "lunas" ? new Date() : null
+        };
+
         const result = await updateUserPaymentStatus(
           timeline.id,
           selectedPayment.periodKey,
-          userId,
+          selectedPayment.wargaId,
           updateData
         );
 
         if (result.success) {
           await loadData(true);
-          Alert.alert(
-            "Berhasil!",
-            `Status pembayaran ${
-              selectedPayment.periodData?.label
-            } berhasil diperbarui menjadi ${
-              newStatus === "lunas"
-                ? "Lunas"
-                : newStatus === "belum_bayar"
-                ? "Belum Bayar"
-                : "Terlambat"
-            }.`,
-            [{ text: "OK" }]
-          );
+          Alert.alert("Berhasil", `Status pembayaran berhasil diubah menjadi "${getStatusLabel(newStatus)}"`);
         } else {
-          Alert.alert(
-            "Error",
-            "Gagal memperbarui status pembayaran: " + result.error
-          );
+          Alert.alert("Error", "Gagal mengubah status pembayaran: " + result.error);
         }
       } catch (error) {
-        Alert.alert("Error", "Terjadi kesalahan saat memperbarui pembayaran");
+        Alert.alert("Error", "Terjadi kesalahan saat mengubah status");
         console.error("Error updating payment:", error);
       }
 
       setUpdatingPayment(false);
-      setActionModalVisible(false);
       setSelectedPayment(null);
     },
-    [selectedPayment, timeline, userId, loadData]
+    [selectedPayment, loadData, getStatusLabel, timeline]
   );
 
   const handleCustomPayment = useCallback(async () => {
-    if (!customPaymentAmount || !userId) return;
-
-    const amount = parseInt(customPaymentAmount);
-    if (amount <= 0) {
-      Alert.alert("Error", "Jumlah pembayaran harus lebih dari 0");
+    const amount = parseFloat(customPaymentAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert("Error", "Masukkan jumlah pembayaran yang valid");
       return;
     }
 
     setUpdatingPayment(true);
 
     try {
-      const result = await processCustomPaymentWithAutoAllocation(userId, amount, 'tunai');
+      const result = await processCustomPaymentWithAutoAllocation(
+        userId,
+        amount,
+        "admin_custom",
+        `Custom payment oleh admin untuk ${userName || 'warga'}`
+      );
       
       if (result.success) {
         await loadData(true);
@@ -205,7 +208,7 @@ function UserPaymentDetail() {
         message += `Total diproses: ${formatCurrency(result.totalProcessed)}\n`;
         message += `Sisa saldo credit: ${formatCurrency(result.newCreditBalance)}\n\n`;
         
-        if (result.processedPayments.length > 0) {
+        if (result.processedPayments && result.processedPayments.length > 0) {
           message += "Pembayaran yang diproses:\n";
           result.processedPayments.forEach(payment => {
             message += `• ${payment.periodLabel}: ${payment.status} ${payment.isPartial ? '(Parsial)' : ''}\n`;
@@ -229,7 +232,7 @@ function UserPaymentDetail() {
     }
 
     setUpdatingPayment(false);
-  }, [customPaymentAmount, userId, loadData, formatCurrency]);
+  }, [customPaymentAmount, userId, loadData, userName, formatCurrency]);
 
   const getStatusColor = useCallback(
     (status) => {
@@ -239,655 +242,497 @@ function UserPaymentDetail() {
         case "belum_bayar":
           return colors.error;
         case "belum_lunas":
-          return colors.tertiary;
-        case "terlambat":
           return colors.warning;
+        case "terlambat":
+          return colors.error;
         default:
-          return colors.gray500;
+          return colors.onSurfaceVariant;
       }
     },
     [colors]
   );
 
-  const getStatusLabel = useCallback((status) => {
-    switch (status) {
-      case "lunas":
-        return "Lunas";
-      case "belum_bayar":
-        return "Belum Bayar";
-      case "belum_lunas":
-        return "Belum Lunas";
-      case "terlambat":
-        return "Terlambat";
-      default:
-        return "Unknown";
-    }
-  }, []);
-
   const getStatusIcon = useCallback((status) => {
     switch (status) {
       case "lunas":
-        return "✅";
+        return "check-circle";
       case "belum_bayar":
-        return "❌";
+        return "cancel";
       case "belum_lunas":
-        return "🔄";
+        return "schedule";
       case "terlambat":
-        return "⚠️";
+        return "warning";
       default:
-        return "❓";
+        return "help";
     }
   }, []);
 
-  const formatCurrency = useCallback((amount) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  }, []);
-
-
-  const renderSummaryCard = useMemo(() => {
-    if (!summary) return null;
-
+  // Loading state
+  if (loading) {
     return (
-      <View
-        style={[
-          styles.summaryCard,
-          { backgroundColor: colors.white, borderColor: colors.gray200 },
-        ]}
+      <LinearGradient
+        colors={[Colors.primaryContainer, Colors.background]}
+        style={[styles.container, { paddingTop: insets.top }]}
       >
-        <Text style={[styles.summaryTitle, { color: colors.gray900 }]}>
-          Ringkasan Pembayaran - {userName}
-        </Text>
-
-        <View style={styles.progressContainer}>
-          <View style={styles.progressHeader}>
-            <Text style={[styles.progressText, { color: colors.gray700 }]}>
-              Progress: {summary.lunas}/{summary.total} periode
-            </Text>
-            <Text
-              style={[styles.progressPercentage, { color: colors.primary }]}
-            >
-              {summary.progressPercentage}%
-            </Text>
-          </View>
-
-          <View
-            style={[styles.progressBar, { backgroundColor: colors.gray200 }]}
-          >
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  backgroundColor: colors.success,
-                  width: `${summary.progressPercentage}%`,
-                },
-              ]}
-            />
-          </View>
-        </View>
-
-        <View style={styles.summaryStats}>
-          <View style={styles.statRow}>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.success }]}>
-                {summary.lunas}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.gray600 }]}>
-                Lunas
-              </Text>
-            </View>
-
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.error }]}>
-                {summary.belumBayar}
-              </Text>
-              <Text style={[styles.statLabel, { color: colors.gray600 }]}>
-                Belum Bayar
-              </Text>
-            </View>
-
-            {summary.belumLunas > 0 && (
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: colors.tertiary }]}>
-                  {summary.belumLunas}
-                </Text>
-                <Text style={[styles.statLabel, { color: colors.gray600 }]}>
-                  Parsial
-                </Text>
-              </View>
-            )}
-
-            {summary.terlambat > 0 && (
-              <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: colors.warning }]}>
-                  {summary.terlambat}
-                </Text>
-                <Text style={[styles.statLabel, { color: colors.gray600 }]}>
-                  Terlambat
-                </Text>
-              </View>
-            )}
-          </View>
-
-          <View style={styles.amountSummary}>
-            <View style={styles.amountRow}>
-              <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
-                Total Tagihan:
-              </Text>
-              <Text style={[styles.amountValue, { color: colors.gray900 }]}>
-                {formatCurrency(summary.totalAmount)}
-              </Text>
-            </View>
-
-            <View style={styles.amountRow}>
-              <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
-                Sudah Dibayar:
-              </Text>
-              <Text style={[styles.amountValue, { color: colors.success }]}>
-                {formatCurrency(summary.paidAmount)}
-              </Text>
-            </View>
-
-            {summary.partialAmount > 0 && (
-              <View style={styles.amountRow}>
-                <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
-                  Terbayar Parsial:
-                </Text>
-                <Text style={[styles.amountValue, { color: colors.tertiary }]}>
-                  {formatCurrency(summary.partialAmount)}
-                </Text>
-              </View>
-            )}
-
-            <View style={styles.amountRow}>
-              <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
-                Belum Dibayar:
-              </Text>
-              <Text style={[styles.amountValue, { color: colors.error }]}>
-                {formatCurrency(summary.unpaidAmount)}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    );
-  }, [summary, colors, formatCurrency, userName]);
-
-  const renderPaymentItem = useCallback(
-    ({ item }) => (
-      <TouchableOpacity
-        style={[
-          styles.paymentCard,
-          { backgroundColor: colors.white, borderColor: colors.gray200 },
-        ]}
-        onPress={() => handlePaymentPress(item)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.cardHeader}>
-          <View style={styles.periodInfo}>
-            <Text style={[styles.periodText, { color: colors.gray900 }]}>
-              {item.periodData.label}
-            </Text>
-            <Text style={[styles.periodNumber, { color: colors.gray500 }]}>
-              Periode {item.periodData.number}
-            </Text>
-          </View>
-
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getStatusColor(item.status) + "15" },
-            ]}
-          >
-            <Text style={styles.statusIcon}>{getStatusIcon(item.status)}</Text>
-            <Text
-              style={[
-                styles.statusText,
-                { color: getStatusColor(item.status) },
-              ]}
-            >
-              {getStatusLabel(item.status)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.cardContent}>
-          <View style={styles.infoRow}>
-            <Text style={[styles.labelText, { color: colors.gray600 }]}>
-              Nominal:
-            </Text>
-            <Text style={[styles.valueText, { color: colors.gray900 }]}>
-              {formatCurrency(item.amount)}
-            </Text>
-          </View>
-
-          {item.paymentDate && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Tanggal Bayar:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray900 }]}>
-                {formatDate(item.paymentDate)}
-              </Text>
-            </View>
-          )}
-
-          {item.paymentMethod && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Metode:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray900 }]}>
-                {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
-              </Text>
-            </View>
-          )}
-
-          {item.partialPayment && item.totalPaid > 0 && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Terbayar:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.tertiary, fontWeight: 'bold' }]}>
-                {formatCurrency(item.totalPaid)}
-              </Text>
-            </View>
-          )}
-
-          {item.remainingAmount && item.remainingAmount > 0 && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Sisa:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.error, fontWeight: 'bold' }]}>
-                {formatCurrency(item.remainingAmount)}
-              </Text>
-            </View>
-          )}
-
-          {item.creditApplied && item.creditApplied > 0 && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Credit Applied:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.tertiary, fontWeight: 'bold' }]}>
-                {formatCurrency(item.creditApplied)}
-              </Text>
-            </View>
-          )}
-
-          {item.notes && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Catatan:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray700 }]}>
-                {item.notes}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.cardFooter}>
-          <Text style={[styles.tapHint, { color: colors.gray500 }]}>
-            Ketuk untuk ubah status
-          </Text>
-          <Text style={[styles.arrowText, { color: colors.gray400 }]}>→</Text>
-        </View>
-      </TouchableOpacity>
-    ),
-    [
-      colors,
-      getStatusColor,
-      getStatusIcon,
-      getStatusLabel,
-      formatCurrency,
-      formatDate,
-      handlePaymentPress,
-    ]
-  );
-
-  const listData = useMemo(() => {
-    return [{ type: "summary" }, ...payments];
-  }, [payments]);
-
-  const keyExtractor = useCallback(
-    (item, index) => (item.type === "summary" ? "summary" : item.id),
-    []
-  );
-
-  const renderItem = useCallback(
-    ({ item }) => {
-      if (item.type === "summary") {
-        return renderSummaryCard;
-      }
-      return renderPaymentItem({ item });
-    },
-    [renderSummaryCard, renderPaymentItem]
-  );
-
-  const renderActionModal = useCallback(
-    () => (
-      <Modal
-        visible={actionModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => !updatingPayment && setActionModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View
-            style={[styles.modalContainer, { backgroundColor: colors.white }]}
-          >
-            <View
-              style={[
-                styles.modalHeader,
-                { borderBottomColor: colors.gray200 },
-              ]}
-            >
-              <Text style={[styles.modalTitle, { color: colors.gray900 }]}>
-                Ubah Status Pembayaran
-              </Text>
-              {!updatingPayment && (
-                <TouchableOpacity
-                  style={[
-                    styles.closeButton,
-                    { backgroundColor: colors.gray100 },
-                  ]}
-                  onPress={() => setActionModalVisible(false)}
-                >
-                  <Text
-                    style={[styles.closeButtonText, { color: colors.gray600 }]}
-                  >
-                    ✕
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            <ScrollView style={styles.modalContent}>
-              {selectedPayment && (
-                <View
-                  style={[
-                    styles.paymentInfo,
-                    { backgroundColor: colors.primary + "10" },
-                  ]}
-                >
-                  <Text
-                    style={[styles.paymentTitle, { color: colors.gray900 }]}
-                  >
-                    {selectedPayment.periodData?.label}
-                  </Text>
-                  <Text
-                    style={[styles.paymentAmount, { color: colors.primary }]}
-                  >
-                    {formatCurrency(selectedPayment.amount)}
-                  </Text>
-                  <Text
-                    style={[styles.currentStatus, { color: colors.gray600 }]}
-                  >
-                    Status saat ini: {getStatusLabel(selectedPayment.status)}
-                  </Text>
-                </View>
-              )}
-
-              {updatingPayment ? (
-                <View style={styles.loadingSection}>
-                  <ActivityIndicator size="large" color={colors.primary} />
-                  <Text style={[styles.loadingText, { color: colors.gray900 }]}>
-                    Memperbarui status pembayaran...
-                  </Text>
-                </View>
-              ) : (
-                <View style={styles.actionButtons}>
-                  <Button
-                    title="✅ Tandai Lunas"
-                    onPress={() => handleUpdatePaymentStatus("lunas")}
-                    style={[
-                      styles.actionButton,
-                      { backgroundColor: colors.success },
-                    ]}
-                  />
-
-                  <Button
-                    title="❌ Tandai Belum Bayar"
-                    onPress={() => handleUpdatePaymentStatus("belum_bayar")}
-                    style={[
-                      styles.actionButton,
-                      { backgroundColor: colors.error },
-                    ]}
-                  />
-
-                  <Button
-                    title="⚠️ Tandai Terlambat"
-                    onPress={() => handleUpdatePaymentStatus("terlambat")}
-                    style={[
-                      styles.actionButton,
-                      { backgroundColor: colors.warning },
-                    ]}
-                  />
-                </View>
-              )}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-    ),
-    [
-      actionModalVisible,
-      updatingPayment,
-      selectedPayment,
-      colors,
-      formatCurrency,
-      getStatusLabel,
-      handleUpdatePaymentStatus,
-    ]
-  );
-
-  if (settingsLoading || loading) {
-    return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
-      >
-        <View
-          style={[
-            styles.header,
-            {
-              backgroundColor: colors.white,
-              borderBottomColor: colors.gray200,
-            },
-          ]}
-        >
+        <View style={[styles.header, { backgroundColor: Colors.surface }]}>
           <TouchableOpacity
-            style={styles.backButton}
             onPress={() => router.back()}
+            style={styles.backButton}
           >
-            <Text style={[styles.backButtonText, { color: colors.primary }]}>
-              ← Kembali
-            </Text>
+            <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
           </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.gray900 }]}>
+          <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
             Detail Pembayaran
           </Text>
+          <View style={styles.placeholder} />
         </View>
+        
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
-            Memuat detail pembayaran...
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={[styles.loadingText, { color: Colors.onSurface }]}>
+            Memuat data pembayaran...
           </Text>
         </View>
-      </SafeAreaView>
+      </LinearGradient>
     );
   }
 
-  return (
-    <SafeAreaView
-      style={[styles.container, { backgroundColor: colors.background }]}
-    >
-      <View
-        style={[
-          styles.header,
-          { backgroundColor: colors.white, borderBottomColor: colors.gray200 },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={[styles.backButtonText, { color: colors.primary }]}>
-            ← Kembali
-          </Text>
-        </TouchableOpacity>
-        <Text style={[styles.title, { color: colors.gray900 }]}>
-          Detail Pembayaran
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.gray700 }]}>
-          {userName}
-        </Text>
-        {timeline && (
-          <Text style={[styles.timelineInfo, { color: colors.primary }]}>
-            Timeline: {timeline.name}
-          </Text>
-        )}
-        
-        <Button
-          title="Proses Pembayaran Custom"
-          onPress={() => setCustomPaymentModalVisible(true)}
-          style={[styles.customPaymentButton, { backgroundColor: colors.success }]}
-          textStyle={{ color: colors.white }}
-        />
-      </View>
+  const renderSummaryCard = () => {
+    if (!summary) return null;
 
-      {payments.length > 0 ? (
-        <FlatList
-          data={listData}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-              title="Memuat ulang..."
-              titleColor={colors.gray600}
-            />
-          }
-          initialNumToRender={5}
-          maxToRenderPerBatch={5}
-          windowSize={10}
-          removeClippedSubviews={true}
-        />
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Text style={[styles.emptyIcon, { color: colors.gray400 }]}>📊</Text>
-          <Text style={[styles.emptyText, { color: colors.gray600 }]}>
-            Belum ada data pembayaran
+    return (
+      <View style={styles.summarySection}>
+        <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>Ringkasan Pembayaran</Text>
+
+        <View style={[styles.summaryCard, { backgroundColor: Colors.surface }]}>
+          <View style={styles.cardContent}>
+            {/* Progress Section */}
+            <View style={styles.progressSection}>
+              <View style={styles.progressHeader}>
+                <Text style={[styles.progressLabel, { color: Colors.onSurfaceVariant }]}>
+                  Progress Pembayaran
+                </Text>
+                <Text style={[styles.progressValue, { color: Colors.primary }]}>
+                  {summary.progressPercentage}%
+                </Text>
+              </View>
+              <View style={[styles.progressBarContainer, { backgroundColor: Colors.surfaceVariant }]}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    {
+                      backgroundColor: Colors.primary,
+                      width: `${summary.progressPercentage}%`,
+                    },
+                  ]}
+                />
+              </View>
+            </View>
+
+            {/* Stats Section */}
+            <View style={styles.statsSection}>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: Colors.success }]}>
+                    {summary.paidCount}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: Colors.onSurfaceVariant }]}>
+                    Lunas
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: Colors.warning }]}>
+                    {summary.partialCount}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: Colors.onSurfaceVariant }]}>
+                    Parsial
+                  </Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: Colors.error }]}>
+                    {summary.unpaidCount}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: Colors.onSurfaceVariant }]}>
+                    Belum
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+
+            {/* Amount Summary */}
+            <View style={styles.amountSection}>
+              <View style={styles.amountRow}>
+                <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                  Total Tagihan
+                </Text>
+                <Text style={[styles.amountValue, { color: Colors.onSurface }]}>
+                  {formatCurrency(summary.totalAmount)}
+                </Text>
+              </View>
+
+              <View style={styles.amountRow}>
+                <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                  Sudah Dibayar
+                </Text>
+                <Text style={[styles.amountValue, { color: Colors.success }]}>
+                  {formatCurrency(summary.paidAmount)}
+                </Text>
+              </View>
+
+              {summary.partialAmount > 0 && (
+                <View style={styles.amountRow}>
+                  <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                    Pembayaran Parsial
+                  </Text>
+                  <Text style={[styles.amountValue, { color: Colors.warning }]}>
+                    {formatCurrency(summary.partialAmount)}
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.amountRow}>
+                <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                  Belum Dibayar
+                </Text>
+                <Text style={[styles.amountValue, { color: Colors.error }]}>
+                  {formatCurrency(summary.unpaidAmount)}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderPaymentItem = ({ item }) => (
+    <TouchableOpacity
+      style={[styles.paymentCard, { backgroundColor: Colors.surface }]}
+      onPress={() => handlePaymentPress(item)}
+      activeOpacity={0.7}
+    >
+      <View style={styles.paymentHeader}>
+        <View style={styles.periodInfo}>
+          <Text style={[styles.periodText, { color: Colors.onSurface }]}>
+            {item.periodData?.label || `Periode ${item.period}`}
           </Text>
-          <Text style={[styles.emptySubtext, { color: colors.gray500 }]}>
-            Data pembayaran akan muncul setelah timeline dibuat
+          <Text style={[styles.amountText, { color: Colors.primary }]}>
+            {formatCurrency(item.amount)}
           </Text>
         </View>
-      )}
 
-      {renderActionModal()}
-      
+        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
+          <MaterialIcons 
+            name={getStatusIcon(item.status)} 
+            size={14} 
+            color={getStatusColor(item.status)} 
+          />
+          <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
+            {getStatusLabel(item.status)}
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.paymentDetails}>
+        {item.paymentDate && (
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+              Tanggal Bayar
+            </Text>
+            <Text style={[styles.detailValue, { color: Colors.onSurface }]}>
+              {formatDate(item.paymentDate)}
+            </Text>
+          </View>
+        )}
+
+        {item.paymentMethod && (
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+              Metode
+            </Text>
+            <Text style={[styles.detailValue, { color: Colors.onSurface }]}>
+              {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
+            </Text>
+          </View>
+        )}
+
+        {item.partialPayment && item.totalPaid > 0 && (
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+              Terbayar
+            </Text>
+            <Text style={[styles.detailValue, { color: Colors.warning, fontWeight: 'bold' }]}>
+              {formatCurrency(item.totalPaid)}
+            </Text>
+          </View>
+        )}
+
+        {item.remainingAmount && item.remainingAmount > 0 && (
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+              Sisa
+            </Text>
+            <Text style={[styles.detailValue, { color: Colors.error, fontWeight: 'bold' }]}>
+              {formatCurrency(item.remainingAmount)}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <View style={styles.paymentFooter}>
+        <Text style={[styles.tapHint, { color: Colors.onSurfaceVariant }]}>
+          Ketuk untuk ubah status
+        </Text>
+        <MaterialIcons name="chevron-right" size={20} color={Colors.onSurfaceVariant} />
+      </View>
+    </TouchableOpacity>
+  );
+
+  // Main render
+  return (
+    <LinearGradient
+      colors={[Colors.primaryContainer, Colors.background]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: Colors.surface }]}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
+          Detail Pembayaran
+        </Text>
+        <TouchableOpacity
+          onPress={() => setCustomPaymentModalVisible(true)}
+          style={[styles.actionButton, { backgroundColor: Colors.primary }]}
+        >
+          <MaterialIcons name="add" size={20} color={Colors.onPrimary} />
+        </TouchableOpacity>
+      </View>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardContainer}
+      >
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + 24 },
+          ]}
+        >
+          {renderSummaryCard()}
+
+          {/* Payment List */}
+          <View style={styles.paymentSection}>
+            <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>
+              Daftar Pembayaran ({userName || 'Warga'})
+            </Text>
+
+            {payments.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <MaterialIcons name="receipt-long" size={64} color={Colors.onSurfaceVariant} />
+                <Text style={[styles.emptyText, { color: Colors.onSurfaceVariant }]}>
+                  Tidak ada data pembayaran
+                </Text>
+              </View>
+            ) : (
+              payments.map((item, index) => (
+                <View key={item.id || index}>
+                  {renderPaymentItem({ item })}
+                </View>
+              ))
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      {/* Action Modal */}
+      <Modal
+        visible={actionModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setActionModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContainer, { backgroundColor: Colors.surface }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: Colors.outline }]}>
+              <Text style={[styles.modalTitle, { color: Colors.onSurface }]}>
+                Ubah Status Pembayaran
+              </Text>
+              <TouchableOpacity
+                onPress={() => setActionModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <MaterialIcons name="close" size={24} color={Colors.onSurface} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalContent}>
+              {selectedPayment && (
+                <>
+                  <Text style={[styles.paymentInfo, { color: Colors.onSurface }]}>
+                    {selectedPayment.periodData?.label || `Periode ${selectedPayment.period}`}
+                  </Text>
+                  <Text style={[styles.paymentAmount, { color: Colors.primary }]}>
+                    {formatCurrency(selectedPayment.amount)}
+                  </Text>
+
+                  <View style={styles.statusOptions}>
+                    <TouchableOpacity
+                      style={[
+                        styles.statusOption,
+                        { borderColor: Colors.success, backgroundColor: Colors.successContainer }
+                      ]}
+                      onPress={() => handleStatusChange("lunas")}
+                    >
+                      <MaterialIcons name="check-circle" size={24} color={Colors.success} />
+                      <Text style={[styles.statusOptionText, { color: Colors.success }]}>
+                        Lunas
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.statusOption,
+                        { borderColor: Colors.error, backgroundColor: Colors.errorContainer }
+                      ]}
+                      onPress={() => handleStatusChange("belum_bayar")}
+                    >
+                      <MaterialIcons name="cancel" size={24} color={Colors.error} />
+                      <Text style={[styles.statusOptionText, { color: Colors.error }]}>
+                        Belum Bayar
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[
+                        styles.statusOption,
+                        { borderColor: Colors.warning, backgroundColor: Colors.warningContainer }
+                      ]}
+                      onPress={() => handleStatusChange("belum_lunas")}
+                    >
+                      <MaterialIcons name="schedule" size={24} color={Colors.warning} />
+                      <Text style={[styles.statusOptionText, { color: Colors.warning }]}>
+                        Belum Lunas
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              )}
+
+              {updatingPayment && (
+                <View style={styles.updatingContainer}>
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                  <Text style={[styles.updatingText, { color: Colors.onSurface }]}>
+                    Mengupdate status...
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Custom Payment Modal */}
       <Modal
         visible={customPaymentModalVisible}
-        transparent={true}
+        transparent
         animationType="slide"
-        onRequestClose={() => !updatingPayment && setCustomPaymentModalVisible(false)}
+        onRequestClose={() => setCustomPaymentModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContainer, { backgroundColor: colors.white }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: colors.gray200 }]}>
-              <Text style={[styles.modalTitle, { color: colors.gray900 }]}>
-                Pembayaran Custom dengan Auto Alokasi
+          <View style={[styles.modalContainer, { backgroundColor: Colors.surface }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: Colors.outline }]}>
+              <Text style={[styles.modalTitle, { color: Colors.onSurface }]}>
+                Pembayaran Custom
               </Text>
-              {!updatingPayment && (
-                <TouchableOpacity
-                  style={[styles.closeButton, { backgroundColor: colors.gray100 }]}
-                  onPress={() => setCustomPaymentModalVisible(false)}
-                >
-                  <Text style={[styles.closeButtonText, { color: colors.gray600 }]}>
-                    ✕
-                  </Text>
-                </TouchableOpacity>
-              )}
+              <TouchableOpacity
+                onPress={() => setCustomPaymentModalVisible(false)}
+                style={styles.closeButton}
+              >
+                <MaterialIcons name="close" size={24} color={Colors.onSurface} />
+              </TouchableOpacity>
             </View>
 
-            <ScrollView style={styles.modalContent}>
+            <View style={styles.modalContent}>
               <View style={styles.inputSection}>
-                <Text style={[styles.inputLabel, { color: colors.gray700 }]}>
-                  Jumlah Pembayaran (Rp):
+                <Text style={[styles.inputLabel, { color: Colors.onSurface }]}>
+                  Jumlah Pembayaran
                 </Text>
                 <TextInput
                   style={[
                     styles.customAmountInput,
-                    {
-                      backgroundColor: colors.white,
-                      borderColor: colors.gray300,
-                      color: colors.gray900,
-                    },
+                    { 
+                      borderColor: Colors.outline,
+                      backgroundColor: Colors.surface,
+                      color: Colors.onSurface 
+                    }
                   ]}
-                  placeholder="Contoh: 100000 untuk test skenario"
                   value={customPaymentAmount}
                   onChangeText={setCustomPaymentAmount}
                   keyboardType="numeric"
-                  editable={!updatingPayment}
+                  placeholder="Masukkan jumlah pembayaran"
+                  placeholderTextColor={Colors.onSurfaceVariant}
                 />
-                
-                <Text style={[styles.helpText, { color: colors.gray600 }]}>
-                  💡 Sistem akan otomatis mengalokasikan pembayaran ke periode yang belum lunas secara berurutan, 
-                  dan kelebihan akan menjadi credit saldo (maksimal 3x nominal periode).
-                </Text>
-                
-                <Text style={[styles.helpText, { color: colors.success }]}>
-                  ✅ Contoh: Bayar Rp 100.000 untuk nominal Rp 40.000/bulan = 2 bulan lunas + Rp 20.000 credit
+                <Text style={[styles.helpText, { color: Colors.onSurfaceVariant }]}>
+                  Pembayaran akan dialokasikan otomatis ke periode yang belum lunas.
                 </Text>
               </View>
 
               {updatingPayment && (
                 <View style={styles.processingSection}>
-                  <ActivityIndicator size="large" color={colors.primary} />
-                  <Text style={[styles.processingText, { color: colors.gray900 }]}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                  <Text style={[styles.processingText, { color: Colors.onSurface }]}>
                     Memproses pembayaran...
                   </Text>
                 </View>
               )}
-            </ScrollView>
+            </View>
 
-            <View style={[styles.modalFooter, { borderTopColor: colors.gray200 }]}>
-              <Button
-                title="Batal"
-                onPress={() => setCustomPaymentModalVisible(false)}
-                variant="outline"
-                style={[styles.cancelButton, { borderColor: colors.gray400 }]}
-                disabled={updatingPayment}
-              />
-              <Button
-                title={updatingPayment ? "Memproses..." : "Proses Pembayaran"}
-                onPress={handleCustomPayment}
+            <View style={[styles.modalFooter, { borderTopColor: Colors.outline }]}>
+              <TouchableOpacity
                 style={[
-                  styles.payButton,
-                  {
-                    backgroundColor: customPaymentAmount
-                      ? colors.success
-                      : colors.gray400,
-                  },
+                  styles.cancelButton,
+                  { 
+                    borderColor: Colors.outline,
+                    backgroundColor: Colors.surface 
+                  }
                 ]}
-                disabled={!customPaymentAmount || updatingPayment}
-              />
+                onPress={() => setCustomPaymentModalVisible(false)}
+                disabled={updatingPayment}
+              >
+                <Text style={[styles.cancelButtonText, { color: Colors.onSurface }]}>
+                  Batal
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.confirmButton,
+                  { backgroundColor: Colors.primary }
+                ]}
+                onPress={handleCustomPayment}
+                disabled={updatingPayment || !customPaymentAmount.trim()}
+              >
+                <Text style={[styles.confirmButtonText, { color: Colors.onPrimary }]}>
+                  {updatingPayment ? "Memproses..." : "Proses"}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -896,345 +741,352 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    justifyContent: 'space-between',
+    ...Shadows.sm,
   },
   backButton: {
-    alignSelf: "flex-start",
-    marginBottom: 12,
+    padding: 8,
+    borderRadius: 20,
   },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: 500,
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 600,
-    textAlign: "center",
-    marginBottom: 4,
+  actionButton: {
+    padding: 8,
+    borderRadius: 20,
   },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-    fontWeight: 500,
+  placeholder: {
+    width: 40,
   },
-  timelineInfo: {
-    fontSize: 12,
-    textAlign: "center",
-    marginTop: 4,
-    fontWeight: 500,
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 24,
   },
   loadingText: {
     fontSize: 16,
     marginTop: 16,
-    textAlign: "center",
+    textAlign: 'center',
   },
-  listContent: {
-    padding: 24,
+
+  // Summary Section
+  summarySection: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
   },
   summaryCard: {
     borderRadius: 16,
+    ...Shadows.sm,
+  },
+  cardContent: {
     padding: 20,
-    marginBottom: 24,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
   },
-  summaryTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  progressContainer: {
+
+  // Progress Section
+  progressSection: {
     marginBottom: 20,
   },
   progressHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
-  progressText: {
+  progressLabel: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: '500',
   },
-  progressPercentage: {
+  progressValue: {
     fontSize: 16,
-    fontWeight: 700,
+    fontWeight: '600',
   },
-  progressBar: {
+  progressBarContainer: {
     height: 8,
     borderRadius: 4,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
-  progressFill: {
-    height: "100%",
+  progressBarFill: {
+    height: '100%',
     borderRadius: 4,
   },
-  summaryStats: {
-    marginBottom: 16,
-  },
-  statRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+
+  // Stats Section
+  statsSection: {
     marginBottom: 20,
   },
-  statItem: {
-    alignItems: "center",
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
-  statNumber: {
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statValue: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    fontWeight: 500,
+    fontWeight: '500',
   },
-  amountSummary: {
-    borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-    paddingTop: 16,
+
+  divider: {
+    height: 1,
+    marginVertical: 4,
+  },
+
+  // Amount Section
+  amountSection: {
+    marginTop: 16,
   },
   amountRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 8,
   },
   amountLabel: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: '500',
+    flex: 1,
   },
   amountValue: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: '600',
+    textAlign: 'right',
+  },
+
+  // Payment Section
+  paymentSection: {
+    marginBottom: 24,
   },
   paymentCard: {
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: 12,
+    ...Shadows.sm,
   },
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
+  paymentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 12,
   },
   periodInfo: {
     flex: 1,
+    marginRight: 12,
   },
   periodText: {
     fontSize: 16,
-    fontWeight: 600,
-    marginBottom: 2,
+    fontWeight: '600',
+    marginBottom: 4,
   },
-  periodNumber: {
-    fontSize: 12,
-    fontWeight: 500,
+  amountText: {
+    fontSize: 14,
+    fontWeight: '500',
   },
   statusBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    gap: 6,
-  },
-  statusIcon: {
-    fontSize: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    gap: 4,
   },
   statusText: {
     fontSize: 12,
-    fontWeight: 600,
+    fontWeight: '600',
   },
-  cardContent: {
+  paymentDetails: {
     marginBottom: 12,
   },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
   },
-  labelText: {
-    fontSize: 14,
-    fontWeight: 500,
+  detailLabel: {
+    fontSize: 12,
+    fontWeight: '500',
     flex: 1,
   },
-  valueText: {
-    fontSize: 14,
-    fontWeight: 600,
-    flex: 1.5,
-    textAlign: "right",
+  detailValue: {
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'right',
   },
-  cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  paymentFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-    paddingTop: 12,
+    borderTopColor: Colors.outline + '30',
   },
   tapHint: {
     fontSize: 12,
-    fontStyle: "italic",
+    fontStyle: 'italic',
   },
-  arrowText: {
+
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
     fontSize: 16,
-    fontWeight: 600,
+    marginTop: 16,
+    textAlign: 'center',
   },
+
+  // Modal Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
   },
   modalContainer: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: "70%",
+    maxHeight: '80%',
   },
   modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
     borderBottomWidth: 1,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 600,
+    fontSize: 18,
+    fontWeight: '600',
+    flex: 1,
   },
   closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeButtonText: {
-    fontSize: 16,
-    fontWeight: 600,
+    padding: 8,
+    borderRadius: 20,
   },
   modalContent: {
-    paddingHorizontal: 24,
+    padding: 20,
   },
   paymentInfo: {
-    padding: 20,
-    borderRadius: 12,
-    alignItems: "center",
-    marginVertical: 20,
-  },
-  paymentTitle: {
-    fontSize: 18,
-    fontWeight: 600,
+    fontSize: 16,
+    fontWeight: '500',
     marginBottom: 8,
+    textAlign: 'center',
   },
   paymentAmount: {
     fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
+    fontWeight: 'bold',
+    marginBottom: 24,
+    textAlign: 'center',
   },
-  currentStatus: {
-    fontSize: 14,
-  },
-  actionButtons: {
-    paddingBottom: 30,
+  statusOptions: {
     gap: 12,
   },
-  actionButton: {
-    marginBottom: 0,
+  statusOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 12,
   },
-  loadingSection: {
-    alignItems: "center",
-    paddingVertical: 40,
+  statusOptionText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
+  updatingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    gap: 8,
   },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
+  updatingText: {
+    fontSize: 16,
   },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: 600,
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptySubtext: {
-    fontSize: 14,
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  customPaymentButton: {
-    marginTop: 12,
-    marginHorizontal: 16,
-  },
+
+  // Custom Payment Modal
   inputSection: {
-    paddingVertical: 20,
+    marginBottom: 20,
   },
   inputLabel: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: '600',
     marginBottom: 8,
   },
   customAmountInput: {
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    padding: 12,
     fontSize: 16,
-    marginBottom: 16,
+    marginBottom: 8,
   },
   helpText: {
     fontSize: 14,
     lineHeight: 20,
-    marginBottom: 12,
   },
   processingSection: {
-    alignItems: "center",
-    paddingVertical: 30,
+    alignItems: 'center',
+    paddingVertical: 20,
+    gap: 12,
   },
   processingText: {
     fontSize: 16,
-    fontWeight: 600,
-    marginTop: 16,
-    textAlign: "center",
+    fontWeight: '500',
   },
   modalFooter: {
-    flexDirection: "row",
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    flexDirection: 'row',
+    padding: 20,
     borderTopWidth: 1,
     gap: 12,
   },
   cancelButton: {
     flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: 'center',
   },
-  payButton: {
-    flex: 2,
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  confirmButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

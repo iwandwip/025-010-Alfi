@@ -22,6 +22,7 @@ import {
   getCreditBalance,
 } from "../../services/wargaPaymentService";
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from "../../constants/theme";
+import { CardStyles } from "../../constants/CardStyles";
 import NativeCard from "../../components/ui/NativeCard";
 import NativeChip from "../../components/ui/NativeChip";
 import NativeButton from "../../components/ui/NativeButton";

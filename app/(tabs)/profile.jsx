@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { signOutUser } from "../../services/authService";
-import Animated, { FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
 import Button from '../../components/ui/Button';
@@ -82,7 +81,6 @@ function Profile() {
         showsVerticalScrollIndicator={false}
       >
         {/* Profile Header */}
-        <Animated.View entering={FadeInDown.delay(100)}>
           <View style={[styles.profileCard, Shadows.lg]}>
             <View style={styles.profileContent}>
               <View style={styles.avatarSection}>
@@ -107,12 +105,10 @@ function Profile() {
               </View>
             </View>
           </View>
-        </Animated.View>
 
         {userProfile && (
           <View style={styles.infoSection}>
             {/* Personal Information */}
-            <Animated.View entering={SlideInRight.delay(200)}>
               <View style={[styles.infoCard, Shadows.md]}>
                 <View style={styles.cardHeader}>
                   <View style={[styles.cardIcon, { backgroundColor: Colors.primary + '20' }]}>
@@ -158,10 +154,8 @@ function Profile() {
                   </Text>
                 </View>
               </View>
-            </Animated.View>
 
             {/* Address & RFID Information */}
-            <Animated.View entering={SlideInRight.delay(300)}>
               <View style={[styles.infoCard, Shadows.md]}>
                 <View style={styles.cardHeader}>
                   <View style={[styles.cardIcon, { backgroundColor: Colors.secondary + '20' }]}>
@@ -231,10 +225,8 @@ function Profile() {
                   </>
                 )}
               </View>
-            </Animated.View>
 
             {/* Account Information */}
-            <Animated.View entering={SlideInRight.delay(400)}>
               <View style={[styles.infoCard, Shadows.md]}>
                 <View style={styles.cardHeader}>
                   <View style={[styles.cardIcon, { backgroundColor: Colors.success + '20' }]}>
@@ -278,12 +270,11 @@ function Profile() {
                   </View>
                 </View>
               </View>
-            </Animated.View>
           </View>
         )}
 
         {/* Action Buttons */}
-        <Animated.View entering={FadeInUp.delay(500)} style={styles.actionSection}>
+        <View style={styles.actionSection}>
           <Button
             variant="primary"
             onPress={handleEditProfile}
@@ -302,7 +293,7 @@ function Profile() {
           >
             {loggingOut ? "Sedang Keluar..." : "Keluar"}
           </Button>
-        </Animated.View>
+        </View>
       </ScrollView>
     </LinearGradient>
   );

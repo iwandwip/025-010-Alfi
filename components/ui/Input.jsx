@@ -36,7 +36,7 @@ const Input = ({
       borderRadius: 8,
       borderWidth: 1,
       backgroundColor: '#FFFFFF',
-      minHeight: 48,
+      height: 48,
     };
 
     if (error) {
@@ -75,6 +75,7 @@ const Input = ({
       <View style={{ position: 'relative' }}>
         <TextInput
           placeholder={placeholder}
+          placeholderTextColor="#999"
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !isPasswordVisible}
@@ -86,8 +87,8 @@ const Input = ({
           onBlur={() => setIsFocused(false)}
           style={[
             getInputStyle(),
-            secureTextEntry ? { paddingRight: 48 } : {},
-            multiline ? { textAlignVertical: 'top' } : {},
+            secureTextEntry ? { paddingRight: 56 } : {},
+            multiline ? { textAlignVertical: 'top', height: 'auto', minHeight: 48 } : {},
           ]}
           {...props}
         />
@@ -98,13 +99,17 @@ const Input = ({
             style={{
               position: 'absolute',
               right: 12,
-              top: 12,
-              padding: 4,
+              top: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: 32,
+              height: 48,
             }}
           >
             <MaterialIcons
               name={isPasswordVisible ? "visibility" : "visibility-off"}
-              size={24}
+              size={20}
               color="#666"
             />
           </TouchableOpacity>
@@ -115,8 +120,9 @@ const Input = ({
         <Text style={{
           fontSize: 12,
           color: '#F44336',
-          marginTop: 4,
+          marginTop: 6,
           marginLeft: 4,
+          lineHeight: 16,
         }}>
           {error}
         </Text>

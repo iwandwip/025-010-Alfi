@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
-import Animated, { FadeInDown, SlideInUp } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
 
@@ -149,101 +148,89 @@ export default function TambahWarga() {
         >
           <View style={styles.content}>
             {/* Header Card */}
-            <Animated.View entering={FadeInDown.delay(100)}>
-              <View style={[styles.headerCard, Shadows.md]}>
-                <View style={{ padding: 20 }}>
-                  <View style={styles.headerCardContent}>
-                    <View style={[styles.headerIcon, { backgroundColor: Colors.primary }]}>
-                      <MaterialIcons name="person-add" size={32} color={Colors.onPrimary} />
-                    </View>
-                    <View style={styles.headerCardInfo}>
-                      <Text style={[styles.headerCardTitle, { fontWeight: 'bold' }]}>
-                        Form Data Warga
-                      </Text>
-                      <Text style={[styles.headerCardSubtitle, { color: Colors.onSurfaceVariant }]}>
-                        Tambah warga baru ke sistem
-                      </Text>
-                    </View>
-                  </View>
+            <View style={[styles.headerCard, Shadows.md]}>
+              <View style={styles.headerCardContent}>
+                <View style={[styles.headerIcon, { backgroundColor: Colors.primary }]}>
+                  <MaterialIcons name="person-add" size={32} color={Colors.onPrimary} />
+                </View>
+                <View style={styles.headerCardInfo}>
+                  <Text style={[styles.headerCardTitle, { fontWeight: 'bold' }]}>
+                    Form Data Warga
+                  </Text>
+                  <Text style={[styles.headerCardSubtitle, { color: Colors.onSurfaceVariant }]}>
+                    Tambah warga baru ke sistem
+                  </Text>
                 </View>
               </View>
-            </Animated.View>
+            </View>
 
-            <Animated.View entering={SlideInUp.delay(200)}>
-              <View style={[styles.formCard, { borderWidth: 1, borderColor: Colors.outline }]}>
-                <View style={{ padding: 20 }}>
-                  <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Warga</Text>
-                    <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+            <View style={[styles.formCard, { borderWidth: 1, borderColor: Colors.outline }]}>
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Warga</Text>
+                <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
 
-                    <Input
-                      label="Nama Warga"
-                      placeholder="Masukkan nama lengkap warga"
-                      value={formData.namaWarga}
-                      onChangeText={(value) => updateForm("namaWarga", value)}
-                      autoCapitalize="words"
-                    />
+                <Input
+                  label="Nama Warga"
+                  placeholder="Masukkan nama lengkap warga"
+                  value={formData.namaWarga}
+                  onChangeText={(value) => updateForm("namaWarga", value)}
+                  autoCapitalize="words"
+                />
 
-                    <Input
-                      label="Alamat"
-                      placeholder="Masukkan alamat lengkap"
-                      value={formData.alamat}
-                      onChangeText={(value) => updateForm("alamat", value)}
-                      autoCapitalize="words"
-                    />
+                <Input
+                  label="Alamat"
+                  placeholder="Masukkan alamat lengkap"
+                  value={formData.alamat}
+                  onChangeText={(value) => updateForm("alamat", value)}
+                  autoCapitalize="words"
+                />
 
-                    <View style={[styles.infoCard, { backgroundColor: Colors.primaryContainer }]}>
-                      <View style={{ paddingVertical: 12 }}>
-                        <Text style={[styles.infoText, { color: Colors.onPrimaryContainer }]}>
-                          ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu Daftar Warga
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={[styles.divider, { backgroundColor: Colors.outline, marginVertical: 16 }]} />
-
-                  <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Akun Warga</Text>
-                    <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
-
-                    <Input
-                      label="No HP Warga"
-                      placeholder="Masukkan nomor HP warga"
-                      value={formData.noHpWarga}
-                      onChangeText={(value) => updateForm("noHpWarga", value)}
-                      keyboardType="phone-pad"
-                    />
-
-                    <Input
-                      label="Email Warga"
-                      placeholder="Masukkan email untuk login warga"
-                      value={formData.emailWarga}
-                      onChangeText={(value) => updateForm("emailWarga", value)}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                    />
-
-                    <Input
-                      label="Password Warga"
-                      placeholder="Buat password untuk warga (min. 6 karakter)"
-                      value={formData.passwordWarga}
-                      onChangeText={(value) => updateForm("passwordWarga", value)}
-                      secureTextEntry
-                    />
-                  </View>
+                <View style={[styles.infoCard, { backgroundColor: Colors.primaryContainer }]}>
+                  <Text style={[styles.infoText, { color: Colors.onPrimaryContainer }]}>
+                    ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu Daftar Warga
+                  </Text>
                 </View>
               </View>
-            </Animated.View>
 
-            <Animated.View entering={SlideInUp.delay(400)}>
-              <Button
-                title={loading ? "Sedang Menyimpan..." : "Simpan Data"}
-                onPress={handleSimpan}
-                disabled={loading}
-                style={styles.simpanButton}
-              />
-            </Animated.View>
+              <View style={[styles.divider, { backgroundColor: Colors.outline, marginVertical: 16 }]} />
+
+              <View style={styles.section}>
+                <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Akun Warga</Text>
+                <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+
+                <Input
+                  label="No HP Warga"
+                  placeholder="Masukkan nomor HP warga"
+                  value={formData.noHpWarga}
+                  onChangeText={(value) => updateForm("noHpWarga", value)}
+                  keyboardType="phone-pad"
+                />
+
+                <Input
+                  label="Email Warga"
+                  placeholder="Masukkan email untuk login warga"
+                  value={formData.emailWarga}
+                  onChangeText={(value) => updateForm("emailWarga", value)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+
+                <Input
+                  label="Password Warga"
+                  placeholder="Buat password warga"
+                  value={formData.passwordWarga}
+                  onChangeText={(value) => updateForm("passwordWarga", value)}
+                  secureTextEntry
+                />
+              </View>
+            </View>
+
+            <Button
+              title={loading ? "Sedang Menyimpan..." : "Simpan Data"}
+              onPress={handleSimpan}
+              disabled={loading}
+              style={styles.simpanButton}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

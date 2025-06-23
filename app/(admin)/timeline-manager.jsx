@@ -16,7 +16,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/ui/Button";
 import TimelinePicker from "../../components/ui/TimelinePicker";
 import { ScrollView } from 'react-native';
-import Animated, { FadeInDown, SlideInUp, SlideInRight } from 'react-native-reanimated';
 import {
   getActiveTimeline,
   getTimelineTemplates,
@@ -474,7 +473,7 @@ export default function TimelineManager() {
             />
           }
         >
-          <Animated.View entering={FadeInDown.delay(100)} style={styles.activeTimelineSection}>
+          <View style={styles.activeTimelineSection}>
             <Text style={[styles.sectionTitle, { color: Colors.onView, fontSize: 20, fontWeight: '600' }]}>Timeline Aktif</Text>
 
             {activeTimeline ? (
@@ -676,9 +675,9 @@ export default function TimelineManager() {
                 </View>
               </View>
             )}
-          </Animated.View>
+          </View>
 
-          <Animated.View entering={SlideInUp.delay(200)} style={styles.actionsSection}>
+          <View style={styles.actionsSection}>
             <Button
               title={
                 activeTimeline ? "Buat Timeline Baru" : "Buat Timeline Pertama"
@@ -696,14 +695,14 @@ export default function TimelineManager() {
                 </View>
               </View>
             )}
-          </Animated.View>
+          </View>
 
-          <Animated.View entering={SlideInRight.delay(300)} style={styles.templatesSection}>
+          <View style={styles.templatesSection}>
             <Text style={[styles.sectionTitle, { color: Colors.onView }]}>Template Tersimpan</Text>
 
             {templates.length > 0 ? (
               templates.map((template, index) => (
-                <Animated.View key={template.id} entering={SlideInRight.delay(400 + index * 100)}>
+                <View key={template.id}>
                   <View style={styles.templateCard}>
                     <View>
                       <View style={styles.templateHeader}>
@@ -744,7 +743,7 @@ export default function TimelineManager() {
                       </View>
                     </View>
                   </View>
-                </Animated.View>
+                </View>
               ))
             ) : (
               <View style={styles.noTemplatesCard}>
@@ -766,7 +765,7 @@ export default function TimelineManager() {
                 </View>
               </View>
             )}
-          </Animated.View>
+          </View>
         </ScrollView>
       </View>
     </LinearGradient>

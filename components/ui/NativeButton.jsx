@@ -85,20 +85,20 @@ const styles = StyleSheet.create({
     minHeight: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.sm,
   },
   contained: {
     backgroundColor: Colors.primary,
+    ...Shadows.sm,
   },
   outlined: {
     backgroundColor: 'transparent',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Colors.primary,
+    ...Shadows.none,
   },
   text: {
     backgroundColor: 'transparent',
-    elevation: 0,
-    shadowOpacity: 0,
+    ...Shadows.none,
   },
   disabled: {
     backgroundColor: Colors.surfaceVariant,

@@ -7,14 +7,14 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
-import Button from '../../components/ui/Button';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeInDown, SlideInUp, SlideInRight } from 'react-native-reanimated';
 import {
   getUserProfile,
   deleteWarga,
@@ -40,29 +40,42 @@ export default function DetailWarga() {
 
   const loadWargaData = async () => {
     setLoading(true);
-    const result = await getUserProfile(wargaId);
-    if (result.success) {
-      setWarga(result.profile);
-    } else {
-      Alert.alert("Error", "Gagal memuat data warga");
+    try {
+      const result = await getUserProfile(wargaId);
+      if (result.success) {
+        setWarga(result.profile);
+      } else {
+        Alert.alert("Error", "Gagal memuat data warga");
+        router.back();
+      }
+    } catch (error) {
+      Alert.alert("Error", "Terjadi kesalahan saat memuat data");
       router.back();
     }
     setLoading(false);
   };
 
   const loadPairingStatus = async () => {
-    const status = await getPairingStatus();
-    setPairingStatus(status);
+    try {
+      const status = await getPairingStatus();
+      setPairingStatus(status);
+    } catch (error) {
+      console.error("Error loading pairing status:", error);
+    }
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      loadWargaData();
-      loadPairingStatus();
+      if (wargaId) {
+        loadWargaData();
+        loadPairingStatus();
+      }
     }, [wargaId])
   );
 
   useEffect(() => {
+    if (!wargaId) return;
+
     const unsubscribe = listenToPairingData((rfidData) => {
       if (
         rfidData &&
@@ -82,9 +95,11 @@ export default function DetailWarga() {
   }, []);
 
   const handleRFIDReceived = async (rfidData) => {
+    const wargaName = warga?.namaWarga || 'warga ini';
+    
     Alert.alert(
       "RFID Terdeteksi",
-      `RFID Code: ${rfidData.rfidCode}\n\nApakah Anda ingin menyimpan RFID ini untuk ${warga?.namaWarga}?`,
+      `RFID Code: ${rfidData.rfidCode}\n\nApakah Anda ingin menyimpan RFID ini untuk ${wargaName}?`,
       [
         {
           text: "Batal",
@@ -94,13 +109,18 @@ export default function DetailWarga() {
         {
           text: "Simpan",
           onPress: async () => {
-            const result = await updateWargaRFID(wargaId, rfidData.rfidCode);
-            await cancelPairing();
-            if (result.success) {
-              Alert.alert("Berhasil", "RFID berhasil dipasangkan!");
-              loadWargaData();
-            } else {
-              Alert.alert("Error", "Gagal menyimpan RFID");
+            try {
+              const result = await updateWargaRFID(wargaId, rfidData.rfidCode);
+              await cancelPairing();
+              if (result.success) {
+                Alert.alert("Berhasil", "RFID berhasil dipasangkan!");
+                loadWargaData();
+                loadPairingStatus();
+              } else {
+                Alert.alert("Error", "Gagal menyimpan RFID");
+              }
+            } catch (error) {
+              Alert.alert("Error", "Terjadi kesalahan saat menyimpan RFID");
             }
           },
         },
@@ -110,16 +130,20 @@ export default function DetailWarga() {
 
   const handleStartPairing = async () => {
     setPairingLoading(true);
-    const result = await startPairing(wargaId);
-    if (result.success) {
-      Alert.alert(
-        "Pairing Dimulai",
-        "Silakan tap kartu RFID pada device ESP32. Pairing akan otomatis berhenti dalam 30 detik.",
-        [{ text: "OK" }]
-      );
-      loadPairingStatus();
-    } else {
-      Alert.alert("Error", result.error);
+    try {
+      const result = await startPairing(wargaId);
+      if (result.success) {
+        Alert.alert(
+          "Pairing Dimulai",
+          "Silakan tap kartu RFID pada device ESP32. Pairing akan otomatis berhenti dalam 30 detik.",
+          [{ text: "OK" }]
+        );
+        loadPairingStatus();
+      } else {
+        Alert.alert("Error", result.error || "Gagal memulai pairing");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Terjadi kesalahan saat memulai pairing");
     }
     setPairingLoading(false);
   };
@@ -134,13 +158,17 @@ export default function DetailWarga() {
           text: "Ya, Batalkan",
           style: "destructive",
           onPress: async () => {
-            const result = await cancelPairing();
-            if (result.success) {
-              Alert.alert(
-                "Pairing Dibatalkan",
-                "Pairing RFID telah dibatalkan"
-              );
-              loadPairingStatus();
+            try {
+              const result = await cancelPairing();
+              if (result.success) {
+                Alert.alert(
+                  "Pairing Dibatalkan",
+                  "Pairing RFID telah dibatalkan"
+                );
+                loadPairingStatus();
+              }
+            } catch (error) {
+              Alert.alert("Error", "Terjadi kesalahan saat membatalkan pairing");
             }
           },
         },
@@ -156,9 +184,12 @@ export default function DetailWarga() {
   };
 
   const handleDeleteWarga = () => {
+    const wargaName = warga?.namaWarga || 'warga ini';
+    const wargaEmail = warga?.email || 'email tidak tersedia';
+    
     Alert.alert(
       "Hapus Warga",
-      `Apakah Anda yakin ingin menghapus data ${warga?.namaWarga}?\n\nTindakan ini akan:\n• Menghapus data warga dari sistem\n• Menonaktifkan akun warga (akun login tetap ada)\n• Email ${warga?.email} tidak dapat digunakan lagi\n• Tidak dapat dibatalkan\n\nLanjutkan?`,
+      `Apakah Anda yakin ingin menghapus data ${wargaName}?\n\nTindakan ini akan:\n• Menghapus data warga dari sistem\n• Menonaktifkan akun warga (akun login tetap ada)\n• Email ${wargaEmail} tidak dapat digunakan lagi\n• Tidak dapat dibatalkan\n\nLanjutkan?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -177,9 +208,12 @@ export default function DetailWarga() {
       const result = await deleteWarga(wargaId);
 
       if (result.success) {
+        const wargaName = warga?.namaWarga || 'warga';
+        const wargaEmail = warga?.email || 'email tidak tersedia';
+        
         Alert.alert(
           "Berhasil Dihapus! ✅",
-          `Data warga ${warga?.namaWarga} berhasil dihapus dari sistem.\n\n⚠️ Catatan: Email ${warga?.email} tidak dapat digunakan untuk akun baru karena masih terdaftar di sistem autentikasi.`,
+          `Data warga ${wargaName} berhasil dihapus dari sistem.\n\n⚠️ Catatan: Email ${wargaEmail} tidak dapat digunakan untuk akun baru karena masih terdaftar di sistem autentikasi.`,
           [
             {
               text: "OK",
@@ -200,9 +234,12 @@ export default function DetailWarga() {
   };
 
   const handleDeleteRFID = () => {
+    const wargaName = warga?.namaWarga || 'warga ini';
+    const rfidCode = warga?.rfidWarga || 'RFID tidak tersedia';
+    
     Alert.alert(
       "Hapus RFID",
-      `Apakah Anda yakin ingin menghapus RFID untuk ${warga?.namaWarga}?\n\nRFID: ${warga?.rfidWarga}\n\nSetelah dihapus, warga tidak akan bisa menggunakan kartu RFID untuk setoran.`,
+      `Apakah Anda yakin ingin menghapus RFID untuk ${wargaName}?\n\nRFID: ${rfidCode}\n\nSetelah dihapus, warga tidak akan bisa menggunakan kartu RFID untuk setoran.`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -229,9 +266,12 @@ export default function DetailWarga() {
   };
 
   const handleRePairing = () => {
+    const wargaName = warga?.namaWarga || 'warga ini';
+    const currentRfid = warga?.rfidWarga || 'tidak tersedia';
+    
     Alert.alert(
       "Ganti RFID",
-      `Apakah Anda ingin mengganti RFID untuk ${warga?.namaWarga}?\n\nRFID saat ini: ${warga?.rfidWarga}\n\nRFID lama akan diganti dengan yang baru.`,
+      `Apakah Anda ingin mengganti RFID untuk ${wargaName}?\n\nRFID saat ini: ${currentRfid}\n\nRFID lama akan diganti dengan yang baru.`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -259,20 +299,21 @@ export default function DetailWarga() {
     }
   };
 
+  // Loading state
   if (loading) {
     return (
       <LinearGradient
         colors={[Colors.primaryContainer, Colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
-        <View style={[styles.header, Shadows.md, { backgroundColor: Colors.surface }]}>
+        <View style={[styles.header, { backgroundColor: Colors.surface }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
           >
             <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>
+          <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
             Detail Warga
           </Text>
           <View style={styles.placeholder} />
@@ -288,20 +329,21 @@ export default function DetailWarga() {
     );
   }
 
+  // Error state
   if (!warga) {
     return (
       <LinearGradient
         colors={[Colors.primaryContainer, Colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
-        <View style={[styles.header, Shadows.md, { backgroundColor: Colors.surface }]}>
+        <View style={[styles.header, { backgroundColor: Colors.surface }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
           >
             <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>
+          <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
             Detail Warga
           </Text>
           <View style={styles.placeholder} />
@@ -319,30 +361,36 @@ export default function DetailWarga() {
     );
   }
 
-  const isPairingActive =
-    pairingStatus?.isActive && pairingStatus?.wargaId === wargaId;
-  const canStartPairing = !warga.rfidWarga && !pairingStatus?.isActive;
+  const isPairingActive = Boolean(pairingStatus?.isActive && pairingStatus?.wargaId === wargaId);
+  const hasRfid = Boolean(warga?.rfidWarga);
+  const canStartPairing = Boolean(warga && !warga.rfidWarga && !pairingStatus?.isActive);
 
+  // Main render
   return (
     <LinearGradient
       colors={[Colors.primaryContainer, Colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
-      <View style={[styles.header, Shadows.md, { backgroundColor: Colors.surface }]}>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: Colors.surface }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
           <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
+        <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
           Detail Warga
         </Text>
         <View style={styles.placeholder} />
       </View>
 
-      <View style={styles.content}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardContainer}
+      >
         <ScrollView
+          style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
@@ -350,144 +398,159 @@ export default function DetailWarga() {
           ]}
         >
           {/* Profile Card */}
-          <Animated.View entering={FadeInDown.delay(100)}>
-            <View style={[styles.profileCard, { backgroundColor: Colors.surface }, Shadows.md]}>
-              <View style={styles.cardContent}>
-                <View style={styles.profileSection}>
-                  <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
-                    <Text style={[styles.avatarText, { color: Colors.onPrimary }]}>
-                      {warga.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
-                    </Text>
-                  </View>
-                  <View style={styles.profileInfo}>
-                    <Text style={[styles.namaWarga, { color: Colors.onSurface, fontWeight: 'bold' }]}>{warga.namaWarga}</Text>
-                    <Text style={[styles.wargaId, { color: Colors.onSurfaceVariant }]}>ID: {warga.id}</Text>
-                    <View style={[
-                      styles.statusChip, 
+          <View style={[styles.profileCard, { backgroundColor: Colors.surface }]}>
+            <View style={styles.cardContent}>
+              <View style={styles.profileHeader}>
+                <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
+                  <Text style={[styles.avatarText, { color: Colors.onPrimary }]}>
+                    {(warga?.namaWarga || 'W').charAt(0).toUpperCase()}
+                  </Text>
+                </View>
+                <View style={styles.profileInfo}>
+                  <Text style={[styles.namaWarga, { color: Colors.onSurface }]}>
+                    {warga?.namaWarga || 'Nama Warga'}
+                  </Text>
+                  <Text style={[styles.wargaEmail, { color: Colors.onSurfaceVariant }]}>
+                    {warga?.email || 'Email tidak tersedia'}
+                  </Text>
+                  <View style={[
+                    styles.statusChip, 
+                    { 
+                      backgroundColor: hasRfid ? Colors.successContainer : Colors.warningContainer 
+                    }
+                  ]}>
+                    <MaterialIcons 
+                      name={hasRfid ? "check-circle" : "warning"} 
+                      size={14} 
+                      color={hasRfid ? Colors.onSuccessContainer : Colors.onWarningContainer} 
+                    />
+                    <Text style={[
+                      styles.statusText, 
                       { 
-                        backgroundColor: warga.rfidWarga ? Colors.successContainer : Colors.warningContainer 
+                        color: hasRfid ? Colors.onSuccessContainer : Colors.onWarningContainer 
                       }
                     ]}>
-                      <MaterialIcons 
-                        name={warga.rfidWarga ? "check-circle" : "warning"} 
-                        size={14} 
-                        color={warga.rfidWarga ? Colors.onSuccessContainer : Colors.onWarningContainer} 
-                      />
-                      <Text style={[
-                        styles.statusText, 
-                        { 
-                          color: warga.rfidWarga ? Colors.onSuccessContainer : Colors.onWarningContainer 
-                        }
-                      ]}>
-                        {warga.rfidWarga ? "RFID OK" : "No RFID"}
-                      </Text>
-                    </View>
+                      {hasRfid ? "RFID Aktif" : "RFID Belum Ada"}
+                    </Text>
                   </View>
                 </View>
               </View>
             </View>
-          </Animated.View>
+          </View>
 
           {/* Action Buttons */}
-          <Animated.View entering={SlideInUp.delay(200)} style={styles.actionSection}>
-            <View style={styles.actionButtons}>
-              <Button
-                mode="contained"
-                icon="pencil"
-                onPress={handleEditWarga}
-                style={styles.editButton}
-                disabled={deleting}
-              >
+          <View style={styles.actionSection}>
+            <TouchableOpacity
+              style={[styles.actionButton, { backgroundColor: Colors.primary }]}
+              onPress={handleEditWarga}
+              disabled={deleting}
+            >
+              <MaterialIcons name="edit" size={20} color={Colors.onPrimary} />
+              <Text style={[styles.actionButtonText, { color: Colors.onPrimary }]}>
                 Edit Data
-              </Button>
-              <Button
-                mode="outlined"
-                icon="delete"
-                onPress={handleDeleteWarga}
-                style={styles.deleteButton}
-                disabled={deleting}
-                loading={deleting}
-              >
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.actionButton, styles.deleteButton]}
+              onPress={handleDeleteWarga}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <ActivityIndicator size="small" color={Colors.error} />
+              ) : (
+                <MaterialIcons name="delete" size={20} color={Colors.error} />
+              )}
+              <Text style={[styles.actionButtonText, { color: Colors.error }]}>
                 {deleting ? "Menghapus..." : "Hapus Warga"}
-              </Button>
-            </View>
-          </Animated.View>
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {deleting && (
-            <Animated.View entering={SlideInUp.delay(300)}>
-              <View style={[styles.deletingInfo, { backgroundColor: Colors.warningContainer }, Shadows.sm]}>
-                <View style={styles.deletingContent}>
-                  <ActivityIndicator size="small" color={Colors.onWarningContainer} style={{ marginBottom: 8 }} />
-                  <Text style={[styles.deletingTitle, { color: Colors.onWarningContainer }]}>
-                    Menghapus data warga dari sistem...
-                  </Text>
-                  <Text style={[styles.deletingSubtitle, { color: Colors.onWarningContainer }]}>
-                    Mohon tunggu sebentar
-                  </Text>
-                </View>
+            <View style={[styles.deletingInfo, { backgroundColor: Colors.warningContainer }]}>
+              <View style={styles.deletingContent}>
+                <ActivityIndicator size="small" color={Colors.onWarningContainer} style={{ marginBottom: 8 }} />
+                <Text style={[styles.deletingTitle, { color: Colors.onWarningContainer }]}>
+                  Menghapus data warga dari sistem...
+                </Text>
+                <Text style={[styles.deletingSubtitle, { color: Colors.onWarningContainer }]}>
+                  Mohon tunggu sebentar
+                </Text>
               </View>
-            </Animated.View>
+            </View>
           )}
 
           {/* Information Card */}
-          <Animated.View entering={SlideInRight.delay(300)} style={styles.infoSection}>
+          <View style={styles.infoSection}>
             <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>Informasi Warga</Text>
 
-            <View style={[styles.infoCard, { backgroundColor: Colors.surface }, Shadows.sm]}>
+            <View style={[styles.infoCard, { backgroundColor: Colors.surface }]}>
               <View style={styles.cardContent}>
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Nama Warga:</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>{warga.namaWarga}</Text>
+                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Nama Warga</Text>
+                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                    {warga?.namaWarga || 'Belum diisi'}
+                  </Text>
                 </View>
                 <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Alamat:</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>{warga.alamat || 'Belum diisi'}</Text>
+                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Alamat</Text>
+                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                    {warga?.alamat || 'Belum diisi'}
+                  </Text>
                 </View>
                 <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>No HP Warga:</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>{warga.noHpWarga}</Text>
+                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>No HP</Text>
+                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                    {warga?.noHpWarga || 'Belum diisi'}
+                  </Text>
                 </View>
                 <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Email Warga:</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>{warga.email}</Text>
+                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Email</Text>
+                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                    {warga?.email || 'Belum diisi'}
+                  </Text>
                 </View>
               </View>
             </View>
-          </Animated.View>
+          </View>
 
           {/* RFID Section */}
-          <Animated.View entering={SlideInRight.delay(400)} style={styles.rfidSection}>
+          <View style={styles.rfidSection}>
             <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>Status RFID</Text>
 
-            <View style={[styles.rfidCard, { backgroundColor: Colors.surface }, Shadows.sm]}>
+            <View style={[styles.rfidCard, { backgroundColor: Colors.surface }]}>
               <View style={styles.cardContent}>
+                {/* RFID Status */}
                 <View style={styles.rfidStatus}>
-                  {warga.rfidWarga ? (
-                    <View style={[styles.rfidActive, { backgroundColor: Colors.successContainer }, Shadows.sm]}>
+                  {hasRfid ? (
+                    <View style={[styles.rfidActive, { backgroundColor: Colors.successContainer }]}>
                       <View style={styles.rfidStatusContent}>
-                        <View style={[styles.rfidIcon, { backgroundColor: Colors.success }]}>
-                          <MaterialIcons name="check-circle" size={24} color={Colors.onSuccess} />
-                        </View>
+                        <MaterialIcons name="check-circle" size={24} color={Colors.onSuccessContainer} />
                         <View style={styles.rfidInfo}>
-                          <Text style={[styles.rfidTitle, { color: Colors.onSuccessContainer }]}>RFID Terpasang</Text>
-                          <Text style={[styles.rfidSubtitle, { color: Colors.onSuccessContainer }]}>{warga.rfidWarga}</Text>
+                          <Text style={[styles.rfidTitle, { color: Colors.onSuccessContainer }]}>
+                            RFID Terpasang
+                          </Text>
+                          <Text style={[styles.rfidSubtitle, { color: Colors.onSuccessContainer }]}>
+                            {warga?.rfidWarga || 'RFID Code'}
+                          </Text>
                         </View>
                       </View>
                     </View>
                   ) : (
-                    <View style={[styles.rfidInactive, { backgroundColor: Colors.warningContainer }, Shadows.sm]}>
+                    <View style={[styles.rfidInactive, { backgroundColor: Colors.warningContainer }]}>
                       <View style={styles.rfidStatusContent}>
-                        <View style={[styles.rfidIcon, { backgroundColor: Colors.warning }]}>
-                          <MaterialIcons name="warning" size={24} color={Colors.onWarning} />
-                        </View>
+                        <MaterialIcons name="warning" size={24} color={Colors.onWarningContainer} />
                         <View style={styles.rfidInfo}>
-                          <Text style={[styles.rfidTitle, { color: Colors.onWarningContainer }]}>RFID Belum Terpasang</Text>
+                          <Text style={[styles.rfidTitle, { color: Colors.onWarningContainer }]}>
+                            RFID Belum Terpasang
+                          </Text>
                           <Text style={[styles.rfidSubtitle, { color: Colors.onWarningContainer }]}>
                             Silakan lakukan pairing RFID
                           </Text>
@@ -497,8 +560,9 @@ export default function DetailWarga() {
                   )}
                 </View>
 
+                {/* Pairing Active Status */}
                 {isPairingActive && (
-                  <View style={[styles.pairingActive, { backgroundColor: Colors.primaryContainer }, Shadows.sm]}>
+                  <View style={[styles.pairingActive, { backgroundColor: Colors.primaryContainer }]}>
                     <View style={styles.pairingContent}>
                       <ActivityIndicator size="small" color={Colors.onPrimaryContainer} style={{ marginBottom: 8 }} />
                       <Text style={[styles.pairingTitle, { color: Colors.onPrimaryContainer }]}>
@@ -511,60 +575,69 @@ export default function DetailWarga() {
                   </View>
                 )}
 
+                {/* RFID Action Buttons */}
                 <View style={styles.rfidActions}>
                   {canStartPairing && (
-                    <Button
-                      mode="contained"
-                      icon="wifi"
+                    <TouchableOpacity
+                      style={[styles.rfidButton, { backgroundColor: Colors.primary }]}
                       onPress={handleStartPairing}
                       disabled={pairingLoading || deleting}
-                      loading={pairingLoading}
-                      style={styles.pairingButton}
                     >
-                      {pairingLoading ? "Memulai Pairing..." : "Mulai Pairing RFID"}
-                    </Button>
+                      {pairingLoading ? (
+                        <ActivityIndicator size="small" color={Colors.onPrimary} />
+                      ) : (
+                        <MaterialIcons name="wifi" size={20} color={Colors.onPrimary} />
+                      )}
+                      <Text style={[styles.rfidButtonText, { color: Colors.onPrimary }]}>
+                        {pairingLoading ? "Memulai Pairing..." : "Mulai Pairing RFID"}
+                      </Text>
+                    </TouchableOpacity>
                   )}
 
                   {isPairingActive && (
-                    <Button
-                      mode="outlined"
-                      icon="close"
+                    <TouchableOpacity
+                      style={[styles.rfidButton, styles.cancelButton]}
                       onPress={handleCancelPairing}
-                      style={styles.cancelButton}
                       disabled={deleting}
                     >
-                      Batalkan Pairing
-                    </Button>
+                      <MaterialIcons name="close" size={20} color={Colors.onSurface} />
+                      <Text style={[styles.rfidButtonText, { color: Colors.onSurface }]}>
+                        Batalkan Pairing
+                      </Text>
+                    </TouchableOpacity>
                   )}
 
-                  {warga.rfidWarga && !isPairingActive && (
+                  {hasRfid && !isPairingActive && (
                     <View style={styles.rfidManagement}>
-                      <Button
-                        mode="contained-tonal"
-                        icon="swap-horizontal"
+                      <TouchableOpacity
+                        style={[styles.rfidButton, styles.rePairingButton]}
                         onPress={handleRePairing}
-                        style={styles.rePairingButton}
                         disabled={deleting}
                       >
-                        Ganti RFID
-                      </Button>
-                      <Button
-                        mode="outlined"
-                        icon="delete"
+                        <MaterialIcons name="swap-horiz" size={20} color={Colors.primary} />
+                        <Text style={[styles.rfidButtonText, { color: Colors.primary }]}>
+                          Ganti RFID
+                        </Text>
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[styles.rfidButton, styles.deleteRFIDButton]}
                         onPress={handleDeleteRFID}
-                        style={styles.deleteRFIDButton}
                         disabled={deleting}
                       >
-                        Hapus RFID
-                      </Button>
+                        <MaterialIcons name="delete" size={20} color={Colors.error} />
+                        <Text style={[styles.rfidButtonText, { color: Colors.error }]}>
+                          Hapus RFID
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   )}
                 </View>
               </View>
             </View>
-          </Animated.View>
+          </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
@@ -579,9 +652,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     justifyContent: 'space-between',
+    ...Shadows.sm,
   },
   backButton: {
     padding: 8,
+    borderRadius: 20,
   },
   headerTitle: {
     fontSize: 18,
@@ -590,7 +665,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   placeholder: {
-    width: 48,
+    width: 40,
+  },
+  keyboardContainer: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
   },
   loadingContainer: {
     flex: 1,
@@ -601,6 +685,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,
     marginTop: 16,
+    textAlign: 'center',
   },
   errorContainer: {
     flex: 1,
@@ -619,46 +704,41 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 18,
     fontWeight: '600',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  scrollContent: {
-    padding: 4,
+    textAlign: 'center',
   },
   profileCard: {
     borderRadius: 16,
     marginBottom: 16,
-    padding: 16,
+    ...Shadows.md,
   },
   cardContent: {
-    padding: 16,
+    padding: 20,
   },
-  profileSection: {
+  profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
   },
   avatarText: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
   },
   profileInfo: {
     flex: 1,
   },
   namaWarga: {
-    fontSize: 20,
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 4,
   },
-  wargaId: {
+  wargaEmail: {
     fontSize: 14,
     marginBottom: 8,
   },
@@ -677,21 +757,31 @@ const styles = StyleSheet.create({
   },
   actionSection: {
     marginBottom: 16,
-  },
-  actionButtons: {
-    flexDirection: 'row',
     gap: 12,
   },
-  editButton: {
-    flex: 1,
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    gap: 8,
+  },
+  actionButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   deleteButton: {
-    flex: 1,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.error,
   },
   deletingInfo: {
     borderRadius: 12,
     marginBottom: 16,
     padding: 16,
+    ...Shadows.sm,
   },
   deletingContent: {
     alignItems: 'center',
@@ -701,9 +791,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+    textAlign: 'center',
   },
   deletingSubtitle: {
     fontSize: 14,
+    textAlign: 'center',
   },
   infoSection: {
     marginBottom: 24,
@@ -711,17 +803,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   infoCard: {
     borderRadius: 16,
-    padding: 16,
+    ...Shadows.sm,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
+    alignItems: 'flex-start',
+    paddingVertical: 12,
   },
   infoLabel: {
     fontSize: 14,
@@ -729,48 +821,41 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: 14,
-    fontWeight: '600',
-    flex: 1,
+    fontWeight: '500',
+    flex: 1.5,
     textAlign: 'right',
   },
   divider: {
     height: 1,
-    marginVertical: 8,
+    marginVertical: 4,
   },
   rfidSection: {
     marginBottom: 24,
   },
   rfidCard: {
     borderRadius: 16,
-    padding: 16,
+    ...Shadows.sm,
   },
   rfidStatus: {
     marginBottom: 16,
   },
   rfidActive: {
     borderRadius: 12,
-    marginBottom: 12,
     padding: 16,
+    marginBottom: 12,
   },
   rfidInactive: {
     borderRadius: 12,
-    marginBottom: 12,
     padding: 16,
+    marginBottom: 12,
   },
   rfidStatusContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  rfidIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
   rfidInfo: {
     flex: 1,
+    marginLeft: 12,
   },
   rfidTitle: {
     fontSize: 16,
@@ -784,6 +869,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 16,
     padding: 16,
+    ...Shadows.sm,
   },
   pairingContent: {
     alignItems: 'center',
@@ -792,6 +878,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 4,
+    textAlign: 'center',
   },
   pairingSubtitle: {
     fontSize: 14,
@@ -800,19 +887,36 @@ const styles = StyleSheet.create({
   rfidActions: {
     gap: 12,
   },
-  pairingButton: {
+  rfidButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    gap: 8,
+  },
+  rfidButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
   cancelButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.outline,
   },
   rfidManagement: {
-    flexDirection: 'row',
     gap: 12,
     marginTop: 8,
   },
   rePairingButton: {
-    flex: 1,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
   deleteRFIDButton: {
-    flex: 1,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: Colors.error,
   },
 });

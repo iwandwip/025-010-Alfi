@@ -18,8 +18,8 @@ import { useNotification } from "../../contexts/NotificationContext";
 import { signOutUser } from "../../services/authService";
 import { seederService } from "../../services/seederService";
 import { MaterialIcons } from "@expo/vector-icons";
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from "../../constants/theme";
+import { CardStyles } from "../../constants/CardStyles";
 import NativeButton from "../../components/ui/NativeButton";
 import NativeCard from "../../components/ui/NativeCard";
 import NativeChip from "../../components/ui/NativeChip";
@@ -225,7 +225,7 @@ function AdminHome() {
         <View style={styles.menuGrid}>
           {/* Row 1 */}
           <View style={styles.menuRow}>
-            <Animated.View entering={FadeInDown.delay(100)} style={styles.gridItem}>
+            <View style={styles.gridItem}>
               <TouchableOpacity 
                 onPress={() => router.push("/(admin)/tambah-warga")} 
                 activeOpacity={0.7} 
@@ -241,9 +241,9 @@ function AdminHome() {
                   </NativeCard.Content>
                 </NativeCard>
               </TouchableOpacity>
-            </Animated.View>
+            </View>
 
-            <Animated.View entering={FadeInDown.delay(150)} style={styles.gridItem}>
+            <View style={styles.gridItem}>
               <TouchableOpacity 
                 onPress={() => router.push("/(admin)/daftar-warga")} 
                 activeOpacity={0.7} 
@@ -259,12 +259,12 @@ function AdminHome() {
                   </NativeCard.Content>
                 </NativeCard>
               </TouchableOpacity>
-            </Animated.View>
+            </View>
           </View>
 
           {/* Row 2 */}
           <View style={styles.menuRow}>
-            <Animated.View entering={FadeInDown.delay(200)} style={styles.gridItem}>
+            <View style={styles.gridItem}>
               <TouchableOpacity 
                 onPress={() => router.push("/(admin)/timeline-manager")} 
                 activeOpacity={0.7} 
@@ -280,9 +280,9 @@ function AdminHome() {
                   </NativeCard.Content>
                 </NativeCard>
               </TouchableOpacity>
-            </Animated.View>
+            </View>
 
-            <Animated.View entering={FadeInDown.delay(250)} style={styles.gridItem}>
+            <View style={styles.gridItem}>
               <TouchableOpacity 
                 onPress={() => router.push("/(admin)/payment-status")} 
                 activeOpacity={0.7} 
@@ -298,11 +298,11 @@ function AdminHome() {
                   </NativeCard.Content>
                 </NativeCard>
               </TouchableOpacity>
-            </Animated.View>
+            </View>
           </View>
 
           {/* Row 3 - Seeder Card (Full Width) */}
-          <Animated.View entering={FadeInDown.delay(300)} style={styles.fullWidthItem}>
+          <View style={styles.fullWidthItem}>
             <TouchableOpacity 
               onPress={seederLoading ? undefined : handleSeeder} 
               activeOpacity={0.7} 
@@ -345,11 +345,11 @@ function AdminHome() {
                 </NativeCard.Content>
               </NativeCard>
             </TouchableOpacity>
-          </Animated.View>
+          </View>
         </View>
 
         {/* Logout Button */}
-        <Animated.View entering={FadeInUp.delay(600)}>
+        <View>
           <NativeButton
             title={loggingOut ? "Sedang Keluar..." : "Keluar"}
             onPress={handleLogout}
@@ -359,7 +359,7 @@ function AdminHome() {
             style={[styles.logoutButton, { borderColor: Colors.error }]}
             textStyle={{ color: Colors.error }}
           />
-        </Animated.View>
+        </View>
       </ScrollView>
 
       {/* Seeder Modal */}
@@ -533,6 +533,7 @@ const styles = StyleSheet.create({
   },
   seederCard: {
     marginTop: 8,
+    ...Shadows.none,
   },
   seederContent: {
     flexDirection: 'row',
@@ -572,8 +573,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logoutButton: {
-    borderRadius: BorderRadius.xxl,
-    marginTop: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    marginTop: Spacing.lg,
+    borderWidth: 1.5,
+    ...Shadows.none,
   },
   modalOverlay: {
     flex: 1,
@@ -586,6 +589,7 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     maxHeight: '80%',
     width: '100%',
+    ...Shadows.lg,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -643,6 +647,9 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     marginTop: Spacing.sm,
+    ...Shadows.none,
+    borderWidth: 1,
+    borderColor: Colors.info + '30',
   },
   modalActions: {
     flexDirection: 'row',
@@ -650,6 +657,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     flex: 1,
+    ...Shadows.none,
   },
   loadingModalOverlay: {
     flex: 1,

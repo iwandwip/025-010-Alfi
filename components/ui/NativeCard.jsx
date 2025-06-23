@@ -37,11 +37,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   elevated: {
-    ...Shadows.md,
+    ...Shadows.sm,
   },
   outlined: {
     borderWidth: 1,
     borderColor: Colors.border,
+    ...Shadows.none,
   },
   content: {
     padding: Spacing.md,

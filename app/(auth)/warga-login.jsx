@@ -3,7 +3,6 @@ import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert, Te
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { signInWithEmail } from "../../services/authService";
-import Animated, { FadeInDown, FadeInUp, BounceIn } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Shadows } from '../../constants/theme';
 import Input from '../../components/ui/Input';
@@ -46,18 +45,17 @@ export default function WargaLogin() {
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
-          <Animated.View entering={FadeInDown.delay(100)}>
+          <View>
             <TouchableOpacity
               onPress={() => router.push("/role-selection")}
               style={styles.backButton}
             >
               <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
             </TouchableOpacity>
-          </Animated.View>
+          </View>
 
           {/* Illustration */}
-          <Animated.View 
-            entering={BounceIn.delay(200).springify()}
+          <View 
             style={styles.illustrationContainer}
           >
             <View style={[styles.illustrationSurface, Shadows.lg]}>
@@ -69,11 +67,10 @@ export default function WargaLogin() {
                 />
               </View>
             </View>
-          </Animated.View>
+          </View>
 
           {/* Welcome Text */}
-          <Animated.View 
-            entering={FadeInUp.delay(300)}
+          <View 
             style={styles.welcomeSection}
           >
             <Text style={[styles.welcomeTitle, { color: Colors.primary }]}>
@@ -82,11 +79,11 @@ export default function WargaLogin() {
             <Text style={[styles.welcomeSubtitle, { color: Colors.textSecondary }]}>
               Portal Warga RT 01 RW 02
             </Text>
-          </Animated.View>
+          </View>
 
 
           {/* Login Form */}
-          <Animated.View entering={FadeInUp.delay(500)}>
+          <View>
             <View style={styles.formCard}>
               <Text style={styles.formTitle}>
                 Masuk Akun Warga
@@ -119,7 +116,7 @@ export default function WargaLogin() {
                 {loading ? "Memproses..." : "Masuk"}
               </Button>
             </View>
-          </Animated.View>
+          </View>
 
 
         </ScrollView>

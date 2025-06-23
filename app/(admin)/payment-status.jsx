@@ -19,9 +19,9 @@ import { useNotification } from "../../contexts/NotificationContext";
 import { formatDate } from "../../utils/dateUtils";
 import { paymentStatusManager } from "../../services/paymentStatusManager";
 import { getAllUsersPaymentStatus } from "../../services/adminPaymentService";
-import Animated, { FadeInDown, SlideInRight } from 'react-native-reanimated';
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography, Spacing, BorderRadius } from '../../constants/theme';
+import { CardStyles } from '../../constants/CardStyles';
 
 function PaymentStatus() {
   const { theme, loading: settingsLoading } = useSettings();
@@ -164,7 +164,7 @@ function PaymentStatus() {
 
   const renderUserItem = useCallback(
     ({ item: user, index }) => (
-      <Animated.View entering={SlideInRight.delay(index * 100)}>
+      <View>
         <TouchableOpacity 
           style={[styles.userCard, { backgroundColor: Colors.surface }, Shadows.sm]} 
           onPress={() => handleUserPress(user)}
@@ -313,7 +313,7 @@ function PaymentStatus() {
 
           </View>
         </TouchableOpacity>
-      </Animated.View>
+      </View>
     ),
     [
       colors,
@@ -327,7 +327,7 @@ function PaymentStatus() {
 
   const renderEmptyState = useCallback(
     () => (
-      <Animated.View entering={FadeInDown.delay(200)} style={styles.emptyContainer}>
+      <View style={styles.emptyContainer}>
         <View style={[styles.emptyIcon, { backgroundColor: Colors.surfaceVariant }]}>
           <MaterialIcons 
             name={timeline ? "person-off" : "event"} 
@@ -343,7 +343,7 @@ function PaymentStatus() {
             ? "Data warga akan muncul setelah ada yang mendaftar"
             : "Buat timeline terlebih dahulu"}
         </Text>
-      </Animated.View>
+      </View>
     ),
     [timeline]
   );
@@ -406,7 +406,7 @@ function PaymentStatus() {
       <View style={styles.content}>
         {/* Summary Card */}
         {timeline && (
-          <Animated.View entering={FadeInDown.delay(100)}>
+          <View>
             <View style={[styles.summaryCard, Shadows.md, { backgroundColor: Colors.surface }]}>
               <View style={{ padding: 20 }}>
                 <View style={styles.summaryHeader}>
@@ -429,7 +429,7 @@ function PaymentStatus() {
                 </View>
               </View>
             </View>
-          </Animated.View>
+          </View>
         )}
 
         {timeline && (
@@ -519,11 +519,13 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   userCard: {
-    borderRadius: 16,
-    marginBottom: 12,
+    ...CardStyles.listCard,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   cardContent: {
-    paddingVertical: 12,
+    gap: Spacing.md,
   },
   userHeader: {
     flexDirection: 'row',
