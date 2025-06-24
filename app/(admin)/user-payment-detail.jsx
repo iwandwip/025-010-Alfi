@@ -946,7 +946,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: colors.outline + '30',
+    borderTopColor: '#E5E7EB',
   },
   tapHint: {
     fontSize: 12,

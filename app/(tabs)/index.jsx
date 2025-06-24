@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator
 } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -130,9 +131,14 @@ function StatusSetoran() {
     const statusInfo = getStatusInfo(item);
     
     return (
-      <NativeCard key={index} style={styles.paymentCard} mode="outlined">
+      <NativeCard key={index} style={[styles.paymentCard, { borderLeftWidth: 4, borderLeftColor: statusInfo.color }]}>
         <NativeCard.Content>
           <View style={styles.paymentHeader}>
+            <View style={styles.paymentIconContainer}>
+              <View style={[styles.paymentIcon, { backgroundColor: statusInfo.color + '15' }]}>
+                <MaterialIcons name="receipt" size={20} color={statusInfo.color} />
+              </View>
+            </View>
             <View style={styles.paymentInfo}>
               <Text style={styles.paymentTitle}>
                 {item.periodData?.label || 'Unknown Period'}
@@ -143,33 +149,43 @@ function StatusSetoran() {
             </View>
             
             <NativeChip 
-              icon={<MaterialIcons name={statusInfo.icon} size={16} color={statusInfo.color} />}
-              backgroundColor={statusInfo.color + '20'}
+              icon={<MaterialIcons name={statusInfo.icon} size={14} color={statusInfo.color} />}
+              backgroundColor={statusInfo.color + '15'}
               textColor={statusInfo.color}
+              size="small"
             >
               {statusInfo.label}
             </NativeChip>
           </View>
           
           <View style={styles.paymentDetails}>
-            <Text style={styles.paymentAmount}>
-              {new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0,
-              }).format(item.amount || 0)}
-            </Text>
+            <View style={styles.paymentAmountContainer}>
+              <MaterialIcons name="payments" size={16} color={colors.primary} />
+              <Text style={styles.paymentAmount}>
+                {new Intl.NumberFormat('id-ID', {
+                  style: 'currency',
+                  currency: 'IDR',
+                  minimumFractionDigits: 0,
+                }).format(item.amount || 0)}
+              </Text>
+            </View>
             
             {item.dueDate && (
-              <Text style={styles.paymentDate}>
-                Jatuh tempo: {formatDate(item.dueDate)}
-              </Text>
+              <View style={styles.paymentDateContainer}>
+                <MaterialIcons name="schedule" size={14} color={colors.textSecondary} />
+                <Text style={styles.paymentDate}>
+                  Jatuh tempo: {formatDate(item.dueDate)}
+                </Text>
+              </View>
             )}
             
             {item.paymentDate && (
-              <Text style={styles.paymentDate}>
-                Dibayar: {formatDate(item.paymentDate)}
-              </Text>
+              <View style={styles.paymentDateContainer}>
+                <MaterialIcons name="check-circle" size={14} color={colors.success} />
+                <Text style={[styles.paymentDate, { color: colors.success }]}>
+                  Dibayar: {formatDate(item.paymentDate)}
+                </Text>
+              </View>
             )}
           </View>
         </NativeCard.Content>
@@ -187,15 +203,27 @@ function StatusSetoran() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Status Setoran Jimpitan</Text>
-        {userProfile && (
-          <Text style={styles.headerSubtitle}>
-            {userProfile.namaWarga || userProfile.nama || 'Warga'}
-          </Text>
-        )}
-      </View>
+    <LinearGradient
+      colors={[colors.background, colors.gray50]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
+      {/* Header dengan gradient background */}
+      <LinearGradient
+        colors={['#10B981', '#059669']}
+        style={styles.header}
+      >
+        <View style={styles.headerContent}>
+          <MaterialIcons name="account-balance-wallet" size={28} color={colors.onPrimary} />
+          <View style={styles.headerTextContainer}>
+            <Text style={[styles.headerTitle, { color: colors.onPrimary }]}>Status Setoran Jimpitan</Text>
+            {userProfile && (
+              <Text style={[styles.headerSubtitle, { color: colors.onPrimary + 'CC' }]}>
+                {userProfile.namaWarga || userProfile.nama || 'Warga'}
+              </Text>
+            )}
+          </View>
+        </View>
+      </LinearGradient>
 
       {creditBalance > 0 && (
         <View style={styles.creditContainer}>
@@ -223,21 +251,36 @@ function StatusSetoran() {
         <View style={styles.summaryContainer}>
           <NativeCard style={styles.summaryCard}>
             <NativeCard.Content>
-              <Text style={styles.summaryTitle}>Ringkasan Setoran</Text>
+              <View style={styles.summaryHeader}>
+                <MaterialIcons name="assessment" size={20} color={colors.primary} />
+                <Text style={styles.summaryTitle}>Ringkasan Setoran</Text>
+              </View>
               <View style={styles.summaryGrid}>
-                <View style={styles.summaryItem}>
-                  <Text style={styles.summaryValue}>{summary.total}</Text>
+                <View style={[styles.summaryItem, styles.totalItem]}>
+                  <View style={[styles.summaryIconContainer, { backgroundColor: colors.primary + '15' }]}>
+                    <MaterialIcons name="inventory" size={18} color={colors.primary} />
+                  </View>
+                  <Text style={[styles.summaryValue, { color: colors.primary }]}>{summary.total}</Text>
                   <Text style={styles.summaryLabel}>Total</Text>
                 </View>
                 <View style={styles.summaryItem}>
+                  <View style={[styles.summaryIconContainer, { backgroundColor: colors.lunas + '15' }]}>
+                    <MaterialIcons name="check-circle" size={18} color={colors.lunas} />
+                  </View>
                   <Text style={[styles.summaryValue, { color: colors.lunas }]}>{summary.lunas}</Text>
                   <Text style={styles.summaryLabel}>Lunas</Text>
                 </View>
                 <View style={styles.summaryItem}>
+                  <View style={[styles.summaryIconContainer, { backgroundColor: colors.terlambat + '15' }]}>
+                    <MaterialIcons name="schedule" size={18} color={colors.terlambat} />
+                  </View>
                   <Text style={[styles.summaryValue, { color: colors.terlambat }]}>{summary.terlambat}</Text>
                   <Text style={styles.summaryLabel}>Terlambat</Text>
                 </View>
                 <View style={styles.summaryItem}>
+                  <View style={[styles.summaryIconContainer, { backgroundColor: colors.belumBayar + '15' }]}>
+                    <MaterialIcons name="pending" size={18} color={colors.belumBayar} />
+                  </View>
                   <Text style={[styles.summaryValue, { color: colors.belumBayar }]}>{summary.belum_bayar}</Text>
                   <Text style={styles.summaryLabel}>Belum Bayar</Text>
                 </View>
@@ -275,7 +318,7 @@ function StatusSetoran() {
           </NativeCard>
         )}
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -289,18 +332,32 @@ const createStyles = (colors) => StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    padding: Spacing.lg,
-    backgroundColor: colors.surface,
-    ...Shadows.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  headerTextContainer: {
+    flex: 1,
   },
   headerTitle: {
-    ...Typography.h3,
-    fontWeight: '600',
-    marginBottom: 4,
+    ...Typography.body1,
+    fontWeight: '700',
+    marginBottom: 1,
   },
   headerSubtitle: {
     ...Typography.body2,
-    color: colors.textSecondary,
+    fontWeight: '500',
   },
   loadingText: {
     ...Typography.body2,
@@ -336,13 +393,24 @@ const createStyles = (colors) => StyleSheet.create({
     paddingBottom: Spacing.sm,
   },
   summaryCard: {
-    backgroundColor: colors.primary + '10',
+    backgroundColor: colors.surface,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    borderRadius: 16,
+  },
+  summaryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
+    justifyContent: 'center',
   },
   summaryTitle: {
     ...Typography.body1,
     fontWeight: '600',
-    marginBottom: Spacing.sm,
-    textAlign: 'center',
   },
   summaryGrid: {
     flexDirection: 'row',
@@ -350,6 +418,18 @@ const createStyles = (colors) => StyleSheet.create({
   },
   summaryItem: {
     alignItems: 'center',
+    flex: 1,
+  },
+  totalItem: {
+    transform: [{ scale: 1.1 }],
+  },
+  summaryIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.xs,
   },
   summaryValue: {
     ...Typography.h4,
@@ -368,16 +448,33 @@ const createStyles = (colors) => StyleSheet.create({
     gap: Spacing.sm,
   },
   paymentCard: {
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    borderRadius: 12,
   },
   paymentHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
+  },
+  paymentIconContainer: {
+    alignItems: 'center',
+  },
+  paymentIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   paymentInfo: {
     flex: 1,
+    marginLeft: Spacing.sm,
   },
   paymentTitle: {
     ...Typography.body1,
@@ -388,16 +485,28 @@ const createStyles = (colors) => StyleSheet.create({
     color: colors.textSecondary,
   },
   paymentDetails: {
-    gap: 4,
+    gap: Spacing.xs,
+    marginTop: Spacing.xs,
+  },
+  paymentAmountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
   },
   paymentAmount: {
     ...Typography.h4,
-    fontWeight: '600',
+    fontWeight: '700',
     color: colors.primary,
+  },
+  paymentDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
   },
   paymentDate: {
     ...Typography.caption,
     color: colors.textSecondary,
+    fontWeight: '500',
   },
   emptyCard: {
     marginTop: Spacing.xl,
