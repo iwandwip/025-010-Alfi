@@ -7,11 +7,14 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { signOutUser } from "../../services/authService";
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Shadows } from '../../constants/theme';
+import { useRoleTheme } from '../../hooks/useRoleTheme';
 import Button from '../../components/ui/Button';
 
 function Profile() {
   const { currentUser, userProfile } = useAuth();
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const { theme, loading: settingsLoading } = useSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -44,7 +47,7 @@ function Profile() {
 
   if (settingsLoading || !userProfile) {
     return (
-      <View style={[styles.container, { backgroundColor: Colors.background, paddingTop: insets.top }]}>
+      <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         <View style={[styles.header, Shadows.md]}>
           <Text style={styles.headerTitle}>
             Profil Warga
@@ -52,7 +55,7 @@ function Profile() {
         </View>
         
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>
             Memuat profil...
           </Text>
@@ -63,14 +66,14 @@ function Profile() {
 
   return (
     <LinearGradient
-      colors={[Colors.primary + '20', Colors.background]}
+      colors={[colors.primary + '20', colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
       <View style={[styles.header, Shadows.md]}>
         <Text style={styles.headerTitle}>
           Profil Warga
         </Text>
-        <Text style={[styles.headerSubtitle, { color: Colors.textSecondary }]}>
+        <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
           Informasi akun dan pengaturan
         </Text>
       </View>
@@ -84,21 +87,21 @@ function Profile() {
           <View style={[styles.profileCard, Shadows.lg]}>
             <View style={styles.profileContent}>
               <View style={styles.avatarSection}>
-                <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
-                  <Text style={[styles.avatarText, { color: Colors.textInverse }]}>
+                <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+                  <Text style={[styles.avatarText, { color: colors.textInverse }]}>
                     {userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
                   </Text>
                 </View>
               </View>
               
               <View style={styles.profileInfo}>
-                <Text style={[styles.profileName, { color: Colors.text }]}>
+                <Text style={[styles.profileName, { color: colors.text }]}>
                   {userProfile?.namaWarga || "Nama Warga"}
                 </Text>
                 
-                <View style={[styles.chip, { backgroundColor: Colors.secondary + '20' }]}>
-                  <MaterialIcons name="person" size={16} color={Colors.secondary} />
-                  <Text style={[styles.chipText, { color: Colors.secondary }]}>
+                <View style={[styles.chip, { backgroundColor: colors.secondary + '20' }]}>
+                  <MaterialIcons name="person" size={16} color={colors.secondary} />
+                  <Text style={[styles.chipText, { color: colors.secondary }]}>
                     Warga RT
                   </Text>
                 </View>
@@ -111,11 +114,11 @@ function Profile() {
             {/* Personal Information */}
               <View style={[styles.infoCard, Shadows.md]}>
                 <View style={styles.cardHeader}>
-                  <View style={[styles.cardIcon, { backgroundColor: Colors.primary + '20' }]}>
+                  <View style={[styles.cardIcon, { backgroundColor: colors.primary + '20' }]}>
                     <MaterialIcons 
                       name="person" 
                       size={24} 
-                      color={Colors.primary}
+                      color={colors.primary}
                     />
                   </View>
                   <Text style={styles.cardTitle}>
@@ -124,10 +127,10 @@ function Profile() {
                 </View>
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                  <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                     Nama Warga:
                   </Text>
-                  <Text style={[styles.infoValue, { color: Colors.text }]}>
+                  <Text style={[styles.infoValue, { color: colors.text }]}>
                     {userProfile.namaWarga}
                   </Text>
                 </View>
@@ -135,10 +138,10 @@ function Profile() {
                 <View style={styles.divider} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                  <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                     No HP:
                   </Text>
-                  <Text style={[styles.infoValue, { color: Colors.text }]}>
+                  <Text style={[styles.infoValue, { color: colors.text }]}>
                     {userProfile.noHpWarga}
                   </Text>
                 </View>
@@ -146,10 +149,10 @@ function Profile() {
                 <View style={styles.divider} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                  <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                     Email:
                   </Text>
-                  <Text style={[styles.infoValue, { color: Colors.text }]}>
+                  <Text style={[styles.infoValue, { color: colors.text }]}>
                     {userProfile.email}
                   </Text>
                 </View>
@@ -158,11 +161,11 @@ function Profile() {
             {/* Address & RFID Information */}
               <View style={[styles.infoCard, Shadows.md]}>
                 <View style={styles.cardHeader}>
-                  <View style={[styles.cardIcon, { backgroundColor: Colors.secondary + '20' }]}>
+                  <View style={[styles.cardIcon, { backgroundColor: colors.secondary + '20' }]}>
                     <MaterialIcons 
                       name="location-on" 
                       size={24} 
-                      color={Colors.secondary}
+                      color={colors.secondary}
                     />
                   </View>
                   <Text style={styles.cardTitle}>
@@ -171,10 +174,10 @@ function Profile() {
                 </View>
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                  <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                     Alamat:
                   </Text>
-                  <Text style={[styles.infoValue, { color: Colors.text, textAlign: 'right', flex: 1 }]}>
+                  <Text style={[styles.infoValue, { color: colors.text, textAlign: 'right', flex: 1 }]}>
                     {userProfile.alamat || 'Belum diisi'}
                   </Text>
                 </View>
@@ -182,22 +185,22 @@ function Profile() {
                 <View style={styles.divider} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                  <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                     Status RFID:
                   </Text>
                   <View style={styles.statusRow}>
                     <View style={[styles.statusIcon, { 
-                      backgroundColor: userProfile.rfidWarga ? Colors.success + '20' : Colors.error + '20' 
+                      backgroundColor: userProfile.rfidWarga ? colors.success + '20' : colors.error + '20' 
                     }]}>
                       <MaterialIcons
                         name={userProfile.rfidWarga ? "check-circle" : "error"}
                         size={16}
-                        color={userProfile.rfidWarga ? Colors.success : Colors.error}
+                        color={userProfile.rfidWarga ? colors.success : colors.error}
                       />
                     </View>
                     <Text
                       style={[styles.statusText, { 
-                        color: userProfile.rfidWarga ? Colors.success : Colors.error 
+                        color: userProfile.rfidWarga ? colors.success : colors.error 
                       }]}
                     >
                       {userProfile.rfidWarga ? "Terpasang" : "Belum Terpasang"}
@@ -209,12 +212,12 @@ function Profile() {
                   <>
                     <View style={styles.divider} />
                     <View style={styles.infoRow}>
-                      <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                      <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                         Kode RFID:
                       </Text>
                       <Text
                         style={[styles.infoValue, { 
-                          color: Colors.text,
+                          color: colors.text,
                           textAlign: 'right',
                           flex: 1
                         }]}
@@ -229,11 +232,11 @@ function Profile() {
             {/* Account Information */}
               <View style={[styles.infoCard, Shadows.md]}>
                 <View style={styles.cardHeader}>
-                  <View style={[styles.cardIcon, { backgroundColor: Colors.success + '20' }]}>
+                  <View style={[styles.cardIcon, { backgroundColor: colors.success + '20' }]}>
                     <MaterialIcons 
                       name="security" 
                       size={24} 
-                      color={Colors.success}
+                      color={colors.success}
                     />
                   </View>
                   <Text style={styles.cardTitle}>
@@ -242,12 +245,12 @@ function Profile() {
                 </View>
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                  <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                     User ID:
                   </Text>
                   <Text
                     style={[styles.infoValue, { 
-                      color: Colors.text,
+                      color: colors.text,
                       textAlign: 'right',
                       flex: 1,
                       fontSize: 12
@@ -260,11 +263,11 @@ function Profile() {
                 <View style={styles.divider} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.textSecondary }]}>
+                  <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>
                     Role:
                   </Text>
-                  <View style={[styles.chip, { backgroundColor: Colors.primary + '20' }]}>
-                    <Text style={[styles.chipText, { color: Colors.primary }]}>
+                  <View style={[styles.chip, { backgroundColor: colors.primary + '20' }]}>
+                    <Text style={[styles.chipText, { color: colors.primary }]}>
                       {userProfile.role}
                     </Text>
                   </View>
@@ -288,8 +291,8 @@ function Profile() {
             onPress={handleLogout}
             disabled={loggingOut}
             loading={loggingOut}
-            style={[styles.logoutButton, { borderColor: Colors.error }]}
-            textStyle={{ color: Colors.error }}
+            style={[styles.logoutButton, { borderColor: colors.error }]}
+            textStyle={{ color: colors.error }}
           >
             {loggingOut ? "Sedang Keluar..." : "Keluar"}
           </Button>
@@ -299,7 +302,7 @@ function Profile() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -307,13 +310,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 20,
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 4,
-    color: Colors.text,
+    color: colors.text,
   },
   headerSubtitle: {
     fontSize: 14,
@@ -326,7 +329,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
     marginTop: 16,
   },
   scrollView: {
@@ -338,7 +341,7 @@ const styles = StyleSheet.create({
   profileCard: {
     marginBottom: 24,
     borderRadius: 20,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
   },
   profileContent: {
@@ -386,7 +389,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     borderRadius: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
   },
   cardHeader: {
@@ -405,7 +408,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.text,
+    color: colors.text,
   },
   infoRow: {
     flexDirection: 'row',
@@ -438,7 +441,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
     marginVertical: 12,
   },
   actionSection: {

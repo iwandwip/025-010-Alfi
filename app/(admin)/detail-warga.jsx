@@ -11,7 +11,8 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Shadows } from '../../constants/theme';
+import { useRoleTheme } from '../../hooks/useRoleTheme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -29,6 +30,8 @@ import {
 } from "../../services/pairingService";
 
 export default function DetailWarga() {
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const { wargaId } = useLocalSearchParams();
   const [warga, setWarga] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -303,25 +306,25 @@ export default function DetailWarga() {
   if (loading) {
     return (
       <LinearGradient
-        colors={[Colors.primaryContainer, Colors.background]}
+        colors={[colors.primaryContainer, colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
-        <View style={[styles.header, { backgroundColor: Colors.surface }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+            <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
+          <Text style={[styles.headerTitle, { color: colors.onSurface }]}>
             Detail Warga
           </Text>
           <View style={styles.placeholder} />
         </View>
         
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={[styles.loadingText, { color: Colors.onSurface }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.onSurface }]}>
             Memuat data warga...
           </Text>
         </View>
@@ -333,27 +336,27 @@ export default function DetailWarga() {
   if (!warga) {
     return (
       <LinearGradient
-        colors={[Colors.primaryContainer, Colors.background]}
+        colors={[colors.primaryContainer, colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
-        <View style={[styles.header, { backgroundColor: Colors.surface }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+            <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
+          <Text style={[styles.headerTitle, { color: colors.onSurface }]}>
             Detail Warga
           </Text>
           <View style={styles.placeholder} />
         </View>
         
         <View style={styles.errorContainer}>
-          <View style={[styles.errorIcon, { backgroundColor: Colors.errorContainer }]}>
-            <MaterialIcons name="person-off" size={40} color={Colors.onErrorContainer} />
+          <View style={[styles.errorIcon, { backgroundColor: colors.errorContainer }]}>
+            <MaterialIcons name="person-off" size={40} color={colors.onErrorContainer} />
           </View>
-          <Text style={[styles.errorText, { color: Colors.error }]}>
+          <Text style={[styles.errorText, { color: colors.error }]}>
             Data warga tidak ditemukan
           </Text>
         </View>
@@ -368,18 +371,18 @@ export default function DetailWarga() {
   // Main render
   return (
     <LinearGradient
-      colors={[Colors.primaryContainer, Colors.background]}
+      colors={[colors.primaryContainer, colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: Colors.surface }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+          <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
+        <Text style={[styles.headerTitle, { color: colors.onSurface }]}>
           Detail Warga
         </Text>
         <View style={styles.placeholder} />
@@ -398,36 +401,36 @@ export default function DetailWarga() {
           ]}
         >
           {/* Profile Card */}
-          <View style={[styles.profileCard, { backgroundColor: Colors.surface }]}>
+          <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
             <View style={styles.cardContent}>
               <View style={styles.profileHeader}>
-                <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
-                  <Text style={[styles.avatarText, { color: Colors.onPrimary }]}>
+                <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+                  <Text style={[styles.avatarText, { color: colors.onPrimary }]}>
                     {(warga?.namaWarga || 'W').charAt(0).toUpperCase()}
                   </Text>
                 </View>
                 <View style={styles.profileInfo}>
-                  <Text style={[styles.namaWarga, { color: Colors.onSurface }]}>
+                  <Text style={[styles.namaWarga, { color: colors.onSurface }]}>
                     {warga?.namaWarga || 'Nama Warga'}
                   </Text>
-                  <Text style={[styles.wargaEmail, { color: Colors.onSurfaceVariant }]}>
+                  <Text style={[styles.wargaEmail, { color: colors.onSurfaceVariant }]}>
                     {warga?.email || 'Email tidak tersedia'}
                   </Text>
                   <View style={[
                     styles.statusChip, 
                     { 
-                      backgroundColor: hasRfid ? Colors.successContainer : Colors.warningContainer 
+                      backgroundColor: hasRfid ? colors.successContainer : colors.warningContainer 
                     }
                   ]}>
                     <MaterialIcons 
                       name={hasRfid ? "check-circle" : "warning"} 
                       size={14} 
-                      color={hasRfid ? Colors.onSuccessContainer : Colors.onWarningContainer} 
+                      color={hasRfid ? colors.onSuccessContainer : colors.onWarningContainer} 
                     />
                     <Text style={[
                       styles.statusText, 
                       { 
-                        color: hasRfid ? Colors.onSuccessContainer : Colors.onWarningContainer 
+                        color: hasRfid ? colors.onSuccessContainer : colors.onWarningContainer 
                       }
                     ]}>
                       {hasRfid ? "RFID Aktif" : "RFID Belum Ada"}
@@ -441,12 +444,12 @@ export default function DetailWarga() {
           {/* Action Buttons */}
           <View style={styles.actionSection}>
             <TouchableOpacity
-              style={[styles.actionButton, { backgroundColor: Colors.primary }]}
+              style={[styles.actionButton, { backgroundColor: colors.primary }]}
               onPress={handleEditWarga}
               disabled={deleting}
             >
-              <MaterialIcons name="edit" size={20} color={Colors.onPrimary} />
-              <Text style={[styles.actionButtonText, { color: Colors.onPrimary }]}>
+              <MaterialIcons name="edit" size={20} color={colors.onPrimary} />
+              <Text style={[styles.actionButtonText, { color: colors.onPrimary }]}>
                 Edit Data
               </Text>
             </TouchableOpacity>
@@ -457,24 +460,24 @@ export default function DetailWarga() {
               disabled={deleting}
             >
               {deleting ? (
-                <ActivityIndicator size="small" color={Colors.error} />
+                <ActivityIndicator size="small" color={colors.error} />
               ) : (
-                <MaterialIcons name="delete" size={20} color={Colors.error} />
+                <MaterialIcons name="delete" size={20} color={colors.error} />
               )}
-              <Text style={[styles.actionButtonText, { color: Colors.error }]}>
+              <Text style={[styles.actionButtonText, { color: colors.error }]}>
                 {deleting ? "Menghapus..." : "Hapus Warga"}
               </Text>
             </TouchableOpacity>
           </View>
 
           {deleting && (
-            <View style={[styles.deletingInfo, { backgroundColor: Colors.warningContainer }]}>
+            <View style={[styles.deletingInfo, { backgroundColor: colors.warningContainer }]}>
               <View style={styles.deletingContent}>
-                <ActivityIndicator size="small" color={Colors.onWarningContainer} style={{ marginBottom: 8 }} />
-                <Text style={[styles.deletingTitle, { color: Colors.onWarningContainer }]}>
+                <ActivityIndicator size="small" color={colors.onWarningContainer} style={{ marginBottom: 8 }} />
+                <Text style={[styles.deletingTitle, { color: colors.onWarningContainer }]}>
                   Menghapus data warga dari sistem...
                 </Text>
-                <Text style={[styles.deletingSubtitle, { color: Colors.onWarningContainer }]}>
+                <Text style={[styles.deletingSubtitle, { color: colors.onWarningContainer }]}>
                   Mohon tunggu sebentar
                 </Text>
               </View>
@@ -483,37 +486,37 @@ export default function DetailWarga() {
 
           {/* Information Card */}
           <View style={styles.infoSection}>
-            <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>Informasi Warga</Text>
+            <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>Informasi Warga</Text>
 
-            <View style={[styles.infoCard, { backgroundColor: Colors.surface }]}>
+            <View style={[styles.infoCard, { backgroundColor: colors.surface }]}>
               <View style={styles.cardContent}>
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Nama Warga</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                  <Text style={[styles.infoLabel, { color: colors.onSurfaceVariant }]}>Nama Warga</Text>
+                  <Text style={[styles.infoValue, { color: colors.onSurface }]}>
                     {warga?.namaWarga || 'Belum diisi'}
                   </Text>
                 </View>
-                <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+                <View style={[styles.divider, { backgroundColor: colors.outline }]} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Alamat</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                  <Text style={[styles.infoLabel, { color: colors.onSurfaceVariant }]}>Alamat</Text>
+                  <Text style={[styles.infoValue, { color: colors.onSurface }]}>
                     {warga?.alamat || 'Belum diisi'}
                   </Text>
                 </View>
-                <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+                <View style={[styles.divider, { backgroundColor: colors.outline }]} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>No HP</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                  <Text style={[styles.infoLabel, { color: colors.onSurfaceVariant }]}>No HP</Text>
+                  <Text style={[styles.infoValue, { color: colors.onSurface }]}>
                     {warga?.noHpWarga || 'Belum diisi'}
                   </Text>
                 </View>
-                <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+                <View style={[styles.divider, { backgroundColor: colors.outline }]} />
 
                 <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: Colors.onSurfaceVariant }]}>Email</Text>
-                  <Text style={[styles.infoValue, { color: Colors.onSurface }]}>
+                  <Text style={[styles.infoLabel, { color: colors.onSurfaceVariant }]}>Email</Text>
+                  <Text style={[styles.infoValue, { color: colors.onSurface }]}>
                     {warga?.email || 'Belum diisi'}
                   </Text>
                 </View>
@@ -523,35 +526,35 @@ export default function DetailWarga() {
 
           {/* RFID Section */}
           <View style={styles.rfidSection}>
-            <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>Status RFID</Text>
+            <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>Status RFID</Text>
 
-            <View style={[styles.rfidCard, { backgroundColor: Colors.surface }]}>
+            <View style={[styles.rfidCard, { backgroundColor: colors.surface }]}>
               <View style={styles.cardContent}>
                 {/* RFID Status */}
                 <View style={styles.rfidStatus}>
                   {hasRfid ? (
-                    <View style={[styles.rfidActive, { backgroundColor: Colors.successContainer }]}>
+                    <View style={[styles.rfidActive, { backgroundColor: colors.successContainer }]}>
                       <View style={styles.rfidStatusContent}>
-                        <MaterialIcons name="check-circle" size={24} color={Colors.onSuccessContainer} />
+                        <MaterialIcons name="check-circle" size={24} color={colors.onSuccessContainer} />
                         <View style={styles.rfidInfo}>
-                          <Text style={[styles.rfidTitle, { color: Colors.onSuccessContainer }]}>
+                          <Text style={[styles.rfidTitle, { color: colors.onSuccessContainer }]}>
                             RFID Terpasang
                           </Text>
-                          <Text style={[styles.rfidSubtitle, { color: Colors.onSuccessContainer }]}>
+                          <Text style={[styles.rfidSubtitle, { color: colors.onSuccessContainer }]}>
                             {warga?.rfidWarga || 'RFID Code'}
                           </Text>
                         </View>
                       </View>
                     </View>
                   ) : (
-                    <View style={[styles.rfidInactive, { backgroundColor: Colors.warningContainer }]}>
+                    <View style={[styles.rfidInactive, { backgroundColor: colors.warningContainer }]}>
                       <View style={styles.rfidStatusContent}>
-                        <MaterialIcons name="warning" size={24} color={Colors.onWarningContainer} />
+                        <MaterialIcons name="warning" size={24} color={colors.onWarningContainer} />
                         <View style={styles.rfidInfo}>
-                          <Text style={[styles.rfidTitle, { color: Colors.onWarningContainer }]}>
+                          <Text style={[styles.rfidTitle, { color: colors.onWarningContainer }]}>
                             RFID Belum Terpasang
                           </Text>
-                          <Text style={[styles.rfidSubtitle, { color: Colors.onWarningContainer }]}>
+                          <Text style={[styles.rfidSubtitle, { color: colors.onWarningContainer }]}>
                             Silakan lakukan pairing RFID
                           </Text>
                         </View>
@@ -562,13 +565,13 @@ export default function DetailWarga() {
 
                 {/* Pairing Active Status */}
                 {isPairingActive && (
-                  <View style={[styles.pairingActive, { backgroundColor: Colors.primaryContainer }]}>
+                  <View style={[styles.pairingActive, { backgroundColor: colors.primaryContainer }]}>
                     <View style={styles.pairingContent}>
-                      <ActivityIndicator size="small" color={Colors.onPrimaryContainer} style={{ marginBottom: 8 }} />
-                      <Text style={[styles.pairingTitle, { color: Colors.onPrimaryContainer }]}>
+                      <ActivityIndicator size="small" color={colors.onPrimaryContainer} style={{ marginBottom: 8 }} />
+                      <Text style={[styles.pairingTitle, { color: colors.onPrimaryContainer }]}>
                         Menunggu RFID...
                       </Text>
-                      <Text style={[styles.pairingSubtitle, { color: Colors.onPrimaryContainer }]}>
+                      <Text style={[styles.pairingSubtitle, { color: colors.onPrimaryContainer }]}>
                         Tap kartu RFID pada device ESP32
                       </Text>
                     </View>
@@ -579,16 +582,16 @@ export default function DetailWarga() {
                 <View style={styles.rfidActions}>
                   {canStartPairing && (
                     <TouchableOpacity
-                      style={[styles.rfidButton, { backgroundColor: Colors.primary }]}
+                      style={[styles.rfidButton, { backgroundColor: colors.primary }]}
                       onPress={handleStartPairing}
                       disabled={pairingLoading || deleting}
                     >
                       {pairingLoading ? (
-                        <ActivityIndicator size="small" color={Colors.onPrimary} />
+                        <ActivityIndicator size="small" color={colors.onPrimary} />
                       ) : (
-                        <MaterialIcons name="wifi" size={20} color={Colors.onPrimary} />
+                        <MaterialIcons name="wifi" size={20} color={colors.onPrimary} />
                       )}
-                      <Text style={[styles.rfidButtonText, { color: Colors.onPrimary }]}>
+                      <Text style={[styles.rfidButtonText, { color: colors.onPrimary }]}>
                         {pairingLoading ? "Memulai Pairing..." : "Mulai Pairing RFID"}
                       </Text>
                     </TouchableOpacity>
@@ -600,8 +603,8 @@ export default function DetailWarga() {
                       onPress={handleCancelPairing}
                       disabled={deleting}
                     >
-                      <MaterialIcons name="close" size={20} color={Colors.onSurface} />
-                      <Text style={[styles.rfidButtonText, { color: Colors.onSurface }]}>
+                      <MaterialIcons name="close" size={20} color={colors.onSurface} />
+                      <Text style={[styles.rfidButtonText, { color: colors.onSurface }]}>
                         Batalkan Pairing
                       </Text>
                     </TouchableOpacity>
@@ -614,8 +617,8 @@ export default function DetailWarga() {
                         onPress={handleRePairing}
                         disabled={deleting}
                       >
-                        <MaterialIcons name="swap-horiz" size={20} color={Colors.primary} />
-                        <Text style={[styles.rfidButtonText, { color: Colors.primary }]}>
+                        <MaterialIcons name="swap-horiz" size={20} color={colors.primary} />
+                        <Text style={[styles.rfidButtonText, { color: colors.primary }]}>
                           Ganti RFID
                         </Text>
                       </TouchableOpacity>
@@ -625,8 +628,8 @@ export default function DetailWarga() {
                         onPress={handleDeleteRFID}
                         disabled={deleting}
                       >
-                        <MaterialIcons name="delete" size={20} color={Colors.error} />
-                        <Text style={[styles.rfidButtonText, { color: Colors.error }]}>
+                        <MaterialIcons name="delete" size={20} color={colors.error} />
+                        <Text style={[styles.rfidButtonText, { color: colors.error }]}>
                           Hapus RFID
                         </Text>
                       </TouchableOpacity>
@@ -642,7 +645,7 @@ export default function DetailWarga() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -775,7 +778,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: Colors.error,
+    borderColor: colors.error,
   },
   deletingInfo: {
     borderRadius: 12,
@@ -903,7 +906,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: Colors.outline,
+    borderColor: colors.outline,
   },
   rfidManagement: {
     gap: 12,
@@ -912,11 +915,11 @@ const styles = StyleSheet.create({
   rePairingButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: Colors.primary,
+    borderColor: colors.primary,
   },
   deleteRFIDButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: Colors.error,
+    borderColor: colors.error,
   },
 });

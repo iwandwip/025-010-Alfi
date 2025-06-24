@@ -17,9 +17,12 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Shadows } from '../../constants/theme';
+import { useRoleTheme } from '../../hooks/useRoleTheme';
 
 export default function TambahWarga() {
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const [formData, setFormData] = useState({
     emailWarga: "",
     passwordWarga: "",
@@ -117,7 +120,7 @@ export default function TambahWarga() {
 
   return (
     <LinearGradient
-      colors={[Colors.primaryContainer, Colors.background]}
+      colors={[colors.primaryContainer, colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
       <View style={[styles.header, Shadows.md]}>
@@ -125,7 +128,7 @@ export default function TambahWarga() {
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+          <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           Tambah Data Warga
@@ -150,24 +153,24 @@ export default function TambahWarga() {
             {/* Header Card */}
             <View style={[styles.headerCard, Shadows.md]}>
               <View style={styles.headerCardContent}>
-                <View style={[styles.headerIcon, { backgroundColor: Colors.primary }]}>
-                  <MaterialIcons name="person-add" size={32} color={Colors.onPrimary} />
+                <View style={[styles.headerIcon, { backgroundColor: colors.primary }]}>
+                  <MaterialIcons name="person-add" size={32} color={colors.onPrimary} />
                 </View>
                 <View style={styles.headerCardInfo}>
                   <Text style={[styles.headerCardTitle, { fontWeight: 'bold' }]}>
                     Form Data Warga
                   </Text>
-                  <Text style={[styles.headerCardSubtitle, { color: Colors.onSurfaceVariant }]}>
+                  <Text style={[styles.headerCardSubtitle, { color: colors.onSurfaceVariant }]}>
                     Tambah warga baru ke sistem
                   </Text>
                 </View>
               </View>
             </View>
 
-            <View style={[styles.formCard, { borderWidth: 1, borderColor: Colors.outline }]}>
+            <View style={[styles.formCard, { borderWidth: 1, borderColor: colors.outline }]}>
               <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Warga</Text>
-                <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+                <Text style={[styles.sectionTitle, { color: colors.primary }]}>Data Warga</Text>
+                <View style={[styles.divider, { backgroundColor: colors.outline }]} />
 
                 <Input
                   label="Nama Warga"
@@ -185,18 +188,18 @@ export default function TambahWarga() {
                   autoCapitalize="words"
                 />
 
-                <View style={[styles.infoCard, { backgroundColor: Colors.primaryContainer }]}>
-                  <Text style={[styles.infoText, { color: Colors.onPrimaryContainer }]}>
+                <View style={[styles.infoCard, { backgroundColor: colors.primaryContainer }]}>
+                  <Text style={[styles.infoText, { color: colors.onPrimaryContainer }]}>
                     ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu Daftar Warga
                   </Text>
                 </View>
               </View>
 
-              <View style={[styles.divider, { backgroundColor: Colors.outline, marginVertical: 16 }]} />
+              <View style={[styles.divider, { backgroundColor: colors.outline, marginVertical: 16 }]} />
 
               <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Data Akun Warga</Text>
-                <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+                <Text style={[styles.sectionTitle, { color: colors.primary }]}>Data Akun Warga</Text>
+                <View style={[styles.divider, { backgroundColor: colors.outline }]} />
 
                 <Input
                   label="No HP Warga"
@@ -238,7 +241,7 @@ export default function TambahWarga() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
   },
   backButton: {
     padding: 8,
@@ -259,7 +262,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
     textAlign: 'center',
-    color: Colors.text,
+    color: colors.text,
   },
   placeholder: {
     width: 48,
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
   headerCard: {
     borderRadius: 16,
     marginBottom: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
   },
   headerCardContent: {
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
   headerCardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
   },
   headerCardSubtitle: {
     fontSize: 14,
@@ -309,7 +312,7 @@ const styles = StyleSheet.create({
   formCard: {
     borderRadius: 16,
     marginBottom: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
   },
   section: {
@@ -322,7 +325,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
     marginBottom: 16,
   },
   infoCard: {

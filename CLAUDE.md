@@ -38,6 +38,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **React Navigation** for navigation management
 - **React Context** pattern for state management
 - **Firebase** (11.9.1) for backend services
+- **Native Components** - Custom component library replacing NativeBase
 
 ### Key Dependencies
 - **@react-native-async-storage/async-storage** (2.1.2) - Persistent storage
@@ -104,11 +105,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - paymentStatusManager.js handles automatic status updates
 - Bendahara can manage setoran and view detailed setoran history
 - Warga interface for setoran operations
+- Advanced payment features:
+  - Credit balance integration with automatic deduction
+  - Multiple payment methods (BCA, Mandiri, QRIS, GoPay, OVO, DANA)
+  - Custom payment amounts with automatic allocation
+  - Excess payment handling and credit conversion
 
 ### Key Patterns
 
 **Component Structure**
-- `components/ui/` - Reusable UI components (Button, Input, DataTable)
+- `components/ui/` - Reusable UI components:
+  - Core components: `CoreComponents.jsx` (Box, VStack, HStack, Center, etc.)
+  - Native components: `NativeButton.jsx`, `NativeCard.jsx`, `NativeChip.jsx`
+  - UI components: `Button.jsx`, `Input.jsx`, `DataTable.jsx`, `LoadingSpinner.jsx`
+  - Specialized: `PaymentModal.jsx`, `CreditBalance.jsx`, `DatePicker.jsx`, `TimelinePicker.jsx`
+  - Legacy NB components: `NBButton.jsx`, `NBCard.jsx`, `NBDataTable.jsx`, etc.
 - `components/auth/` - Authentication-specific components
 - `components/illustrations/` - SVG illustrations for auth screens
 
@@ -126,6 +137,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Primary color scheme uses pink (#F50057)
 - App icon and splash screen themed with money icon
 - Automatic UI style adaptation (light/dark)
+- Comprehensive styling system:
+  - `constants/theme.js` - Central theme with Colors, Spacing, Typography, Shadows
+  - `constants/ButtonStyles.js` - Button styling system with variants and sizes
+  - `constants/CardStyles.js` - Card component styling with status-based helpers
 
 **Metro Configuration**
 - Custom crypto alias using expo-crypto for Node.js crypto compatibility
@@ -166,7 +181,14 @@ ESP32 firmware supports:
 - WiFi connectivity for data transmission
 - KNN algorithm for intelligent recognition
 
-Testing framework available in `testing/` directory with ESP32 simulator.
+### Firmware Versions
+- **AlfiFirmwareR0**: Basic firmware version with core functionality
+- **AlfiFirmwareR1**: Advanced firmware with KNN algorithm implementation
+
+### Hardware Testing
+- Individual component tests available in `firmware/Testing/`
+- ESP32 simulator in `testing/esp32-simulator.js`
+- Hardware testing framework in `testing/esp32-framework.cpp`
 
 ## Database Schema
 
@@ -233,26 +255,36 @@ Testing framework available in `testing/` directory with ESP32 simulator.
 - `app/(admin)/tambah-warga.jsx` - Add new warga
 - `app/(admin)/detail-warga.jsx` - View/edit warga details
 - `app/(admin)/edit-warga.jsx` - Edit warga information
-- `app/(admin)/payment-manager.jsx` - Manage setoran payments
 - `app/(admin)/payment-status.jsx` - View payment statuses
 - `app/(admin)/timeline-manager.jsx` - Manage payment timelines
+- `app/(admin)/create-timeline.jsx` - Create new payment timelines
+- `app/(admin)/user-payment-detail.jsx` - Detailed payment view for specific warga
 
 ### Warga Interface Files
 - `app/(tabs)/index.jsx` - Main warga dashboard with setoran status
 - `app/(tabs)/profile.jsx` - Warga profile view
 - `app/(tabs)/edit-profile.jsx` - Edit warga profile
+- `app/(tabs)/logout.jsx` - Logout functionality
 
 ### Service Files
+- `services/firebase.js` - Firebase configuration and initialization
+- `services/authService.js` - Authentication operations
 - `services/userService.js` - Warga management (CRUD operations)
 - `services/adminPaymentService.js` - Admin payment operations
 - `services/wargaPaymentService.js` - Warga payment operations
 - `services/pairingService.js` - RFID pairing management
 - `services/timelineService.js` - Payment timeline management
+- `services/paymentStatusManager.js` - Automatic payment status updates
+- `services/seederService.js` - Data seeding utilities
 
 ### Utility and Testing Files
 - `firebase-cleanup/cleanup.js` - Firebase data cleanup utility
 - `testing/esp32-simulator.js` - ESP32 device simulator
 - `testing/esp32-framework.cpp` - ESP32 hardware testing framework
+- `testing/payment-allocation-test.js` - Payment allocation testing
+- `utils/dateUtils.js` - Date formatting and manipulation
+- `utils/paymentStatusUtils.js` - Payment status helpers
+- `utils/validation.js` - Input validation functions
 
 ### Configuration Files
 - `package.json` - Dependencies and npm scripts
@@ -283,6 +315,9 @@ Testing framework available in `testing/` directory with ESP32 simulator.
 9. **Dependencies**: Always check existing package.json before adding new dependencies
 10. **Exports**: Use PDF (jsPDF) and Excel (xlsx) for data export functionality
 11. **Charts**: Use react-native-chart-kit for data visualization components
+12. **Component Migration**: Use CoreComponents.jsx instead of NativeBase components
+13. **Styling**: Use ButtonStyles.js and CardStyles.js for consistent component styling
+14. **Payment System**: Implement credit balance and multiple payment methods
 
 ## Deployment & Build
 

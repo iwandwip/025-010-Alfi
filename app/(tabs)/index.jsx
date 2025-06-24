@@ -21,7 +21,8 @@ import {
   getPaymentSummary,
   getCreditBalance,
 } from "../../services/wargaPaymentService";
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from "../../constants/theme";
+import { Typography, Spacing, BorderRadius, Shadows } from "../../constants/theme";
+import { useRoleTheme } from '../../hooks/useRoleTheme';
 import { CardStyles } from "../../constants/CardStyles";
 import NativeCard from "../../components/ui/NativeCard";
 import NativeChip from "../../components/ui/NativeChip";
@@ -29,6 +30,8 @@ import NativeButton from "../../components/ui/NativeButton";
 
 function StatusSetoran() {
   const { userProfile } = useAuth();
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const { theme, loading: settingsLoading } = useSettings();
   const { 
     showPaymentSuccessNotification, 
@@ -110,16 +113,16 @@ function StatusSetoran() {
   );
 
   const getStatusInfo = (payment) => {
-    if (!payment) return { label: 'N/A', color: Colors.textDisabled, icon: 'help' };
+    if (!payment) return { label: 'N/A', color: colors.textDisabled, icon: 'help' };
     
     switch (payment.status) {
       case 'lunas':
-        return { label: 'Lunas', color: Colors.lunas, icon: 'check-circle' };
+        return { label: 'Lunas', color: colors.lunas, icon: 'check-circle' };
       case 'terlambat':
-        return { label: 'Terlambat', color: Colors.terlambat, icon: 'warning' };
+        return { label: 'Terlambat', color: colors.terlambat, icon: 'warning' };
       case 'belum_bayar':
       default:
-        return { label: 'Belum Bayar', color: Colors.belumBayar, icon: 'pending' };
+        return { label: 'Belum Bayar', color: colors.belumBayar, icon: 'pending' };
     }
   };
 
@@ -177,7 +180,7 @@ function StatusSetoran() {
   if (loading && !refreshing) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color={Colors.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Memuat data setoran...</Text>
       </View>
     );
@@ -196,13 +199,13 @@ function StatusSetoran() {
 
       {creditBalance > 0 && (
         <View style={styles.creditContainer}>
-          <NativeCard style={[styles.creditCard, { backgroundColor: Colors.success + '10' }]}>
+          <NativeCard style={[styles.creditCard, { backgroundColor: colors.success + '10' }]}>
             <NativeCard.Content>
               <View style={styles.creditContent}>
-                <MaterialIcons name="account-balance-wallet" size={24} color={Colors.success} />
+                <MaterialIcons name="account-balance-wallet" size={24} color={colors.success} />
                 <View style={styles.creditInfo}>
                   <Text style={styles.creditLabel}>Saldo Kredit</Text>
-                  <Text style={[styles.creditAmount, { color: Colors.success }]}>
+                  <Text style={[styles.creditAmount, { color: colors.success }]}>
                     {new Intl.NumberFormat('id-ID', {
                       style: 'currency',
                       currency: 'IDR',
@@ -227,15 +230,15 @@ function StatusSetoran() {
                   <Text style={styles.summaryLabel}>Total</Text>
                 </View>
                 <View style={styles.summaryItem}>
-                  <Text style={[styles.summaryValue, { color: Colors.lunas }]}>{summary.lunas}</Text>
+                  <Text style={[styles.summaryValue, { color: colors.lunas }]}>{summary.lunas}</Text>
                   <Text style={styles.summaryLabel}>Lunas</Text>
                 </View>
                 <View style={styles.summaryItem}>
-                  <Text style={[styles.summaryValue, { color: Colors.terlambat }]}>{summary.terlambat}</Text>
+                  <Text style={[styles.summaryValue, { color: colors.terlambat }]}>{summary.terlambat}</Text>
                   <Text style={styles.summaryLabel}>Terlambat</Text>
                 </View>
                 <View style={styles.summaryItem}>
-                  <Text style={[styles.summaryValue, { color: Colors.belumBayar }]}>{summary.belum_bayar}</Text>
+                  <Text style={[styles.summaryValue, { color: colors.belumBayar }]}>{summary.belum_bayar}</Text>
                   <Text style={styles.summaryLabel}>Belum Bayar</Text>
                 </View>
               </View>
@@ -252,8 +255,8 @@ function StatusSetoran() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.primary]}
-            tintColor={Colors.primary}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
             title="Tarik untuk memuat ulang..."
           />
         }
@@ -263,7 +266,7 @@ function StatusSetoran() {
         ) : (
           <NativeCard style={styles.emptyCard}>
             <NativeCard.Content style={styles.emptyContent}>
-              <MaterialIcons name="receipt-long" size={48} color={Colors.textDisabled} />
+              <MaterialIcons name="receipt-long" size={48} color={colors.textDisabled} />
               <Text style={styles.emptyTitle}>Belum ada data setoran</Text>
               <Text style={styles.emptySubtitle}>
                 Data setoran akan muncul setelah timeline dibuat oleh bendahara
@@ -276,10 +279,10 @@ function StatusSetoran() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   centered: {
     justifyContent: 'center',
@@ -287,7 +290,7 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: Spacing.lg,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     ...Shadows.sm,
   },
   headerTitle: {
@@ -297,12 +300,12 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     ...Typography.body2,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   loadingText: {
     ...Typography.body2,
     marginTop: Spacing.sm,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   creditContainer: {
     padding: Spacing.lg,
@@ -310,7 +313,7 @@ const styles = StyleSheet.create({
   },
   creditCard: {
     borderLeftWidth: 4,
-    borderLeftColor: Colors.success,
+    borderLeftColor: colors.success,
   },
   creditContent: {
     flexDirection: 'row',
@@ -322,7 +325,7 @@ const styles = StyleSheet.create({
   },
   creditLabel: {
     ...Typography.caption,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   creditAmount: {
     ...Typography.h4,
@@ -333,7 +336,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.sm,
   },
   summaryCard: {
-    backgroundColor: Colors.primary + '10',
+    backgroundColor: colors.primary + '10',
   },
   summaryTitle: {
     ...Typography.body1,
@@ -354,7 +357,7 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     ...Typography.caption,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   scrollView: {
@@ -382,7 +385,7 @@ const styles = StyleSheet.create({
   },
   paymentSubtitle: {
     ...Typography.caption,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   paymentDetails: {
     gap: 4,
@@ -390,11 +393,11 @@ const styles = StyleSheet.create({
   paymentAmount: {
     ...Typography.h4,
     fontWeight: '600',
-    color: Colors.primary,
+    color: colors.primary,
   },
   paymentDate: {
     ...Typography.caption,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   emptyCard: {
     marginTop: Spacing.xl,
@@ -411,7 +414,7 @@ const styles = StyleSheet.create({
   },
   emptySubtitle: {
     ...Typography.body2,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
 });

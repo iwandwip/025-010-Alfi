@@ -4,10 +4,11 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Tabs, useRouter } from "expo-router";
 import { useSettings } from "../../contexts/SettingsContext";
 import { signOutUser } from "../../services/authService";
-import { Colors } from '../../constants/theme';
+import { useRoleTheme } from '../../hooks/useRoleTheme';
 
 export default function TabsLayout() {
   const { theme, loading } = useSettings();
+  const { colors } = useRoleTheme();
   // Using custom theme from constants
   const router = useRouter();
 
@@ -43,11 +44,11 @@ export default function TabsLayout() {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: Colors.background,
+          backgroundColor: colors.background,
         }}
       >
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <Text style={{ marginTop: 16, fontSize: 16, color: Colors.text }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={{ marginTop: 16, fontSize: 16, color: colors.text }}>
           Memuat...
         </Text>
       </View>
@@ -58,11 +59,11 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textSecondary,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: Colors.surface,
-          borderTopColor: Colors.border,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },

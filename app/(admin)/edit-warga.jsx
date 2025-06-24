@@ -10,8 +10,11 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRoleTheme } from '../../hooks/useRoleTheme';
+import { Shadows, Spacing, Typography, BorderRadius } from '../../constants/theme';
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
@@ -19,6 +22,8 @@ import { getUserProfile, updateUserProfile } from "../../services/userService";
 
 export default function EditWarga() {
   const { wargaId } = useLocalSearchParams();
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const [formData, setFormData] = useState({
     namaWarga: "",
     alamat: "",
@@ -121,29 +126,38 @@ export default function EditWarga() {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>← Batal</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Data Warga</Text>
-        </View>
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner text="Memuat data warga..." />
-        </View>
-      </SafeAreaView>
+      <LinearGradient
+        colors={[colors.primaryContainer, colors.background]}
+        style={{ flex: 1 }}
+      >
+        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Text style={styles.backButtonText}>← Batal</Text>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Edit Data Warga</Text>
+          </View>
+          <View style={styles.loadingContainer}>
+            <LoadingSpinner text="Memuat data warga..." />
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardContainer}
-      >
+    <LinearGradient
+      colors={[colors.primaryContainer, colors.background]}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardContainer}
+        >
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -231,15 +245,16 @@ export default function EditWarga() {
             </View>
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: 'transparent',
   },
   keyboardContainer: {
     flex: 1,
@@ -248,8 +263,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -257,13 +272,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: colors.primary,
     fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 600,
-    color: "#1e293b",
+    color: colors.text,
     textAlign: "center",
   },
   loadingContainer: {
@@ -301,11 +316,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 600,
-    color: "#1e293b",
+    color: colors.text,
     marginBottom: 16,
     paddingBottom: 8,
     borderBottomWidth: 2,
-    borderBottomColor: "#3b82f6",
+    borderBottomColor: colors.primary,
   },
   infoBox: {
     backgroundColor: "#dbeafe",
@@ -326,7 +341,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    borderColor: "#64748b",
+    borderColor: colors.textSecondary,
   },
   saveButton: {
     flex: 1,

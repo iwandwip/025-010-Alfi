@@ -9,10 +9,11 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useSettings } from "../../contexts/SettingsContext";
-import { Colors } from "../../constants/theme";
+import { useRoleTheme } from '../../hooks/useRoleTheme';
+import { Shadows, Spacing, Typography, BorderRadius } from '../../constants/theme';
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import {
@@ -23,9 +24,8 @@ import {
 
 export default function PaymentManager() {
   const { timelineId } = useLocalSearchParams();
-  const { theme } = useSettings();
-  const colors = Colors;
-  const styles = getStyles(colors);
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const [timeline, setTimeline] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [payments, setPayments] = useState([]);
@@ -295,20 +295,25 @@ export default function PaymentManager() {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Text style={styles.backButtonText}>← Kembali</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Kelola Pembayaran</Text>
-        </View>
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner text="Memuat data pembayaran..." />
-        </View>
-      </SafeAreaView>
+      <LinearGradient
+        colors={[colors.primaryContainer, colors.background]}
+        style={{ flex: 1 }}
+      >
+        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => router.back()}
+            >
+              <Text style={styles.backButtonText}>← Kembali</Text>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Kelola Pembayaran</Text>
+          </View>
+          <View style={styles.loadingContainer}>
+            <LoadingSpinner text="Memuat data pembayaran..." />
+          </View>
+        </SafeAreaView>
+      </LinearGradient>
     );
   }
 
@@ -316,7 +321,11 @@ export default function PaymentManager() {
   const selectedPeriodData = timeline?.periods[selectedPeriod];
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+    <LinearGradient
+      colors={[colors.primaryContainer, colors.background]}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -389,21 +398,22 @@ export default function PaymentManager() {
           </View>
         }
       />
-    </SafeAreaView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
-const getStyles = (colors) => StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -417,7 +427,7 @@ const getStyles = (colors) => StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 600,
-    color: colors.gray900,
+    color: colors.text,
     textAlign: "center",
   },
   loadingContainer: {
@@ -426,7 +436,7 @@ const getStyles = (colors) => StyleSheet.create({
     alignItems: "center",
   },
   timelineInfo: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
@@ -435,17 +445,17 @@ const getStyles = (colors) => StyleSheet.create({
   timelineName: {
     fontSize: 18,
     fontWeight: 600,
-    color: colors.gray900,
+    color: colors.text,
     textAlign: "center",
     marginBottom: 4,
   },
   periodInfo: {
     fontSize: 14,
-    color: colors.gray500,
+    color: colors.textSecondary,
     textAlign: "center",
   },
   periodTabs: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
@@ -455,7 +465,7 @@ const getStyles = (colors) => StyleSheet.create({
     paddingVertical: 8,
     marginHorizontal: 4,
     borderRadius: 8,
-    backgroundColor: colors.gray50,
+    backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -465,11 +475,11 @@ const getStyles = (colors) => StyleSheet.create({
   },
   periodTabText: {
     fontSize: 12,
-    color: colors.gray500,
+    color: colors.textSecondary,
     fontWeight: 500,
   },
   periodTabTextActive: {
-    color: colors.white,
+    color: colors.surface,
     fontWeight: 600,
   },
   summarySection: {
@@ -477,7 +487,7 @@ const getStyles = (colors) => StyleSheet.create({
     paddingVertical: 16,
   },
   summaryCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
@@ -486,7 +496,7 @@ const getStyles = (colors) => StyleSheet.create({
   summaryTitle: {
     fontSize: 16,
     fontWeight: 600,
-    color: colors.gray900,
+    color: colors.text,
     textAlign: "center",
     marginBottom: 12,
   },
@@ -500,12 +510,12 @@ const getStyles = (colors) => StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: "bold",
-    color: colors.gray900,
+    color: colors.text,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: colors.gray500,
+    color: colors.textSecondary,
   },
   paymentsList: {
     flex: 1,
@@ -515,13 +525,13 @@ const getStyles = (colors) => StyleSheet.create({
     paddingBottom: 24,
   },
   paymentCard: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: colors.black,
+    shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -539,12 +549,12 @@ const getStyles = (colors) => StyleSheet.create({
   wargaName: {
     fontSize: 16,
     fontWeight: 600,
-    color: colors.gray900,
+    color: colors.text,
     marginBottom: 4,
   },
   alamatName: {
     fontSize: 14,
-    color: colors.gray500,
+    color: colors.textSecondary,
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -566,12 +576,12 @@ const getStyles = (colors) => StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: colors.gray500,
+    color: colors.textSecondary,
     fontWeight: 500,
   },
   detailValue: {
     fontSize: 14,
-    color: colors.gray900,
+    color: colors.text,
     fontWeight: 600,
   },
   paymentActions: {
@@ -589,13 +599,13 @@ const getStyles = (colors) => StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontWeight: 500,
-    color: colors.gray500,
+    color: colors.textSecondary,
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtext: {
     fontSize: 14,
-    color: colors.gray400,
+    color: colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
   },

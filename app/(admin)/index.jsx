@@ -18,8 +18,9 @@ import { useNotification } from "../../contexts/NotificationContext";
 import { signOutUser } from "../../services/authService";
 import { seederService } from "../../services/seederService";
 import { MaterialIcons } from "@expo/vector-icons";
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from "../../constants/theme";
+import { Typography, Spacing, BorderRadius, Shadows } from "../../constants/theme";
 import { CardStyles } from "../../constants/CardStyles";
+import { useRoleTheme } from "../../hooks/useRoleTheme";
 import NativeButton from "../../components/ui/NativeButton";
 import NativeCard from "../../components/ui/NativeCard";
 import NativeChip from "../../components/ui/NativeChip";
@@ -27,6 +28,8 @@ import NativeChip from "../../components/ui/NativeChip";
 function AdminHome() {
   const { currentUser, userProfile } = useAuth();
   const { showGeneralNotification } = useNotification();
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -189,7 +192,7 @@ function AdminHome() {
 
   return (
     <LinearGradient
-      colors={[Colors.primaryLight + '20', Colors.background]}
+      colors={[colors.primaryLight + '20', colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
       <View style={styles.header}>
@@ -197,9 +200,9 @@ function AdminHome() {
         <Text style={styles.headerSubtitle}>RT 01 RW 02 Sukajadi</Text>
         {userProfile && (
           <NativeChip 
-            icon={<MaterialIcons name="person" size={16} color={Colors.success} />}
-            backgroundColor={Colors.success + '20'}
-            textColor={Colors.success}
+            icon={<MaterialIcons name="person" size={16} color={colors.success} />}
+            backgroundColor={colors.success + '20'}
+            textColor={colors.success}
             style={{ marginTop: 8 }}
           >
             {userProfile.nama || userProfile.namaWarga || 'Admin'}
@@ -215,8 +218,8 @@ function AdminHome() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[Colors.primary]}
-            tintColor={Colors.primary}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
             title="Tarik untuk memuat ulang..."
           />
         }
@@ -233,7 +236,7 @@ function AdminHome() {
               >
                 <NativeCard style={styles.menuCard}>
                   <NativeCard.Content style={styles.menuContent}>
-                    <MaterialIcons name="person-add" size={40} color={Colors.primary} />
+                    <MaterialIcons name="person-add" size={40} color={colors.primary} />
                     <Text style={styles.menuTitle}>Tambah Data Warga</Text>
                     <Text style={styles.menuSubtitle}>
                       Daftarkan warga baru dan buat akun warga
@@ -251,7 +254,7 @@ function AdminHome() {
               >
                 <NativeCard style={styles.menuCard}>
                   <NativeCard.Content style={styles.menuContent}>
-                    <MaterialIcons name="group" size={40} color={Colors.secondary} />
+                    <MaterialIcons name="group" size={40} color={colors.secondary} />
                     <Text style={styles.menuTitle}>Daftar Warga</Text>
                     <Text style={styles.menuSubtitle}>
                       Lihat dan kelola data warga yang terdaftar
@@ -272,7 +275,7 @@ function AdminHome() {
               >
                 <NativeCard style={styles.menuCard}>
                   <NativeCard.Content style={styles.menuContent}>
-                    <MaterialIcons name="schedule" size={40} color={Colors.warning} />
+                    <MaterialIcons name="schedule" size={40} color={colors.warning} />
                     <Text style={styles.menuTitle}>Timeline Manager</Text>
                     <Text style={styles.menuSubtitle}>
                       Kelola timeline dan setoran jimpitan
@@ -290,7 +293,7 @@ function AdminHome() {
               >
                 <NativeCard style={styles.menuCard}>
                   <NativeCard.Content style={styles.menuContent}>
-                    <MaterialIcons name="wallet" size={40} color={Colors.success} />
+                    <MaterialIcons name="wallet" size={40} color={colors.success} />
                     <Text style={styles.menuTitle}>Cek Status Setoran</Text>
                     <Text style={styles.menuSubtitle}>
                       Lihat status setoran jimpitan semua warga
@@ -308,29 +311,29 @@ function AdminHome() {
               activeOpacity={0.7} 
               disabled={seederLoading}
             >
-              <NativeCard style={[styles.seederCard, { backgroundColor: Colors.error + '10' }]}>
+              <NativeCard style={[styles.seederCard, { backgroundColor: colors.error + '10' }]}>
                 <NativeCard.Content style={styles.seederContent}>
                   <View style={styles.seederIconSection}>
                     {seederLoading ? (
-                      <ActivityIndicator size={40} color={Colors.error} />
+                      <ActivityIndicator size={40} color={colors.error} />
                     ) : (
-                      <MaterialIcons name="storage" size={40} color={Colors.error} />
+                      <MaterialIcons name="storage" size={40} color={colors.error} />
                     )}
                   </View>
                   <View style={styles.seederTextSection}>
-                    <Text style={[styles.seederTitle, { color: Colors.error }]}>
+                    <Text style={[styles.seederTitle, { color: colors.error }]}>
                       {seederLoading ? "Generating Data..." : "Generate Data Warga"}
                     </Text>
-                    <Text style={[styles.seederSubtitle, { color: Colors.textSecondary }]}>
+                    <Text style={[styles.seederSubtitle, { color: colors.textSecondary }]}>
                       {seederLoading
                         ? "Sedang membuat akun warga dengan data sequential..."
                         : "Buat akun warga dengan email sequential untuk testing"}
                     </Text>
                     <View style={styles.seederStats}>
-                      <Text style={[styles.seederStatsText, { color: Colors.textSecondary }]}>
+                      <Text style={[styles.seederStatsText, { color: colors.textSecondary }]}>
                         Total: {seederStats.total} | Generated: {seederStats.seederUsers}
                       </Text>
-                      <Text style={[styles.seederNextText, { color: Colors.success }]}>
+                      <Text style={[styles.seederNextText, { color: colors.success }]}>
                         Next: user{seederStats.nextUserNumber}@gmail.com
                       </Text>
                     </View>
@@ -339,7 +342,7 @@ function AdminHome() {
                     <MaterialIcons 
                       name={seederLoading ? "hourglass-empty" : "chevron-right"} 
                       size={24} 
-                      color={Colors.error}
+                      color={colors.error}
                     />
                   </View>
                 </NativeCard.Content>
@@ -356,8 +359,8 @@ function AdminHome() {
             disabled={loggingOut}
             loading={loggingOut}
             variant="outlined"
-            style={[styles.logoutButton, { borderColor: Colors.error }]}
-            textStyle={{ color: Colors.error }}
+            style={[styles.logoutButton, { borderColor: colors.error }]}
+            textStyle={{ color: colors.error }}
           />
         </View>
       </ScrollView>
@@ -373,13 +376,13 @@ function AdminHome() {
           <NativeCard style={styles.modalContainer}>
             <NativeCard.Content>
               <View style={styles.modalHeader}>
-                <MaterialIcons name="storage" size={32} color={Colors.primary} />
+                <MaterialIcons name="storage" size={32} color={colors.primary} />
                 <Text style={styles.modalTitle}>Generate Data Warga</Text>
                 <TouchableOpacity
                   onPress={() => setSeederModalVisible(false)}
                   style={styles.closeButton}
                 >
-                  <MaterialIcons name="close" size={24} color={Colors.textSecondary} />
+                  <MaterialIcons name="close" size={24} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
               
@@ -402,13 +405,13 @@ function AdminHome() {
                           }
                           return emails.map((email, index) => (
                             <View key={index} style={styles.emailRow}>
-                              <MaterialIcons name="person" size={16} color={Colors.primary} />
+                              <MaterialIcons name="person" size={16} color={colors.primary} />
                               <Text style={styles.previewEmail}>{email}</Text>
                             </View>
                           ));
                         }
                         return (
-                          <Text style={{ color: Colors.error, fontStyle: 'italic' }}>
+                          <Text style={{ color: colors.error, fontStyle: 'italic' }}>
                             ⚠️ Jumlah harus 1-10
                           </Text>
                         );
@@ -417,9 +420,9 @@ function AdminHome() {
                   </NativeCard.Content>
                 </NativeCard>
 
-                <NativeCard style={[styles.infoCard, { backgroundColor: Colors.info + '10' }]}>
+                <NativeCard style={[styles.infoCard, { backgroundColor: colors.info + '10' }]}>
                   <NativeCard.Content style={{ paddingVertical: 12 }}>
-                    <Text style={{ color: Colors.info, lineHeight: 18 }}>
+                    <Text style={{ color: colors.info, lineHeight: 18 }}>
                       💡 Password untuk semua akun: <Text style={{ fontWeight: 'bold' }}>admin123</Text>
                     </Text>
                   </NativeCard.Content>
@@ -450,7 +453,7 @@ function AdminHome() {
           <View style={styles.loadingModalOverlay}>
             <NativeCard style={styles.loadingCard}>
               <NativeCard.Content style={styles.loadingContent}>
-                <ActivityIndicator size="large" color={Colors.primary} />
+                <ActivityIndicator size="large" color={colors.primary} />
                 <Text style={styles.loadingTitle}>Generating Data Warga</Text>
                 <Text style={styles.loadingSubtitle}>
                   Membuat {seederCount} akun dengan email sequential...
@@ -467,7 +470,7 @@ function AdminHome() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -475,7 +478,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
   },
   headerTitle: {
     ...Typography.h3,
@@ -484,7 +487,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     ...Typography.body2,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
   },
   scrollView: {
     flex: 1,
@@ -618,7 +621,7 @@ const styles = StyleSheet.create({
     ...Typography.h4,
     textAlign: 'center',
     padding: Spacing.md,
-    backgroundColor: Colors.surfaceVariant,
+    backgroundColor: colors.surfaceVariant,
     borderRadius: BorderRadius.md,
     marginBottom: Spacing.md,
   },
@@ -649,7 +652,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     ...Shadows.none,
     borderWidth: 1,
-    borderColor: Colors.info + '30',
+    borderColor: colors.info + '30',
   },
   modalActions: {
     flexDirection: 'row',

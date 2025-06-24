@@ -17,12 +17,15 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { updateUserProfile } from "../../services/userService";
 import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Shadows } from '../../constants/theme';
+import { useRoleTheme } from '../../hooks/useRoleTheme';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 
 export default function EditProfile() {
   const { userProfile, refreshProfile } = useAuth();
+  const { colors } = useRoleTheme();
+  const styles = createStyles(colors);
   const { theme, loading: settingsLoading } = useSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -95,7 +98,7 @@ export default function EditProfile() {
   if (settingsLoading || !userProfile) {
     return (
       <LinearGradient
-        colors={[Colors.primary + '20', Colors.background]}
+        colors={[colors.primary + '20', colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
         <View style={[styles.header, Shadows.md]}>
@@ -103,7 +106,7 @@ export default function EditProfile() {
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
+            <MaterialIcons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
             Edit Profil
@@ -112,7 +115,7 @@ export default function EditProfile() {
         </View>
         
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>
             Memuat profil...
           </Text>
@@ -123,7 +126,7 @@ export default function EditProfile() {
 
   return (
     <LinearGradient
-      colors={[Colors.primary + '20', Colors.background]}
+      colors={[colors.primary + '20', colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
       <View style={[styles.header, Shadows.md]}>
@@ -131,7 +134,7 @@ export default function EditProfile() {
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
+          <MaterialIcons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           Edit Profil
@@ -156,8 +159,8 @@ export default function EditProfile() {
             {/* Profile Header Card */}
               <View style={[styles.profileCard, Shadows.lg]}>
                 <View style={styles.profileHeader}>
-                  <View style={[styles.avatar, { backgroundColor: Colors.primary }]}>
-                    <Text style={[styles.avatarText, { color: Colors.textInverse }]}>
+                  <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+                    <Text style={[styles.avatarText, { color: colors.textInverse }]}>
                       {userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
                     </Text>
                   </View>
@@ -165,7 +168,7 @@ export default function EditProfile() {
                     <Text style={styles.profileName}>
                       {userProfile?.namaWarga || 'Nama Warga'}
                     </Text>
-                    <Text style={[styles.profileEmail, { color: Colors.textSecondary }]}>
+                    <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>
                       {userProfile?.email}
                     </Text>
                   </View>
@@ -175,7 +178,7 @@ export default function EditProfile() {
             {/* Personal Information Form */}
               <View style={[styles.formCard, Shadows.md]}>
                 <View style={styles.section}>
-                  <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Informasi Pribadi</Text>
+                  <Text style={[styles.sectionTitle, { color: colors.primary }]}>Informasi Pribadi</Text>
                   <View style={styles.divider} />
 
                   <Input
@@ -200,7 +203,7 @@ export default function EditProfile() {
                 <View style={styles.divider} />
 
                 <View style={styles.section}>
-                  <Text style={[styles.sectionTitle, { color: Colors.primary }]}>Informasi Alamat</Text>
+                  <Text style={[styles.sectionTitle, { color: colors.primary }]}>Informasi Alamat</Text>
                   <View style={styles.divider} />
 
                   <Input
@@ -213,8 +216,8 @@ export default function EditProfile() {
                     error={errors.alamat}
                   />
 
-                  <View style={[styles.infoCard, { backgroundColor: Colors.primary + '20' }]}>
-                    <Text style={[styles.infoText, { color: Colors.primary }]}>
+                  <View style={[styles.infoCard, { backgroundColor: colors.primary + '20' }]}>
+                    <Text style={[styles.infoText, { color: colors.primary }]}>
                       ℹ️ RFID warga hanya dapat diatur oleh bendahara
                     </Text>
                   </View>
@@ -248,7 +251,7 @@ export default function EditProfile() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -258,7 +261,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     justifyContent: 'space-between',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
   },
   backButton: {
     padding: 8,
@@ -269,7 +272,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     flex: 1,
     textAlign: 'center',
-    color: Colors.text,
+    color: colors.text,
   },
   placeholder: {
     width: 48,
@@ -282,7 +285,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
     marginTop: 16,
   },
   keyboardContainer: {
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
   profileCard: {
     borderRadius: 16,
     marginBottom: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
   },
   profileHeader: {
@@ -326,7 +329,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: Colors.text,
+    color: colors.text,
   },
   profileEmail: {
     fontSize: 14,
@@ -334,7 +337,7 @@ const styles = StyleSheet.create({
   formCard: {
     borderRadius: 16,
     marginBottom: 16,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     padding: 20,
   },
   section: {
@@ -347,7 +350,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.border,
+    backgroundColor: colors.border,
     marginVertical: 16,
   },
   infoCard: {

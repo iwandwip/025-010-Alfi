@@ -10,8 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRoleTheme } from "../../hooks/useRoleTheme";
+import { Shadows, Spacing, Typography, BorderRadius } from '../../constants/theme';
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import TimelinePicker from "../../components/ui/TimelinePicker";
@@ -38,8 +41,10 @@ export default function CreateTimeline() {
     saveAsTemplate: false,
   });
   const [loading, setLoading] = useState(false);
+  const { colors } = useRoleTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const styles = createStyles(colors);
 
   useEffect(() => {
     loadTemplates();
@@ -423,12 +428,15 @@ export default function CreateTimeline() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+    <LinearGradient
+      colors={[colors.primaryContainer, colors.background]}
+      style={[styles.container, { paddingTop: insets.top }]}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.surface }]}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -785,14 +793,14 @@ export default function CreateTimeline() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: colors.background,
   },
   keyboardContainer: {
     flex: 1,
@@ -801,8 +809,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    borderBottomColor: "colors.border",
+    backgroundColor: colors.surface,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -810,13 +818,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: "colors.primary",
     fontWeight: 500,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 600,
-    color: "#1e293b",
+    color: "colors.text",
     textAlign: "center",
   },
   stepIndicator: {
@@ -824,25 +832,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 20,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
   },
   stepDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#e2e8f0",
+    backgroundColor: "colors.border",
   },
   stepDotActive: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "colors.primary",
   },
   stepLine: {
     width: 30,
     height: 2,
-    backgroundColor: "#e2e8f0",
+    backgroundColor: "colors.border",
     marginHorizontal: 6,
   },
   stepLineActive: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "colors.primary",
   },
   content: {
     flex: 1,
@@ -854,7 +862,7 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 24,
     fontWeight: 600,
-    color: "#1e293b",
+    color: "colors.text",
     marginBottom: 24,
     textAlign: "center",
   },
@@ -864,26 +872,26 @@ const styles = StyleSheet.create({
   templatesTitle: {
     fontSize: 16,
     fontWeight: 500,
-    color: "#374151",
+    color: "colors.text",
     marginBottom: 12,
   },
   templateCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "colors.border",
   },
   templateName: {
     fontSize: 14,
     fontWeight: 600,
-    color: "#1e293b",
+    color: "colors.text",
     marginBottom: 4,
   },
   templateDetails: {
     fontSize: 12,
-    color: "#64748b",
+    color: "colors.textSecondary",
   },
   fieldGroup: {
     marginBottom: 16,
@@ -891,7 +899,7 @@ const styles = StyleSheet.create({
   fieldLabel: {
     fontSize: 14,
     fontWeight: 500,
-    color: "#374151",
+    color: "colors.text",
     marginBottom: 8,
   },
   typeButton: {
@@ -899,26 +907,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    borderColor: "colors.border",
+    backgroundColor: colors.surface,
     marginBottom: 8,
   },
   typeButtonActive: {
-    borderColor: "#3b82f6",
-    backgroundColor: "#dbeafe",
+    borderColor: "colors.primary",
+    backgroundColor: "colors.primaryContainer",
   },
   typeButtonText: {
     fontSize: 14,
-    color: "#374151",
+    color: "colors.text",
     textAlign: "center",
     fontWeight: 600,
   },
   typeButtonTextActive: {
-    color: "#3b82f6",
+    color: "colors.primary",
   },
   typeButtonDesc: {
     fontSize: 12,
-    color: "#64748b",
+    color: "colors.textSecondary",
     textAlign: "center",
     marginTop: 4,
   },
@@ -934,20 +942,20 @@ const styles = StyleSheet.create({
     fontWeight: 500,
   },
   timelineRangeInfo: {
-    backgroundColor: "#ecfdf5",
+    backgroundColor: "colors.successContainer",
     padding: 12,
     borderRadius: 8,
     marginTop: 8,
   },
   timelineRangeLabel: {
     fontSize: 12,
-    color: "#047857",
+    color: "colors.success",
     fontWeight: 500,
     marginBottom: 4,
   },
   timelineRangeValue: {
     fontSize: 14,
-    color: "#047857",
+    color: "colors.success",
     fontWeight: 600,
   },
   manualModeSection: {
@@ -961,45 +969,45 @@ const styles = StyleSheet.create({
   simulationPreview: {
     marginTop: 12,
     padding: 12,
-    backgroundColor: "#dbeafe",
+    backgroundColor: "colors.primaryContainer",
     borderRadius: 8,
   },
   simulationPreviewLabel: {
     fontSize: 12,
-    color: "#1e40af",
+    color: "colors.primary",
     fontWeight: 500,
     marginBottom: 4,
   },
   simulationPreviewValue: {
     fontSize: 14,
-    color: "#1e40af",
+    color: "colors.primary",
     fontWeight: 600,
   },
   rangeInfoBox: {
     marginTop: 12,
     padding: 10,
-    backgroundColor: "#ecfdf5",
+    backgroundColor: "colors.successContainer",
     borderRadius: 6,
   },
   rangeInfoText: {
     fontSize: 12,
-    color: "#047857",
+    color: "colors.success",
     textAlign: "center",
   },
   infoBox: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: "colors.primaryContainer",
     padding: 12,
     borderRadius: 8,
     marginTop: 16,
   },
   infoText: {
     fontSize: 14,
-    color: "#1e40af",
+    color: "colors.primary",
     lineHeight: 20,
   },
   periodInstructions: {
     fontSize: 14,
-    color: "#64748b",
+    color: "colors.textSecondary",
     marginBottom: 16,
     textAlign: "center",
   },
@@ -1013,54 +1021,54 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "colors.border",
     alignItems: "center",
     justifyContent: "center",
   },
   periodButtonHoliday: {
-    backgroundColor: "#fef3c7",
-    borderColor: "#f59e0b",
+    backgroundColor: "colors.warningContainer",
+    borderColor: "colors.warning",
   },
   periodButtonText: {
     fontSize: 14,
     fontWeight: 500,
-    color: "#374151",
+    color: "colors.text",
   },
   periodButtonTextHoliday: {
-    color: "#92400e",
+    color: "colors.warning",
   },
   holidaySummary: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "colors.border",
   },
   holidayText: {
     fontSize: 14,
-    color: "#374151",
+    color: "colors.text",
     marginBottom: 4,
   },
   amountPerPeriod: {
     fontSize: 16,
     fontWeight: 600,
-    color: "#059669",
+    color: "colors.success",
     marginTop: 8,
   },
   summaryCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 20,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "colors.border",
     marginBottom: 24,
   },
   summaryTitle: {
     fontSize: 18,
     fontWeight: 600,
-    color: "#1e293b",
+    color: "colors.text",
     marginBottom: 16,
     textAlign: "center",
   },
@@ -1070,32 +1078,32 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#f1f5f9",
+    borderBottomColor: "colors.borderLight",
   },
   summaryLabel: {
     fontSize: 14,
-    color: "#64748b",
+    color: "colors.textSecondary",
     fontWeight: 500,
     flex: 1,
   },
   summaryValue: {
     fontSize: 14,
-    color: "#1e293b",
+    color: "colors.text",
     fontWeight: 600,
     flex: 1.5,
     textAlign: "right",
   },
   templateToggle: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.surface,
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "colors.border",
     marginBottom: 24,
   },
   templateToggleText: {
     fontSize: 14,
-    color: "#374151",
+    color: "colors.text",
     textAlign: "center",
   },
   navigationButtons: {
@@ -1105,14 +1113,14 @@ const styles = StyleSheet.create({
   },
   prevButton: {
     flex: 1,
-    borderColor: "#64748b",
+    borderColor: "colors.textSecondary",
   },
   nextButton: {
     flex: 1,
-    backgroundColor: "#3b82f6",
+    backgroundColor: "colors.primary",
   },
   createButton: {
     flex: 1,
-    backgroundColor: "#10b981",
+    backgroundColor: "colors.success",
   },
 });

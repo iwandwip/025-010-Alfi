@@ -19,7 +19,8 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSettings } from "../../contexts/SettingsContext";
-import { Colors, Shadows } from "../../constants/theme";
+import { Shadows } from "../../constants/theme";
+import { useRoleTheme } from "../../hooks/useRoleTheme";
 import { formatDate, toISOString } from "../../utils/dateUtils";
 import {
   getUserDetailedPayments,
@@ -28,8 +29,8 @@ import {
 import { processCustomPaymentWithAutoAllocation } from "../../services/wargaPaymentService";
 
 function UserPaymentDetail() {
+  const { colors } = useRoleTheme();
   const { theme, loading: settingsLoading } = useSettings();
-  const colors = Colors;
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userId, userName, timelineId } = useLocalSearchParams();
@@ -271,25 +272,25 @@ function UserPaymentDetail() {
   if (loading) {
     return (
       <LinearGradient
-        colors={[Colors.primaryContainer, Colors.background]}
+        colors={[colors.primaryContainer, colors.background]}
         style={[styles.container, { paddingTop: insets.top }]}
       >
-        <View style={[styles.header, { backgroundColor: Colors.surface }]}>
+        <View style={[styles.header, { backgroundColor: colors.surface }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.backButton}
           >
-            <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+            <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
+          <Text style={[styles.headerTitle, { color: colors.onSurface }]}>
             Detail Pembayaran
           </Text>
           <View style={styles.placeholder} />
         </View>
         
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors.primary} />
-          <Text style={[styles.loadingText, { color: Colors.onSurface }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.onSurface }]}>
             Memuat data pembayaran...
           </Text>
         </View>
@@ -302,26 +303,26 @@ function UserPaymentDetail() {
 
     return (
       <View style={styles.summarySection}>
-        <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>Ringkasan Pembayaran</Text>
+        <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>Ringkasan Pembayaran</Text>
 
-        <View style={[styles.summaryCard, { backgroundColor: Colors.surface }]}>
+        <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
           <View style={styles.cardContent}>
             {/* Progress Section */}
             <View style={styles.progressSection}>
               <View style={styles.progressHeader}>
-                <Text style={[styles.progressLabel, { color: Colors.onSurfaceVariant }]}>
+                <Text style={[styles.progressLabel, { color: colors.onSurfaceVariant }]}>
                   Progress Pembayaran
                 </Text>
-                <Text style={[styles.progressValue, { color: Colors.primary }]}>
+                <Text style={[styles.progressValue, { color: colors.primary }]}>
                   {summary.progressPercentage}%
                 </Text>
               </View>
-              <View style={[styles.progressBarContainer, { backgroundColor: Colors.surfaceVariant }]}>
+              <View style={[styles.progressBarContainer, { backgroundColor: colors.surfaceVariant }]}>
                 <View
                   style={[
                     styles.progressBarFill,
                     {
-                      backgroundColor: Colors.primary,
+                      backgroundColor: colors.primary,
                       width: `${summary.progressPercentage}%`,
                     },
                   ]}
@@ -333,70 +334,70 @@ function UserPaymentDetail() {
             <View style={styles.statsSection}>
               <View style={styles.statsRow}>
                 <View style={styles.statItem}>
-                  <Text style={[styles.statValue, { color: Colors.success }]}>
+                  <Text style={[styles.statValue, { color: colors.success }]}>
                     {summary.paidCount}
                   </Text>
-                  <Text style={[styles.statLabel, { color: Colors.onSurfaceVariant }]}>
+                  <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
                     Lunas
                   </Text>
                 </View>
                 <View style={styles.statItem}>
-                  <Text style={[styles.statValue, { color: Colors.warning }]}>
+                  <Text style={[styles.statValue, { color: colors.warning }]}>
                     {summary.partialCount}
                   </Text>
-                  <Text style={[styles.statLabel, { color: Colors.onSurfaceVariant }]}>
+                  <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
                     Parsial
                   </Text>
                 </View>
                 <View style={styles.statItem}>
-                  <Text style={[styles.statValue, { color: Colors.error }]}>
+                  <Text style={[styles.statValue, { color: colors.error }]}>
                     {summary.unpaidCount}
                   </Text>
-                  <Text style={[styles.statLabel, { color: Colors.onSurfaceVariant }]}>
+                  <Text style={[styles.statLabel, { color: colors.onSurfaceVariant }]}>
                     Belum
                   </Text>
                 </View>
               </View>
             </View>
 
-            <View style={[styles.divider, { backgroundColor: Colors.outline }]} />
+            <View style={[styles.divider, { backgroundColor: colors.outline }]} />
 
             {/* Amount Summary */}
             <View style={styles.amountSection}>
               <View style={styles.amountRow}>
-                <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                <Text style={[styles.amountLabel, { color: colors.onSurfaceVariant }]}>
                   Total Tagihan
                 </Text>
-                <Text style={[styles.amountValue, { color: Colors.onSurface }]}>
+                <Text style={[styles.amountValue, { color: colors.onSurface }]}>
                   {formatCurrency(summary.totalAmount)}
                 </Text>
               </View>
 
               <View style={styles.amountRow}>
-                <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                <Text style={[styles.amountLabel, { color: colors.onSurfaceVariant }]}>
                   Sudah Dibayar
                 </Text>
-                <Text style={[styles.amountValue, { color: Colors.success }]}>
+                <Text style={[styles.amountValue, { color: colors.success }]}>
                   {formatCurrency(summary.paidAmount)}
                 </Text>
               </View>
 
               {summary.partialAmount > 0 && (
                 <View style={styles.amountRow}>
-                  <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                  <Text style={[styles.amountLabel, { color: colors.onSurfaceVariant }]}>
                     Pembayaran Parsial
                   </Text>
-                  <Text style={[styles.amountValue, { color: Colors.warning }]}>
+                  <Text style={[styles.amountValue, { color: colors.warning }]}>
                     {formatCurrency(summary.partialAmount)}
                   </Text>
                 </View>
               )}
 
               <View style={styles.amountRow}>
-                <Text style={[styles.amountLabel, { color: Colors.onSurfaceVariant }]}>
+                <Text style={[styles.amountLabel, { color: colors.onSurfaceVariant }]}>
                   Belum Dibayar
                 </Text>
-                <Text style={[styles.amountValue, { color: Colors.error }]}>
+                <Text style={[styles.amountValue, { color: colors.error }]}>
                   {formatCurrency(summary.unpaidAmount)}
                 </Text>
               </View>
@@ -409,16 +410,16 @@ function UserPaymentDetail() {
 
   const renderPaymentItem = ({ item }) => (
     <TouchableOpacity
-      style={[styles.paymentCard, { backgroundColor: Colors.surface }]}
+      style={[styles.paymentCard, { backgroundColor: colors.surface }]}
       onPress={() => handlePaymentPress(item)}
       activeOpacity={0.7}
     >
       <View style={styles.paymentHeader}>
         <View style={styles.periodInfo}>
-          <Text style={[styles.periodText, { color: Colors.onSurface }]}>
+          <Text style={[styles.periodText, { color: colors.onSurface }]}>
             {item.periodData?.label || `Periode ${item.period}`}
           </Text>
-          <Text style={[styles.amountText, { color: Colors.primary }]}>
+          <Text style={[styles.amountText, { color: colors.primary }]}>
             {formatCurrency(item.amount)}
           </Text>
         </View>
@@ -438,10 +439,10 @@ function UserPaymentDetail() {
       <View style={styles.paymentDetails}>
         {item.paymentDate && (
           <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+            <Text style={[styles.detailLabel, { color: colors.onSurfaceVariant }]}>
               Tanggal Bayar
             </Text>
-            <Text style={[styles.detailValue, { color: Colors.onSurface }]}>
+            <Text style={[styles.detailValue, { color: colors.onSurface }]}>
               {formatDate(item.paymentDate)}
             </Text>
           </View>
@@ -449,10 +450,10 @@ function UserPaymentDetail() {
 
         {item.paymentMethod && (
           <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+            <Text style={[styles.detailLabel, { color: colors.onSurfaceVariant }]}>
               Metode
             </Text>
-            <Text style={[styles.detailValue, { color: Colors.onSurface }]}>
+            <Text style={[styles.detailValue, { color: colors.onSurface }]}>
               {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
             </Text>
           </View>
@@ -460,10 +461,10 @@ function UserPaymentDetail() {
 
         {item.partialPayment && item.totalPaid > 0 && (
           <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+            <Text style={[styles.detailLabel, { color: colors.onSurfaceVariant }]}>
               Terbayar
             </Text>
-            <Text style={[styles.detailValue, { color: Colors.warning, fontWeight: 'bold' }]}>
+            <Text style={[styles.detailValue, { color: colors.warning, fontWeight: 'bold' }]}>
               {formatCurrency(item.totalPaid)}
             </Text>
           </View>
@@ -471,10 +472,10 @@ function UserPaymentDetail() {
 
         {item.remainingAmount && item.remainingAmount > 0 && (
           <View style={styles.detailRow}>
-            <Text style={[styles.detailLabel, { color: Colors.onSurfaceVariant }]}>
+            <Text style={[styles.detailLabel, { color: colors.onSurfaceVariant }]}>
               Sisa
             </Text>
-            <Text style={[styles.detailValue, { color: Colors.error, fontWeight: 'bold' }]}>
+            <Text style={[styles.detailValue, { color: colors.error, fontWeight: 'bold' }]}>
               {formatCurrency(item.remainingAmount)}
             </Text>
           </View>
@@ -482,10 +483,10 @@ function UserPaymentDetail() {
       </View>
 
       <View style={styles.paymentFooter}>
-        <Text style={[styles.tapHint, { color: Colors.onSurfaceVariant }]}>
+        <Text style={[styles.tapHint, { color: colors.onSurfaceVariant }]}>
           Ketuk untuk ubah status
         </Text>
-        <MaterialIcons name="chevron-right" size={20} color={Colors.onSurfaceVariant} />
+        <MaterialIcons name="chevron-right" size={20} color={colors.onSurfaceVariant} />
       </View>
     </TouchableOpacity>
   );
@@ -493,25 +494,25 @@ function UserPaymentDetail() {
   // Main render
   return (
     <LinearGradient
-      colors={[Colors.primaryContainer, Colors.background]}
+      colors={[colors.primaryContainer, colors.background]}
       style={[styles.container, { paddingTop: insets.top }]}
     >
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: Colors.surface }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface }]}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <MaterialIcons name="arrow-back" size={24} color={Colors.onSurface} />
+          <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: Colors.onSurface }]}>
+        <Text style={[styles.headerTitle, { color: colors.onSurface }]}>
           Detail Pembayaran
         </Text>
         <TouchableOpacity
           onPress={() => setCustomPaymentModalVisible(true)}
-          style={[styles.actionButton, { backgroundColor: Colors.primary }]}
+          style={[styles.actionButton, { backgroundColor: colors.primary }]}
         >
-          <MaterialIcons name="add" size={20} color={Colors.onPrimary} />
+          <MaterialIcons name="add" size={20} color={colors.onPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -534,14 +535,14 @@ function UserPaymentDetail() {
 
           {/* Payment List */}
           <View style={styles.paymentSection}>
-            <Text style={[styles.sectionTitle, { color: Colors.onSurface }]}>
+            <Text style={[styles.sectionTitle, { color: colors.onSurface }]}>
               Daftar Pembayaran ({userName || 'Warga'})
             </Text>
 
             {payments.length === 0 ? (
               <View style={styles.emptyContainer}>
-                <MaterialIcons name="receipt-long" size={64} color={Colors.onSurfaceVariant} />
-                <Text style={[styles.emptyText, { color: Colors.onSurfaceVariant }]}>
+                <MaterialIcons name="receipt-long" size={64} color={colors.onSurfaceVariant} />
+                <Text style={[styles.emptyText, { color: colors.onSurfaceVariant }]}>
                   Tidak ada data pembayaran
                 </Text>
               </View>
@@ -564,26 +565,26 @@ function UserPaymentDetail() {
         onRequestClose={() => setActionModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContainer, { backgroundColor: Colors.surface }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: Colors.outline }]}>
-              <Text style={[styles.modalTitle, { color: Colors.onSurface }]}>
+          <View style={[styles.modalContainer, { backgroundColor: colors.surface }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.outline }]}>
+              <Text style={[styles.modalTitle, { color: colors.onSurface }]}>
                 Ubah Status Pembayaran
               </Text>
               <TouchableOpacity
                 onPress={() => setActionModalVisible(false)}
                 style={styles.closeButton}
               >
-                <MaterialIcons name="close" size={24} color={Colors.onSurface} />
+                <MaterialIcons name="close" size={24} color={colors.onSurface} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.modalContent}>
               {selectedPayment && (
                 <>
-                  <Text style={[styles.paymentInfo, { color: Colors.onSurface }]}>
+                  <Text style={[styles.paymentInfo, { color: colors.onSurface }]}>
                     {selectedPayment.periodData?.label || `Periode ${selectedPayment.period}`}
                   </Text>
-                  <Text style={[styles.paymentAmount, { color: Colors.primary }]}>
+                  <Text style={[styles.paymentAmount, { color: colors.primary }]}>
                     {formatCurrency(selectedPayment.amount)}
                   </Text>
 
@@ -591,12 +592,12 @@ function UserPaymentDetail() {
                     <TouchableOpacity
                       style={[
                         styles.statusOption,
-                        { borderColor: Colors.success, backgroundColor: Colors.successContainer }
+                        { borderColor: colors.success, backgroundColor: colors.successContainer }
                       ]}
                       onPress={() => handleStatusChange("lunas")}
                     >
-                      <MaterialIcons name="check-circle" size={24} color={Colors.success} />
-                      <Text style={[styles.statusOptionText, { color: Colors.success }]}>
+                      <MaterialIcons name="check-circle" size={24} color={colors.success} />
+                      <Text style={[styles.statusOptionText, { color: colors.success }]}>
                         Lunas
                       </Text>
                     </TouchableOpacity>
@@ -604,12 +605,12 @@ function UserPaymentDetail() {
                     <TouchableOpacity
                       style={[
                         styles.statusOption,
-                        { borderColor: Colors.error, backgroundColor: Colors.errorContainer }
+                        { borderColor: colors.error, backgroundColor: colors.errorContainer }
                       ]}
                       onPress={() => handleStatusChange("belum_bayar")}
                     >
-                      <MaterialIcons name="cancel" size={24} color={Colors.error} />
-                      <Text style={[styles.statusOptionText, { color: Colors.error }]}>
+                      <MaterialIcons name="cancel" size={24} color={colors.error} />
+                      <Text style={[styles.statusOptionText, { color: colors.error }]}>
                         Belum Bayar
                       </Text>
                     </TouchableOpacity>
@@ -617,12 +618,12 @@ function UserPaymentDetail() {
                     <TouchableOpacity
                       style={[
                         styles.statusOption,
-                        { borderColor: Colors.warning, backgroundColor: Colors.warningContainer }
+                        { borderColor: colors.warning, backgroundColor: colors.warningContainer }
                       ]}
                       onPress={() => handleStatusChange("belum_lunas")}
                     >
-                      <MaterialIcons name="schedule" size={24} color={Colors.warning} />
-                      <Text style={[styles.statusOptionText, { color: Colors.warning }]}>
+                      <MaterialIcons name="schedule" size={24} color={colors.warning} />
+                      <Text style={[styles.statusOptionText, { color: colors.warning }]}>
                         Belum Lunas
                       </Text>
                     </TouchableOpacity>
@@ -632,8 +633,8 @@ function UserPaymentDetail() {
 
               {updatingPayment && (
                 <View style={styles.updatingContainer}>
-                  <ActivityIndicator size="small" color={Colors.primary} />
-                  <Text style={[styles.updatingText, { color: Colors.onSurface }]}>
+                  <ActivityIndicator size="small" color={colors.primary} />
+                  <Text style={[styles.updatingText, { color: colors.onSurface }]}>
                     Mengupdate status...
                   </Text>
                 </View>
@@ -651,67 +652,67 @@ function UserPaymentDetail() {
         onRequestClose={() => setCustomPaymentModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalContainer, { backgroundColor: Colors.surface }]}>
-            <View style={[styles.modalHeader, { borderBottomColor: Colors.outline }]}>
-              <Text style={[styles.modalTitle, { color: Colors.onSurface }]}>
+          <View style={[styles.modalContainer, { backgroundColor: colors.surface }]}>
+            <View style={[styles.modalHeader, { borderBottomColor: colors.outline }]}>
+              <Text style={[styles.modalTitle, { color: colors.onSurface }]}>
                 Pembayaran Custom
               </Text>
               <TouchableOpacity
                 onPress={() => setCustomPaymentModalVisible(false)}
                 style={styles.closeButton}
               >
-                <MaterialIcons name="close" size={24} color={Colors.onSurface} />
+                <MaterialIcons name="close" size={24} color={colors.onSurface} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.modalContent}>
               <View style={styles.inputSection}>
-                <Text style={[styles.inputLabel, { color: Colors.onSurface }]}>
+                <Text style={[styles.inputLabel, { color: colors.onSurface }]}>
                   Jumlah Pembayaran
                 </Text>
                 <TextInput
                   style={[
                     styles.customAmountInput,
                     { 
-                      borderColor: Colors.outline,
-                      backgroundColor: Colors.surface,
-                      color: Colors.onSurface 
+                      borderColor: colors.outline,
+                      backgroundColor: colors.surface,
+                      color: colors.onSurface 
                     }
                   ]}
                   value={customPaymentAmount}
                   onChangeText={setCustomPaymentAmount}
                   keyboardType="numeric"
                   placeholder="Masukkan jumlah pembayaran"
-                  placeholderTextColor={Colors.onSurfaceVariant}
+                  placeholderTextColor={colors.onSurfaceVariant}
                 />
-                <Text style={[styles.helpText, { color: Colors.onSurfaceVariant }]}>
+                <Text style={[styles.helpText, { color: colors.onSurfaceVariant }]}>
                   Pembayaran akan dialokasikan otomatis ke periode yang belum lunas.
                 </Text>
               </View>
 
               {updatingPayment && (
                 <View style={styles.processingSection}>
-                  <ActivityIndicator size="large" color={Colors.primary} />
-                  <Text style={[styles.processingText, { color: Colors.onSurface }]}>
+                  <ActivityIndicator size="large" color={colors.primary} />
+                  <Text style={[styles.processingText, { color: colors.onSurface }]}>
                     Memproses pembayaran...
                   </Text>
                 </View>
               )}
             </View>
 
-            <View style={[styles.modalFooter, { borderTopColor: Colors.outline }]}>
+            <View style={[styles.modalFooter, { borderTopColor: colors.outline }]}>
               <TouchableOpacity
                 style={[
                   styles.cancelButton,
                   { 
-                    borderColor: Colors.outline,
-                    backgroundColor: Colors.surface 
+                    borderColor: colors.outline,
+                    backgroundColor: colors.surface 
                   }
                 ]}
                 onPress={() => setCustomPaymentModalVisible(false)}
                 disabled={updatingPayment}
               >
-                <Text style={[styles.cancelButtonText, { color: Colors.onSurface }]}>
+                <Text style={[styles.cancelButtonText, { color: colors.onSurface }]}>
                   Batal
                 </Text>
               </TouchableOpacity>
@@ -719,12 +720,12 @@ function UserPaymentDetail() {
               <TouchableOpacity
                 style={[
                   styles.confirmButton,
-                  { backgroundColor: Colors.primary }
+                  { backgroundColor: colors.primary }
                 ]}
                 onPress={handleCustomPayment}
                 disabled={updatingPayment || !customPaymentAmount.trim()}
               >
-                <Text style={[styles.confirmButtonText, { color: Colors.onPrimary }]}>
+                <Text style={[styles.confirmButtonText, { color: colors.onPrimary }]}>
                   {updatingPayment ? "Memproses..." : "Proses"}
                 </Text>
               </TouchableOpacity>
@@ -945,7 +946,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: Colors.outline + '30',
+    borderTopColor: colors.outline + '30',
   },
   tapHint: {
     fontSize: 12,

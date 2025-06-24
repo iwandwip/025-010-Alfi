@@ -1,5 +1,114 @@
 import { Platform } from 'react-native';
 
+// Role-based color schemes
+export const RoleColors = {
+  // Bendahara (Admin) - Red Theme
+  bendahara: {
+    primary: '#DC2626',
+    primaryDark: '#B91C1C',
+    primaryLight: '#EF4444',
+    primaryContainer: '#FEE2E2',
+    onPrimary: '#FFFFFF',
+    onPrimaryContainer: '#7F1D1D',
+  },
+  
+  // Admin - Red Theme (same as bendahara)
+  admin: {
+    primary: '#DC2626',
+    primaryDark: '#B91C1C',
+    primaryLight: '#EF4444',
+    primaryContainer: '#FEE2E2',
+    onPrimary: '#FFFFFF',
+    onPrimaryContainer: '#7F1D1D',
+  },
+  
+  // Warga (User) - Blue Theme
+  user: {
+    primary: '#2563EB',
+    primaryDark: '#1D4ED8',
+    primaryLight: '#3B82F6',
+    primaryContainer: '#DBEAFE',
+    onPrimary: '#FFFFFF',
+    onPrimaryContainer: '#1E3A8A',
+  },
+  
+  // Default fallback - Blue Theme
+  default: {
+    primary: '#2563EB',
+    primaryDark: '#1D4ED8',
+    primaryLight: '#3B82F6',
+    primaryContainer: '#DBEAFE',
+    onPrimary: '#FFFFFF',
+    onPrimaryContainer: '#1E3A8A',
+  },
+};
+
+// Function to get colors based on role
+export const getColorsForRole = (role) => {
+  return RoleColors[role] || RoleColors.default;
+};
+
+// Base Colors (role-independent)
+export const BaseColors = {
+  secondary: '#2196F3',
+  secondaryDark: '#1976D2', 
+  secondaryLight: '#64B5F6',
+  
+  tertiary: '#9C27B0',
+  tertiaryContainer: '#E1BEE7',
+  onTertiaryContainer: '#6A1B9A',
+  
+  success: '#4CAF50',
+  successContainer: '#C8E6C9',
+  onSuccessContainer: '#1B5E20',
+  
+  warning: '#FF9800',
+  warningContainer: '#FFE0B2',
+  onWarningContainer: '#E65100',
+  
+  error: '#F44336',
+  errorContainer: '#FFCDD2',
+  onErrorContainer: '#B71C1C',
+  
+  info: '#2196F3',
+  
+  // Background colors
+  background: '#FFFFFF',
+  backgroundSecondary: '#F5F5F5',
+  backgroundTertiary: '#FAFAFA',
+  
+  // Surface colors
+  surface: '#FFFFFF',
+  surfaceVariant: '#F7F8FA',
+  onSurface: '#1A1A1A',
+  onSurfaceVariant: '#6B7280',
+  
+  // View colors
+  onView: '#1A1A1A',
+  onViewVariant: '#6B7280',
+  
+  // Text colors
+  text: '#1A1A1A',
+  textSecondary: '#6B7280',
+  textTertiary: '#9CA3AF',
+  textDisabled: '#D1D5DB',
+  textInverse: '#FFFFFF',
+  
+  // Border colors
+  border: '#E5E7EB',
+  borderLight: '#F3F4F6',
+  divider: '#E5E7EB',
+  
+  // Additional colors
+  outline: '#E5E7EB',
+  
+  // Status colors
+  lunas: '#4CAF50',
+  belumBayar: '#FF9800',
+  terlambat: '#F44336',
+};
+
+// Default Colors (backward compatibility) - will be overridden by theme context
 export const Colors = {
   primary: '#F50057',
   primaryDark: '#C51162',
@@ -7,6 +116,7 @@ export const Colors = {
   primaryContainer: '#FFCDD2',
   onPrimary: '#FFFFFF',
   onPrimaryContainer: '#8E24AA',
+  ...BaseColors,
   
   secondary: '#2196F3',
   secondaryDark: '#1976D2', 
