@@ -5,14 +5,15 @@ A sophisticated React Native application integrated with ESP32 hardware for mana
 ## 🌟 Features
 
 ### Core Features
-- 📱 **Mobile App** - Cross-platform React Native app with Expo
+- 📱 **Mobile App** - Cross-platform React Native app with Expo SDK 53
 - 🔐 **Authentication** - Firebase Auth with role-based access control
 - 💰 **Credit System** - Prepaid balance management for payments
 - 📊 **Payment Tracking** - Real-time status updates and history
 - 🌍 **Multi-language** - Indonesian and English support
-- 🌙 **Dark/Light Theme** - Automatic theme switching
+- 🎨 **Dynamic Theming** - Role-based color themes (red for admin, blue for users)
 - 📈 **Data Visualization** - Charts and analytics for payments
 - 📄 **Export Capabilities** - PDF and Excel export functionality
+- 🧩 **Custom Components** - Complete NativeBase replacement with CoreComponents
 
 ### Hardware Integration
 - 🔌 **ESP32 Integration** - Seamless hardware-software connection
@@ -36,6 +37,7 @@ A sophisticated React Native application integrated with ESP32 hardware for mana
 - Android Studio (for Android development)
 - Xcode (for iOS development - macOS only)
 - ESP32 DevKit (for hardware integration)
+- React Native CLI (optional but recommended)
 
 ### Installation
 
@@ -100,12 +102,27 @@ alfi-app/
 │   ├── firebase.js       # Firebase configuration
 │   ├── authService.js    # Authentication
 │   ├── userService.js    # Warga management
+│   ├── paymentStatusManager.js  # Advanced payment status management
 │   └── ...              # Other services
 ├── contexts/            # React Context providers
 ├── constants/           # Theme, styles, colors
+│   ├── theme.js         # Advanced theme with role-based colors
+│   ├── Colors.js        # Color definitions
+│   ├── ButtonStyles.js  # Button styling system
+│   └── CardStyles.js    # Card styling system
+├── hooks/              # Custom React hooks
+│   └── useRoleTheme.js # Role-based theming hook
 ├── utils/              # Utility functions
+├── assets/             # Static assets
+│   ├── fonts/         # Poppins font family
+│   └── images/        # Icons and illustrations
 ├── firmware/           # ESP32 firmware code
-└── testing/            # Test files and simulators
+│   ├── AlfiFirmwareR0/  # Basic ESP32 firmware
+│   ├── AlfiFirmwareR1/  # Advanced ESP32 firmware with KNN
+│   └── Testing/        # Individual component tests
+├── testing/            # Test files and simulators
+├── types/              # TypeScript definitions
+└── firebase-cleanup/   # Firebase cleanup utilities
 ```
 
 ### Authentication Flow
@@ -122,10 +139,15 @@ alfi-app/
 ### Key Components
 
 #### UI Components
-- **CoreComponents.jsx** - Native React Native components replacing NativeBase
+- **CoreComponents.jsx** - Complete NativeBase replacement with:
+  - Container, Box, VStack, HStack, Center layout components
+  - Custom Text, Heading, Button, Input form components
+  - LoadingSpinner, CustomModal, SafeArea utility components
+  - Integrated styling system with theme support
 - **PaymentModal.jsx** - Advanced payment interface with credit system
-- **ButtonStyles.js** - Comprehensive button styling system
-- **CardStyles.js** - Card component styling with status helpers
+- **ButtonStyles.js** - Comprehensive button styling system with variants
+- **CardStyles.js** - Card component styling with status-based helpers
+- **Dynamic Theming** - Role-based color adaptation throughout the app
 
 #### Services
 - **authService** - User authentication and registration
@@ -133,7 +155,14 @@ alfi-app/
 - **adminPaymentService** - Admin payment management
 - **wargaPaymentService** - Warga payment operations
 - **timelineService** - Payment timeline management
-- **paymentStatusManager** - Automatic status updates
+- **paymentStatusManager** - Advanced status management with:
+  - Smart caching system with 5-minute user throttling
+  - Background sync capabilities
+  - Event-driven notifications
+  - Payment deadline monitoring
+  - Real-time status updates
+- **seederService** - Data seeding utilities
+- **pairingService** - RFID pairing management
 
 ## 🔧 Hardware Setup
 
@@ -158,7 +187,13 @@ alfi-app/
 npm test
 
 # Test individual components
-# See firmware/Testing/ directory
+# Available in firmware/Testing/ directory:
+# - TestLCD16x2/ - LCD display testing
+# - TestRFID/ - RFID reader testing
+# - TestRTC_DS3231/ - Real-time clock testing
+# - TestRelay/ - Relay control testing
+# - TestServo/ - Servo motor testing
+# - TestTCS3200/ - Color sensor testing
 ```
 
 ## 🛠️ Development Commands
@@ -234,14 +269,43 @@ npm run reinstall     # Clean install dependencies
 ## 🎨 Customization
 
 ### Theme Configuration
+The app features a sophisticated role-based theming system:
+
+#### Role-Based Colors
 Edit `constants/theme.js`:
 ```javascript
-export const Colors = {
-  primary: '#F50057',      // Pink theme
-  primaryDark: '#C51162',
-  primaryLight: '#FF5983',
-  // ... customize colors
+export const RoleColors = {
+  bendahara: {
+    primary: '#DC2626',      // Red for admin
+    primaryDark: '#B91C1C',
+    primaryLight: '#EF4444',
+  },
+  warga: {
+    primary: '#2563EB',      // Blue for users
+    primaryDark: '#1D4ED8',
+    primaryLight: '#3B82F6',
+  }
 };
+
+// Get colors for specific role
+export function getColorsForRole(role) {
+  return RoleColors[role] || RoleColors.warga;
+}
+```
+
+#### Using Dynamic Theming
+```javascript
+import { useRoleTheme } from '../hooks/useRoleTheme';
+
+function MyComponent() {
+  const { colors } = useRoleTheme();
+  
+  return (
+    <View style={{ backgroundColor: colors.primary }}>
+      {/* Component content */}
+    </View>
+  );
+}
 ```
 
 ### App Metadata
@@ -249,27 +313,42 @@ Update `app.json`:
 ```json
 {
   "expo": {
-    "name": "Your App Name",
-    "slug": "your-app-slug",
+    "name": "Alfi App",
+    "slug": "alfi-app",
     "version": "1.0.0",
-    "icon": "./assets/your-icon.png"
+    "icon": "./assets/icon.png",
+    "scheme": "firebase-auth-template",
+    "android": {
+      "package": "com.alfi.alfiapp",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fe0bef48-816b-4494-8380-edc0f7a2c0b9"
+      }
+    }
   }
 }
 ```
 
 ### Language Support
-Add translations in language files:
-- Indonesian (default)
-- English
-- Add more languages as needed
+Built-in multi-language support:
+- **Indonesian** (default) - Primary language for Indonesian communities
+- **English** - Secondary language support
+- Managed through SettingsContext
+- Extensible for additional languages
 
 ## 🔒 Security
 
 - Firebase Authentication for secure user management
-- Role-based access control (RBAC)
+- Role-based access control (RBAC) with automatic bendahara detection
 - Environment variables for sensitive configuration
 - Secure RFID pairing with session management
-- No hardcoded credentials or API keys
+- No hardcoded credentials or API keys in source code
+- **Note**: Ensure Firebase service account keys are properly secured and not committed to version control
 
 ## 📱 Screenshots
 
