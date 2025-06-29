@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     );
   };
 
-  const loadUserProfile = async (user) => {
+  const loadUserProfile = async (user, retryCount = 0) => {
     if (!user) {
       setUserProfile(null);
       setIsAdmin(false);
@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
         const bendaharaStatus = checkBendaharaStatus(user, result.profile);
         setIsAdmin(bendaharaStatus);
         setUserProfile(result.profile);
+        console.log("User profile loaded successfully");
 
         if (!bendaharaStatus && result.profile.role === "user") {
           try {
@@ -68,6 +69,15 @@ export const AuthProvider = ({ children }) => {
           }
         }
       } else {
+        console.warn("Failed to load user profile:", result.error);
+        
+        // Retry once after 2 seconds if first attempt fails
+        if (retryCount === 0) {
+          console.log("Retrying profile load in 2 seconds...");
+          setTimeout(() => loadUserProfile(user, 1), 2000);
+          return;
+        }
+        
         const bendaharaStatus = checkBendaharaStatus(user, null);
         setIsAdmin(bendaharaStatus);
 
@@ -89,12 +99,19 @@ export const AuthProvider = ({ children }) => {
             );
           }
         } else {
-          console.warn("Failed to load user profile:", result.error);
           setUserProfile(null);
         }
       }
     } catch (error) {
       console.error("Error loading user profile:", error);
+      
+      // Retry once if network error
+      if (retryCount === 0) {
+        console.log("Retrying profile load due to error...");
+        setTimeout(() => loadUserProfile(user, 1), 2000);
+        return;
+      }
+      
       const bendaharaStatus = checkBendaharaStatus(user, null);
       setIsAdmin(bendaharaStatus);
 
@@ -122,7 +139,7 @@ export const AuthProvider = ({ children }) => {
     let unsubscribe = null;
     let mounted = true;
 
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       if (!auth) {
         console.warn("Firebase Auth not available, using fallback");
         if (mounted) {
@@ -136,13 +153,23 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
+        // Check if user is already signed in
+        const currentUser = auth.currentUser;
+        if (currentUser && mounted) {
+          console.log("Found existing authenticated user:", currentUser.email);
+          setCurrentUser(currentUser);
+          await loadUserProfile(currentUser);
+          setLoading(false);
+          setAuthInitialized(true);
+        }
+
         unsubscribe = onAuthStateChanged(
           auth,
           async (user) => {
             if (mounted) {
               console.log(
                 "Auth state changed:",
-                user ? "User logged in" : "User logged out"
+                user ? `User logged in: ${user.email}` : "User logged out"
               );
               setCurrentUser(user);
               await loadUserProfile(user);
@@ -153,22 +180,18 @@ export const AuthProvider = ({ children }) => {
           (error) => {
             console.error("Auth state change error:", error);
             if (mounted) {
-              setCurrentUser(null);
-              setUserProfile(null);
+              // Don't clear user on error, just mark as initialized
               setLoading(false);
               setAuthInitialized(true);
-              setIsAdmin(false);
             }
           }
         );
       } catch (error) {
         console.error("Failed to initialize auth listener:", error);
         if (mounted) {
-          setCurrentUser(null);
-          setUserProfile(null);
+          // Don't clear user on initialization error
           setLoading(false);
           setAuthInitialized(true);
-          setIsAdmin(false);
         }
       }
     };
@@ -176,13 +199,11 @@ export const AuthProvider = ({ children }) => {
     const timeoutId = setTimeout(() => {
       if (mounted && loading && !authInitialized) {
         console.warn("Auth initialization timeout, proceeding anyway");
-        setCurrentUser(null);
-        setUserProfile(null);
+        // Don't clear user on timeout, just mark as initialized
         setLoading(false);
         setAuthInitialized(true);
-        setIsAdmin(false);
       }
-    }, 5000);
+    }, 10000); // Increase timeout to 10 seconds
 
     initializeAuth();
 
