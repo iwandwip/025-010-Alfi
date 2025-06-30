@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Colors } from "../constants/theme";
+import { Colors } from "../constants/Colors";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: Colors.white,
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
   },
 });
 

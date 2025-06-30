@@ -1,28 +1,24 @@
 import React, { useState } from "react";
 import {
   View,
+  Text,
   StyleSheet,
+  SafeAreaView,
   Alert,
+  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
-import { MaterialIcons } from '@expo/vector-icons';
-import { Shadows } from '../../constants/theme';
-import { useRoleTheme } from '../../hooks/useRoleTheme';
+import { getThemeByRole } from "../../constants/Colors";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function TambahWarga() {
-  const { colors } = useRoleTheme();
-  const styles = createStyles(colors);
   const [formData, setFormData] = useState({
     emailWarga: "",
     passwordWarga: "",
@@ -33,7 +29,8 @@ export default function TambahWarga() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  // Using custom theme from constants
+  const { userProfile } = useAuth();
+  const colors = getThemeByRole(true); // Admin theme
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -44,13 +41,6 @@ export default function TambahWarga() {
       Alert.alert("Error", "Email warga wajib diisi");
       return false;
     }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.emailWarga.trim())) {
-      Alert.alert("Error", "Format email tidak valid");
-      return false;
-    }
-    
     if (!formData.passwordWarga.trim()) {
       Alert.alert("Error", "Password warga wajib diisi");
       return false;
@@ -64,7 +54,7 @@ export default function TambahWarga() {
       return false;
     }
     if (!formData.alamat.trim()) {
-      Alert.alert("Error", "Alamat warga wajib diisi");
+      Alert.alert("Error", "Alamat wajib diisi");
       return false;
     }
     if (!formData.noHpWarga.trim()) {
@@ -119,27 +109,20 @@ export default function TambahWarga() {
   };
 
   return (
-    <LinearGradient
-      colors={[colors.primaryContainer, colors.background]}
-      style={[styles.container, { paddingTop: insets.top }]}
-    >
-      <View style={[styles.header, Shadows.md]}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          Tambah Data Warga
-        </Text>
-        <View style={styles.placeholder} />
-      </View>
-
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>← Kembali</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Tambah Data Warga</Text>
+        </View>
 
         <ScrollView
           style={styles.scrollView}
@@ -150,82 +133,60 @@ export default function TambahWarga() {
           ]}
         >
           <View style={styles.content}>
-            {/* Header Card */}
-            <View style={[styles.headerCard, Shadows.md]}>
-              <View style={styles.headerCardContent}>
-                <View style={[styles.headerIcon, { backgroundColor: colors.primary }]}>
-                  <MaterialIcons name="person-add" size={32} color={colors.onPrimary} />
-                </View>
-                <View style={styles.headerCardInfo}>
-                  <Text style={[styles.headerCardTitle, { fontWeight: 'bold' }]}>
-                    Form Data Warga
-                  </Text>
-                  <Text style={[styles.headerCardSubtitle, { color: colors.onSurfaceVariant }]}>
-                    Tambah warga baru ke sistem
-                  </Text>
-                </View>
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { borderBottomColor: colors.primary }]}>Data Warga</Text>
+
+              <Input
+                label="Nama Warga"
+                placeholder="Masukkan nama lengkap warga"
+                value={formData.namaWarga}
+                onChangeText={(value) => updateForm("namaWarga", value)}
+                autoCapitalize="words"
+              />
+
+              <View style={[styles.infoBox, { backgroundColor: colors.accent }]}>
+                <Text style={[styles.infoText, { color: colors.primaryDark }]}>
+                  ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu
+                  Daftar Warga
+                </Text>
               </View>
             </View>
 
-            <View style={[styles.formCard, { borderWidth: 1, borderColor: colors.outline }]}>
-              <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: colors.primary }]}>Data Warga</Text>
-                <View style={[styles.divider, { backgroundColor: colors.outline }]} />
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { borderBottomColor: colors.primary }]}>Data Warga</Text>
 
-                <Input
-                  label="Nama Warga"
-                  placeholder="Masukkan nama lengkap warga"
-                  value={formData.namaWarga}
-                  onChangeText={(value) => updateForm("namaWarga", value)}
-                  autoCapitalize="words"
-                />
+              <Input
+                label="Alamat"
+                placeholder="Masukkan alamat warga"
+                value={formData.alamat}
+                onChangeText={(value) => updateForm("alamat", value)}
+                autoCapitalize="words"
+              />
 
-                <Input
-                  label="Alamat"
-                  placeholder="Masukkan alamat lengkap"
-                  value={formData.alamat}
-                  onChangeText={(value) => updateForm("alamat", value)}
-                  autoCapitalize="words"
-                />
+              <Input
+                label="No HP Warga"
+                placeholder="Masukkan nomor HP warga"
+                value={formData.noHpWarga}
+                onChangeText={(value) => updateForm("noHpWarga", value)}
+                keyboardType="phone-pad"
+              />
 
-                <View style={[styles.infoCard, { backgroundColor: colors.primaryContainer }]}>
-                  <Text style={[styles.infoText, { color: colors.onPrimaryContainer }]}>
-                    ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu Daftar Warga
-                  </Text>
-                </View>
-              </View>
+              <Input
+                label="Email Warga"
+                placeholder="Masukkan email untuk login warga"
+                value={formData.emailWarga}
+                onChangeText={(value) => updateForm("emailWarga", value)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
 
-              <View style={[styles.divider, { backgroundColor: colors.outline, marginVertical: 16 }]} />
-
-              <View style={styles.section}>
-                <Text style={[styles.sectionTitle, { color: colors.primary }]}>Data Akun Warga</Text>
-                <View style={[styles.divider, { backgroundColor: colors.outline }]} />
-
-                <Input
-                  label="No HP Warga"
-                  placeholder="Masukkan nomor HP warga"
-                  value={formData.noHpWarga}
-                  onChangeText={(value) => updateForm("noHpWarga", value)}
-                  keyboardType="phone-pad"
-                />
-
-                <Input
-                  label="Email Warga"
-                  placeholder="Masukkan email untuk login warga"
-                  value={formData.emailWarga}
-                  onChangeText={(value) => updateForm("emailWarga", value)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-
-                <Input
-                  label="Password Warga"
-                  placeholder="Buat password warga"
-                  value={formData.passwordWarga}
-                  onChangeText={(value) => updateForm("passwordWarga", value)}
-                  secureTextEntry
-                />
-              </View>
+              <Input
+                label="Password Warga"
+                placeholder="Buat password untuk warga (min. 6 karakter)"
+                value={formData.passwordWarga}
+                onChangeText={(value) => updateForm("passwordWarga", value)}
+                secureTextEntry
+              />
             </View>
 
             <Button
@@ -237,108 +198,71 @@ export default function TambahWarga() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </SafeAreaView>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    justifyContent: 'space-between',
-    backgroundColor: colors.surface,
-  },
-  backButton: {
-    padding: 8,
-    borderRadius: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    flex: 1,
-    textAlign: 'center',
-    color: colors.text,
-  },
-  placeholder: {
-    width: 48,
+    backgroundColor: "#f8fafc",
   },
   keyboardContainer: {
     flex: 1,
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+    backgroundColor: "#fff",
+  },
+  backButton: {
+    alignSelf: "flex-start",
+    marginBottom: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1e293b",
+    textAlign: "center",
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    paddingHorizontal: 24,
     paddingVertical: 24,
   },
   content: {
     flex: 1,
   },
-  headerCard: {
-    borderRadius: 16,
-    marginBottom: 16,
-    backgroundColor: colors.surface,
-    padding: 20,
-  },
-  headerCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  headerCardInfo: {
-    flex: 1,
-  },
-  headerIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerCardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  headerCardSubtitle: {
-    fontSize: 14,
-  },
-  formCard: {
-    borderRadius: 16,
-    marginBottom: 16,
-    backgroundColor: colors.surface,
-    padding: 20,
-  },
   section: {
-    marginBottom: 16,
+    marginBottom: 32,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
   },
-  infoCard: {
-    borderRadius: 12,
-    marginTop: 8,
+  infoBox: {
     padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
   },
   infoText: {
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 14,
+    lineHeight: 20,
   },
   simpanButton: {
-    marginTop: 8,
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 32,
   },
 });

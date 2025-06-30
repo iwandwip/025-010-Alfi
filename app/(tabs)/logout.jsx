@@ -1,14 +1,11 @@
-import { useEffect } from "react";
-import { useRouter } from "expo-router";
+import React from "react";
+import { View, Text } from "react-native";
 
-export default function LogoutScreen() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // This screen should never actually render since we handle logout in the tab press
-    // But if it does, redirect back to profile
-    router.replace("/(tabs)/profile");
-  }, []);
-
-  return null;
+// This page should never be reached as the tab press is intercepted
+export default function LogoutPage() {
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Text>Loading...</Text>
+    </View>
+  );
 }

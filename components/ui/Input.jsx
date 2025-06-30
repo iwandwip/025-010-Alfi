@@ -1,11 +1,14 @@
-import React from "react";
-import { View, TextInput, Text, TouchableOpacity } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import React, { useState } from "react";
+import {
+  View,
+  TextInput,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { Colors, getThemeByRole } from "../../constants/Colors";
+import { useAuth } from "../../contexts/AuthContext";
 
-/**
- * Custom Input component with Material Design styling
- * Maintains compatibility with existing Input usage
- */
 const Input = ({
   label,
   placeholder,
@@ -18,117 +21,111 @@ const Input = ({
   style,
   multiline = false,
   numberOfLines,
-  mode = "outlined",
   ...props
 }) => {
-  const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
-  const [isFocused, setIsFocused] = React.useState(false);
+  const { isAdmin } = useAuth();
+  const theme = getThemeByRole(isAdmin);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
-  const getInputStyle = () => {
+  const getInputContainerStyle = () => {
     const baseStyle = {
-      fontSize: 16,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      borderRadius: 8,
+      flexDirection: "row",
+      alignItems: "center",
       borderWidth: 1,
-      backgroundColor: '#FFFFFF',
-      height: 48,
+      borderColor: theme.gray300,
+      borderRadius: 8,
+      backgroundColor: theme.white,
+      minHeight: 48,
     };
 
     if (error) {
-      return {
-        ...baseStyle,
-        borderColor: '#F44336',
-      };
+      return { ...baseStyle, borderColor: theme.error };
     }
-
     if (isFocused) {
-      return {
-        ...baseStyle,
-        borderColor: '#F50057',
-      };
+      return { ...baseStyle, borderColor: theme.primary };
+    }
+    if (multiline) {
+      return { ...baseStyle, alignItems: "flex-start", minHeight: 80 };
     }
 
-    return {
-      ...baseStyle,
-      borderColor: '#E0E0E0',
-    };
+    return baseStyle;
   };
 
   return (
     <View style={[{ marginBottom: 16 }, style]}>
       {label && (
-        <Text style={{
-          fontSize: 14,
-          fontWeight: '500',
-          color: '#333',
-          marginBottom: 8,
-        }}>
+        <Text
+          style={{
+            fontSize: 14,
+            fontWeight: "500",
+            color: theme.gray700,
+            marginBottom: 8,
+          }}
+        >
           {label}
         </Text>
       )}
-      
-      <View style={{ position: 'relative' }}>
+      <View style={getInputContainerStyle()}>
         <TextInput
+          style={{
+            flex: 1,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            fontSize: 16,
+            color: theme.gray900,
+            textAlignVertical: multiline ? "top" : "center",
+          }}
           placeholder={placeholder}
-          placeholderTextColor="#999"
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
-          multiline={multiline}
-          numberOfLines={numberOfLines}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          style={[
-            getInputStyle(),
-            secureTextEntry ? { paddingRight: 56 } : {},
-            multiline ? { textAlignVertical: 'top', height: 'auto', minHeight: 48 } : {},
-          ]}
+          placeholderTextColor={theme.gray400}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
+          blurOnSubmit={!multiline}
+          returnKeyType={multiline ? "default" : "done"}
+          autoCorrect={false}
+          spellCheck={false}
           {...props}
         />
-        
         {secureTextEntry && (
           <TouchableOpacity
-            onPress={togglePasswordVisibility}
             style={{
-              position: 'absolute',
-              right: 12,
-              top: 0,
-              bottom: 0,
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: 32,
-              height: 48,
+              paddingHorizontal: 16,
+              paddingVertical: 12,
             }}
+            onPress={togglePasswordVisibility}
+            activeOpacity={0.7}
           >
-            <MaterialIcons
-              name={isPasswordVisible ? "visibility" : "visibility-off"}
-              size={20}
-              color="#666"
-            />
+            <Text style={{ fontSize: 16 }}>
+              {isPasswordVisible ? "👁️" : "🙈"}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
-      
       {error && (
-        <Text style={{
-          fontSize: 12,
-          color: '#F44336',
-          marginTop: 6,
-          marginLeft: 4,
-          lineHeight: 16,
-        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: theme.error,
+            marginTop: 4,
+          }}
+        >
           {error}
         </Text>
       )}
     </View>
   );
 };
+
 
 export default Input;

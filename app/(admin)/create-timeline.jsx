@@ -10,11 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRoleTheme } from "../../hooks/useRoleTheme";
-import { Shadows, Spacing, Typography, BorderRadius } from '../../constants/theme';
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import TimelinePicker from "../../components/ui/TimelinePicker";
@@ -41,10 +38,8 @@ export default function CreateTimeline() {
     saveAsTemplate: false,
   });
   const [loading, setLoading] = useState(false);
-  const { colors } = useRoleTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const styles = createStyles(colors);
 
   useEffect(() => {
     loadTemplates();
@@ -289,7 +284,7 @@ export default function CreateTimeline() {
 
       Alert.alert(
         "Berhasil",
-        "Timeline berhasil dibuat dan setoran sudah digenerate untuk semua warga!",
+        "Timeline berhasil dibuat dan pembayaran sudah digenerate untuk semua warga!",
         [
           {
             text: "OK",
@@ -428,15 +423,12 @@ export default function CreateTimeline() {
   };
 
   return (
-    <LinearGradient
-      colors={[colors.primaryContainer, colors.background]}
-      style={[styles.container, { paddingTop: insets.top }]}
-    >
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
-        <View style={[styles.header, { backgroundColor: colors.surface }]}>
+        <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -475,7 +467,7 @@ export default function CreateTimeline() {
                         {
                           getTimelineTypes().find(
                             (t) => t.value === template.type
-                          )?.label || 'Unknown Type'
+                          )?.label
                         }{" "}
                         - {template.duration} periode
                       </Text>
@@ -486,7 +478,7 @@ export default function CreateTimeline() {
 
               <Input
                 label="Nama Timeline"
-                placeholder="Contoh: Jimpitan Reguler 2024"
+                placeholder="Contoh: Jimpitan Bulanan 2024"
                 value={formData.name}
                 onChangeText={(value) => updateFormData("name", value)}
               />
@@ -516,8 +508,8 @@ export default function CreateTimeline() {
               </View>
 
               <Input
-                label={`Durasi (${getSelectedType()?.unit || 'periode'})`}
-                placeholder={`Masukkan jumlah ${getSelectedType()?.unit?.toLowerCase() || 'periode'}`}
+                label={`Durasi (${getSelectedType()?.unit})`}
+                placeholder={`Masukkan jumlah ${getSelectedType()?.unit.toLowerCase()}`}
                 value={formData.duration.toString()}
                 onChangeText={handleDurationChange}
                 keyboardType="numeric"
@@ -546,11 +538,11 @@ export default function CreateTimeline() {
               </View>
 
               <TimelinePicker
-                label={`Waktu Mulai Timeline (${getSelectedType()?.label || 'Timeline'})`}
+                label={`Waktu Mulai Timeline (${getSelectedType()?.label})`}
                 value={formData.startDate}
                 onChange={(value) => updateFormData("startDate", value)}
                 timelineType={formData.type}
-                placeholder={`Pilih waktu mulai ${getSelectedType()?.label?.toLowerCase() || 'timeline'}`}
+                placeholder={`Pilih waktu mulai ${getSelectedType()?.label.toLowerCase()}`}
               />
 
               <View style={styles.timelineRangeInfo}>
@@ -616,7 +608,7 @@ export default function CreateTimeline() {
                 <View style={styles.manualModeSection}>
                   <TimelinePicker
                     label={`Simulasi Waktu Sekarang (${
-                      getSelectedType()?.label || 'Timeline'
+                      getSelectedType()?.label
                     })`}
                     value={formData.simulationDate}
                     onChange={(value) =>
@@ -649,7 +641,7 @@ export default function CreateTimeline() {
                 <Text style={styles.infoText}>
                   {formData.mode === "realtime"
                     ? "ℹ️ Mode real-time akan menggunakan tanggal sekarang untuk menghitung status terlambat"
-                    : `ℹ️ Mode manual memungkinkan Anda mengatur waktu simulasi dengan presisi ${getSelectedType()?.label?.toLowerCase() || 'timeline'} dalam range timeline untuk testing dan demo`}
+                    : `ℹ️ Mode manual memungkinkan Anda mengatur waktu simulasi dengan presisi ${getSelectedType()?.label.toLowerCase()} dalam range timeline untuk testing dan demo`}
                 </Text>
               </View>
             </View>
@@ -696,7 +688,7 @@ export default function CreateTimeline() {
                 <View style={styles.summaryRow}>
                   <Text style={styles.summaryLabel}>Tipe:</Text>
                   <Text style={styles.summaryValue}>
-                    {getSelectedType()?.label || 'Unknown Type'}
+                    {getSelectedType()?.label}
                   </Text>
                 </View>
 
@@ -793,14 +785,14 @@ export default function CreateTimeline() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </SafeAreaView>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#f8fafc",
   },
   keyboardContainer: {
     flex: 1,
@@ -809,8 +801,8 @@ const createStyles = (colors) => StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "colors.border",
-    backgroundColor: colors.surface,
+    borderBottomColor: "#e2e8f0",
+    backgroundColor: "#fff",
   },
   backButton: {
     alignSelf: "flex-start",
@@ -818,13 +810,13 @@ const createStyles = (colors) => StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "colors.primary",
-    fontWeight: 500,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 600,
-    color: "colors.text",
+    fontWeight: "600",
+    color: "#1e293b",
     textAlign: "center",
   },
   stepIndicator: {
@@ -832,25 +824,25 @@ const createStyles = (colors) => StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 20,
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
   },
   stepDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "colors.border",
+    backgroundColor: "#e2e8f0",
   },
   stepDotActive: {
-    backgroundColor: "colors.primary",
+    backgroundColor: "#3b82f6",
   },
   stepLine: {
     width: 30,
     height: 2,
-    backgroundColor: "colors.border",
+    backgroundColor: "#e2e8f0",
     marginHorizontal: 6,
   },
   stepLineActive: {
-    backgroundColor: "colors.primary",
+    backgroundColor: "#3b82f6",
   },
   content: {
     flex: 1,
@@ -861,8 +853,8 @@ const createStyles = (colors) => StyleSheet.create({
   },
   stepTitle: {
     fontSize: 24,
-    fontWeight: 600,
-    color: "colors.text",
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 24,
     textAlign: "center",
   },
@@ -871,35 +863,35 @@ const createStyles = (colors) => StyleSheet.create({
   },
   templatesTitle: {
     fontSize: 16,
-    fontWeight: 500,
-    color: "colors.text",
+    fontWeight: "500",
+    color: "#374151",
     marginBottom: 12,
   },
   templateCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: "colors.border",
+    borderColor: "#e2e8f0",
   },
   templateName: {
     fontSize: 14,
-    fontWeight: 600,
-    color: "colors.text",
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 4,
   },
   templateDetails: {
     fontSize: 12,
-    color: "colors.textSecondary",
+    color: "#64748b",
   },
   fieldGroup: {
     marginBottom: 16,
   },
   fieldLabel: {
     fontSize: 14,
-    fontWeight: 500,
-    color: "colors.text",
+    fontWeight: "500",
+    color: "#374151",
     marginBottom: 8,
   },
   typeButton: {
@@ -907,26 +899,26 @@ const createStyles = (colors) => StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "colors.border",
-    backgroundColor: colors.surface,
+    borderColor: "#e2e8f0",
+    backgroundColor: "#fff",
     marginBottom: 8,
   },
   typeButtonActive: {
-    borderColor: "colors.primary",
-    backgroundColor: "colors.primaryContainer",
+    borderColor: "#3b82f6",
+    backgroundColor: "#dbeafe",
   },
   typeButtonText: {
     fontSize: 14,
-    color: "colors.text",
+    color: "#374151",
     textAlign: "center",
-    fontWeight: 600,
+    fontWeight: "600",
   },
   typeButtonTextActive: {
-    color: "colors.primary",
+    color: "#3b82f6",
   },
   typeButtonDesc: {
     fontSize: 12,
-    color: "colors.textSecondary",
+    color: "#64748b",
     textAlign: "center",
     marginTop: 4,
   },
@@ -939,24 +931,24 @@ const createStyles = (colors) => StyleSheet.create({
   calculationText: {
     fontSize: 14,
     color: "#0369a1",
-    fontWeight: 500,
+    fontWeight: "500",
   },
   timelineRangeInfo: {
-    backgroundColor: "colors.successContainer",
+    backgroundColor: "#ecfdf5",
     padding: 12,
     borderRadius: 8,
     marginTop: 8,
   },
   timelineRangeLabel: {
     fontSize: 12,
-    color: "colors.success",
-    fontWeight: 500,
+    color: "#047857",
+    fontWeight: "500",
     marginBottom: 4,
   },
   timelineRangeValue: {
     fontSize: 14,
-    color: "colors.success",
-    fontWeight: 600,
+    color: "#047857",
+    fontWeight: "600",
   },
   manualModeSection: {
     marginTop: 16,
@@ -969,45 +961,45 @@ const createStyles = (colors) => StyleSheet.create({
   simulationPreview: {
     marginTop: 12,
     padding: 12,
-    backgroundColor: "colors.primaryContainer",
+    backgroundColor: "#dbeafe",
     borderRadius: 8,
   },
   simulationPreviewLabel: {
     fontSize: 12,
-    color: "colors.primary",
-    fontWeight: 500,
+    color: "#1e40af",
+    fontWeight: "500",
     marginBottom: 4,
   },
   simulationPreviewValue: {
     fontSize: 14,
-    color: "colors.primary",
-    fontWeight: 600,
+    color: "#1e40af",
+    fontWeight: "600",
   },
   rangeInfoBox: {
     marginTop: 12,
     padding: 10,
-    backgroundColor: "colors.successContainer",
+    backgroundColor: "#ecfdf5",
     borderRadius: 6,
   },
   rangeInfoText: {
     fontSize: 12,
-    color: "colors.success",
+    color: "#047857",
     textAlign: "center",
   },
   infoBox: {
-    backgroundColor: "colors.primaryContainer",
+    backgroundColor: "#dbeafe",
     padding: 12,
     borderRadius: 8,
     marginTop: 16,
   },
   infoText: {
     fontSize: 14,
-    color: "colors.primary",
+    color: "#1e40af",
     lineHeight: 20,
   },
   periodInstructions: {
     fontSize: 14,
-    color: "colors.textSecondary",
+    color: "#64748b",
     marginBottom: 16,
     textAlign: "center",
   },
@@ -1021,54 +1013,54 @@ const createStyles = (colors) => StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 8,
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "colors.border",
+    borderColor: "#e2e8f0",
     alignItems: "center",
     justifyContent: "center",
   },
   periodButtonHoliday: {
-    backgroundColor: "colors.warningContainer",
-    borderColor: "colors.warning",
+    backgroundColor: "#fef3c7",
+    borderColor: "#f59e0b",
   },
   periodButtonText: {
     fontSize: 14,
-    fontWeight: 500,
-    color: "colors.text",
+    fontWeight: "500",
+    color: "#374151",
   },
   periodButtonTextHoliday: {
-    color: "colors.warning",
+    color: "#92400e",
   },
   holidaySummary: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "colors.border",
+    borderColor: "#e2e8f0",
   },
   holidayText: {
     fontSize: 14,
-    color: "colors.text",
+    color: "#374151",
     marginBottom: 4,
   },
   amountPerPeriod: {
     fontSize: 16,
-    fontWeight: 600,
-    color: "colors.success",
+    fontWeight: "600",
+    color: "#059669",
     marginTop: 8,
   },
   summaryCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
     borderWidth: 1,
-    borderColor: "colors.border",
+    borderColor: "#e2e8f0",
     marginBottom: 24,
   },
   summaryTitle: {
     fontSize: 18,
-    fontWeight: 600,
-    color: "colors.text",
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 16,
     textAlign: "center",
   },
@@ -1078,32 +1070,32 @@ const createStyles = (colors) => StyleSheet.create({
     alignItems: "flex-start",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "colors.borderLight",
+    borderBottomColor: "#f1f5f9",
   },
   summaryLabel: {
     fontSize: 14,
-    color: "colors.textSecondary",
-    fontWeight: 500,
+    color: "#64748b",
+    fontWeight: "500",
     flex: 1,
   },
   summaryValue: {
     fontSize: 14,
-    color: "colors.text",
-    fontWeight: 600,
+    color: "#1e293b",
+    fontWeight: "600",
     flex: 1.5,
     textAlign: "right",
   },
   templateToggle: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "colors.border",
+    borderColor: "#e2e8f0",
     marginBottom: 24,
   },
   templateToggleText: {
     fontSize: 14,
-    color: "colors.text",
+    color: "#374151",
     textAlign: "center",
   },
   navigationButtons: {
@@ -1113,14 +1105,14 @@ const createStyles = (colors) => StyleSheet.create({
   },
   prevButton: {
     flex: 1,
-    borderColor: "colors.textSecondary",
+    borderColor: "#64748b",
   },
   nextButton: {
     flex: 1,
-    backgroundColor: "colors.primary",
+    backgroundColor: "#3b82f6",
   },
   createButton: {
     flex: 1,
-    backgroundColor: "colors.success",
+    backgroundColor: "#10b981",
   },
 });

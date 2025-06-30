@@ -28,10 +28,9 @@ export const AuthProvider = ({ children }) => {
   const [authInitialized, setAuthInitialized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkBendaharaStatus = (user, profile) => {
+  const checkAdminStatus = (user, profile) => {
     return (
-      user?.email === "bendahara@gmail.com" ||
-      profile?.role === "bendahara" ||
+      user?.email === "admin@gmail.com" ||
       profile?.role === "admin" ||
       profile?.isAdmin
     );
@@ -47,46 +46,37 @@ export const AuthProvider = ({ children }) => {
     try {
       const result = await getUserProfile(user.uid);
       if (result.success) {
-        const bendaharaStatus = checkBendaharaStatus(user, result.profile);
-        setIsAdmin(bendaharaStatus);
+        const adminStatus = checkAdminStatus(user, result.profile);
+        setIsAdmin(adminStatus);
         setUserProfile(result.profile);
         console.log("User profile loaded successfully");
 
-        if (!bendaharaStatus && result.profile.role === "user") {
+        if (!adminStatus && result.profile.role === "user") {
           try {
             await paymentStatusManager.handleUserLogin(user.uid);
           } catch (error) {
             console.warn("Error during payment status update on login:", error);
           }
-        } else if (bendaharaStatus) {
+        } else if (adminStatus) {
           try {
             await paymentStatusManager.handleUserLogin(null);
           } catch (error) {
             console.warn(
-              "Error during bendahara payment status update on login:",
+              "Error during admin payment status update on login:",
               error
             );
           }
         }
       } else {
-        console.warn("Failed to load user profile:", result.error);
-        
-        // Retry once after 2 seconds if first attempt fails
-        if (retryCount === 0) {
-          console.log("Retrying profile load in 2 seconds...");
-          setTimeout(() => loadUserProfile(user, 1), 2000);
-          return;
-        }
-        
-        const bendaharaStatus = checkBendaharaStatus(user, null);
-        setIsAdmin(bendaharaStatus);
+        const adminStatus = checkAdminStatus(user, null);
+        setIsAdmin(adminStatus);
 
-        if (bendaharaStatus) {
+        if (adminStatus) {
           setUserProfile({
             id: user.uid,
             email: user.email,
             name: "Admin",
-            role: "bendahara",
+            role: "admin",
             isAdmin: true,
           });
 
@@ -94,28 +84,28 @@ export const AuthProvider = ({ children }) => {
             await paymentStatusManager.handleUserLogin(null);
           } catch (error) {
             console.warn(
-              "Error during bendahara payment status update on login:",
+              "Error during admin payment status update on login:",
               error
             );
           }
         } else {
-          setUserProfile(null);
+          console.warn("Failed to load user profile:", result.error);
+          
+          // Retry once after 2 seconds if first attempt fails
+          if (retryCount === 0) {
+            console.log("Retrying profile load in 2 seconds...");
+            setTimeout(() => loadUserProfile(user, 1), 2000);
+          } else {
+            setUserProfile(null);
+          }
         }
       }
     } catch (error) {
       console.error("Error loading user profile:", error);
-      
-      // Retry once if network error
-      if (retryCount === 0) {
-        console.log("Retrying profile load due to error...");
-        setTimeout(() => loadUserProfile(user, 1), 2000);
-        return;
-      }
-      
-      const bendaharaStatus = checkBendaharaStatus(user, null);
-      setIsAdmin(bendaharaStatus);
+      const adminStatus = checkAdminStatus(user, null);
+      setIsAdmin(adminStatus);
 
-      if (bendaharaStatus) {
+      if (adminStatus) {
         setUserProfile({
           id: user.uid,
           email: user.email,
@@ -124,7 +114,13 @@ export const AuthProvider = ({ children }) => {
           isAdmin: true,
         });
       } else {
-        setUserProfile(null);
+        // Retry once if network error
+        if (retryCount === 0) {
+          console.log("Retrying profile load due to error...");
+          setTimeout(() => loadUserProfile(user, 1), 2000);
+        } else {
+          setUserProfile(null);
+        }
       }
     }
   };

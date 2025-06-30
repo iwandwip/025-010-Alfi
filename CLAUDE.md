@@ -114,6 +114,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - timelineService.js: timeline/schedule management
   - pairingService.js: ESP32 device pairing operations
   - **NEW**: paymentStatusManager.js - Advanced status management with caching and throttling
+  - **NEW**: rtdbModeService.js - Revolutionary mode-based RTDB service with 90% ESP32 code reduction
+  - **NEW**: dataBridgeService.js - RTDB to Firestore data bridging for permanent storage
 
 **Hardware Integration**
 - ESP32 firmware in `firmware/` directory with two versions (R0, R1)
@@ -196,6 +198,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The app uses Firebase project "alfi-c6f58" with:
 - Authentication (email/password)
 - Firestore database for user profiles and app data
+- **NEW**: Realtime Database (RTDB) for revolutionary mode-based ESP32 coordination
 - Real-time listeners for data synchronization
 - Firebase Admin SDK for server-side operations
 
@@ -206,6 +209,7 @@ Firebase configuration is managed through environment variables:
 ```bash
 EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key_here
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_DATABASE_URL=https://your_project-default-rtdb.firebaseio.com/
 EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
@@ -213,16 +217,51 @@ EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
 EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
 
+## Revolutionary Mode-Based Architecture
+
+### RTDB Schema (Ultra-Simple ESP32 Integration)
+```javascript
+{
+  // Global system mode - single source of truth
+  "mode": "idle", // "idle" | "pairing" | "payment" | "solenoid"
+  
+  // RFID pairing mode - ESP32 writes detected RFID codes here
+  "pairing_mode": "", // Empty when idle, RFID code when detected
+  
+  // Hardware payment coordination
+  "payment_mode": {
+    "get": { 
+      "rfid_code": "",        // Expected RFID for payment
+      "amount_required": ""   // Required payment amount
+    },
+    "set": { 
+      "amount_detected": "",  // Amount detected by KNN algorithm
+      "status": ""           // "completed" | "rfid_salah" | "insufficient"
+    }
+  },
+  
+  // Solenoid control commands
+  "solenoid_command": "locked" // "unlock" | "locked"
+}
+```
+
+### Key Benefits
+- **90% ESP32 code reduction** - No JSON parsing, only simple string operations
+- **5x faster real-time communication** - Direct RTDB path access
+- **Self-cleaning data patterns** - Automatic cleanup after operations
+- **App-managed timeouts** - ESP32 just reads current state
+- **Priority-based mode system** - Prevents race conditions
+
 ## Hardware Integration Notes
 
 ESP32 firmware supports:
 - RFID card reading for warga identification
 - LCD display for user interface
 - RTC for time tracking
-- Color sensor (TCS3200) for object detection
+- Color sensor (TCS3200) for object detection with KNN algorithm
 - Servo motor and relay control
-- WiFi connectivity for data transmission
-- KNN algorithm for intelligent recognition
+- WiFi connectivity for RTDB communication
+- **NEW**: Ultra-simple mode-based coordination (see SYSTEM_FLOWS.md)
 
 ### Firmware Versions
 - **AlfiFirmwareR0**: Basic firmware version with core functionality

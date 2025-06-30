@@ -35,12 +35,11 @@ export const createUserProfile = async (uid, profileData) => {
       updatedAt: new Date()
     };
 
-    if (profileData.role === 'bendahara' || profileData.role === 'admin') {
+    if (profileData.role === 'admin') {
       userProfile.nama = profileData.nama;
       userProfile.noHp = profileData.noHp;
     } else if (profileData.role === 'user') {
       userProfile.namaWarga = profileData.namaWarga;
-      userProfile.alamat = profileData.alamat;
       userProfile.noHpWarga = profileData.noHpWarga;
       userProfile.rfidWarga = profileData.rfidWarga || "";
     }
@@ -123,13 +122,9 @@ export const getAllWarga = async () => {
     
     const wargaList = [];
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
       wargaList.push({
         id: doc.id,
-        ...data,
-        namaWarga: data.namaWarga,
-        noHpWarga: data.noHpWarga,
-        rfidWarga: data.rfidWarga
+        ...doc.data()
       });
     });
 
@@ -198,7 +193,7 @@ export const deleteWarga = async (wargaId) => {
     const userData = userDoc.data();
     
     if (userData.deleted) {
-      throw new Error('Warga sudah dihapus sebelumnya');
+      throw new Error('Santri sudah dihapus sebelumnya');
     }
 
     await deleteDoc(userRef);
@@ -245,7 +240,7 @@ export const restoreWarga = async (wargaId) => {
   }
 };
 
-export const getDeletedWarga = async () => {
+export const getDeletedSantri = async () => {
   try {
     if (!db) {
       return { success: true, data: [] };
@@ -259,22 +254,21 @@ export const getDeletedWarga = async () => {
     );
     const querySnapshot = await getDocs(q);
     
-    const deletedWargaList = [];
+    const deletedSantriList = [];
     querySnapshot.forEach((doc) => {
-      deletedWargaList.push({
+      deletedSantriList.push({
         id: doc.id,
         ...doc.data()
       });
     });
 
-    deletedWargaList.sort((a, b) => 
+    deletedSantriList.sort((a, b) => 
       new Date(b.deletedAt) - new Date(a.deletedAt)
     );
 
-    return { success: true, data: deletedWargaList };
+    return { success: true, data: deletedSantriList };
   } catch (error) {
     console.error('Error mengambil data warga terhapus:', error);
     return { success: false, error: error.message, data: [] };
   }
 };
-

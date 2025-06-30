@@ -1,40 +1,33 @@
 import React from "react";
-import { Alert, View, Text, ActivityIndicator } from "react-native";
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Text, ActivityIndicator, View, Alert } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import { useSettings } from "../../contexts/SettingsContext";
+import { getColors, getThemeByRole } from "../../constants/Colors";
+import { useAuth } from "../../contexts/AuthContext";
 import { signOutUser } from "../../services/authService";
-import { useRoleTheme } from '../../hooks/useRoleTheme';
 
 export default function TabsLayout() {
   const { theme, loading } = useSettings();
-  const { colors } = useRoleTheme();
-  // Using custom theme from constants
+  const { isAdmin } = useAuth();
+  const colors = getThemeByRole(isAdmin);
   const router = useRouter();
 
   const handleLogout = async () => {
-    Alert.alert(
-      "Keluar",
-      "Apakah Anda yakin ingin keluar?",
-      [
-        {
-          text: "Batal",
-          style: "cancel"
-        },
-        {
-          text: "Keluar",
-          style: "destructive",
-          onPress: async () => {
-            const result = await signOutUser();
-            if (result.success) {
-              router.replace("/(auth)/warga-login");
-            } else {
-              Alert.alert("Error", result.error || "Gagal keluar");
-            }
+    Alert.alert("Konfirmasi Logout", "Apakah Anda yakin ingin keluar?", [
+      { text: "Batal", style: "cancel" },
+      {
+        text: "Keluar",
+        style: "destructive",
+        onPress: async () => {
+          const result = await signOutUser();
+          if (result.success) {
+            router.replace("/role-selection");
+          } else {
+            Alert.alert("Gagal Logout", "Gagal keluar. Silakan coba lagi.");
           }
-        }
-      ]
-    );
+        },
+      },
+    ]);
   };
 
   if (loading) {
@@ -48,9 +41,6 @@ export default function TabsLayout() {
         }}
       >
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={{ marginTop: 16, fontSize: 16, color: colors.text }}>
-          Memuat...
-        </Text>
       </View>
     );
   }
@@ -60,19 +50,10 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarInactiveTintColor: colors.gray500,
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.white,
           borderTopColor: colors.border,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
         },
       }}
     >
@@ -81,11 +62,7 @@ export default function TabsLayout() {
         options={{
           title: "Status Pembayaran",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons 
-              name="credit-card-check" 
-              size={size} 
-              color={color} 
-            />
+            <Text style={{ color, fontSize: size }}>💰</Text>
           ),
         }}
       />
@@ -94,11 +71,7 @@ export default function TabsLayout() {
         options={{
           title: "Profil",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons 
-              name="account" 
-              size={size} 
-              color={color} 
-            />
+            <Text style={{ color, fontSize: size }}>👤</Text>
           ),
         }}
       />
@@ -107,11 +80,7 @@ export default function TabsLayout() {
         options={{
           title: "Keluar",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons 
-              name="logout" 
-              size={size} 
-              color={color} 
-            />
+            <Text style={{ color, fontSize: size }}>🚪</Text>
           ),
         }}
         listeners={{

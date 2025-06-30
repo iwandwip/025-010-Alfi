@@ -1,18 +1,20 @@
 import React from "react";
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
-// import { LinearGradient } from 'expo-linear-gradient';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../constants/theme';
 
 export default function RoleSelection() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  // Using custom theme from constants
 
-  const handleBendaharaPress = () => {
-    router.push("/(auth)/bendahara-login");
+  const handleAdminPress = () => {
+    router.push("/(auth)/admin-login");
   };
 
   const handleWargaPress = () => {
@@ -20,379 +22,197 @@ export default function RoleSelection() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: Colors.background }]}>
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={[styles.logoSurface, Shadows.lg]}>
-            <View style={[styles.logoIcon, { backgroundColor: Colors.primary }]}>
-              <MaterialIcons 
-                name="savings" 
-                size={50} 
-                color={Colors.textInverse}
-              />
-            </View>
-          </View>
-          
-          <Text style={[styles.title, { color: Colors.primary }]}>
-            Smart Jimpitan
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.content}>
+        <View style={styles.headerSection}>
+          <Text style={styles.title}>Sistem Jimpitan</Text>
+          <Text style={styles.subtitle}>
+            Sistem Pengelolaan Jimpitan Warga
           </Text>
-          
-          <Text style={[styles.subtitle, { color: Colors.textSecondary }]}>
-            Sistem Digital Pengelolaan{'\n'}Jimpitan Warga RT
-          </Text>
+        </View>
 
-          <View style={styles.badgeContainer}>
-            <View style={[styles.locationChip, { backgroundColor: Colors.success + '20' }]}>
-              <MaterialIcons name="place" size={16} color={Colors.success} />
-              <Text style={[styles.locationText, { color: Colors.success }]}>
-                RT 01 RW 02 Sukajadi
+        <View style={styles.logoContainer}>
+          <View style={styles.logoPlaceholder}>
+            <Text style={styles.logoText}>🕌</Text>
+          </View>
+        </View>
+
+        <View style={styles.roleSection}>
+          <Text style={styles.roleTitle}>Pilih Peran Anda</Text>
+
+          <TouchableOpacity
+            style={[styles.roleCard, styles.adminCard]}
+            onPress={handleAdminPress}
+            activeOpacity={0.8}
+          >
+            <View style={styles.roleIcon}>
+              <Text style={styles.roleIconText}>👨‍💼</Text>
+            </View>
+            <View style={styles.roleContent}>
+              <Text style={styles.roleCardTitle}>Bendahara</Text>
+              <Text style={styles.roleCardDesc}>
+                Kelola data warga dan pembayaran jimpitan
               </Text>
             </View>
-          </View>
-        </View>
-
-        {/* Role Selection */}
-        <View style={styles.rolesContainer}>
-          <View>
-            <Text style={[styles.rolesTitle, { color: Colors.text }]}>
-              Pilih Akses Anda
-            </Text>
-          </View>
-
-          {/* Bendahara Card */}
-          <View>
-            <TouchableOpacity 
-              style={[styles.roleCard, Shadows.lg]}
-              onPress={handleBendaharaPress}
-              activeOpacity={0.8}
-            >
-              <View style={styles.cardContent}>
-                <View style={styles.cardLeft}>
-                  <View style={[styles.iconContainer, { backgroundColor: Colors.primary + '20' }]}>
-                    <MaterialIcons 
-                      name="business" 
-                      size={24} 
-                      color={Colors.primary}
-                    />
-                  </View>
-                </View>
-                
-                <View style={styles.cardMiddle}>
-                  <View style={styles.cardHeader}>
-                    <Text style={[styles.cardTitle, { color: Colors.text }]}>
-                      Bendahara
-                    </Text>
-                    <View style={[styles.adminChip, { backgroundColor: Colors.error + '20' }]}>
-                      <Text style={[styles.adminChipText, { color: Colors.error }]}>
-                        ADMIN
-                      </Text>
-                    </View>
-                  </View>
-                  
-                  <Text style={[styles.cardDescription, { color: Colors.textSecondary }]}>
-                    Kelola data warga, setoran jimpitan, dan laporan keuangan RT
-                  </Text>
-
-                  <View style={styles.featureChips}>
-                    <View style={[styles.featureChip, { backgroundColor: Colors.success + '20', marginRight: 8 }]}>
-                      <MaterialIcons name="group" size={12} color={Colors.success} />
-                      <Text style={[styles.featureChipText, { color: Colors.success }]}>
-                        Data Warga
-                      </Text>
-                    </View>
-                    <View style={[styles.featureChip, { backgroundColor: Colors.info + '20' }]}>
-                      <MaterialIcons name="bar-chart" size={12} color={Colors.info} />
-                      <Text style={[styles.featureChipText, { color: Colors.info }]}>
-                        Laporan
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                
-                <TouchableOpacity style={styles.chevronButton}>
-                  <MaterialIcons 
-                    name="chevron-right" 
-                    size={28}
-                    color={Colors.primary}
-                  />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* Warga Card */}
-          <View>
-            <TouchableOpacity 
-              style={[styles.roleCard, Shadows.lg]}
-              onPress={handleWargaPress}
-              activeOpacity={0.8}
-            >
-              <View style={styles.cardContent}>
-                <View style={styles.cardLeft}>
-                  <View style={[styles.iconContainer, { backgroundColor: Colors.secondary + '20' }]}>
-                    <MaterialIcons 
-                      name="home" 
-                      size={24} 
-                      color={Colors.secondary}
-                    />
-                  </View>
-                </View>
-                
-                <View style={styles.cardMiddle}>
-                  <View style={styles.cardHeader}>
-                    <Text style={[styles.cardTitle, { color: Colors.text }]}>
-                      Warga
-                    </Text>
-                    <View style={[styles.userChip, { backgroundColor: Colors.secondary + '20' }]}>
-                      <Text style={[styles.userChipText, { color: Colors.secondary }]}>
-                        USER
-                      </Text>
-                    </View>
-                  </View>
-                  
-                  <Text style={[styles.cardDescription, { color: Colors.textSecondary }]}>
-                    Pantau status setoran, riwayat pembayaran, dan kelola profil Anda
-                  </Text>
-
-                  <View style={styles.featureChips}>
-                    <View style={[styles.featureChip, { backgroundColor: Colors.warning + '20', marginRight: 8 }]}>
-                      <MaterialIcons name="credit-card" size={12} color={Colors.warning} />
-                      <Text style={[styles.featureChipText, { color: Colors.warning }]}>
-                        Status
-                      </Text>
-                    </View>
-                    <View style={[styles.featureChip, { backgroundColor: Colors.info + '20' }]}>
-                      <MaterialIcons name="history" size={12} color={Colors.info} />
-                      <Text style={[styles.featureChipText, { color: Colors.info }]}>
-                        Riwayat
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                
-                <TouchableOpacity style={styles.chevronButton}>
-                  <MaterialIcons 
-                    name="chevron-right" 
-                    size={28}
-                    color={Colors.secondary}
-                  />
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <View style={[styles.footerCard, Shadows.sm]}>
-            <View style={styles.footerContent}>
-              <View style={[styles.infoIcon, { backgroundColor: Colors.info + '20' }]}>
-                <MaterialIcons 
-                  name="info" 
-                  size={20} 
-                  color={Colors.info}
-                />
-              </View>
-              <View style={styles.footerText}>
-                <Text style={[styles.helpTitle, { color: Colors.text }]}>
-                  Butuh Bantuan?
-                </Text>
-                <Text style={[styles.helpSubtitle, { color: Colors.textSecondary }]}>
-                  Hubungi pengurus RT untuk informasi lebih lanjut
-                </Text>
-              </View>
+            <View style={styles.arrowContainer}>
+              <Text style={styles.arrow}>→</Text>
             </View>
-          </View>
+          </TouchableOpacity>
 
-          <Text style={[styles.copyright, { color: Colors.textSecondary }]}>
-            © 2024 Smart Jimpitan System
-          </Text>
+          <TouchableOpacity
+            style={[styles.roleCard, styles.wargaCard]}
+            onPress={handleWargaPress}
+            activeOpacity={0.8}
+          >
+            <View style={styles.roleIcon}>
+              <Text style={styles.roleIconText}>👨‍👩‍👧‍👦</Text>
+            </View>
+            <View style={styles.roleContent}>
+              <Text style={styles.roleCardTitle}>Warga</Text>
+              <Text style={styles.roleCardDesc}>
+                Pantau dan bayar jimpitan warga
+              </Text>
+            </View>
+            <View style={styles.arrowContainer}>
+              <Text style={styles.arrow}>→</Text>
+            </View>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-    </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Sistem Jimpitan</Text>
+          <Text style={styles.footerSubtext}>Pengelolaan Keuangan Warga</Text>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f8fafc",
   },
-  scrollContent: {
-    flexGrow: 1,
+  content: {
+    flex: 1,
     paddingHorizontal: 24,
     paddingVertical: 20,
   },
-  header: {
-    alignItems: 'center',
+  headerSection: {
+    alignItems: "center",
+    marginTop: 20,
     marginBottom: 40,
-  },
-  logoSurface: {
-    borderRadius: 60,
-    marginBottom: 24,
-    padding: 10,
-    backgroundColor: Colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
     fontSize: 32,
-    fontWeight: '800',
-    marginBottom: 12,
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#1e293b",
+    textAlign: "center",
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
+    color: "#64748b",
+    textAlign: "center",
     lineHeight: 24,
+    paddingHorizontal: 20,
   },
-  badgeContainer: {
-    marginTop: 8,
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 50,
   },
-  locationChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 4,
+  logoPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#F50057",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  locationText: {
-    fontSize: 12,
-    fontWeight: '500',
+  logoText: {
+    fontSize: 48,
   },
-  rolesContainer: {
+  roleSection: {
     flex: 1,
-    justifyContent: 'center',
-    marginBottom: 40,
+    justifyContent: "center",
   },
-  rolesTitle: {
-    fontSize: 20,
-    textAlign: 'center',
+  roleTitle: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#1e293b",
+    textAlign: "center",
     marginBottom: 32,
-    fontWeight: '600',
   },
   roleCard: {
-    marginBottom: 20,
-    borderRadius: 20,
-    backgroundColor: Colors.surface,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 16,
     padding: 20,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 2,
   },
-  cardLeft: {
+  adminCard: {
+    borderColor: "#3b82f6",
+  },
+  wargaCard: {
+    borderColor: "#10b981",
+  },
+  roleIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#f1f5f9",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
   },
-  iconContainer: {
-    borderRadius: 16,
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
+  roleIconText: {
+    fontSize: 24,
   },
-  cardMiddle: {
+  roleContent: {
     flex: 1,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 12,
+  roleCardTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1e293b",
+    marginBottom: 4,
   },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  adminChip: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  adminChipText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  userChip: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  userChipText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  cardDescription: {
+  roleCardDesc: {
     fontSize: 14,
-    marginBottom: 12,
+    color: "#64748b",
     lineHeight: 20,
   },
-  featureChips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  arrowContainer: {
+    marginLeft: 12,
   },
-  featureChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    gap: 4,
-  },
-  featureChipText: {
-    fontSize: 10,
-    fontWeight: '500',
-  },
-  chevronButton: {
-    padding: 4,
+  arrow: {
+    fontSize: 20,
+    color: "#94a3b8",
   },
   footer: {
-    alignItems: 'center',
-  },
-  footerCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
-    width: '100%',
-    backgroundColor: Colors.surface,
-  },
-  infoIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  helpTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  helpSubtitle: {
-    fontSize: 12,
-  },
-  footerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    alignItems: "center",
+    paddingVertical: 20,
   },
   footerText: {
-    flex: 1,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#475569",
+    marginBottom: 4,
   },
-  copyright: {
-    fontSize: 12,
-    textAlign: 'center',
-    opacity: 0.7,
+  footerSubtext: {
+    fontSize: 14,
+    color: "#94a3b8",
   },
 });

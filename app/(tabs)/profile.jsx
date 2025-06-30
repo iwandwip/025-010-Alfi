@@ -14,7 +14,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import Button from "../../components/ui/Button";
 import { signOutUser } from "../../services/authService";
-import { getThemeByRole } from "../../constants/Colors";
+import { getColors, getThemeByRole } from "../../constants/Colors";
 
 function Profile() {
   const { currentUser, userProfile, isAdmin } = useAuth();
@@ -97,7 +97,7 @@ function Profile() {
               {userProfile?.namaWarga || "Nama Warga"}
             </Text>
             <Text style={[styles.roleText, { color: colors.gray600 }]}>
-              Warga RT
+              Warga
             </Text>
           </View>
 
@@ -169,8 +169,22 @@ function Profile() {
                 ]}
               >
                 <Text style={[styles.cardTitle, { color: colors.gray900 }]}>
-                  Informasi RFID
+                  Informasi Warga
                 </Text>
+
+                <View
+                  style={[
+                    styles.profileRow,
+                    { borderBottomColor: colors.gray100 },
+                  ]}
+                >
+                  <Text style={[styles.label, { color: colors.gray600 }]}>
+                    Nama Warga:
+                  </Text>
+                  <Text style={[styles.value, { color: colors.gray900 }]}>
+                    {userProfile.namaWarga}
+                  </Text>
+                </View>
 
                 <View
                   style={[

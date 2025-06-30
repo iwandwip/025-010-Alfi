@@ -7,7 +7,7 @@ import {
   Modal,
   ScrollView,
 } from "react-native";
-import { Colors } from "../../constants/theme";
+import { Colors } from "../../constants/Colors";
 
 const TimelinePicker = ({
   label,
@@ -619,12 +619,12 @@ const TimelinePicker = ({
     return (
       <View key={level} style={styles.pickerLevel}>
         <Text style={styles.pickerLevelTitle}>
-          {level === "year" ? "Tahun" :
-           level === "month" ? "Bulan" :
-           level === "week" ? "Minggu" :
-           level === "day" ? "Tanggal" :
-           level === "hour" ? "Jam" :
-           level === "minute" ? "Menit" : ""}
+          {level === "year" && "Tahun"}
+          {level === "month" && "Bulan"}
+          {level === "week" && "Minggu"}
+          {level === "day" && "Tanggal"}
+          {level === "hour" && "Jam"}
+          {level === "minute" && "Menit"}
         </Text>
 
         <ScrollView
@@ -691,7 +691,7 @@ const TimelinePicker = ({
 
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {!!formatRangeText() && (
+      {formatRangeText() && (
         <View style={styles.rangeInfo}>
           <Text style={styles.rangeText}>{formatRangeText()}</Text>
         </View>
@@ -753,7 +753,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: "500",
     color: Colors.gray700,
     marginBottom: 8,
   },
@@ -821,7 +821,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 600,
+    fontWeight: "600",
     color: Colors.gray900,
   },
   closeButton: {
@@ -834,7 +834,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
     color: Colors.gray600,
   },
   pickerContent: {
@@ -852,7 +852,7 @@ const styles = StyleSheet.create({
   },
   pickerLevelTitle: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: "600",
     color: Colors.gray700,
     marginBottom: 12,
     textAlign: "center",
@@ -875,11 +875,11 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 14,
     color: Colors.gray700,
-    fontWeight: 500,
+    fontWeight: "500",
   },
   optionTextSelected: {
     color: Colors.white,
-    fontWeight: 600,
+    fontWeight: "600",
   },
   modalFooter: {
     flexDirection: "row",
@@ -904,12 +904,12 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
     color: Colors.gray700,
   },
   confirmButtonText: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
     color: Colors.white,
   },
 });

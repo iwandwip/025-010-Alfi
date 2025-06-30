@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSettings } from "../../contexts/SettingsContext";
-import { Colors, Shadows } from "../../constants/theme";
+import { getColors } from "../../constants/Colors";
 import { useNotification } from "../../contexts/NotificationContext";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -18,7 +18,7 @@ const NOTIFICATION_HEIGHT = 100;
 
 export default function ToastNotification() {
   const { theme } = useSettings();
-  const colors = Colors;
+  const colors = getColors(theme);
   const insets = useSafeAreaInsets();
   const { notifications, visible, removeNotification } = useNotification();
 
@@ -161,7 +161,7 @@ export default function ToastNotification() {
             styles.notification,
             getNotificationStyle(currentNotification.type),
             {
-              shadowColor: '#000',
+              shadowColor: colors.shadow.color,
             },
           ]}
           onPress={dismissNotification}
@@ -299,7 +299,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
-    ...Shadows.lg,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 12,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.08)",
   },
@@ -330,7 +333,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     flex: 1,
   },
   closeButton: {
@@ -340,11 +343,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 8,
-    ...Shadows.sm,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   closeText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   message: {
     fontSize: 14,
@@ -365,7 +371,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   progressContainer: {
     height: 3,

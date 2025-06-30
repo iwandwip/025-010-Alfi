@@ -20,16 +20,12 @@ class SeederService {
     ];
 
     this.alamatList = [
-      'Jl. Merdeka No. 12, RT 01 RW 02', 'Jl. Sudirman No. 45, RT 01 RW 02', 'Jl. Gatot Subroto No. 78, RT 01 RW 02',
-      'Jl. Ahmad Yani No. 23, RT 01 RW 02', 'Jl. Diponegoro No. 56, RT 01 RW 02', 'Jl. Pahlawan No. 89, RT 01 RW 02',
-      'Jl. Kartini No. 34, RT 01 RW 02', 'Jl. Cut Nyak Dien No. 67, RT 01 RW 02', 'Jl. RA Kartini No. 90, RT 01 RW 02',
-      'Jl. Imam Bonjol No. 21, RT 01 RW 02', 'Jl. Veteran No. 43, RT 01 RW 02', 'Jl. Pemuda No. 65, RT 01 RW 02',
-      'Jl. Proklamasi No. 87, RT 01 RW 02', 'Jl. Kemerdekaan No. 32, RT 01 RW 02', 'Jl. Pancasila No. 54, RT 01 RW 02',
-      'Jl. Garuda No. 76, RT 01 RW 02', 'Jl. Mawar No. 98, RT 01 RW 02', 'Jl. Melati No. 11, RT 01 RW 02',
-      'Jl. Anggrek No. 33, RT 01 RW 02', 'Jl. Kenanga No. 55, RT 01 RW 02', 'Jl. Cempaka No. 77, RT 01 RW 02',
-      'Jl. Dahlia No. 99, RT 01 RW 02', 'Jl. Tulip No. 22, RT 01 RW 02', 'Jl. Sakura No. 44, RT 01 RW 02',
-      'Jl. Bougenville No. 66, RT 01 RW 02', 'Jl. Flamboyan No. 88, RT 01 RW 02', 'Jl. Kamboja No. 13, RT 01 RW 02',
-      'Jl. Teratai No. 35, RT 01 RW 02', 'Jl. Seruni No. 57, RT 01 RW 02', 'Jl. Lavender No. 79, RT 01 RW 02'
+      'Jl. Merdeka No. 12, Malang', 'Jl. Sukarno Hatta No. 45, Malang', 'Jl. Ijen No. 23, Malang', 'Jl. Gajayana No. 67, Malang', 'Jl. Veteran No. 89, Malang',
+      'Jl. Semarang No. 34, Malang', 'Jl. Jakarta No. 56, Malang', 'Jl. Bandung No. 78, Malang', 'Jl. Yogyakarta No. 90, Malang', 'Jl. Solo No. 21, Malang',
+      'Jl. Brawijaya No. 43, Malang', 'Jl. Dieng No. 65, Malang', 'Jl. Kawi No. 87, Malang', 'Jl. Kelud No. 32, Malang', 'Jl. Semeru No. 54, Malang',
+      'Jl. Arjuno No. 76, Malang', 'Jl. Panderman No. 98, Malang', 'Jl. Bromo No. 10, Malang', 'Jl. Raya Tlogomas No. 33, Malang', 'Jl. Sukun No. 55, Malang',
+      'Jl. Blimbing No. 77, Malang', 'Jl. Lowokwaru No. 99, Malang', 'Jl. Klojen No. 11, Malang', 'Jl. Kedungkandang No. 22, Malang', 'Jl. Pakis No. 44, Malang',
+      'Jl. Wagir No. 66, Malang', 'Jl. Singosari No. 88, Malang', 'Jl. Batu No. 13, Malang', 'Jl. Karangploso No. 35, Malang', 'Jl. Dau No. 57, Malang'
     ];
   }
 

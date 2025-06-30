@@ -11,7 +11,7 @@ import Input from "../ui/Input";
 import DatePicker from "../ui/DatePicker";
 import Button from "../ui/Button";
 import LoadingSpinner from "../ui/LoadingSpinner";
-import { Colors } from "../../constants/theme";
+import { Colors } from "../../constants/Colors";
 import { validateEmail, validatePassword } from "../../utils/validation";
 
 const AuthForm = ({ type = "login", onSubmit, loading = false }) => {
@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.primary,
     textAlign: "center",
-    fontWeight: 500,
+    fontWeight: "500",
   },
   scrollContainer: {
     flex: 1,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   },
   genderLabel: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: "500",
     color: Colors.gray700,
     marginBottom: 8,
   },

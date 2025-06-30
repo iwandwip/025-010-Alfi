@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
-import { Colors } from "../constants/theme";
+import { Colors } from "../constants/Colors";
 
 export default function Index() {
   const { currentUser, loading, authInitialized, userProfile } = useAuth();
@@ -12,7 +12,7 @@ export default function Index() {
   useEffect(() => {
     if (authInitialized && !loading) {
       if (currentUser && userProfile) {
-        if (userProfile.role === "bendahara" || userProfile.role === "admin") {
+        if (userProfile.role === "admin") {
           router.replace("/(admin)");
         } else if (userProfile.role === "user") {
           router.replace("/(tabs)");

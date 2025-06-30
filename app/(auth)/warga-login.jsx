@@ -14,7 +14,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signInWithEmail } from "../../services/authService";
-import { getThemeByRole } from "../../constants/Colors";
 
 export default function WargaLogin() {
   const [email, setEmail] = useState("");
@@ -22,7 +21,6 @@ export default function WargaLogin() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const colors = getThemeByRole(false); // Warga theme
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {

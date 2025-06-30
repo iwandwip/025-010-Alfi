@@ -3,13 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   Alert,
   ScrollView,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,7 +18,7 @@ import { useSettings } from "../../contexts/SettingsContext";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { updateUserProfile } from "../../services/userService";
-import { getThemeByRole } from "../../constants/Colors";
+import { getColors, getThemeByRole } from "../../constants/Colors";
 
 export default function EditProfile() {
   const { userProfile, refreshProfile, isAdmin } = useAuth();
@@ -29,9 +29,9 @@ export default function EditProfile() {
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    namaWarga: userProfile?.namaWarga || "",
-    noHpWarga: userProfile?.noHpWarga || "",
     alamat: userProfile?.alamat || "",
+    noHpWarga: userProfile?.noHpWarga || "",
+    namaWarga: userProfile?.namaWarga || "",
   });
   const [errors, setErrors] = useState({});
 
@@ -45,16 +45,16 @@ export default function EditProfile() {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.namaWarga.trim()) {
-      newErrors.namaWarga = "Nama warga wajib diisi";
+    if (!formData.alamat.trim()) {
+      newErrors.alamat = "Alamat wajib diisi";
     }
 
     if (!formData.noHpWarga.trim()) {
       newErrors.noHpWarga = "No HP warga wajib diisi";
     }
 
-    if (!formData.alamat.trim()) {
-      newErrors.alamat = "Alamat warga wajib diisi";
+    if (!formData.namaWarga.trim()) {
+      newErrors.namaWarga = "Nama warga wajib diisi";
     }
 
     setErrors(newErrors);
@@ -96,9 +96,30 @@ export default function EditProfile() {
       <SafeAreaView
         style={[
           styles.container,
-          { backgroundColor: colors.background, paddingTop: insets.top },
+          { paddingTop: insets.top, backgroundColor: colors.background },
         ]}
       >
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.white,
+              borderBottomColor: colors.gray200,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>
+              ← Kembali
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
+            Edit Profil
+          </Text>
+        </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.loadingText, { color: colors.gray600 }]}>
@@ -113,23 +134,34 @@ export default function EditProfile() {
     <SafeAreaView
       style={[
         styles.container,
-        { backgroundColor: colors.background, paddingTop: insets.top },
+        { paddingTop: insets.top, backgroundColor: colors.background },
       ]}
     >
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>← Kembali</Text>
-        </TouchableOpacity>
-        <Text style={styles.title}>Edit Profil</Text>
-      </View>
-
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: colors.white,
+              borderBottomColor: colors.gray200,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>
+              ← Kembali
+            </Text>
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
+            Edit Profil
+          </Text>
+        </View>
 
         <ScrollView
           style={styles.scrollView}
@@ -140,20 +172,23 @@ export default function EditProfile() {
           ]}
         >
           <View style={styles.content}>
-            <View style={styles.titleSection}>
-              <Text style={styles.subtitle}>
-                Edit informasi profil warga
+            <View style={styles.section}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  { color: colors.gray900, borderBottomColor: colors.primary },
+                ]}
+              >
+                Informasi Warga
               </Text>
-            </View>
 
-            <View style={styles.formSection}>
               <Input
-                label="Nama Warga"
-                placeholder="Masukkan nama lengkap warga"
-                value={formData.namaWarga}
-                onChangeText={(value) => updateFormData("namaWarga", value)}
+                label="Alamat"
+                placeholder="Masukkan alamat warga"
+                value={formData.alamat}
+                onChangeText={(value) => updateFormData("alamat", value)}
                 autoCapitalize="words"
-                error={errors.namaWarga}
+                error={errors.alamat}
               />
 
               <Input
@@ -164,28 +199,45 @@ export default function EditProfile() {
                 keyboardType="phone-pad"
                 error={errors.noHpWarga}
               />
+            </View>
+
+            <View style={styles.section}>
+              <Text
+                style={[
+                  styles.sectionTitle,
+                  { color: colors.gray900, borderBottomColor: colors.primary },
+                ]}
+              >
+                Informasi Warga
+              </Text>
 
               <Input
-                label="Alamat"
-                placeholder="Masukkan alamat lengkap"
-                value={formData.alamat}
-                onChangeText={(value) => updateFormData("alamat", value)}
-                multiline
-                numberOfLines={3}
-                error={errors.alamat}
+                label="Nama Warga"
+                placeholder="Masukkan nama lengkap warga"
+                value={formData.namaWarga}
+                onChangeText={(value) => updateFormData("namaWarga", value)}
+                autoCapitalize="words"
+                error={errors.namaWarga}
               />
 
-              <Text style={styles.infoText}>
-                ℹ️ RFID warga hanya dapat diatur oleh bendahara
-              </Text>
+              <View
+                style={[
+                  styles.infoBox,
+                  { backgroundColor: colors.primary + "20" },
+                ]}
+              >
+                <Text style={[styles.infoText, { color: colors.primary }]}>
+                  ℹ️ RFID warga hanya dapat diatur oleh bendahara
+                </Text>
+              </View>
             </View>
 
             <View style={styles.buttonSection}>
               <Button
                 title="Batal"
-                variant="outline"
                 onPress={() => router.back()}
-                style={styles.cancelButton}
+                variant="outline"
+                style={[styles.cancelButton, { borderColor: colors.gray400 }]}
                 disabled={loading}
               />
 
@@ -193,7 +245,7 @@ export default function EditProfile() {
                 title={loading ? "Menyimpan..." : "Simpan Perubahan"}
                 onPress={handleSave}
                 disabled={loading}
-                style={styles.saveButton}
+                style={[styles.saveButton, { backgroundColor: colors.success }]}
               />
             </View>
           </View>
@@ -207,26 +259,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  keyboardContainer: {
+    flex: 1,
+  },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    borderBottomWidth: 1,
   },
   backButton: {
     alignSelf: "flex-start",
+    marginBottom: 8,
   },
   backButtonText: {
     fontSize: 16,
-    color: "#10b981",
     fontWeight: "500",
   },
-  title: {
+  headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
-    flex: 1,
+    fontWeight: "600",
     textAlign: "center",
   },
   loadingContainer: {
@@ -240,44 +291,40 @@ const styles = StyleSheet.create({
     marginTop: 16,
     textAlign: "center",
   },
-  keyboardContainer: {
-    flex: 1,
-  },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 24,
   },
   content: {
     flex: 1,
   },
-  titleSection: {
-    alignItems: "center",
+  section: {
     marginBottom: 32,
   },
-  subtitle: {
-    fontSize: 16,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 24,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
   },
-  formSection: {
-    marginBottom: 32,
+  infoBox: {
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 8,
   },
   infoText: {
     fontSize: 14,
-    color: "#059669",
-    textAlign: "center",
-    backgroundColor: "#dcfce7",
-    padding: 12,
-    borderRadius: 8,
     lineHeight: 20,
-    marginTop: 16,
   },
   buttonSection: {
     flexDirection: "row",
     gap: 12,
+    marginTop: 16,
+    marginBottom: 32,
   },
   cancelButton: {
     flex: 1,
