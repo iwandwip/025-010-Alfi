@@ -8,7 +8,7 @@ import {
   Keyboard,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Colors } from "../../constants/theme";
+import { Colors } from "../../constants/Colors";
 
 const DatePicker = ({
   label,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: "500",
     color: Colors.gray700,
     marginBottom: 8,
   },

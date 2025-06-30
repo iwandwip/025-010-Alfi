@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useAuth } from "../contexts/AuthContext";
 import LoadingSpinner from "./ui/LoadingSpinner";
-import { Colors } from "../constants/theme";
+import { Colors } from "../constants/Colors";
 
 const AuthGuard = ({ children, requireAuth = false }) => {
   const { currentUser, loading, authInitialized } = useAuth();

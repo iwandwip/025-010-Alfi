@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSettings } from '../../contexts/SettingsContext';
-import { Colors } from '../../constants/theme';
+import { getColors, getThemeByRole } from '../../constants/Colors';
+import { useAuth } from '../../contexts/AuthContext';
 
 const CreditBalance = ({ creditBalance = 0, style }) => {
-  const { theme } = useSettings();
-  const colors = Colors;
+  const { isAdmin } = useAuth();
+  const colors = getThemeByRole(isAdmin);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {
@@ -55,7 +56,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: '500',
     marginBottom: 2,
   },
   amount: {

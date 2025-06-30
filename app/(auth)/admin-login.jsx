@@ -14,15 +14,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signInWithEmail } from "../../services/authService";
-import { getThemeByRole } from "../../constants/Colors";
 
-export default function BendaharaLogin() {
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const colors = getThemeByRole(true); // Bendahara theme
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -60,14 +58,14 @@ export default function BendaharaLogin() {
           <View style={styles.titleSection}>
             <Text style={styles.title}>Masuk Bendahara</Text>
             <Text style={styles.subtitle}>
-              Masuk sebagai Bendahara Jimpitan Warga
+              Masuk sebagai Bendahara Sistem Jimpitan Warga
             </Text>
           </View>
 
           <View style={styles.formSection}>
             <Input
               label="Email"
-              placeholder="Masukkan email bendahara"
+              placeholder="Masukkan email admin"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -91,8 +89,8 @@ export default function BendaharaLogin() {
           </View>
 
           <View style={styles.registerSection}>
-            <Text style={styles.registerText}>Belum memiliki akun bendahara?</Text>
-            <Link href="/(auth)/bendahara-register" style={styles.registerLink}>
+            <Text style={styles.registerText}>Belum memiliki akun admin?</Text>
+            <Link href="/(auth)/admin-register" style={styles.registerLink}>
               Daftar Sekarang
             </Link>
           </View>

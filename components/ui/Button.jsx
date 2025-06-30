@@ -1,10 +1,8 @@
 import React from "react";
-import { TouchableOpacity, Text, View, ActivityIndicator } from "react-native";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { Colors, getThemeByRole } from "../../constants/Colors";
+import { useAuth } from "../../contexts/AuthContext";
 
-/**
- * Custom Button component with Material Design styling
- * Maintains compatibility with existing Button usage
- */
 const Button = ({
   title,
   onPress,
@@ -12,103 +10,101 @@ const Button = ({
   disabled = false,
   style,
   textStyle,
-  accessibilityLabel,
-  loading = false,
-  icon,
-  children,
-  ...props
 }) => {
-  // Get button styles based on variant
+  const { isAdmin } = useAuth();
+  const theme = getThemeByRole(isAdmin);
+  
   const getButtonStyle = () => {
     const baseStyle = {
-      borderRadius: 8,
-      minHeight: 48,
       paddingVertical: 12,
-      paddingHorizontal: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'row',
+      paddingHorizontal: 24,
+      borderRadius: 8,
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: 48,
     };
+
+    if (disabled) {
+      return {
+        ...baseStyle,
+        backgroundColor: theme.gray300,
+      };
+    }
 
     switch (variant) {
       case "primary":
         return {
           ...baseStyle,
-          backgroundColor: disabled ? '#ccc' : '#F50057',
+          backgroundColor: theme.primary,
         };
       case "secondary":
         return {
           ...baseStyle,
-          backgroundColor: disabled ? '#f0f0f0' : '#f5f5f5',
+          backgroundColor: theme.secondary,
           borderWidth: 1,
-          borderColor: disabled ? '#ccc' : '#F50057',
+          borderColor: theme.primary,
         };
       case "outline":
         return {
           ...baseStyle,
-          backgroundColor: 'transparent',
+          backgroundColor: "transparent",
           borderWidth: 1,
-          borderColor: disabled ? '#ccc' : '#F50057',
+          borderColor: theme.primary,
         };
       default:
         return {
           ...baseStyle,
-          backgroundColor: disabled ? '#ccc' : '#F50057',
+          backgroundColor: theme.primary,
         };
     }
   };
 
   const getTextStyle = () => {
-    const baseTextStyle = {
+    const baseStyle = {
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     };
+
+    if (disabled) {
+      return {
+        ...baseStyle,
+        color: theme.gray500,
+      };
+    }
 
     switch (variant) {
       case "primary":
         return {
-          ...baseTextStyle,
-          color: disabled ? '#999' : '#FFFFFF',
+          ...baseStyle,
+          color: theme.white,
         };
       case "secondary":
       case "outline":
         return {
-          ...baseTextStyle,
-          color: disabled ? '#999' : '#F50057',
+          ...baseStyle,
+          color: theme.primary,
         };
       default:
         return {
-          ...baseTextStyle,
-          color: disabled ? '#999' : '#FFFFFF',
+          ...baseStyle,
+          color: theme.white,
         };
     }
   };
 
   return (
     <TouchableOpacity
-      onPress={disabled || loading ? undefined : onPress}
       style={[getButtonStyle(), style]}
-      accessibilityLabel={accessibilityLabel || title || children}
+      onPress={onPress}
+      disabled={disabled}
       activeOpacity={0.8}
-      {...props}
     >
-      {loading && (
-        <ActivityIndicator 
-          size="small" 
-          color={variant === 'primary' ? '#FFFFFF' : '#F50057'} 
-          style={{ marginRight: 8 }}
-        />
-      )}
-      {icon && (
-        <View style={{ marginRight: 8 }}>
-          {icon}
-        </View>
-      )}
       <Text style={[getTextStyle(), textStyle]}>
-        {String(children || title || '')}
+        {title}
       </Text>
     </TouchableOpacity>
   );
 };
+
 
 export default Button;

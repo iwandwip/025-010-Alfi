@@ -9,11 +9,8 @@ import {
   Alert,
   RefreshControl,
 } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRoleTheme } from '../../hooks/useRoleTheme';
-import { Shadows, Spacing, Typography, BorderRadius } from '../../constants/theme';
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import {
@@ -24,8 +21,6 @@ import {
 
 export default function PaymentManager() {
   const { timelineId } = useLocalSearchParams();
-  const { colors } = useRoleTheme();
-  const styles = createStyles(colors);
   const [timeline, setTimeline] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [payments, setPayments] = useState([]);
@@ -96,7 +91,7 @@ export default function PaymentManager() {
     const result = await updatePaymentStatus(
       timeline.id,
       selectedPeriod,
-      payment.wargaId || payment.wargaId,
+      payment.wargaId,
       updateData
     );
 
@@ -113,7 +108,7 @@ export default function PaymentManager() {
   const handleMarkAsPaid = (payment) => {
     Alert.alert(
       "Tandai Lunas",
-      `Tandai setoran ${payment.wargaName || payment.wargaName} sebagai lunas?`,
+      `Tandai pembayaran ${payment.wargaName} sebagai lunas?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -131,7 +126,7 @@ export default function PaymentManager() {
   const handleMarkAsUnpaid = (payment) => {
     Alert.alert(
       "Tandai Belum Bayar",
-      `Tandai setoran ${payment.wargaName || payment.wargaName} sebagai belum bayar?`,
+      `Tandai pembayaran ${payment.wargaName} sebagai belum bayar?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -145,13 +140,13 @@ export default function PaymentManager() {
   const getStatusColor = (status) => {
     switch (status) {
       case "lunas":
-        return colors.success;
+        return "#10b981";
       case "belum_bayar":
-        return colors.error;
+        return "#ef4444";
       case "terlambat":
-        return colors.warning;
+        return "#f59e0b";
       default:
-        return colors.gray500;
+        return "#64748b";
     }
   };
 
@@ -224,8 +219,8 @@ export default function PaymentManager() {
     <View style={styles.paymentCard}>
       <View style={styles.paymentHeader}>
         <View style={styles.wargaInfo}>
-          <Text style={styles.wargaName}>{item.wargaName || item.wargaName}</Text>
-          <Text style={styles.alamatName}>Alamat: {item.alamat}</Text>
+          <Text style={styles.wargaName}>{item.wargaName}</Text>
+          <Text style={styles.alamatText}>Alamat: {item.alamat}</Text>
         </View>
         <View
           style={[
@@ -295,25 +290,20 @@ export default function PaymentManager() {
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={[colors.primaryContainer, colors.background]}
-        style={{ flex: 1 }}
-      >
-        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <Text style={styles.backButtonText}>← Kembali</Text>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Kelola Pembayaran</Text>
-          </View>
-          <View style={styles.loadingContainer}>
-            <LoadingSpinner text="Memuat data pembayaran..." />
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backButtonText}>← Kembali</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Kelola Pembayaran</Text>
+        </View>
+        <View style={styles.loadingContainer}>
+          <LoadingSpinner text="Memuat data pembayaran..." />
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -321,11 +311,7 @@ export default function PaymentManager() {
   const selectedPeriodData = timeline?.periods[selectedPeriod];
 
   return (
-    <LinearGradient
-      colors={[colors.primaryContainer, colors.background]}
-      style={{ flex: 1 }}
-    >
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -359,13 +345,13 @@ export default function PaymentManager() {
               <Text style={styles.statLabel}>Total</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.success }]}>
+              <Text style={[styles.statNumber, { color: "#10b981" }]}>
                 {summary.lunas}
               </Text>
               <Text style={styles.statLabel}>Lunas</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: colors.error }]}>
+              <Text style={[styles.statNumber, { color: "#ef4444" }]}>
                 {summary.belumBayar}
               </Text>
               <Text style={styles.statLabel}>Belum Bayar</Text>
@@ -385,8 +371,8 @@ export default function PaymentManager() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
+            colors={["#3b82f6"]}
+            tintColor="#3b82f6"
           />
         }
         ListEmptyComponent={
@@ -398,22 +384,21 @@ export default function PaymentManager() {
           </View>
         }
       />
-      </SafeAreaView>
-    </LinearGradient>
+    </SafeAreaView>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: "#f8fafc",
   },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
+    borderBottomColor: "#e2e8f0",
+    backgroundColor: "#fff",
   },
   backButton: {
     alignSelf: "flex-start",
@@ -421,13 +406,13 @@ const createStyles = (colors) => StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: colors.primary,
-    fontWeight: 500,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 600,
-    color: colors.text,
+    fontWeight: "600",
+    color: "#1e293b",
     textAlign: "center",
   },
   loadingContainer: {
@@ -436,67 +421,67 @@ const createStyles = (colors) => StyleSheet.create({
     alignItems: "center",
   },
   timelineInfo: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: "#e2e8f0",
   },
   timelineName: {
     fontSize: 18,
-    fontWeight: 600,
-    color: colors.text,
+    fontWeight: "600",
+    color: "#1e293b",
     textAlign: "center",
     marginBottom: 4,
   },
   periodInfo: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: "#64748b",
     textAlign: "center",
   },
   periodTabs: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: "#e2e8f0",
   },
   periodTab: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginHorizontal: 4,
     borderRadius: 8,
-    backgroundColor: colors.background,
+    backgroundColor: "#f8fafc",
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "#e2e8f0",
   },
   periodTabActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: "#3b82f6",
+    borderColor: "#3b82f6",
   },
   periodTabText: {
     fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: 500,
+    color: "#64748b",
+    fontWeight: "500",
   },
   periodTabTextActive: {
-    color: colors.surface,
-    fontWeight: 600,
+    color: "#fff",
+    fontWeight: "600",
   },
   summarySection: {
     paddingHorizontal: 24,
     paddingVertical: 16,
   },
   summaryCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "#e2e8f0",
   },
   summaryTitle: {
     fontSize: 16,
-    fontWeight: 600,
-    color: colors.text,
+    fontWeight: "600",
+    color: "#1e293b",
     textAlign: "center",
     marginBottom: 12,
   },
@@ -510,12 +495,12 @@ const createStyles = (colors) => StyleSheet.create({
   statNumber: {
     fontSize: 20,
     fontWeight: "bold",
-    color: colors.text,
+    color: "#1e293b",
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: "#64748b",
   },
   paymentsList: {
     flex: 1,
@@ -525,13 +510,13 @@ const createStyles = (colors) => StyleSheet.create({
     paddingBottom: 24,
   },
   paymentCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    shadowColor: colors.text,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -548,13 +533,13 @@ const createStyles = (colors) => StyleSheet.create({
   },
   wargaName: {
     fontSize: 16,
-    fontWeight: 600,
-    color: colors.text,
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 4,
   },
-  alamatName: {
+  alamatText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: "#64748b",
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -563,7 +548,7 @@ const createStyles = (colors) => StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    fontWeight: 600,
+    fontWeight: "600",
   },
   paymentDetails: {
     marginBottom: 16,
@@ -576,13 +561,13 @@ const createStyles = (colors) => StyleSheet.create({
   },
   detailLabel: {
     fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: 500,
+    color: "#64748b",
+    fontWeight: "500",
   },
   detailValue: {
     fontSize: 14,
-    color: colors.text,
-    fontWeight: 600,
+    color: "#1e293b",
+    fontWeight: "600",
   },
   paymentActions: {
     marginTop: 8,
@@ -598,14 +583,14 @@ const createStyles = (colors) => StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: 500,
-    color: colors.textSecondary,
+    fontWeight: "500",
+    color: "#64748b",
     marginBottom: 8,
     textAlign: "center",
   },
   emptySubtext: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: "#94a3b8",
     textAlign: "center",
     lineHeight: 20,
   },

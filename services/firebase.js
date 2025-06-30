@@ -1,11 +1,13 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getDatabase } from 'firebase/database';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyD4URsW4aiFRDgn72VvF_KwTwAImzscacc",
   authDomain: "alfi-c6f58.firebaseapp.com",
+  databaseURL: "https://alfi-c6f58-default-rtdb.firebaseio.com",
   projectId: "alfi-c6f58",
   storageBucket: "alfi-c6f58.firebasestorage.app",
   messagingSenderId: "839280828747",
@@ -16,6 +18,7 @@ const firebaseConfig = {
 let app;
 let auth;
 let db;
+let rtdb;
 
 try {
   if (getApps().length === 0) {
@@ -43,11 +46,20 @@ try {
     console.error('Firestore initialization error:', error);
     db = null;
   }
+
+  try {
+    rtdb = getDatabase(app);
+    console.log('✅ RTDB initialized for mode-based architecture');
+  } catch (error) {
+    console.error('⚠️ RTDB initialization error:', error);
+    rtdb = null;
+  }
 } catch (error) {
   console.error('Firebase initialization error:', error);
   app = null;
   auth = null;
   db = null;
+  rtdb = null;
 }
 
-export { auth, db, app };
+export { auth, db, rtdb, app };

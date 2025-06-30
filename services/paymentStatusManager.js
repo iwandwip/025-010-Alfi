@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getWargaPaymentHistory, clearWargaCache } from './wargaPaymentService';
+import { getWargaPaymentHistory } from './wargaPaymentService';
 import { getAllUsersPaymentStatus } from './adminPaymentService';
 import { getActiveTimeline } from './timelineService';
 
@@ -247,13 +247,6 @@ class PaymentStatusManager {
     this.cache.clear();
     this.lastUpdateTimes.clear();
     this.isUpdating.clear();
-    
-    // Also clear warga payment service cache
-    try {
-      clearWargaCache();
-    } catch (error) {
-      console.warn('Error clearing warga cache:', error);
-    }
   }
 
   getDebugInfo() {

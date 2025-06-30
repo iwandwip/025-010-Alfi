@@ -1,13 +1,21 @@
 import React, { useState } from "react";
-import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert, Text, TouchableOpacity } from "react-native";
-import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from "expo-router";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+import { Link, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
+import { getThemeByRole } from "../../constants/Colors";
 
 export default function BendaharaRegister() {
   const [formData, setFormData] = useState({
@@ -18,18 +26,15 @@ export default function BendaharaRegister() {
     noHp: "",
   });
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  // Using custom theme from constants
+  const colors = getThemeByRole(true); // Bendahara theme
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const validateStep1 = () => {
+  const validateForm = () => {
     if (!formData.email.trim()) {
       Alert.alert("Error", "Email wajib diisi");
       return false;
@@ -46,10 +51,6 @@ export default function BendaharaRegister() {
       Alert.alert("Error", "Konfirmasi password tidak cocok");
       return false;
     }
-    return true;
-  };
-
-  const validateStep2 = () => {
     if (!formData.nama.trim()) {
       Alert.alert("Error", "Nama wajib diisi");
       return false;
@@ -61,14 +62,8 @@ export default function BendaharaRegister() {
     return true;
   };
 
-  const handleNext = () => {
-    if (validateStep1()) {
-      setCurrentStep(2);
-    }
-  };
-
   const handleRegister = async () => {
-    if (!validateStep2()) return;
+    if (!validateForm()) return;
 
     setLoading(true);
     const profileData = {
@@ -93,299 +88,157 @@ export default function BendaharaRegister() {
     setLoading(false);
   };
 
-  const progress = currentStep / 2;
-
   return (
-    <LinearGradient
-      colors={[Colors.primaryContainer, Colors.surface]}
-      style={styles.container}
-    >
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={styles.keyboardContainer}
       >
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backButtonText}>← Kembali</Text>
+          </TouchableOpacity>
+        </View>
+
         <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
+          style={styles.scrollView}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View>
-            <TouchableOpacity
-              onPress={() => {
-                if (currentStep === 1) {
-                  router.back();
-                } else {
-                  setCurrentStep(1);
-                }
-              }}
-              style={styles.backButton}
-            >
-              <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
-            </TouchableOpacity>
-          </View>
+          <View style={styles.content}>
+            <View style={styles.titleSection}>
+              <Text style={styles.title}>Daftar Bendahara</Text>
+              <Text style={styles.subtitle}>
+                Buat akun Bendahara Jimpitan Warga
+              </Text>
+            </View>
 
-          {/* Progress */}
-          <View style={styles.progressSection}>
-            <Text style={{ color: Colors.onView, marginBottom: 8 }}>
-              Langkah {currentStep} dari 2
-            </Text>
-            <View style={[styles.progressBar, { backgroundColor: Colors.outline }]}>
-              <View 
-                style={[
-                  styles.progressFill, 
-                  { 
-                    width: `${progress * 100}%`, 
-                    backgroundColor: Colors.primary 
-                  }
-                ]} 
+            <View style={styles.formSection}>
+              <Input
+                label="Email"
+                placeholder="Masukkan email bendahara"
+                value={formData.email}
+                onChangeText={(value) => updateForm("email", value)}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+
+              <Input
+                label="Password"
+                placeholder="Masukkan password (min. 6 karakter)"
+                value={formData.password}
+                onChangeText={(value) => updateForm("password", value)}
+                secureTextEntry
+              />
+
+              <Input
+                label="Konfirmasi Password"
+                placeholder="Ulangi password"
+                value={formData.confirmPassword}
+                onChangeText={(value) => updateForm("confirmPassword", value)}
+                secureTextEntry
+              />
+
+              <Input
+                label="Nama Lengkap"
+                placeholder="Masukkan nama lengkap"
+                value={formData.nama}
+                onChangeText={(value) => updateForm("nama", value)}
+                autoCapitalize="words"
+              />
+
+              <Input
+                label="No HP"
+                placeholder="Masukkan nomor HP"
+                value={formData.noHp}
+                onChangeText={(value) => updateForm("noHp", value)}
+                keyboardType="phone-pad"
+              />
+
+              <Button
+                title={loading ? "Sedang Mendaftar..." : "Daftar"}
+                onPress={handleRegister}
+                disabled={loading}
+                style={styles.registerButton}
               />
             </View>
-          </View>
 
-          {/* Logo Section */}
-          <View 
-            style={styles.logoSection}
-          >
-            <View style={[styles.logoContainer, { backgroundColor: Colors.primary }, Shadows.md]}>
-              <MaterialIcons name="person-add" size={80} color={Colors.onPrimary} />
+            <View style={styles.loginSection}>
+              <Text style={styles.loginText}>Sudah memiliki akun bendahara?</Text>
+              <Link href="/(auth)/bendahara-login" style={styles.loginLink}>
+                Masuk Sekarang
+              </Link>
             </View>
-            
-            <Text style={[styles.title, { color: Colors.onView }]}>
-              Daftar Bendahara
-            </Text>
-            
-            <Text style={[styles.subtitle, { color: Colors.onViewVariant }]}>
-              Buat akun untuk mengelola jimpitan warga
-            </Text>
-          </View>
-
-          {/* Step 1: Account Info */}
-          {currentStep === 1 && (
-            <View>
-              <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
-                <View style={{ padding: 20 }}>
-                  <View style={styles.stepHeader}>
-                    <View style={[styles.stepIcon, { backgroundColor: Colors.primaryContainer }]}>
-                      <MaterialIcons name="email" size={24} color={Colors.onPrimaryContainer} />
-                    </View>
-                    <Text style={styles.stepTitle}>
-                      Informasi Akun
-                    </Text>
-                  </View>
-
-                  <Input
-                    label="Email Bendahara"
-                    value={formData.email}
-                    onChangeText={(value) => updateForm("email", value)}
-                                        keyboardType="email-address"
-                    autoCapitalize="none"
-                    left={<Input.Icon icon="email-outline" />}
-                    style={styles.input}
-                    outlineStyle={{ borderRadius: 16 }}
-                  />
-
-                  <Input
-                    label="Password"
-                    value={formData.password}
-                    onChangeText={(value) => updateForm("password", value)}
-                                        secureTextEntry={!showPassword}
-                    left={<Input.Icon icon="lock-outline" />}
-                    right={
-                      <Input.Icon 
-                        icon={showPassword ? "eye-off" : "eye"} 
-                        onPress={() => setShowPassword(!showPassword)}
-                      />
-                    }
-                    style={styles.input}
-                    outlineStyle={{ borderRadius: 16 }}
-                    helperText="Minimal 6 karakter"
-                  />
-
-                  <Input
-                    label="Konfirmasi Password"
-                    value={formData.confirmPassword}
-                    onChangeText={(value) => updateForm("confirmPassword", value)}
-                                        secureTextEntry={!showConfirmPassword}
-                    left={<Input.Icon icon="lock-check-outline" />}
-                    right={
-                      <Input.Icon 
-                        icon={showConfirmPassword ? "eye-off" : "eye"} 
-                        onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                      />
-                    }
-                    style={styles.input}
-                    outlineStyle={{ borderRadius: 16 }}
-                  />
-
-                  <Button
-                    variant="primary"
-                    onPress={handleNext}
-                    style={styles.nextButton}
-                    contentStyle={styles.buttonContent}
-                    icon="arrow-right"
-                  >
-                    Lanjutkan
-                  </Button>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Step 2: Personal Info */}
-          {currentStep === 2 && (
-            <View>
-              <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
-                <View style={{ padding: 20 }}>
-                  <View style={styles.stepHeader}>
-                    <View style={[styles.stepIcon, { backgroundColor: Colors.secondaryContainer }]}>
-                      <MaterialIcons name="person" size={24} color={Colors.onSecondaryContainer} />
-                    </View>
-                    <Text style={styles.stepTitle}>
-                      Informasi Pribadi
-                    </Text>
-                  </View>
-
-                  <Input
-                    label="Nama Lengkap"
-                    value={formData.nama}
-                    onChangeText={(value) => updateForm("nama", value)}
-                                        left={<Input.Icon icon="account-outline" />}
-                    style={styles.input}
-                    outlineStyle={{ borderRadius: 16 }}
-                  />
-
-                  <Input
-                    label="Nomor HP"
-                    value={formData.noHp}
-                    onChangeText={(value) => updateForm("noHp", value)}
-                                        keyboardType="phone-pad"
-                    left={<Input.Icon icon="phone-outline" />}
-                    style={styles.input}
-                    outlineStyle={{ borderRadius: 16 }}
-                  />
-
-                  <Button
-                    variant="primary"
-                    onPress={handleRegister}
-                    loading={loading}
-                    disabled={loading}
-                    style={styles.registerButton}
-                    contentStyle={styles.buttonContent}
-                    icon="account-plus"
-                  >
-                    {loading ? "Membuat Akun..." : "Daftar Sekarang"}
-                  </Button>
-                </View>
-              </View>
-            </View>
-          )}
-
-          {/* Login Link */}
-          <View 
-            style={styles.loginSection}
-          >
-            <Text style={{ color: Colors.onViewVariant }}>
-              Sudah punya akun bendahara?
-            </Text>
-            <Button
-              variant="outline"
-              onPress={() => router.push("/(auth)/bendahara-login")}
-              style={styles.loginButton}
-              labelStyle={{ color: Colors.primary }}
-            >
-              Masuk Sekarang
-            </Button>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f8fafc",
   },
-  scrollContent: {
-    flexGrow: 1,
+  keyboardContainer: {
+    flex: 1,
+  },
+  header: {
     paddingHorizontal: 24,
-    paddingBottom: 40,
+    paddingVertical: 16,
   },
   backButton: {
-    alignSelf: 'flex-start',
-    marginLeft: -8,
+    alignSelf: "flex-start",
   },
-  progressSection: {
-    marginBottom: 24,
+  backButtonText: {
+    fontSize: 16,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
+  scrollView: {
+    flex: 1,
   },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
+  content: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
   },
-  stepIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoSection: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  logoContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
+  titleSection: {
+    alignItems: "center",
+    marginBottom: 40,
+    marginTop: 20,
   },
   title: {
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1e293b",
     marginBottom: 8,
   },
   subtitle: {
-    marginBottom: 16,
-    textAlign: 'center',
+    fontSize: 16,
+    color: "#64748b",
+    textAlign: "center",
+    lineHeight: 24,
   },
-  formCard: {
-    borderRadius: 24,
-    marginBottom: 24,
-  },
-  stepHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 24,
-    gap: 12,
-  },
-  stepTitle: {
-    fontWeight: '600',
-  },
-  input: {
-    marginBottom: 16,
-  },
-  nextButton: {
-    marginTop: 8,
-    borderRadius: 28,
+  formSection: {
+    marginBottom: 32,
   },
   registerButton: {
     marginTop: 8,
-    borderRadius: 28,
-  },
-  buttonContent: {
-    paddingVertical: 8,
   },
   loginSection: {
-    alignItems: 'center',
-    marginTop: 16,
+    alignItems: "center",
   },
-  loginButton: {
-    marginTop: 4,
+  loginText: {
+    fontSize: 14,
+    color: "#64748b",
+    marginBottom: 8,
+  },
+  loginLink: {
+    fontSize: 14,
+    color: "#3b82f6",
+    fontWeight: "600",
   },
 });

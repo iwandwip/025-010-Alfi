@@ -10,19 +10,15 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { getActiveTimeline, calculatePaymentStatus } from './timelineService';
+import { updateUserPaymentStatus } from './adminPaymentService';
 import { toISOString } from '../utils/dateUtils';
 
 let cachedPayments = new Map();
 let cachedTimeline = null;
 let cacheTimestamp = null;
-let cachedTimelineId = null;
 const CACHE_DURATION = 30000;
 
-const isCacheValid = (currentTimelineId) => {
-  // Cache is invalid if timeline ID has changed
-  if (cachedTimelineId && currentTimelineId && cachedTimelineId !== currentTimelineId) {
-    return false;
-  }
+const isCacheValid = () => {
   return cacheTimestamp && (Date.now() - cacheTimestamp) < CACHE_DURATION;
 };
 
@@ -39,7 +35,14 @@ export const getWargaPaymentHistory = async (wargaId) => {
     let timeline;
     const cacheKey = wargaId;
 
-    // Get timeline first to check if it changed
+    if (isCacheValid() && cachedTimeline && cachedPayments.has(cacheKey)) {
+      return {
+        success: true,
+        payments: cachedPayments.get(cacheKey),
+        timeline: cachedTimeline
+      };
+    }
+
     const timelineResult = await getActiveTimeline();
     if (!timelineResult.success) {
       return { 
@@ -51,15 +54,6 @@ export const getWargaPaymentHistory = async (wargaId) => {
     }
 
     timeline = timelineResult.timeline;
-    
-    // Check cache validity with timeline ID
-    if (isCacheValid(timeline.id) && cachedTimeline && cachedPayments.has(cacheKey)) {
-      return {
-        success: true,
-        payments: cachedPayments.get(cacheKey),
-        timeline: cachedTimeline
-      };
-    }
     const activePeriods = Object.keys(timeline.periods).filter(
       periodKey => timeline.periods[periodKey].active
     );
@@ -151,7 +145,6 @@ export const getWargaPaymentHistory = async (wargaId) => {
 
     cachedPayments.set(cacheKey, allPayments);
     cachedTimeline = timeline;
-    cachedTimelineId = timeline.id;
     cacheTimestamp = Date.now();
 
     return { success: true, payments: allPayments, timeline };
@@ -232,20 +225,13 @@ export const getPaymentSummary = (payments) => {
   const total = payments.length;
   const lunas = payments.filter(p => p.status === 'lunas').length;
   const belumBayar = payments.filter(p => p.status === 'belum_bayar').length;
-  const belumLunas = payments.filter(p => p.status === 'belum_lunas').length;
   const terlambat = payments.filter(p => p.status === 'terlambat').length;
   
   const totalAmount = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const paidAmount = payments
     .filter(p => p.status === 'lunas')
     .reduce((sum, p) => sum + (p.amount || 0), 0);
-  
-  // Hitung partial payment amount
-  const partialAmount = payments
-    .filter(p => p.partialPayment && p.totalPaid > 0)
-    .reduce((sum, p) => sum + (p.totalPaid || 0), 0);
-  
-  const unpaidAmount = totalAmount - paidAmount - partialAmount;
+  const unpaidAmount = totalAmount - paidAmount;
 
   const progressPercentage = total > 0 ? Math.round((lunas / total) * 100) : 0;
 
@@ -253,11 +239,9 @@ export const getPaymentSummary = (payments) => {
     total,
     lunas,
     belumBayar,
-    belumLunas,
     terlambat,
     totalAmount,
     paidAmount,
-    partialAmount,
     unpaidAmount,
     progressPercentage
   };
@@ -340,8 +324,13 @@ export const applyCreditToPayments = (payments, creditBalance) => {
   };
 };
 
-export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, paymentAmount, paymentMethod) => {
+export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, paymentAmount, paymentMethod, partialAmount = null) => {
   try {
+    // Special handling for credit_only (partial payment)
+    if (paymentMethod === 'credit_only' && partialAmount) {
+      return await addPartialPaymentToCredit(wargaId, partialAmount);
+    }
+    
     if (!db || !timelineId || !periodKey || !wargaId || !paymentAmount) {
       throw new Error('Parameter tidak lengkap');
     }
@@ -400,7 +389,7 @@ export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, p
       notes: creditApplied > 0 ? `Credit applied: ${creditApplied}` : ''
     };
 
-    const paymentResult = await updateWargaPaymentStatus(timelineId, periodKey, wargaId, updateData);
+    const paymentResult = await updateUserPaymentStatus(timelineId, periodKey, wargaId, updateData);
     if (!paymentResult.success) {
       throw new Error('Gagal update status pembayaran');
     }
@@ -425,170 +414,47 @@ export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, p
   }
 };
 
-export const processCustomPaymentWithAutoAllocation = async (wargaId, paymentAmount, paymentMethod = 'cash') => {
+/**
+ * Add partial payment amount to credit balance only (no period completion)
+ * Used when hardware payment is less than required amount
+ */
+export const addPartialPaymentToCredit = async (wargaId, partialAmount) => {
   try {
-    if (!db || !wargaId || !paymentAmount || paymentAmount <= 0) {
-      throw new Error('Parameter tidak valid');
+    if (!db || !wargaId || !partialAmount) {
+      throw new Error('Parameter tidak lengkap untuk partial payment');
     }
 
-    // 1. Get credit balance dan payment history
-    const [creditResult, paymentHistory] = await Promise.all([
-      getCreditBalance(wargaId),
-      getWargaPaymentHistory(wargaId)
-    ]);
-
+    // Get current credit balance
+    const creditResult = await getCreditBalance(wargaId);
     if (!creditResult.success) {
       throw new Error('Gagal mengambil saldo credit');
     }
 
-    if (!paymentHistory.success) {
-      throw new Error('Gagal mengambil riwayat pembayaran');
-    }
+    const currentCredit = creditResult.creditBalance;
+    const newCreditBalance = currentCredit + parseInt(partialAmount);
 
-    const timeline = paymentHistory.timeline;
-    if (!timeline) {
-      throw new Error('Timeline tidak ditemukan');
-    }
+    // Update user's credit balance
+    const userRef = doc(db, 'users', wargaId);
+    await updateDoc(userRef, {
+      creditBalance: newCreditBalance,
+      updatedAt: new Date()
+    });
 
-    let remainingPayment = paymentAmount;
-    let currentCredit = creditResult.creditBalance;
-    const paymentResults = [];
-    
-    // 2. Filter pembayaran yang belum lunas, urutkan berdasarkan periode
-    const unpaidPayments = paymentHistory.payments
-      .filter(p => p.status === 'belum_bayar' || p.status === 'terlambat')
-      .sort((a, b) => {
-        const periodA = parseInt(a.periodKey.replace('period_', ''));
-        const periodB = parseInt(b.periodKey.replace('period_', ''));
-        return periodA - periodB;
-      });
+    console.log(`💰 Partial payment added to credit: Rp ${partialAmount} → New balance: Rp ${newCreditBalance}`);
 
-    if (unpaidPayments.length === 0) {
-      // Tidak ada tagihan yang belum dibayar, semua menjadi credit
-      const maxCredit = paymentAmount * 3; // Batas maksimal credit
-      const finalCredit = Math.min(paymentAmount, maxCredit - currentCredit);
-      
-      const creditUpdateResult = await updateCreditBalance(wargaId, currentCredit + finalCredit);
-      if (!creditUpdateResult.success) {
-        throw new Error('Gagal update saldo credit');
-      }
-
-      return {
-        success: true,
-        totalProcessed: finalCredit,
-        remainingAmount: paymentAmount - finalCredit,
-        newCreditBalance: currentCredit + finalCredit,
-        processedPayments: [],
-        message: `Semua tagihan sudah lunas. ${finalCredit > 0 ? `Rp ${finalCredit.toLocaleString()} ditambahkan ke credit.` : 'Pembayaran melebihi batas credit maksimal.'}`
-      };
-    }
-
-    // 3. Proses pembayaran satu per satu
-    for (const payment of unpaidPayments) {
-      if (remainingPayment <= 0) break;
-
-      let creditApplied = 0;
-      let cashPaid = 0;
-      
-      // Gunakan credit terlebih dahulu
-      if (currentCredit > 0 && payment.amount > 0) {
-        creditApplied = Math.min(currentCredit, payment.amount);
-        currentCredit -= creditApplied;
-      }
-      
-      const amountAfterCredit = payment.amount - creditApplied;
-      
-      // Gunakan cash untuk sisa pembayaran
-      if (amountAfterCredit > 0 && remainingPayment > 0) {
-        cashPaid = Math.min(remainingPayment, amountAfterCredit);
-        remainingPayment -= cashPaid;
-      }
-      
-      const totalPaidForThisPayment = creditApplied + cashPaid;
-      
-      if (totalPaidForThisPayment >= payment.amount) {
-        // Pembayaran lunas
-        const updateData = {
-          status: 'lunas',
-          paymentDate: toISOString(),
-          paymentMethod: paymentMethod,
-          creditApplied,
-          remainingAmount: 0,
-          paidAmount: cashPaid,
-          totalPaid: totalPaidForThisPayment,
-          notes: creditApplied > 0 ? `Credit applied: ${creditApplied}` : ''
-        };
-
-        const paymentResult = await updateWargaPaymentStatus(timeline.id, payment.periodKey, wargaId, updateData);
-        if (paymentResult.success) {
-          paymentResults.push({
-            periodKey: payment.periodKey,
-            periodLabel: payment.periodLabel,
-            amount: payment.amount,
-            creditApplied,
-            cashPaid,
-            status: 'lunas'
-          });
-        }
-      } else if (totalPaidForThisPayment > 0) {
-        // Pembayaran parsial - status tetap sesuai timeline tapi ada informasi terbayar
-        const currentStatus = calculatePaymentStatus(payment, timeline);
-        const partialStatus = currentStatus === 'terlambat' ? 'terlambat' : 'belum_lunas';
-        
-        const updateData = {
-          status: partialStatus,
-          paymentDate: toISOString(),
-          paymentMethod: paymentMethod,
-          creditApplied,
-          remainingAmount: payment.amount - totalPaidForThisPayment,
-          paidAmount: cashPaid,
-          totalPaid: totalPaidForThisPayment,
-          partialPayment: true, // Flag untuk menandai pembayaran parsial
-          notes: `Terbayar parsial: Rp ${totalPaidForThisPayment.toLocaleString()} dari Rp ${payment.amount.toLocaleString()}${creditApplied > 0 ? ` (Credit: Rp ${creditApplied.toLocaleString()})` : ''}`
-        };
-
-        const paymentResult = await updateWargaPaymentStatus(timeline.id, payment.periodKey, wargaId, updateData);
-        if (paymentResult.success) {
-          paymentResults.push({
-            periodKey: payment.periodKey,
-            periodLabel: payment.periodLabel,
-            amount: payment.amount,
-            creditApplied,
-            cashPaid,
-            status: partialStatus,
-            isPartial: true
-          });
-        }
-      }
-    }
-
-    // 4. Jika masih ada sisa pembayaran, jadikan credit
-    if (remainingPayment > 0) {
-      const maxTotalCredit = paymentAmount * 3; // Batas maksimal credit berdasarkan pembayaran
-      const finalExcessCredit = Math.min(remainingPayment, maxTotalCredit - currentCredit);
-      
-      if (finalExcessCredit > 0) {
-        currentCredit += finalExcessCredit;
-        remainingPayment -= finalExcessCredit;
-      }
-    }
-
-    // 5. Update credit balance
-    const creditUpdateResult = await updateCreditBalance(wargaId, currentCredit);
-    if (!creditUpdateResult.success) {
-      throw new Error('Gagal update saldo credit');
-    }
+    // Clear cache to force reload
+    clearWargaCache();
 
     return {
       success: true,
-      totalProcessed: paymentAmount - remainingPayment,
-      remainingAmount: remainingPayment,
-      newCreditBalance: currentCredit,
-      processedPayments: paymentResults,
-      message: `Berhasil memproses ${paymentResults.length} pembayaran. ${remainingPayment > 0 ? `Sisa Rp ${remainingPayment.toLocaleString()} tidak dapat diproses (melebihi batas credit maksimal).` : ''}`
+      partialAmount: parseInt(partialAmount),
+      previousCredit: currentCredit,
+      newCreditBalance,
+      addedToCredit: parseInt(partialAmount),
+      paymentStatus: 'partial_to_credit'
     };
   } catch (error) {
-    console.error('Error processing custom payment with auto allocation:', error);
+    console.error('Error adding partial payment to credit:', error);
     return { success: false, error: error.message };
   }
 };
@@ -596,6 +462,5 @@ export const processCustomPaymentWithAutoAllocation = async (wargaId, paymentAmo
 export const clearWargaCache = () => {
   cachedPayments.clear();
   cachedTimeline = null;
-  cachedTimelineId = null;
   cacheTimestamp = null;
 };

@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Platform,
 } from "react-native";
-import { Colors } from "../../constants/theme";
+import { Colors } from "../../constants/Colors";
 
 const DataTable = ({ headers, data, onEdit, onDelete, keyExtractor }) => {
   const getStatusColor = (status) => {
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.gray900,
     textAlign: "center",
   },
@@ -211,15 +211,15 @@ const styles = StyleSheet.create({
   },
   dateTimeText: {
     fontSize: 11,
-    fontFamily: "Poppins-Regular",
+    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
     lineHeight: 14,
   },
   numberText: {
-    fontFamily: "Poppins-Regular",
-    fontWeight: 500,
+    fontFamily: Platform.OS === "ios" ? "Courier New" : "monospace",
+    fontWeight: "500",
   },
   statusText: {
-    fontWeight: 500,
+    fontWeight: "500",
     textTransform: "capitalize",
   },
   actionButtons: {

@@ -10,11 +10,8 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRoleTheme } from '../../hooks/useRoleTheme';
-import { Shadows, Spacing, Typography, BorderRadius } from '../../constants/theme';
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
@@ -22,8 +19,6 @@ import { getUserProfile, updateUserProfile } from "../../services/userService";
 
 export default function EditWarga() {
   const { wargaId } = useLocalSearchParams();
-  const { colors } = useRoleTheme();
-  const styles = createStyles(colors);
   const [formData, setFormData] = useState({
     namaWarga: "",
     alamat: "",
@@ -67,7 +62,7 @@ export default function EditWarga() {
       return false;
     }
     if (!formData.alamat.trim()) {
-      Alert.alert("Error", "Alamat warga wajib diisi");
+      Alert.alert("Error", "Alamat wajib diisi");
       return false;
     }
     if (!formData.noHpWarga.trim()) {
@@ -126,38 +121,29 @@ export default function EditWarga() {
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={[colors.primaryContainer, colors.background]}
-        style={{ flex: 1 }}
-      >
-        <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <Text style={styles.backButtonText}>← Batal</Text>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Edit Data Warga</Text>
-          </View>
-          <View style={styles.loadingContainer}>
-            <LoadingSpinner text="Memuat data warga..." />
-          </View>
-        </SafeAreaView>
-      </LinearGradient>
+      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backButtonText}>← Batal</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Edit Data Warga</Text>
+        </View>
+        <View style={styles.loadingContainer}>
+          <LoadingSpinner text="Memuat data warga..." />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <LinearGradient
-      colors={[colors.primaryContainer, colors.background]}
-      style={{ flex: 1 }}
-    >
-      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.keyboardContainer}
-        >
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardContainer}
+      >
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -193,10 +179,14 @@ export default function EditWarga() {
                 onChangeText={(value) => updateForm("namaWarga", value)}
                 autoCapitalize="words"
               />
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Informasi Kontak</Text>
 
               <Input
                 label="Alamat"
-                placeholder="Masukkan alamat lengkap warga"
+                placeholder="Masukkan alamat lengkap"
                 value={formData.alamat}
                 onChangeText={(value) => updateForm("alamat", value)}
                 autoCapitalize="words"
@@ -245,16 +235,15 @@ export default function EditWarga() {
             </View>
           </View>
         </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </LinearGradient>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: "#f8fafc",
   },
   keyboardContainer: {
     flex: 1,
@@ -263,8 +252,8 @@ const createStyles = (colors) => StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.surface,
+    borderBottomColor: "#e2e8f0",
+    backgroundColor: "#fff",
   },
   backButton: {
     alignSelf: "flex-start",
@@ -272,13 +261,13 @@ const createStyles = (colors) => StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: colors.primary,
-    fontWeight: 500,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 600,
-    color: colors.text,
+    fontWeight: "600",
+    color: "#1e293b",
     textAlign: "center",
   },
   loadingContainer: {
@@ -315,12 +304,12 @@ const createStyles = (colors) => StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 600,
-    color: colors.text,
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 16,
     paddingBottom: 8,
     borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
+    borderBottomColor: "#3b82f6",
   },
   infoBox: {
     backgroundColor: "#dbeafe",
@@ -341,7 +330,7 @@ const createStyles = (colors) => StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    borderColor: colors.textSecondary,
+    borderColor: "#64748b",
   },
   saveButton: {
     flex: 1,

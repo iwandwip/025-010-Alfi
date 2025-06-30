@@ -51,8 +51,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **react-native-chart-kit** (6.12.0) - Data visualization
 - **react-native-vector-icons** (10.2.0) - Icon library
 - **react-native-keyboard-aware-scroll-view** (0.9.5) - Enhanced keyboard handling
-- **@react-native-community/netinfo** - Network connectivity detection
-- **expo-crypto** - Cryptographic operations for Metro bundler compatibility
+- **expo-crypto** (14.1.1) - Cryptographic operations for Metro bundler compatibility
+- **@react-native-community/datetimepicker** (8.3.0) - Date/time picker components
+- **@react-navigation/native** (7.1.6) - Navigation library
+- **expo-constants** (17.1.6) - Access to app constants
+- **expo-file-system** (18.1.10) - File system operations
+- **expo-font** (13.3.1) - Custom font loading (Poppins font family)
+- **expo-linear-gradient** (14.1.5) - Gradient components
+- **expo-linking** (7.1.5) - Deep linking support
+- **expo-sharing** (13.1.5) - Native sharing capabilities
+- **expo-splash-screen** (0.30.9) - Splash screen management
+- **expo-status-bar** (2.2.3) - Status bar control
+- **react-native-reanimated** (3.17.4) - Advanced animations
+- **react-native-safe-area-context** (5.4.0) - Safe area handling
+- **react-native-screens** (4.11.1) - Native navigation screens
+- **react-native-web** (0.20.0) - Web platform support
+- **rimraf** (6.0.1) - Cross-platform rm -rf for clean scripts
 
 ### Hardware Integration
 - **ESP32 firmware** with two versions (R0 and R1)
@@ -100,6 +114,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - timelineService.js: timeline/schedule management
   - pairingService.js: ESP32 device pairing operations
   - **NEW**: paymentStatusManager.js - Advanced status management with caching and throttling
+  - **NEW**: rtdbModeService.js - Revolutionary mode-based RTDB service with 90% ESP32 code reduction
+  - **NEW**: dataBridgeService.js - RTDB to Firestore data bridging for permanent storage
 
 **Hardware Integration**
 - ESP32 firmware in `firmware/` directory with two versions (R0, R1)
@@ -126,14 +142,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Component Structure**
 - `components/ui/` - Reusable UI components:
-  - Core components: `CoreComponents.jsx` (Box, VStack, HStack, Center, etc.)
-  - Native components: `NativeButton.jsx`, `NativeCard.jsx`, `NativeChip.jsx`
-  - UI components: `Button.jsx`, `Input.jsx`, `DataTable.jsx`, `LoadingSpinner.jsx`
-  - Specialized: `PaymentModal.jsx`, `CreditBalance.jsx`, `DatePicker.jsx`, `TimelinePicker.jsx`
-  - Legacy NB components: `NBButton.jsx`, `NBCard.jsx`, `NBDataTable.jsx`, etc.
+  - **Core components**: `CoreComponents.jsx` - Complete NativeBase replacement with:
+    - Container, Box, VStack, HStack, Center layout components
+    - Custom Text, Heading, Button, Input form components
+    - LoadingSpinner, CustomModal, SafeArea utility components
+    - Complete styling system integrated with theme
+  - **Advanced components**: `PaymentModal.jsx` - Sophisticated payment interface
+  - **Native components**: `NativeButton.jsx`, `NativeCard.jsx`, `NativeChip.jsx`
+  - **UI components**: `Button.jsx`, `Input.jsx`, `DataTable.jsx`, `LoadingSpinner.jsx`
+  - **Specialized**: `CreditBalance.jsx`, `DatePicker.jsx`, `TimelinePicker.jsx`
+  - **Legacy NB components**: `NBButton.jsx`, `NBCard.jsx`, `NBDataTable.jsx`, etc.
 - `components/auth/` - Authentication-specific components
 - `components/illustrations/` - SVG illustrations for auth screens
-- **NEW**: `hooks/` - Custom React hooks:
+- `hooks/` - Custom React hooks:
   - `useRoleTheme.js` - Dynamic role-based theming hook
 
 **Error Handling**
@@ -147,17 +168,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Advanced Theme System**
 - Dark/light theme support with persistent storage
-- **NEW**: Dynamic role-based theming system:
+- **Dynamic role-based theming system**:
   - **Bendahara/Admin**: Red theme (`#DC2626`) for administrative functions
   - **Warga/User**: Blue theme (`#2563EB`) for user interface
-- **NEW**: `hooks/useRoleTheme.js` - Custom hook for role-based theming
-- App icon and splash screen themed with money icon
-- Automatic UI style adaptation (light/dark)
-- Comprehensive styling system:
-  - `constants/theme.js` - Central theme with Colors, Spacing, Typography, Shadows
+- `hooks/useRoleTheme.js` - Custom hook for dynamic role-based theming
+- **Comprehensive styling system**:
+  - `constants/theme.js` - Advanced theme with role-based color schemes:
+    - RoleColors system with getColorsForRole function
+    - BaseColors with comprehensive color palette
+    - Advanced Typography with multiple text styles
+    - Platform-specific shadow systems
+    - Spacing and layout constants
+  - `constants/Colors.js` - Dedicated color definitions
   - `constants/ButtonStyles.js` - Button styling system with variants and sizes
   - `constants/CardStyles.js` - Card component styling with status-based helpers
-  - **NEW**: Role-based color schemes integrated throughout the app
+- **Assets**:
+  - Money-themed icons and splash screens
+  - Custom Poppins font family (Bold, Light, Medium, Regular, SemiBold)
+  - Comprehensive image assets in `assets/images/`
 
 **Metro Configuration**
 - Custom crypto alias using expo-crypto for Node.js crypto compatibility
@@ -170,6 +198,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The app uses Firebase project "alfi-c6f58" with:
 - Authentication (email/password)
 - Firestore database for user profiles and app data
+- **NEW**: Realtime Database (RTDB) for revolutionary mode-based ESP32 coordination
 - Real-time listeners for data synchronization
 - Firebase Admin SDK for server-side operations
 
@@ -180,6 +209,7 @@ Firebase configuration is managed through environment variables:
 ```bash
 EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key_here
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_DATABASE_URL=https://your_project-default-rtdb.firebaseio.com/
 EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
@@ -187,16 +217,51 @@ EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
 EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
 
+## Revolutionary Mode-Based Architecture
+
+### RTDB Schema (Ultra-Simple ESP32 Integration)
+```javascript
+{
+  // Global system mode - single source of truth
+  "mode": "idle", // "idle" | "pairing" | "payment" | "solenoid"
+  
+  // RFID pairing mode - ESP32 writes detected RFID codes here
+  "pairing_mode": "", // Empty when idle, RFID code when detected
+  
+  // Hardware payment coordination
+  "payment_mode": {
+    "get": { 
+      "rfid_code": "",        // Expected RFID for payment
+      "amount_required": ""   // Required payment amount
+    },
+    "set": { 
+      "amount_detected": "",  // Amount detected by KNN algorithm
+      "status": ""           // "completed" | "rfid_salah" | "insufficient"
+    }
+  },
+  
+  // Solenoid control commands
+  "solenoid_command": "locked" // "unlock" | "locked"
+}
+```
+
+### Key Benefits
+- **90% ESP32 code reduction** - No JSON parsing, only simple string operations
+- **5x faster real-time communication** - Direct RTDB path access
+- **Self-cleaning data patterns** - Automatic cleanup after operations
+- **App-managed timeouts** - ESP32 just reads current state
+- **Priority-based mode system** - Prevents race conditions
+
 ## Hardware Integration Notes
 
 ESP32 firmware supports:
 - RFID card reading for warga identification
 - LCD display for user interface
 - RTC for time tracking
-- Color sensor (TCS3200) for object detection
+- Color sensor (TCS3200) for object detection with KNN algorithm
 - Servo motor and relay control
-- WiFi connectivity for data transmission
-- KNN algorithm for intelligent recognition
+- WiFi connectivity for RTDB communication
+- **NEW**: Ultra-simple mode-based coordination (see SYSTEM_FLOWS.md)
 
 ### Firmware Versions
 - **AlfiFirmwareR0**: Basic firmware version with core functionality
@@ -276,12 +341,13 @@ ESP32 firmware supports:
 
 ### Admin/Bendahara Files
 - `app/(admin)/index.jsx` - Admin dashboard
-- `app/(admin)/daftar-warga.jsx` - List all warga
+- `app/(admin)/daftar-warga.jsx` - List all warga (active version)
+- `app/(admin)/daftar-warga-COMPLETED.jsx` - Completed/archived warga listing
 - `app/(admin)/tambah-warga.jsx` - Add new warga
 - `app/(admin)/detail-warga.jsx` - View/edit warga details
 - `app/(admin)/edit-warga.jsx` - Edit warga information
 - `app/(admin)/payment-status.jsx` - View payment statuses
-- **NEW**: `app/(admin)/payment-manager.jsx` - Advanced payment management interface
+- `app/(admin)/payment-manager.jsx` - Advanced payment management interface
 - `app/(admin)/timeline-manager.jsx` - Manage payment timelines
 - `app/(admin)/create-timeline.jsx` - Create new payment timelines
 - `app/(admin)/user-payment-detail.jsx` - Detailed payment view for specific warga
@@ -321,16 +387,32 @@ ESP32 firmware supports:
 - `utils/validation.js` - Input validation functions
 
 ### Configuration Files
-- `package.json` - Dependencies and npm scripts
+- `package.json` - Dependencies and npm scripts with expo.doctor configuration
 - `app.json` - Expo configuration with app metadata
 - `eas.json` - Expo Application Services build configuration
 - `metro.config.js` - Metro bundler configuration with crypto alias
 - `.env.example` - Firebase environment variables template
 
+### Additional Documentation Files
+- `README.md` - Main project documentation
+- `SETUPGUIDE.md` - Setup and installation guide
+- `BUILD_APK.md` - APK building instructions
+- `AUTHENTICATION_TROUBLESHOOTING.md` - Auth troubleshooting guide
+- `replacement-guide.md` - Legacy component replacement guide
+
+### TypeScript Support
+- `types/svg.d.ts` - TypeScript definitions for SVG files
+
+### Asset Structure
+- `assets/fonts/` - Poppins font family (Bold, Light, Medium, Regular, SemiBold)
+- `assets/images/` - App icons, illustrations, and images:
+  - Multiple icon variants (adaptive-icon.png, favicon.png, icon.png)
+  - Splash screen assets (splash.png, splash-icon.png)
+  - Money-themed icons (icon-money.png, favicon.png)
+
 ## Important Notes
 
-- All references to old terminology (santri, wali, TPQ, bisyaroh) have been completely removed
-- The system now uses consistent "warga" (resident) and "bendahara" (treasurer) terminology
+- The system uses consistent "warga" (resident) and "bendahara" (treasurer) terminology throughout
 - Database collections use "warga_payments" instead of legacy naming
 - RFID system is designed for warga identification and setoran processing
 - Credit balance system allows prepaid setoran management

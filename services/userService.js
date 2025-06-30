@@ -35,12 +35,11 @@ export const createUserProfile = async (uid, profileData) => {
       updatedAt: new Date()
     };
 
-    if (profileData.role === 'bendahara' || profileData.role === 'admin') {
+    if (profileData.role === 'admin') {
       userProfile.nama = profileData.nama;
       userProfile.noHp = profileData.noHp;
     } else if (profileData.role === 'user') {
       userProfile.namaWarga = profileData.namaWarga;
-      userProfile.alamat = profileData.alamat;
       userProfile.noHpWarga = profileData.noHpWarga;
       userProfile.rfidWarga = profileData.rfidWarga || "";
     }
@@ -123,13 +122,9 @@ export const getAllWarga = async () => {
     
     const wargaList = [];
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
       wargaList.push({
         id: doc.id,
-        ...data,
-        namaWarga: data.namaWarga,
-        noHpWarga: data.noHpWarga,
-        rfidWarga: data.rfidWarga
+        ...doc.data()
       });
     });
 
@@ -277,4 +272,3 @@ export const getDeletedWarga = async () => {
     return { success: false, error: error.message, data: [] };
   }
 };
-

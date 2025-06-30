@@ -11,16 +11,35 @@ import {
   TextInput,
 } from "react-native";
 import { useSettings } from "../../contexts/SettingsContext";
-import { Colors } from "../../constants/theme";
+import { getColors } from "../../constants/Colors";
 import Button from "./Button";
+import { 
+  startHardwarePaymentWithTimeout,
+  subscribeToPaymentProgress,
+  subscribeToPaymentResults,
+  completePaymentSession,
+  clearModeTimeout,
+  getMode,
+  clearPaymentStatus
+} from "../../services/rtdbModeService";
 
-const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalance = 0 }) => {
+const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalance = 0, userProfile = null }) => {
   const { theme, loading: settingsLoading } = useSettings();
-  const colors = Colors;
+  const colors = getColors(theme);
+  
+  // Main payment flow states
+  const [paymentSource, setPaymentSource] = useState(null); // 'hardware' | 'app'
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [processing, setProcessing] = useState(false);
-  const [paymentMode, setPaymentMode] = useState('exact');
+  const [paymentMode, setPaymentMode] = useState('exact'); // Only for app payments
   const [customAmount, setCustomAmount] = useState('');
+  
+  // Hardware payment states
+  const [hardwarePayment, setHardwarePayment] = useState(false);
+  const [hardwareStatus, setHardwareStatus] = useState('waiting');
+  const [paymentTimeoutId, setPaymentTimeoutId] = useState(null);
+  const [paymentProgressListener, setPaymentProgressListener] = useState(null);
+  const [paymentResultsListener, setPaymentResultsListener] = useState(null);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("id-ID", {
@@ -88,15 +107,15 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
       id: "bca",
       name: "Transfer BCA",
       icon: "🏦",
-      description: "Transfer ke rekening BCA RT 01 RW 02",
-      details: "Rek: 1234567890 a.n. RT 01 RW 02",
+      description: "Transfer ke rekening BCA Jimpitan",
+      details: "Rek: 1234567890 a.n. Bendahara Jimpitan",
     },
     {
       id: "mandiri",
       name: "Transfer Mandiri",
       icon: "🏦",
-      description: "Transfer ke rekening Mandiri RT 01 RW 02",
-      details: "Rek: 0987654321 a.n. RT 01 RW 02",
+      description: "Transfer ke rekening Mandiri Jimpitan",
+      details: "Rek: 0987654321 a.n. Bendahara Jimpitan",
     },
     {
       id: "qris",
@@ -127,6 +146,14 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
       details: "Transfer ke 081234567890",
     },
   ];
+
+  const handlePaymentSourceSelect = (source) => {
+    setPaymentSource(source);
+    if (source === 'hardware') {
+      // Hardware payment doesn't need method/mode selection
+      handleHardwarePayment();
+    }
+  };
 
   const handleMethodSelect = (method) => {
     setSelectedMethod(method);
@@ -160,26 +187,9 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
       : (amountAfterCredit || 0);
 
     setTimeout(() => {
-      let successMessage = '';
-      
-      if (paymentMode === 'custom' && finalAmount > (amountAfterCredit || 0)) {
-        // Ada kelebihan pembayaran
-        const excess = finalAmount - (amountAfterCredit || 0);
-        const nextPeriodAllocation = Math.min(excess, payment.amount || 0); // Asumsi: kelebihan ke periode berikutnya
-        const creditAmount = excess - nextPeriodAllocation;
-        
-        successMessage = `Pembayaran ${payment.periodData?.label} berhasil! `;
-        
-        if (nextPeriodAllocation > 0) {
-          successMessage += `Kelebihan ${formatCurrency(nextPeriodAllocation)} dialokasikan ke periode berikutnya. `;
-        }
-        
-        if (creditAmount > 0) {
-          successMessage += `Sisa ${formatCurrency(creditAmount)} menjadi credit.`;
-        }
-      } else {
-        successMessage = `Pembayaran ${payment.periodData?.label} sebesar ${formatCurrency(finalAmount || 0)} berhasil diproses.`;
-      }
+      const successMessage = (excessAmount || 0) > 0 
+        ? `Pembayaran ${payment.periodData?.label} berhasil! Kelebihan ${formatCurrency(willBecomeCredit || 0)} menjadi credit.`
+        : `Pembayaran ${payment.periodData?.label} sebesar ${formatCurrency(finalAmount || 0)} berhasil diproses.`;
 
       Alert.alert(
         "Pembayaran Berhasil! 🎉",
@@ -192,12 +202,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               setSelectedMethod(null);
               setPaymentMode('exact');
               setCustomAmount('');
-              onPaymentSuccess({
-                ...payment,
-                paymentAmount: finalAmount,
-                paymentMode: paymentMode,
-                autoAllocate: paymentMode === 'custom' && finalAmount > (amountAfterCredit || 0)
-              }, selectedMethod?.id || 'credit', finalAmount);
+              onPaymentSuccess(payment, selectedMethod?.id || 'credit', finalAmount);
               onClose();
             },
           },
@@ -206,12 +211,295 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
     }, 2000);
   };
 
-  const handleClose = () => {
-    if (!processing) {
+  const handleHardwarePayment = async () => {
+    setHardwarePayment(true);
+    setHardwareStatus('waiting');
+    
+    Alert.alert(
+      "🔥 Mode-based Hardware Payment",
+      "Revolutionary RTDB mode akan mengatur ESP32 untuk pembayaran:\n\n🚀 ESP32 akan switch ke payment mode\n⚡ Real-time RFID detection aktif\n💰 Currency recognition siap\n\nSesi timeout: 5 menit (app-managed)",
+      [
+        {
+          text: "Batal",
+          style: "cancel",
+          onPress: () => {
+            setHardwarePayment(false);
+            setHardwareStatus('waiting');
+          }
+        },
+        {
+          text: "Mulai Mode Payment",
+          onPress: async () => {
+            await startModeBasedPaymentSession();
+          }
+        }
+      ]
+    );
+  };
+
+  const startModeBasedPaymentSession = async () => {
+    try {
+      setHardwareStatus('scanning');
+      
+      // Revolutionary mode-based payment with RFID code (not user_id!)
+      const rfidCode = userProfile?.rfidWarga || payment.rfidCode || '';
+      
+      if (!rfidCode) {
+        setHardwareStatus('error');
+        Alert.alert("Error", "RFID warga tidak ditemukan. Silakan hubungi bendahara untuk pairing RFID.");
+        return;
+      }
+      
+      const result = await startHardwarePaymentWithTimeout(
+        rfidCode,
+        amountAfterCredit,
+        300 // 5 minutes timeout
+      );
+
+      if (result.success) {
+        setPaymentTimeoutId(result.timeoutId);
+        
+        // Subscribe to real-time payment progress
+        const progressUnsubscribe = subscribeToPaymentProgress((progressData) => {
+          handleModeBasedPaymentProgress(progressData);
+        });
+        setPaymentProgressListener(() => progressUnsubscribe);
+        
+        // Subscribe to final payment results
+        const resultsUnsubscribe = subscribeToPaymentResults((resultData) => {
+          console.log('💰 Raw payment data:', resultData);
+          handleModeBasedPaymentResults(resultData);
+        });
+        setPaymentResultsListener(() => resultsUnsubscribe);
+        
+      } else {
+        setHardwareStatus('error');
+        Alert.alert("Error", "Gagal memulai mode-based payment session");
+      }
+    } catch (error) {
+      setHardwareStatus('error');
+      Alert.alert("Error", "Terjadi kesalahan saat memulai mode-based payment");
+    }
+  };
+
+  const handleModeBasedPaymentProgress = (progressData) => {
+    if (!progressData) return;
+    
+    // Handle real-time progress updates from ESP32
+    if (progressData.amount_detected && progressData.amount_detected !== '') {
+      setHardwareStatus('processing');
+    }
+    
+    // Show immediate feedback for different statuses
+    if (progressData.status) {
+      console.log('💰 Payment progress:', progressData.status);
+      if (progressData.status === 'rfid_salah') {
+        // Don't wait for results listener, show error immediately
+        handleModeBasedPaymentResults(progressData);
+      }
+    }
+  };
+
+  const handleModeBasedPaymentResults = (resultData) => {
+    console.log('🔥 Payment result received:', resultData);
+    if (!resultData || !resultData.status) return;
+    
+    // Handle different status responses
+    if (resultData.status === 'completed') {
+      // Cleanup listeners and timeout
+      cleanupModeBasedPayment();
+      
+      setHardwareStatus('success');
+      
+      const detectedAmount = parseInt(resultData.amount_detected) || 0;
+      const requiredAmount = amountAfterCredit || 0;
+      
+      // Check if payment is partial (kurang bayar)
+      if (detectedAmount < requiredAmount) {
+        const remaining = requiredAmount - detectedAmount;
+        
+        Alert.alert(
+          "Pembayaran Kurang 💰",
+          `Pembayaran diterima: ${formatCurrency(detectedAmount)}\n` +
+          `Jumlah yang dibutuhkan: ${formatCurrency(requiredAmount)}\n\n` +
+          `✨ Uang Anda ditambahkan ke credit balance\n` +
+          `Sisa pembayaran: ${formatCurrency(remaining)}`,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setHardwarePayment(false);
+                setHardwareStatus('waiting');
+                // Pass detected amount for partial payment processing
+                onPaymentSuccess(payment, 'hardware_cash_partial', detectedAmount);
+                onClose();
+              }
+            }
+          ]
+        );
+      } else {
+        // Normal full payment or overpayment
+        const overpayment = detectedAmount - requiredAmount;
+        let message = `Pembayaran ${payment.periodData?.label} berhasil!\n\nJumlah: ${formatCurrency(detectedAmount)}`;
+        
+        if (overpayment > 0) {
+          message += `\n\n✨ Kelebihan ${formatCurrency(overpayment)} ditambahkan ke credit`;
+        }
+        
+        Alert.alert(
+          "Pembayaran Berhasil! 🎉",
+          message,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setHardwarePayment(false);
+                setHardwareStatus('waiting');
+                onPaymentSuccess(payment, 'hardware_cash', detectedAmount);
+                onClose();
+              }
+            }
+          ]
+        );
+      }
+    } else if (resultData.status === 'rfid_salah') {
+      setHardwareStatus('error');
+      Alert.alert(
+        "RFID Salah! ⚠️",
+        "Kartu RFID yang Anda gunakan tidak sesuai. Silakan gunakan kartu RFID Anda yang benar.",
+        [
+          {
+            text: "Coba Lagi",
+            onPress: async () => {
+              setHardwareStatus('scanning');
+              // Clear status in RTDB for ESP32 to set new status
+              await clearPaymentStatus();
+              console.log('🔄 Status cleared - ESP32 can set new status');
+            }
+          },
+          {
+            text: "Batal",
+            style: "cancel",
+            onPress: () => {
+              cleanupModeBasedPayment();
+              setHardwarePayment(false);
+              setHardwareStatus('waiting');
+            }
+          }
+        ]
+      );
+    } else if (resultData.status === 'failed') {
+      setHardwareStatus('error');
+      Alert.alert(
+        "Pembayaran Gagal",
+        "Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.",
+        [
+          {
+            text: "Coba Lagi",
+            onPress: async () => {
+              setHardwareStatus('scanning');
+              // Clear status in RTDB for retry
+              await clearPaymentStatus();
+              console.log('🔄 Status cleared for retry');
+            }
+          },
+          {
+            text: "Batal",
+            style: "cancel",
+            onPress: () => {
+              cleanupModeBasedPayment();
+              setHardwarePayment(false);
+              setHardwareStatus('waiting');
+            }
+          }
+        ]
+      );
+    }
+  };
+
+  const cleanupModeBasedPayment = () => {
+    // Clear timeout
+    if (paymentTimeoutId) {
+      clearModeTimeout(paymentTimeoutId);
+      setPaymentTimeoutId(null);
+    }
+    
+    // Unsubscribe from listeners
+    if (paymentProgressListener) {
+      paymentProgressListener();
+      setPaymentProgressListener(null);
+    }
+    
+    if (paymentResultsListener) {
+      paymentResultsListener();
+      setPaymentResultsListener(null);
+    }
+    
+    // Complete payment session and reset RTDB to idle
+    completePaymentSession();
+  };
+
+  const simulateHardwarePayment = () => {
+    // Simulate hardware payment process for demo
+    setTimeout(() => {
+      setHardwareStatus('processing');
+    }, 3000);
+    
+    setTimeout(() => {
+      setHardwareStatus('success');
+      Alert.alert(
+        "Pembayaran Berhasil! 🎉",
+        `Pembayaran ${payment.periodData?.label} melalui alat Jimpitan berhasil diproses.`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              setHardwarePayment(false);
+              setHardwareStatus('waiting');
+              onPaymentSuccess(payment, 'hardware_cash', amountAfterCredit);
+              onClose();
+            }
+          }
+        ]
+      );
+    }, 6000);
+  };
+
+  const handleClose = async () => {
+    if (!processing && !hardwarePayment) {
+      // Cleanup mode-based payment session
+      cleanupModeBasedPayment();
+      
+      setPaymentSource(null);
       setSelectedMethod(null);
       setPaymentMode('exact');
       setCustomAmount('');
+      setHardwarePayment(false);
+      setHardwareStatus('waiting');
       onClose();
+    } else if (hardwarePayment) {
+      // Ask user if they want to cancel the active mode-based session
+      Alert.alert(
+        "Cancel Mode-based Payment?",
+        "Ada sesi mode-based payment yang sedang aktif. Batalkan sesi ini?",
+        [
+          { text: "Tidak", style: "cancel" },
+          {
+            text: "Ya, Batalkan",
+            style: "destructive",
+            onPress: () => {
+              cleanupModeBasedPayment();
+              setHardwarePayment(false);
+              setHardwareStatus('waiting');
+              setPaymentSource(null);
+              setSelectedMethod(null);
+              setPaymentMode('exact');
+              setCustomAmount('');
+              onClose();
+            }
+          }
+        ]
+      );
     }
   };
 
@@ -234,7 +522,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
             style={[styles.modalHeader, { borderBottomColor: colors.gray200 }]}
           >
             <Text style={[styles.modalTitle, { color: colors.gray900 }]}>
-              Pilih Metode Pembayaran
+              {!paymentSource ? "Pilih Sumber Pembayaran" : paymentSource === 'hardware' ? "Pembayaran Hardware" : "Pilih Metode Pembayaran"}
             </Text>
             {!processing && (
               <TouchableOpacity
@@ -272,7 +560,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               
               {creditApplied > 0 && (
                 <View style={styles.creditSection}>
-                  <Text style={[styles.creditText, { color: colors.success }]}>
+                  <Text style={[styles.creditText, { color: colors.green }]}>
                     💰 Credit: -{formatCurrency(creditApplied || 0)}
                   </Text>
                   <View style={[styles.divider, { backgroundColor: colors.gray300 }]} />
@@ -284,13 +572,79 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               </Text>
               
               {(amountAfterCredit || 0) === 0 && (
-                <Text style={[styles.paidWithCreditText, { color: colors.success }]}>
+                <Text style={[styles.paidWithCreditText, { color: colors.green }]}>
                   ✅ Lunas dengan Credit
                 </Text>
               )}
             </View>
 
-            {(amountAfterCredit || 0) > 0 && (
+            {/* Payment Source Selection */}
+            {!paymentSource && (amountAfterCredit || 0) > 0 && (
+              <View style={styles.paymentSourceSection}>
+                <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
+                  Pilih Sumber Pembayaran:
+                </Text>
+                
+                {/* Hardware Payment Option */}
+                <TouchableOpacity
+                  style={[
+                    styles.paymentSourceCard,
+                    { backgroundColor: colors.primary + "15", borderColor: colors.primary }
+                  ]}
+                  onPress={() => handlePaymentSourceSelect('hardware')}
+                  disabled={processing}
+                >
+                  <View style={[styles.sourceIcon, { backgroundColor: colors.primary }]}>
+                    <Text style={styles.sourceIconText}>🔥</Text>
+                  </View>
+                  <View style={styles.sourceInfo}>
+                    <Text style={[styles.sourceName, { color: colors.primary }]}>
+                      🚀 Pembayaran dari Alat
+                    </Text>
+                    <Text style={[styles.sourceDescription, { color: colors.gray700 }]}>
+                      Mode-based hardware payment dengan RFID + Currency detection
+                    </Text>
+                    <Text style={[styles.sourceDetails, { color: colors.gray600 }]}>
+                      ⚡ Tap kartu RFID → Masukkan uang → Otomatis selesai
+                    </Text>
+                  </View>
+                  <View style={[styles.sourceArrow, { backgroundColor: colors.primary }]}>
+                    <Text style={[styles.sourceArrowText, { color: colors.white }]}>→</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* App Payment Option */}
+                <TouchableOpacity
+                  style={[
+                    styles.paymentSourceCard,
+                    { backgroundColor: colors.gray50, borderColor: colors.gray300 }
+                  ]}
+                  onPress={() => handlePaymentSourceSelect('app')}
+                  disabled={processing}
+                >
+                  <View style={[styles.sourceIcon, { backgroundColor: colors.gray200 }]}>
+                    <Text style={styles.sourceIconText}>💳</Text>
+                  </View>
+                  <View style={styles.sourceInfo}>
+                    <Text style={[styles.sourceName, { color: colors.gray900 }]}>
+                      📱 Pembayaran dari Aplikasi
+                    </Text>
+                    <Text style={[styles.sourceDescription, { color: colors.gray700 }]}>
+                      Transfer bank, e-wallet, atau metode digital lainnya
+                    </Text>
+                    <Text style={[styles.sourceDetails, { color: colors.gray600 }]}>
+                      💰 Bisa bayar pas atau custom amount sesuai kebutuhan
+                    </Text>
+                  </View>
+                  <View style={[styles.sourceArrow, { backgroundColor: colors.gray400 }]}>
+                    <Text style={[styles.sourceArrowText, { color: colors.white }]}>→</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Payment Mode Selection - Only for App payments */}
+            {paymentSource === 'app' && (amountAfterCredit || 0) > 0 && (
               <View style={styles.paymentModeSection}>
                 <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
                   Mode Pembayaran:
@@ -359,36 +713,16 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
                     {(excessAmount || 0) > 0 && (
                       <View style={[styles.excessPreview, { backgroundColor: colors.primary + '10' }]}>
                         <Text style={[styles.excessText, { color: colors.primary }]}>
-                          💡 Alokasi Kelebihan Pembayaran:
+                          💡 Kelebihan Pembayaran:
                         </Text>
-                        
-                        {(() => {
-                          const nextPeriodAllocation = Math.min(excessAmount, payment.amount || 0);
-                          const creditFromExcess = excessAmount - nextPeriodAllocation;
-                          const finalCredit = Math.min(creditFromExcess, (payment.amount * 3) - (creditBalance || 0));
-                          
-                          return (
-                            <>
-                              {nextPeriodAllocation > 0 && (
-                                <Text style={[styles.excessAmount, { color: colors.success }]}>
-                                  ✅ Periode berikutnya: {formatCurrency(nextPeriodAllocation)}
-                                </Text>
-                              )}
-                              
-                              {finalCredit > 0 && (
-                                <Text style={[styles.excessAmount, { color: colors.gray700 }]}>
-                                  💰 Menjadi credit: {formatCurrency(finalCredit)}
-                                </Text>
-                              )}
-                              
-                              {creditFromExcess > finalCredit && (
-                                <Text style={[styles.excessWarning, { color: colors.warning }]}>
-                                  ⚠️ Sisa {formatCurrency(creditFromExcess - finalCredit)} tidak dapat diproses (batas credit maksimal)
-                                </Text>
-                              )}
-                            </>
-                          );
-                        })()}
+                        <Text style={[styles.excessAmount, { color: colors.gray700 }]}>
+                          {formatCurrency(excessAmount || 0)} → Credit {formatCurrency(willBecomeCredit || 0)}
+                        </Text>
+                        {(willBecomeCredit || 0) < (excessAmount || 0) && (
+                          <Text style={[styles.excessWarning, { color: colors.warning }]}>
+                            ⚠️ Credit dibatasi maksimal 3x nominal periode
+                          </Text>
+                        )}
                       </View>
                     )}
                   </View>
@@ -396,10 +730,11 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               </View>
             )}
 
-            {amountAfterCredit > 0 && (
+            {/* Payment Methods - Only for App payments */}
+            {paymentSource === 'app' && amountAfterCredit > 0 && !hardwarePayment && (
               <View style={styles.methodsSection}>
                 <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
-                  Pilih Metode Pembayaran:
+                  Pilih Metode Pembayaran Digital:
                 </Text>
 
               {paymentMethods.map((method) => (
@@ -473,7 +808,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               </View>
             )}
 
-            {processing && (
+            {processing && paymentSource === 'app' && (
               <View style={styles.processingSection}>
                 <ActivityIndicator size="large" color={colors.primary} />
                 <Text
@@ -488,6 +823,63 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
                 </Text>
               </View>
             )}
+
+            {hardwarePayment && (
+              <View style={styles.hardwareProcessingSection}>
+                <View style={[styles.hardwareStatusCard, { backgroundColor: colors.primary + "10" }]}>
+                  {hardwareStatus === 'waiting' && (
+                    <>
+                      <Text style={styles.hardwareStatusIcon}>⏳</Text>
+                      <Text style={[styles.hardwareStatusTitle, { color: colors.primary }]}>
+                        Menunggu Konfirmasi
+                      </Text>
+                      <Text style={[styles.hardwareStatusText, { color: colors.gray700 }]}>
+                        Klik "Mulai" untuk memulai sesi pembayaran
+                      </Text>
+                    </>
+                  )}
+                  
+                  {hardwareStatus === 'scanning' && (
+                    <>
+                      <ActivityIndicator size="large" color={colors.primary} />
+                      <Text style={[styles.hardwareStatusTitle, { color: colors.primary }]}>
+                        🔥 Mode Payment Aktif di ESP32
+                      </Text>
+                      <Text style={[styles.hardwareStatusText, { color: colors.gray700 }]}>
+                        ⚡ ESP32 switched to payment mode via RTDB
+                      </Text>
+                      <Text style={[styles.hardwareStatusSubtext, { color: colors.gray600 }]}>
+                        🚀 Real-time RFID detection aktif • Auto-timeout 5 menit
+                      </Text>
+                    </>
+                  )}
+                  
+                  {hardwareStatus === 'processing' && (
+                    <>
+                      <ActivityIndicator size="large" color={colors.success} />
+                      <Text style={[styles.hardwareStatusTitle, { color: colors.success }]}>
+                        💰 Mode-based Processing
+                      </Text>
+                      <Text style={[styles.hardwareStatusText, { color: colors.gray700 }]}>
+                        ⚡ RFID detected via RTDB • KNN currency detection active
+                      </Text>
+                    </>
+                  )}
+                  
+                  {hardwareStatus === 'success' && (
+                    <>
+                      <Text style={styles.hardwareStatusIcon}>🔥</Text>
+                      <Text style={[styles.hardwareStatusTitle, { color: colors.success }]}>
+                        Mode-based Payment Success!
+                      </Text>
+                      <Text style={[styles.hardwareStatusText, { color: colors.gray700 }]}>
+                        🚀 Revolutionary RTDB architecture worked perfectly!
+                      </Text>
+                    </>
+                  )}
+                </View>
+              </View>
+            )}
           </ScrollView>
 
           <View
@@ -498,17 +890,43 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
               onPress={handleClose}
               variant="outline"
               style={[styles.cancelButton, { borderColor: colors.gray400 }]}
-              disabled={processing}
+              disabled={processing || hardwarePayment}
             />
             
             {(amountAfterCredit || 0) === 0 ? (
               <Button
                 title="Gunakan Credit"
                 onPress={handlePayNow}
-                style={[styles.payButton, { backgroundColor: colors.success }]}
-                disabled={processing}
+                style={[styles.payButton, { backgroundColor: colors.green }]}
+                disabled={processing || hardwarePayment}
               />
-            ) : (
+            ) : hardwarePayment ? (
+              <Button
+                title={
+                  hardwareStatus === 'scanning' ? "🔥 Mode Payment Aktif..." : 
+                  hardwareStatus === 'processing' ? "⚡ Processing via RTDB..." :
+                  "🚀 Mode-based Payment"
+                }
+                onPress={() => {}}
+                style={[
+                  styles.payButton,
+                  {
+                    backgroundColor: hardwareStatus === 'processing' ? colors.success : colors.primary,
+                  },
+                ]}
+                disabled={true}
+              />
+            ) : !paymentSource ? (
+              <Button
+                title="Pilih Sumber Pembayaran"
+                onPress={() => {}}
+                style={[
+                  styles.payButton,
+                  { backgroundColor: colors.gray400 },
+                ]}
+                disabled={true}
+              />
+            ) : paymentSource === 'app' ? (
               <Button
                 title={processing ? "Memproses..." : "Bayar Sekarang"}
                 onPress={handlePayNow}
@@ -521,6 +939,16 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
                   },
                 ]}
                 disabled={!selectedMethod || processing}
+              />
+            ) : (
+              <Button
+                title="🔥 Hardware Payment Active"
+                onPress={() => {}}
+                style={[
+                  styles.payButton,
+                  { backgroundColor: colors.primary },
+                ]}
+                disabled={true}
               />
             )}
           </View>
@@ -552,7 +980,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: 600,
+    fontWeight: "600",
   },
   closeButton: {
     width: 32,
@@ -563,7 +991,7 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
   },
   modalContent: {
     flex: 1,
@@ -577,7 +1005,7 @@ const styles = StyleSheet.create({
   },
   periodTitle: {
     fontSize: 18,
-    fontWeight: 600,
+    fontWeight: "600",
     marginBottom: 8,
   },
   amountText: {
@@ -594,7 +1022,7 @@ const styles = StyleSheet.create({
   },
   creditText: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: '600',
     marginBottom: 8,
   },
   divider: {
@@ -609,9 +1037,59 @@ const styles = StyleSheet.create({
   },
   paidWithCreditText: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: '600',
     marginTop: 8,
     textAlign: 'center',
+  },
+  paymentSourceSection: {
+    marginBottom: 20,
+  },
+  paymentSourceCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 2,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  sourceIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  sourceIconText: {
+    fontSize: 24,
+  },
+  sourceInfo: {
+    flex: 1,
+  },
+  sourceName: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  sourceDescription: {
+    fontSize: 14,
+    marginBottom: 2,
+    fontWeight: "500",
+  },
+  sourceDetails: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+  sourceArrow: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sourceArrowText: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
   paymentModeSection: {
     marginBottom: 20,
@@ -631,14 +1109,14 @@ const styles = StyleSheet.create({
   },
   modeButtonText: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: '600',
   },
   customAmountSection: {
     marginTop: 12,
   },
   customAmountLabel: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: '500',
     marginBottom: 8,
   },
   customAmountInput: {
@@ -655,12 +1133,12 @@ const styles = StyleSheet.create({
   },
   excessText: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: '600',
     marginBottom: 4,
   },
   excessAmount: {
     fontSize: 14,
-    fontWeight: 500,
+    fontWeight: '500',
     marginBottom: 4,
   },
   excessWarning: {
@@ -672,7 +1150,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
     marginBottom: 16,
   },
   methodCard: {
@@ -699,7 +1177,7 @@ const styles = StyleSheet.create({
   },
   methodName: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
     marginBottom: 4,
   },
   methodDescription: {
@@ -726,7 +1204,7 @@ const styles = StyleSheet.create({
   },
   processingText: {
     fontSize: 16,
-    fontWeight: 600,
+    fontWeight: "600",
     marginTop: 16,
     textAlign: "center",
   },
@@ -747,6 +1225,93 @@ const styles = StyleSheet.create({
   },
   payButton: {
     flex: 2,
+  },
+  hardwarePaymentCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 2,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  hardwareIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  hardwareIconText: {
+    fontSize: 24,
+  },
+  hardwareInfo: {
+    flex: 1,
+  },
+  hardwareName: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  hardwareDescription: {
+    fontSize: 14,
+    marginBottom: 2,
+    fontWeight: "500",
+  },
+  hardwareDetails: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+  hardwareArrow: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  hardwareArrowText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  dividerSection: {
+    borderTopWidth: 1,
+    paddingTop: 16,
+    marginBottom: 16,
+    alignItems: "center",
+  },
+  dividerText: {
+    fontSize: 14,
+    fontWeight: "500",
+    fontStyle: "italic",
+  },
+  hardwareProcessingSection: {
+    paddingVertical: 20,
+  },
+  hardwareStatusCard: {
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  hardwareStatusIcon: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  hardwareStatusTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  hardwareStatusText: {
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  hardwareStatusSubtext: {
+    fontSize: 12,
+    textAlign: "center",
+    fontStyle: "italic",
   },
 });
 

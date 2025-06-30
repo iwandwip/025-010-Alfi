@@ -1,13 +1,16 @@
 import React, { useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, ActivityIndicator, Text } from "react-native";
-import { Shadows } from "../../constants/theme";
+import {
+  View,
+  ActivityIndicator,
+  Text,
+  StyleSheet,
+  Animated,
+} from "react-native";
+import { Colors } from "../../constants/Colors";
 
-/**
- * React Native Paper-based LoadingSpinner component
- * Maintains compatibility with existing usage while providing Material Design styling
- */
 const LoadingSpinner = ({
   size = "large",
+  color = Colors.primary,
   text = "Memuat...",
   subText = null,
   style,
@@ -17,6 +20,7 @@ const LoadingSpinner = ({
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -34,25 +38,16 @@ const LoadingSpinner = ({
     ]).start();
   }, []);
 
-  const progressValue = showProgress && progressSteps.length > 0 
-    ? (currentStep + 1) / progressSteps.length 
-    : 0;
-
-  const ProgressBar = ({ progress, style }) => (
-    <View style={[{
-      height: 6,
-      backgroundColor: '#E0E0E0',
-      borderRadius: 3,
-      overflow: 'hidden',
-    }, style]}>
-      <View style={{
-        height: '100%',
-        width: `${progress * 100}%`,
-        backgroundColor: '#F50057',
-        borderRadius: 3,
-      }} />
-    </View>
-  );
+  useEffect(() => {
+    if (showProgress && progressSteps.length > 0) {
+      const progressValue = (currentStep + 1) / progressSteps.length;
+      Animated.timing(progressAnim, {
+        toValue: progressValue,
+        duration: 500,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [currentStep, progressSteps, showProgress]);
 
   return (
     <Animated.View
@@ -66,35 +61,36 @@ const LoadingSpinner = ({
       ]}
     >
       <View style={styles.spinnerContainer}>
-        <ActivityIndicator size={size} color="#F50057" />
+        <ActivityIndicator size={size} color={color} />
+        <View style={styles.pulse} />
       </View>
 
-      {text && (
-        <Text style={[styles.text, { color: '#333' }]}>
-          {text}
-        </Text>
-      )}
+      {text && <Text style={[styles.text, { color: color }]}>{text}</Text>}
 
-      {subText && (
-        <Text style={[styles.subText, { color: '#666' }]}>
-          {subText}
-        </Text>
-      )}
+      {subText && <Text style={styles.subText}>{subText}</Text>}
 
       {showProgress && progressSteps.length > 0 && (
         <View style={styles.progressContainer}>
-          <ProgressBar
-            progress={progressValue}
-            style={styles.progressBar}
-          />
+          <View style={styles.progressBar}>
+            <Animated.View
+              style={[
+                styles.progressFill,
+                {
+                  backgroundColor: color,
+                  width: progressAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["0%", "100%"],
+                  }),
+                },
+              ]}
+            />
+          </View>
 
           {progressSteps[currentStep] && (
-            <Text style={[styles.stepText, { color: '#666' }]}>
-              {progressSteps[currentStep]}
-            </Text>
+            <Text style={styles.stepText}>{progressSteps[currentStep]}</Text>
           )}
 
-          <Text style={[styles.stepCounter, { color: '#666' }]}>
+          <Text style={styles.stepCounter}>
             {currentStep + 1} dari {progressSteps.length}
           </Text>
         </View>
@@ -103,12 +99,10 @@ const LoadingSpinner = ({
   );
 };
 
-/**
- * Paper-based LoadingCard component
- */
 const LoadingCard = ({
   title = "Memuat Data",
   subtitle = "Mohon tunggu sebentar...",
+  color = Colors.primary,
   children,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -124,34 +118,26 @@ const LoadingCard = ({
   return (
     <Animated.View style={[styles.cardContainer, { opacity: fadeAnim }]}>
       <View style={styles.card}>
-        <View style={styles.cardContent}>
-          <LoadingSpinner size="large" />
-          <Text style={[styles.cardTitle, { color: '#333' }]}>
-            {title}
-          </Text>
-          <Text style={[styles.cardSubtitle, { color: '#666' }]}>
-            {subtitle}
-          </Text>
-          {children}
-        </View>
+        <LoadingSpinner size="large" color={color} />
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Text style={styles.cardSubtitle}>{subtitle}</Text>
+        {children}
       </View>
     </Animated.View>
   );
 };
 
-/**
- * Paper-based LoadingOverlay component
- */
 const LoadingOverlay = ({
   visible,
   text = "Memuat...",
+  color = Colors.primary,
 }) => {
   if (!visible) return null;
 
   return (
     <View style={styles.overlay}>
       <View style={styles.overlayContent}>
-        <LoadingSpinner size="large" text={text} />
+        <LoadingSpinner size="large" color={color} text={text} />
       </View>
     </View>
   );
@@ -164,20 +150,30 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   spinnerContainer: {
+    position: "relative",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
+  pulse: {
+    position: "absolute",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.primary,
+    opacity: 0.1,
+  },
   text: {
     marginTop: 12,
-    fontWeight: '600',
-    textAlign: "center",
     fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
   },
   subText: {
     marginTop: 8,
-    textAlign: "center",
     fontSize: 14,
+    color: Colors.gray600,
+    textAlign: "center",
   },
   progressContainer: {
     marginTop: 20,
@@ -187,18 +183,26 @@ const styles = StyleSheet.create({
   progressBar: {
     width: "100%",
     height: 6,
+    backgroundColor: Colors.gray200,
     borderRadius: 3,
+    overflow: "hidden",
     marginBottom: 12,
   },
+  progressFill: {
+    height: "100%",
+    borderRadius: 3,
+  },
   stepText: {
-    fontWeight: '500',
+    fontSize: 14,
+    color: Colors.gray700,
+    fontWeight: "500",
     textAlign: "center",
     marginBottom: 4,
-    fontSize: 14,
   },
   stepCounter: {
-    textAlign: "center",
     fontSize: 12,
+    color: Colors.gray500,
+    textAlign: "center",
   },
   cardContainer: {
     flex: 1,
@@ -207,25 +211,31 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   card: {
+    backgroundColor: Colors.white,
     borderRadius: 20,
-    minWidth: 300,
-    backgroundColor: '#FFFFFF',
-    ...Shadows.md,
-  },
-  cardContent: {
-    alignItems: "center",
     padding: 40,
+    alignItems: "center",
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
+    borderWidth: 1,
+    borderColor: Colors.gray200,
+    minWidth: 300,
   },
   cardTitle: {
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: "600",
+    color: Colors.gray900,
     textAlign: "center",
     marginTop: 16,
     marginBottom: 8,
-    fontSize: 18,
   },
   cardSubtitle: {
-    textAlign: "center",
     fontSize: 14,
+    color: Colors.gray600,
+    textAlign: "center",
   },
   overlay: {
     position: "absolute",
@@ -239,12 +249,11 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   overlayContent: {
+    backgroundColor: Colors.white,
     borderRadius: 16,
     padding: 32,
     alignItems: "center",
     maxWidth: 280,
-    backgroundColor: '#FFFFFF',
-    ...Shadows.md,
   },
 });
 

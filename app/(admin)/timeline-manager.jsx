@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
+  Text,
   StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  ScrollView,
   Alert,
   RefreshControl,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
-import { MaterialIcons } from '@expo/vector-icons';
-import { Shadows } from '../../constants/theme';
-import { useRoleTheme } from '../../hooks/useRoleTheme';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/ui/Button";
 import TimelinePicker from "../../components/ui/TimelinePicker";
-import { ScrollView } from 'react-native';
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import {
   getActiveTimeline,
   getTimelineTemplates,
@@ -27,7 +24,6 @@ import {
 import { bulkUpdatePaymentStatus } from "../../services/adminPaymentService";
 
 export default function TimelineManager() {
-  const { colors } = useRoleTheme();
   const [activeTimeline, setActiveTimeline] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +36,6 @@ export default function TimelineManager() {
   );
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  // Using custom theme from constants
 
   const loadData = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
@@ -213,7 +208,7 @@ export default function TimelineManager() {
   const showPaymentDataOptions = () => {
     Alert.alert(
       "Opsi Data Pembayaran",
-      "Pilih tindakan untuk data setoran warga:",
+      "Pilih tindakan untuk data pembayaran warga:",
       [
         { text: "Batal", style: "cancel" },
         {
@@ -231,8 +226,8 @@ export default function TimelineManager() {
 
   const confirmDeleteTimeline = (deletePaymentData) => {
     const message = deletePaymentData 
-      ? `Timeline "${activeTimeline.name}" dan SEMUA data setoran warga akan dihapus.\n\n⚠️ PERINGATAN: Semua riwayat setoran warga akan hilang permanen!`
-      : `Timeline "${activeTimeline.name}" akan dihapus, tetapi data setoran warga akan dipertahankan untuk referensi.`;
+      ? `Timeline "${activeTimeline.name}" dan SEMUA data pembayaran warga akan dihapus.\n\n⚠️ PERINGATAN: Semua riwayat pembayaran warga akan hilang permanen!`
+      : `Timeline "${activeTimeline.name}" akan dihapus, tetapi data pembayaran warga akan dipertahankan untuk referensi.`;
 
     Alert.alert(
       "Konfirmasi Penghapusan",
@@ -249,7 +244,7 @@ export default function TimelineManager() {
             if (result.success) {
               const successMessage = deletePaymentData
                 ? "Timeline dan semua data pembayaran berhasil dihapus!"
-                : "Timeline berhasil dihapus, data setoran warga dipertahankan.";
+                : "Timeline berhasil dihapus, data pembayaran warga dipertahankan.";
               
               Alert.alert(
                 "Timeline Dihapus",
@@ -417,542 +412,576 @@ export default function TimelineManager() {
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={[colors.primaryContainer, colors.background]}
-        style={[styles.container, { paddingTop: insets.top }]}
-      >
-        <View style={[styles.header, Shadows.md, { backgroundColor: colors.surface }]}>
+      <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => router.back()}
             style={styles.backButton}
+            onPress={() => router.back()}
           >
-            <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
+            <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            Timeline Manager
-          </Text>
-          <View style={styles.placeholder} />
+          <Text style={styles.headerTitle}>Timeline Manager</Text>
         </View>
-        
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={{ marginTop: 16 }}>
-            Memuat data timeline...
-          </Text>
+          <LoadingSpinner text="Memuat data timeline..." />
         </View>
-      </LinearGradient>
+      </SafeAreaView>
     );
   }
 
   return (
-    <LinearGradient
-      colors={[colors.primaryContainer, colors.background]}
-      style={[styles.container, { paddingTop: insets.top }]}
-    >
-      <View style={[styles.header, Shadows.md, { backgroundColor: colors.surface }]}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.back()}
           style={styles.backButton}
+          onPress={() => router.back()}
         >
-          <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
+          <Text style={styles.backButtonText}>← Kembali</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          Timeline Manager 
-        </Text>
-        <View style={styles.placeholder} />
+        <Text style={styles.headerTitle}>Timeline Manager</Text>
       </View>
 
-      <View style={styles.content}>
-        <ScrollView 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
-          }
-        >
-          <View style={styles.activeTimelineSection}>
-            <Text style={[styles.sectionTitle, { color: colors.onView, fontSize: 20, fontWeight: '600' }]}>Timeline Aktif</Text>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#3b82f6"]}
+            tintColor={"#3b82f6"}
+            title="Memuat ulang..."
+            titleColor={"#64748b"}
+          />
+        }
+      >
+        <View style={styles.activeTimelineSection}>
+          <Text style={styles.sectionTitle}>Timeline Aktif</Text>
 
-            {activeTimeline ? (
-              <View style={[styles.timelineCard, Shadows.md, { backgroundColor: colors.surface }]}>
-                <View style={{ padding: 20 }}>
-                  <View style={styles.timelineHeader}>
-                    <View style={[styles.timelineIcon, { backgroundColor: colors.primary }]}>
-                      <MaterialIcons name="timeline" size={32} color={colors.onPrimary} />
-                    </View>
-                    <View style={styles.timelineHeaderInfo}>
-                      <Text style={[styles.timelineName, { fontWeight: 'bold' }]}>{activeTimeline.name}</Text>
-                      <View 
-                        style={{ 
-                          backgroundColor: colors.successContainer,
-                          alignSelf: 'flex-start',
-                          flexDirection: 'row',
-                          paddingHorizontal: 12,
-                          paddingVertical: 6,
-                          borderRadius: 16,
-                          alignItems: 'center'
-                        }}
-                      >
-                        <MaterialIcons name="check-circle" size={16} color={colors.onSuccessContainer} />
-                        <Text style={{ color: colors.onSuccessContainer, fontSize: 12, marginLeft: 4 }}>
-                          Aktif
-                        </Text>
-                      </View>
-                    </View>
+          {activeTimeline ? (
+            <View style={styles.timelineCard}>
+              <View style={styles.timelineHeader}>
+                <Text style={styles.timelineName}>{activeTimeline.name}</Text>
+                <View style={styles.statusBadge}>
+                  <Text style={styles.statusText}>🟢 Aktif</Text>
+                </View>
+              </View>
+
+              <View style={styles.timelineDetails}>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Tipe:</Text>
+                  <Text style={styles.detailValue}>
+                    {getTypeLabel(activeTimeline.type)}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Durasi:</Text>
+                  <Text style={styles.detailValue}>
+                    {getTotalTimelineDuration(activeTimeline)}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Range Timeline:</Text>
+                  <Text style={styles.detailValue}>
+                    {formatTimelineRange(activeTimeline)}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Periode Aktif:</Text>
+                  <Text style={styles.detailValue}>
+                    {getActivePeriods(activeTimeline)} periode
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Mode:</Text>
+                  <Text style={styles.detailValue}>
+                    {activeTimeline.mode === "manual"
+                      ? "⚙️ Manual"
+                      : "🕐 Real-time"}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Total Amount:</Text>
+                  <Text style={styles.detailValue}>
+                    {formatCurrency(activeTimeline.totalAmount)}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Per Periode:</Text>
+                  <Text style={styles.detailValue}>
+                    {formatCurrency(activeTimeline.amountPerPeriod)}
+                  </Text>
+                </View>
+              </View>
+
+              {activeTimeline.mode === "manual" && (
+                <View style={styles.simulationSection}>
+                  <Text style={styles.simulationTitle}>
+                    🕐 Kontrol Waktu Manual
+                  </Text>
+
+                  <View style={styles.currentSimulationInfo}>
+                    <Text style={styles.currentSimulationLabel}>
+                      Waktu Simulasi Saat Ini:
+                    </Text>
+                    <Text style={styles.currentSimulationValue}>
+                      {formatSimulationDateTime(activeTimeline.simulationDate)}
+                    </Text>
                   </View>
 
-                  <View style={{ marginVertical: 16 }} />
+                  <TimelinePicker
+                    label={`Atur Waktu Simulasi (${getTypeLabel(
+                      activeTimeline.type
+                    )})`}
+                    value={simulationDateTime}
+                    onChange={setSimulationDateTime}
+                    timelineType={activeTimeline.type}
+                    minDate={activeTimeline.startDate}
+                    maxDate={calculateEndDate(activeTimeline)}
+                    placeholder={`Pilih waktu simulasi dalam range timeline`}
+                  />
 
-                  <View style={styles.timelineDetails}>
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, { color: colors.onViewVariant }]}>Tipe:</Text>
-                      <Text style={[styles.detailValue, { color: colors.onView, fontWeight: '600' }]}>
-                        {getTypeLabel(activeTimeline.type)}
-                      </Text>
-                    </View>
+                  <Button
+                    title={
+                      updating ? "Memperbarui..." : "Update Waktu Simulasi"
+                    }
+                    onPress={handleUpdateSimulationDateTime}
+                    disabled={updating}
+                    style={styles.updateDateButton}
+                  />
 
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, { color: colors.onViewVariant }]}>Durasi:</Text>
-                      <Text style={[styles.detailValue, { color: colors.onView, fontWeight: '600' }]}>
-                        {getTotalTimelineDuration(activeTimeline)}
-                      </Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, { color: colors.onViewVariant }]}>Range Timeline:</Text>
-                      <Text style={[styles.detailValue, { color: colors.onView, fontWeight: '600' }]}>
-                        {formatTimelineRange(activeTimeline)}
-                      </Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, { color: colors.onViewVariant }]}>Periode Aktif:</Text>
-                      <Text style={[styles.detailValue, { color: colors.onView, fontWeight: '600' }]}>
-                        {getActivePeriods(activeTimeline)} periode
-                      </Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, { color: colors.onViewVariant }]}>Mode:</Text>
-                      <Text style={[styles.detailValue, { color: colors.onView, fontWeight: '600' }]}>
-                        {activeTimeline.mode === "manual"
-                          ? "⚙️ Manual"
-                          : "🕐 Real-time"}
-                      </Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, { color: colors.onViewVariant }]}>Total Amount:</Text>
-                      <Text style={[styles.detailValue, { color: colors.onView, fontWeight: '600' }]}>
-                        {formatCurrency(activeTimeline.totalAmount)}
-                      </Text>
-                    </View>
-
-                    <View style={styles.detailRow}>
-                      <Text style={[styles.detailLabel, { color: colors.onViewVariant }]}>Per Periode:</Text>
-                      <Text style={[styles.detailValue, { color: colors.onView, fontWeight: '600' }]}>
-                        {formatCurrency(activeTimeline.amountPerPeriod)}
-                      </Text>
-                    </View>
+                  <View style={styles.infoBox}>
+                    <Text style={styles.infoText}>
+                      ℹ️ Mengubah waktu simulasi akan mempengaruhi perhitungan
+                      status "terlambat" untuk semua pembayaran berdasarkan
+                      timeline {getTypeLabel(activeTimeline.type).toLowerCase()}
+                    </Text>
                   </View>
 
-                  {activeTimeline.mode === "manual" && (
-                    <View style={[styles.simulationSection, { backgroundColor: colors.primaryContainer }]}>
-                      <Text style={[styles.simulationTitle, { color: colors.onPrimaryContainer }]}>
-                        🕐 Kontrol Waktu Manual
-                      </Text>
+                  <View style={styles.rangeInfoBox}>
+                    <Text style={styles.rangeInfoText}>
+                      📅 Range simulasi yang diizinkan:{" "}
+                      {formatTimelineRange(activeTimeline)}
+                    </Text>
+                  </View>
+                </View>
+              )}
 
-                      <View style={[styles.currentSimulationInfo, { backgroundColor: colors.surface }]}>
-                        <View style={{ paddingVertical: 12 }}>
-                          <Text style={[styles.currentSimulationLabel, { color: colors.onViewVariant }]}>
-                            Waktu Simulasi Saat Ini:
-                          </Text>
-                          <Text style={[styles.currentSimulationValue, { color: colors.onView, fontWeight: '600' }]}>
-                            {formatSimulationDateTime(activeTimeline.simulationDate)}
-                          </Text>
-                        </View>
-                      </View>
+              <View style={styles.timelineActions}>
+                <Button
+                  title="Kelola Pembayaran"
+                  onPress={handleManagePayments}
+                  style={styles.manageButton}
+                />
 
-                      <TimelinePicker
-                        label={`Atur Waktu Simulasi (${getTypeLabel(
-                          activeTimeline.type
-                        )})`}
-                        value={simulationDateTime}
-                        onChange={setSimulationDateTime}
-                        timelineType={activeTimeline.type}
-                        minDate={activeTimeline.startDate}
-                        maxDate={calculateEndDate(activeTimeline)}
-                        placeholder={`Pilih waktu simulasi dalam range timeline`}
-                      />
+                <Button
+                  title={
+                    updating ? "Memperbarui..." : "🔄 Update Status Pembayaran"
+                  }
+                  onPress={handleBulkUpdateStatus}
+                  disabled={updating}
+                  style={styles.updateButton}
+                />
 
-                      <Button
-                        title={
-                          updating ? "Memperbarui..." : "Update Waktu Simulasi"
-                        }
-                        onPress={handleUpdateSimulationDateTime}
-                        disabled={updating}
-                        style={styles.updateDateButton}
-                      />
+                <View style={styles.dangerActions}>
+                  <Button
+                    title={resetting ? "Mereset..." : "Reset Pembayaran"}
+                    onPress={handleResetPayments}
+                    variant="outline"
+                    style={styles.resetButton}
+                    disabled={resetting || deleting}
+                  />
 
-                      <View style={[styles.infoCard, { backgroundColor: colors.tertiaryContainer }]}>
-                        <View style={{ paddingVertical: 12 }}>
-                          <Text style={{ color: colors.onTertiaryContainer, lineHeight: 18 }}>
-                            ℹ️ Mengubah waktu simulasi akan mempengaruhi perhitungan status "terlambat" untuk semua pembayaran berdasarkan timeline {getTypeLabel(activeTimeline.type).toLowerCase()}
-                          </Text>
-                        </View>
-                      </View>
+                  <Button
+                    title={deleting ? "Menghapus..." : "🗑️ Hapus Timeline"}
+                    onPress={handleDeleteTimeline}
+                    variant="outline"
+                    style={styles.deleteButton}
+                    disabled={resetting || deleting}
+                  />
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.noTimelineCard}>
+              <Text style={styles.noTimelineIcon}>📅</Text>
+              <Text style={styles.noTimelineText}>
+                Belum ada timeline aktif
+              </Text>
+              <Text style={styles.noTimelineDesc}>
+                Buat timeline baru untuk mulai mengelola pembayaran jimpitan
+              </Text>
+            </View>
+          )}
+        </View>
 
-                      <View style={[styles.rangeInfoCard, { backgroundColor: colors.successContainer }]}>
-                        <View style={{ paddingVertical: 8 }}>
-                          <Text style={{ color: colors.onSuccessContainer, textAlign: 'center' }}>
-                            📅 Range simulasi yang diizinkan: {formatTimelineRange(activeTimeline)}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
+        <View style={styles.actionsSection}>
+          <Button
+            title={
+              activeTimeline ? "Buat Timeline Baru" : "Buat Timeline Pertama"
+            }
+            onPress={handleCreateTimeline}
+            style={styles.createButton}
+          />
+
+          {activeTimeline && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                ⚠️ Membuat timeline baru akan mengganti timeline aktif saat ini
+              </Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.templatesSection}>
+          <Text style={styles.sectionTitle}>Template Tersimpan</Text>
+
+          {templates.length > 0 ? (
+            templates.map((template) => (
+              <View key={template.id} style={styles.templateCard}>
+                <View style={styles.templateHeader}>
+                  <Text style={styles.templateName}>{template.name}</Text>
+                  <Text style={styles.templateDate}>
+                    {new Date(template.createdAt?.toDate()).toLocaleDateString(
+                      "id-ID"
+                    )}
+                  </Text>
+                </View>
+
+                <View style={styles.templateDetails}>
+                  <Text style={styles.templateType}>
+                    {getTypeLabel(template.type)} - {template.duration} periode
+                  </Text>
+                  <Text style={styles.templateAmount}>
+                    Base: {formatCurrency(template.baseAmount)}
+                  </Text>
+                  {template.holidays && template.holidays.length > 0 && (
+                    <Text style={styles.templateHolidays}>
+                      Libur: {template.holidays.length} periode
+                    </Text>
                   )}
-
-                  <View style={{ marginVertical: 16 }} />
-
-                  <View style={styles.timelineActions}>
-                    <Button
-                      title="Kelola Pembayaran"
-                      onPress={handleManagePayments}
-                      style={styles.manageButton}
-                    />
-
-                    <Button
-                      title={
-                        updating ? "Memperbarui..." : "🔄 Update Status Pembayaran"
-                      }
-                      onPress={handleBulkUpdateStatus}
-                      disabled={updating}
-                      style={styles.updateButton}
-                    />
-
-                    <View style={styles.dangerActions}>
-                      <Button
-                        title={resetting ? "Mereset..." : "Reset Pembayaran"}
-                        onPress={handleResetPayments}
-                        variant="outline"
-                        style={styles.resetButton}
-                        disabled={resetting || deleting}
-                      />
-
-                      <Button
-                        title={deleting ? "Menghapus..." : "🗑️ Hapus Timeline"}
-                        onPress={handleDeleteTimeline}
-                        variant="outline"
-                        style={styles.deleteButton}
-                        disabled={resetting || deleting}
-                      />
-                    </View>
-                  </View>
                 </View>
               </View>
-            ) : (
-              <View style={styles.noTimelineCard}>
-                <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-                  <View style={{ 
-                    width: 80, 
-                    height: 80, 
-                    backgroundColor: colors.surfaceVariant,
-                    borderRadius: 40,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <MaterialIcons name="calendar-today" size={40} color={colors.onViewVariant} />
-                  </View>
-                  <Text style={[styles.noTimelineText, { color: colors.onViewVariant, marginTop: 16, marginBottom: 8 }]}>
-                    Belum ada timeline aktif
-                  </Text>
-                  <Text style={[styles.noTimelineDesc, { color: colors.onViewVariant, textAlign: 'center' }]}>
-                    Buat timeline baru untuk mulai mengelola setoran jimpitan
-                  </Text>
-                </View>
-              </View>
-            )}
-          </View>
-
-          <View style={styles.actionsSection}>
-            <Button
-              title={
-                activeTimeline ? "Buat Timeline Baru" : "Buat Timeline Pertama"
-              }
-              onPress={handleCreateTimeline}
-              style={styles.createButton}
-            />
-
-            {activeTimeline && (
-              <View style={[styles.warningCard, { backgroundColor: colors.warningContainer }]}>
-                <View style={{ paddingVertical: 12 }}>
-                  <Text style={{ color: colors.onWarningContainer, textAlign: 'center', lineHeight: 18 }}>
-                    ⚠️ Membuat timeline baru akan mengganti timeline aktif saat ini
-                  </Text>
-                </View>
-              </View>
-            )}
-          </View>
-
-          <View style={styles.templatesSection}>
-            <Text style={[styles.sectionTitle, { color: colors.onView }]}>Template Tersimpan</Text>
-
-            {templates.length > 0 ? (
-              templates.map((template, index) => (
-                <View key={template.id}>
-                  <View style={styles.templateCard}>
-                    <View>
-                      <View style={styles.templateHeader}>
-                        <View style={{ 
-                          width: 40, 
-                          height: 40, 
-                          backgroundColor: colors.secondaryContainer,
-                          borderRadius: 20,
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
-                          <MaterialIcons name="description" size={24} color={colors.onSecondaryContainer} />
-                        </View>
-                        <View style={styles.templateHeaderInfo}>
-                          <Text style={[styles.templateName, { color: colors.onView, fontWeight: '600' }]}>{template.name}</Text>
-                          <Text style={[styles.templateDate, { color: colors.onViewVariant }]}>
-                            {new Date(template.createdAt?.toDate()).toLocaleDateString(
-                              "id-ID"
-                            )}
-                          </Text>
-                        </View>
-                      </View>
-
-                      <View style={{ marginVertical: 12 }} />
-
-                      <View style={styles.templateDetails}>
-                        <Text style={[styles.templateType, { color: colors.onViewVariant }]}>
-                          {getTypeLabel(template.type)} - {template.duration} periode
-                        </Text>
-                        <Text style={[styles.templateAmount, { color: colors.success, fontWeight: '500' }]}>
-                          Base: {formatCurrency(template.baseAmount)}
-                        </Text>
-                        {template.holidays && template.holidays.length > 0 && (
-                          <Text style={[styles.templateHolidays, { color: colors.warning }]}>
-                            Libur: {template.holidays.length} periode
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              ))
-            ) : (
-              <View style={styles.noTemplatesCard}>
-                <View style={{ alignItems: 'center', paddingVertical: 32 }}>
-                  <View style={{ 
-                    width: 64, 
-                    height: 64, 
-                    backgroundColor: colors.surfaceVariant,
-                    borderRadius: 32,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <MaterialIcons name="description" size={32} color={colors.onViewVariant} />
-                  </View>
-                  <Text style={[styles.noTemplatesText, { color: colors.onViewVariant, marginTop: 12, marginBottom: 8 }]}>Belum ada template</Text>
-                  <Text style={[styles.noTemplatesDesc, { color: colors.onViewVariant, textAlign: 'center' }]}>
-                    Template akan tersimpan saat Anda membuat timeline dan memilih opsi "Simpan sebagai template"
-                  </Text>
-                </View>
-              </View>
-            )}
-          </View>
-        </ScrollView>
-      </View>
-    </LinearGradient>
+            ))
+          ) : (
+            <View style={styles.noTemplatesCard}>
+              <Text style={styles.noTemplatesIcon}>📋</Text>
+              <Text style={styles.noTemplatesText}>Belum ada template</Text>
+              <Text style={styles.noTemplatesDesc}>
+                Template akan tersimpan saat Anda membuat timeline dan memilih
+                opsi "Simpan sebagai template"
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f8fafc",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+    backgroundColor: "#fff",
   },
   backButton: {
-    margin: 0,
+    alignSelf: "flex-start",
+    marginBottom: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
   headerTitle: {
-    fontWeight: '600',
-    flex: 1,
-    textAlign: 'center',
-  },
-  placeholder: {
-    width: 48,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1e293b",
+    textAlign: "center",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
+    justifyContent: "center",
+    alignItems: "center",
   },
   content: {
     flex: 1,
-    padding: 16,
-  },
-  scrollContent: {
-    padding: 4,
+    paddingHorizontal: 24,
+    paddingTop: 16,
   },
   sectionTitle: {
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1e293b",
     marginBottom: 16,
   },
   activeTimelineSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   timelineCard: {
+    backgroundColor: "#fff",
     borderRadius: 16,
-    marginBottom: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   timelineHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
-  timelineHeaderInfo: {
-    flex: 1,
-    gap: 8,
-  },
   timelineName: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1e293b",
     flex: 1,
+  },
+  statusBadge: {
+    backgroundColor: "#dcfce7",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#16a34a",
   },
   timelineDetails: {
-    gap: 8,
+    marginBottom: 20,
   },
   detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f1f5f9",
   },
   detailLabel: {
+    fontSize: 14,
+    color: "#64748b",
+    fontWeight: "500",
     flex: 1,
   },
   detailValue: {
+    fontSize: 14,
+    color: "#1e293b",
+    fontWeight: "600",
     flex: 1.5,
-    textAlign: 'right',
+    textAlign: "right",
   },
   simulationSection: {
+    backgroundColor: "#f0f9ff",
     padding: 16,
     borderRadius: 12,
-    marginTop: 16,
-    gap: 16,
+    marginBottom: 20,
   },
   simulationTitle: {
-    textAlign: 'center',
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#0369a1",
+    marginBottom: 16,
+    textAlign: "center",
   },
   currentSimulationInfo: {
+    backgroundColor: "#dbeafe",
+    padding: 12,
     borderRadius: 8,
+    marginBottom: 16,
   },
   currentSimulationLabel: {
+    fontSize: 12,
+    color: "#1e40af",
+    fontWeight: "500",
     marginBottom: 4,
   },
   currentSimulationValue: {
+    fontSize: 14,
+    color: "#1e40af",
+    fontWeight: "600",
   },
   updateDateButton: {
+    backgroundColor: "#0369a1",
+    marginBottom: 12,
+  },
+  infoBox: {
+    backgroundColor: "#dbeafe",
+    padding: 12,
+    borderRadius: 8,
     marginBottom: 8,
   },
-  infoCard: {
-    borderRadius: 8,
+  infoText: {
+    fontSize: 12,
+    color: "#1e40af",
+    lineHeight: 16,
   },
-  rangeInfoCard: {
+  rangeInfoBox: {
+    backgroundColor: "#ecfdf5",
+    padding: 10,
     borderRadius: 6,
+  },
+  rangeInfoText: {
+    fontSize: 12,
+    color: "#047857",
+    textAlign: "center",
   },
   timelineActions: {
     gap: 12,
   },
   manageButton: {
+    backgroundColor: "#3b82f6",
   },
   updateButton: {
+    backgroundColor: "#059669",
   },
   dangerActions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
   },
   resetButton: {
     flex: 1,
+    borderColor: "#f59e0b",
   },
   deleteButton: {
     flex: 1,
+    borderColor: "#ef4444",
   },
   noTimelineCard: {
+    backgroundColor: "#fff",
     borderRadius: 16,
+    padding: 40,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    alignItems: "center",
+  },
+  noTimelineIcon: {
+    fontSize: 48,
+    marginBottom: 16,
   },
   noTimelineText: {
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#64748b",
+    marginBottom: 8,
+    textAlign: "center",
   },
   noTimelineDesc: {
+    fontSize: 14,
+    color: "#94a3b8",
+    textAlign: "center",
     lineHeight: 20,
   },
   actionsSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   createButton: {
+    backgroundColor: "#10b981",
     marginBottom: 12,
   },
-  warningCard: {
+  warningBox: {
+    backgroundColor: "#fef3c7",
+    padding: 12,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#f59e0b",
+  },
+  warningText: {
+    fontSize: 14,
+    color: "#92400e",
+    textAlign: "center",
+    lineHeight: 18,
   },
   templatesSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   templateCard: {
-    borderRadius: 16,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   templateHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  templateHeaderInfo: {
-    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
   },
   templateName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e293b",
     flex: 1,
   },
   templateDate: {
+    fontSize: 12,
+    color: "#94a3b8",
   },
   templateDetails: {
     gap: 4,
   },
   templateType: {
+    fontSize: 14,
+    color: "#64748b",
   },
   templateAmount: {
+    fontSize: 14,
+    color: "#059669",
+    fontWeight: "500",
   },
   templateHolidays: {
+    fontSize: 12,
+    color: "#f59e0b",
   },
   noTemplatesCard: {
+    backgroundColor: "#fff",
     borderRadius: 12,
+    padding: 32,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    alignItems: "center",
+  },
+  noTemplatesIcon: {
+    fontSize: 32,
+    marginBottom: 12,
   },
   noTemplatesText: {
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#64748b",
+    marginBottom: 8,
+    textAlign: "center",
   },
   noTemplatesDesc: {
+    fontSize: 14,
+    color: "#94a3b8",
+    textAlign: "center",
     lineHeight: 20,
-  },
-  timelineIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
