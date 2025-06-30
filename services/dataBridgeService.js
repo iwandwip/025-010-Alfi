@@ -115,11 +115,19 @@ export const bridgeHardwarePayment = async (paymentData) => {
       throw new Error('Invalid payment data: missing userId or amountDetected');
     }
 
-    // Process payment through existing Firestore service
+    // Check if we have context for proper payment processing
+    if (!timelineId || !periodKey) {
+      console.warn('⚠️ Missing payment context, treating as partial payment to credit');
+      // Fallback: add to credit if context is missing
+      const { addPartialPaymentToCredit } = await import('./wargaPaymentService');
+      return await addPartialPaymentToCredit(userId, parseInt(amountDetected));
+    }
+
+    // Process payment through existing Firestore service with proper context
     const result = await processPaymentWithCredit(
-      userId,
-      timelineId || 'default',
+      timelineId,
       periodKey,
+      userId,
       parseInt(amountDetected),
       'mode_based_hardware'
     );
@@ -223,6 +231,8 @@ export const startHardwarePaymentBridge = () => {
         if (sessionData && sessionData.user_id) {
           const fullPaymentData = {
             userId: sessionData.user_id,
+            timelineId: sessionData.timeline_id,
+            periodKey: sessionData.period_key,
             amountRequired: sessionData.amount_required,
             rfidDetected: paymentResults.rfid_detected,
             amountDetected: paymentResults.amount_detected,

@@ -253,6 +253,9 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
       const result = await startHardwarePaymentWithTimeout(
         rfidCode,
         amountAfterCredit,
+        userProfile?.id || payment.wargaId || '',  // userId
+        payment.timelineId || '',                   // timelineId
+        payment.periodKey || payment.period || '',  // periodKey
         300 // 5 minutes timeout
       );
 

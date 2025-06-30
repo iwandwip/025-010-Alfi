@@ -6,6 +6,7 @@ const inquirer = require('inquirer').default;
 const firebaseConfig = {
   apiKey: "AIzaSyD4URsW4aiFRDgn72VvF_KwTwAImzscacc",
   authDomain: "alfi-c6f58.firebaseapp.com",
+  databaseURL: "https://alfi-c6f58-default-rtdb.firebaseio.com",
   projectId: "alfi-c6f58",
   storageBucket: "alfi-c6f58.firebasestorage.app",
   messagingSenderId: "839280828747",

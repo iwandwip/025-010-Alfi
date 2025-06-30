@@ -16,7 +16,7 @@
  *   "mode": "idle", // "idle" | "pairing" | "payment" | "solenoid"
  *   "pairing_mode": "", // Empty when idle, RFID code when detected
  *   "payment_mode": {
- *     "get": { "rfid_code": "", "amount_required": "" },
+ *     "get": { "rfid_code": "", "amount_required": "", "user_id": "", "timeline_id": "", "period_key": "" },
  *     "set": { "amount_detected": "", "status": "" } // Only amount & status!
  *   },
  *   "solenoid_command": "locked" // "unlock" | "locked"
@@ -96,7 +96,7 @@ export const resetToIdle = async () => {
     set(ref(rtdb, 'mode'), 'idle'),
     set(ref(rtdb, 'pairing_mode'), ''),
     set(ref(rtdb, 'payment_mode'), { 
-      get: { rfid_code: '', amount_required: '' },
+      get: { rfid_code: '', amount_required: '', user_id: '', timeline_id: '', period_key: '' },
       set: { amount_detected: '', status: '' }
     })
   ]);
@@ -182,8 +182,11 @@ export const completePairingSession = async () => {
  * Start hardware payment session with priority checking
  * @param {string} rfidCode - RFID code for payment validation
  * @param {string|number} amountRequired - Required payment amount
+ * @param {string} userId - User ID for payment context
+ * @param {string} timelineId - Timeline ID for payment context
+ * @param {string} periodKey - Period key for payment context
  */
-export const startHardwarePayment = async (rfidCode, amountRequired) => {
+export const startHardwarePayment = async (rfidCode, amountRequired, userId = '', timelineId = '', periodKey = '') => {
   if (!rtdb) {
     throw new Error('RTDB not initialized');
   }
@@ -193,7 +196,10 @@ export const startHardwarePayment = async (rfidCode, amountRequired) => {
     await Promise.all([
       set(ref(rtdb, 'payment_mode/get'), {
         rfid_code: rfidCode,
-        amount_required: amountRequired.toString()
+        amount_required: amountRequired.toString(),
+        user_id: userId,
+        timeline_id: timelineId,
+        period_key: periodKey
       }),
       set(ref(rtdb, 'payment_mode/set'), {
         amount_detected: '',
@@ -252,7 +258,7 @@ export const completePaymentSession = async () => {
   
   await Promise.all([
     set(ref(rtdb, 'payment_mode'), {
-      get: { rfid_code: '', amount_required: '' },
+      get: { rfid_code: '', amount_required: '', user_id: '', timeline_id: '', period_key: '' },
       set: { amount_detected: '', status: '' }
     }),
     set(ref(rtdb, 'mode'), 'idle')
@@ -425,8 +431,8 @@ export const initializeRTDB = async () => {
     mode: 'idle',
     pairing_mode: '',
     payment_mode: {
-      get: { user_id: '', amount_required: '' },
-      set: { rfid_detected: '', amount_detected: '', status: '' }
+      get: { rfid_code: '', amount_required: '', user_id: '', timeline_id: '', period_key: '' },
+      set: { amount_detected: '', status: '' }
     },
     solenoid_command: 'locked'
   };
@@ -463,11 +469,14 @@ export const startRFIDPairingWithTimeout = async (timeoutSeconds = 30) => {
  * Start payment with automatic timeout
  * @param {string} rfidCode - RFID code for payment validation
  * @param {string|number} amount - Payment amount
+ * @param {string} userId - User ID for payment context
+ * @param {string} timelineId - Timeline ID for payment context
+ * @param {string} periodKey - Period key for payment context
  * @param {number} timeoutSeconds - Timeout duration (default: 300 = 5 minutes)
  * @returns {Promise<object>} Result with timeout ID
  */
-export const startHardwarePaymentWithTimeout = async (rfidCode, amount, timeoutSeconds = 300) => {
-  await startHardwarePayment(rfidCode, amount);
+export const startHardwarePaymentWithTimeout = async (rfidCode, amount, userId = '', timelineId = '', periodKey = '', timeoutSeconds = 300) => {
+  await startHardwarePayment(rfidCode, amount, userId, timelineId, periodKey);
   
   const timeoutId = setTimeout(async () => {
     try {
