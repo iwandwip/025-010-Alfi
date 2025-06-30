@@ -33,7 +33,7 @@ export default function RoleSelection() {
 
         <View style={styles.logoContainer}>
           <View style={styles.logoPlaceholder}>
-            <Text style={styles.logoText}>🕌</Text>
+            <Text style={styles.logoText}>💰</Text>
           </View>
         </View>
 

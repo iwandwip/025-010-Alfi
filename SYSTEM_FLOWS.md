@@ -1,8 +1,8 @@
-# Smart Jimpitan Warga System Flows Documentation
+# Smart Jimpitan System Flows Documentation
 
 ## Overview
 
-This document details the **revolutionary mode-based architecture** for the Smart Jimpitan Warga payment management system. This approach uses Firebase Realtime Database (RTDB) as an intelligent bridge between the mobile app and ESP32 hardware, dramatically simplifying coordination while maintaining robust data management.
+This document details the **revolutionary mode-based architecture** for the Smart Jimpitan payment management system. This approach uses Firebase Realtime Database (RTDB) as an intelligent bridge between the mobile app and ESP32 hardware, dramatically simplifying coordination while maintaining robust data management.
 
 ## Revolutionary Mode-based Architecture
 
@@ -60,7 +60,7 @@ Data Bridge: RTDB (real-time) → Firestore (permanent storage)
 - Complex queries and relationships
 - Permanent data storage
 
-### Core RTDB Schema for Smart Jimpitan Warga (Ultra-Simple)
+### Core RTDB Schema for Smart Jimpitan (Ultra-Simple)
 
 ```javascript
 {
@@ -100,7 +100,7 @@ Data Bridge: RTDB (real-time) → Firestore (permanent storage)
 ## System Flows Overview
 
 This document covers the four critical flows using the mode-based architecture:
-1. **RFID Pairing Flow** - Associating RFID cards with warga
+1. **RFID Pairing Flow** - Associating RFID cards with students
 2. **Payment Processing Flow** - Two-step payment UI with hardware/app selection  
 3. **Hardware Payment Flow** - Revolutionary mode-based RTDB coordination
 4. **Solenoid Control Flow** - Remote lock/unlock control for payment device
@@ -495,7 +495,7 @@ const handlePaymentSuccess = useCallback(
 ### Credit Addition Service
 
 ```javascript
-// In services/wargaPaymentService.js
+// In services/waliPaymentService.js
 export const addPartialPaymentToCredit = async (wargaId, partialAmount) => {
   try {
     const creditResult = await getCreditBalance(wargaId);
@@ -551,7 +551,7 @@ export const addPartialPaymentToCredit = async (wargaId, partialAmount) => {
 
 ## Overview
 
-The RFID pairing system uses the revolutionary **mode-based architecture** to associate RFID cards with warga. Instead of complex Firestore sessions, it uses simple RTDB mode switching for ultra-responsive coordination.
+The RFID pairing system uses the revolutionary **mode-based architecture** to associate RFID cards with students. Instead of complex Firestore sessions, it uses simple RTDB mode switching for ultra-responsive coordination.
 
 ## Mode-based RFID Pairing Architecture
 
@@ -593,7 +593,7 @@ The RFID pairing system uses the revolutionary **mode-based architecture** to as
           │ onValue(pairing_mode)│                      │                      │
           │                      │                      │                      │
           │ 7. Save to Firestore │                      │                      │
-          ├─────────────────────▶│ users/{id}/rfidWarga │                      │
+          ├─────────────────────▶│ users/{id}/rfidWarga│                      │
           │    updateDoc()       │                      │                      │
           │                      │                      │                      │
           │ 8. Reset Mode        │                      │                      │
@@ -712,7 +712,7 @@ The hardware payment flow uses **mode-based coordination** to enable app-initiat
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Mobile App    │    │   Firebase      │    │   ESP32         │    │   RFID + Cash   │
-│   (Warga)       │    │   RTDB Bridge   │    │   Hardware      │    │                 │
+│   (Parent)      │    │   RTDB Bridge   │    │   Hardware      │    │                 │
 └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
           │                      │                      │                      │
           │ 1. Select Hardware   │                      │                      │
@@ -974,7 +974,7 @@ void handleSolenoidControl() {
 # Firebase Realtime Database (RTDB) Paths
 
 ## Overview
-This section documents all Firebase Realtime Database (RTDB) paths used in the Smart Jimpitan Warga codebase. The Smart Jimpitan Warga system uses a revolutionary **mode-based architecture** where RTDB serves as an intelligent bridge between the mobile app and ESP32 hardware for real-time coordination.
+This section documents all Firebase Realtime Database (RTDB) paths used in the Smart Jimpitan codebase. The Smart Jimpitan system uses a revolutionary **mode-based architecture** where RTDB serves as an intelligent bridge between the mobile app and ESP32 hardware for real-time coordination.
 
 ## Core Architecture
 - **RTDB**: Real-time coordination bridge (ESP32 ↔ Mobile App)
@@ -1319,7 +1319,7 @@ batch_operations/
 # Firebase Firestore Paths
 
 ## Overview
-This section documents all Firebase Firestore collection and document paths used in the Smart Jimpitan Warga codebase. Firestore serves as the primary database for permanent data storage, user management, payment records, and complex queries, while RTDB handles real-time coordination.
+This section documents all Firebase Firestore collection and document paths used in the Smart Jimpitan codebase. Firestore serves as the primary database for permanent data storage, user management, payment records, and complex queries, while RTDB handles real-time coordination.
 
 ## Core Architecture
 - **Firestore**: Permanent data storage and complex queries
@@ -1334,26 +1334,26 @@ This section documents all Firebase Firestore collection and document paths used
 users/
 └── {userId}/                    // Document ID: Auto-generated user ID
     ├── email                   // string - User email address
-    ├── role                    // string - "bendahara" | "admin" | "user"
+    ├── role                    // string - "admin" | "user"
     ├── deleted                 // boolean - Soft delete flag
     ├── createdAt              // timestamp - Account creation date
     ├── updatedAt              // timestamp - Last profile update
     │
     // Admin-specific fields
-    ├── nama                   // string - Admin full name (for bendahara)
-    ├── noHp                   // string - Admin phone number (for bendahara)
+    ├── nama                   // string - Admin full name
+    ├── noHp                   // string - Admin phone number
     │
-    // Warga-specific fields
-    ├── namaWarga              // string - Warga name
-    ├── alamat                 // string - Warga address
-    ├── noHpWarga              // string - Warga phone number
-    ├── rfidWarga              // string - RFID card code (e.g., "04a2bc1f294e80")
+    // Student/Parent-specific fields
+    ├── namaWarga             // string - Student name
+    ├── namaWali               // string - Parent/guardian name
+    ├── noHpWali               // string - Parent phone number
+    ├── rfidWarga             // string - RFID card code (e.g., "04a2bc1f294e80")
     └── creditBalance          // number - Current credit balance in IDR
 ```
 
 **Usage**:
 - Authentication and role-based access control
-- Warga profile management
+- Student-parent relationship management
 - RFID card association
 - Credit balance tracking
 
@@ -1402,10 +1402,10 @@ payments/
 └── {timelineId}/               // Document ID: Reference to active timeline
     └── periods/                // Subcollection: Payment periods
         └── {periodKey}/        // Document ID: Period identifier
-            └── warga_payments/  // Subcollection: Individual warga payments
-                └── {wargaId}/   // Document ID: Warga user ID
+            └── warga_payments/ // Subcollection: Individual student payments
+                └── {wargaId}/  // Document ID: Student user ID
                     ├── userId           // string - Reference to user document
-                    ├── wargaId         // string - Warga ID (redundant for queries)
+                    ├── wargaId        // string - Student ID (redundant for queries)
                     ├── period          // string - Period key reference
                     ├── periodLabel     // string - Human-readable period name
                     ├── amount          // number - Original period amount
@@ -1423,13 +1423,14 @@ payments/
 ```
 
 **Usage**:
-- Individual payment tracking per warga per period
+- Individual payment tracking per student per period
 - Payment history and audit trail
 - Credit balance calculations
 - Payment status management and overdue tracking
 
-**Written by**: wargaPaymentService.js, adminPaymentService.js, paymentStatusManager.js
+**Written by**: waliPaymentService.js, adminPaymentService.js, paymentStatusManager.js
 **Read by**: Payment UI components, admin dashboard, status monitoring
+
 
 ## Usage by Service
 
@@ -1449,7 +1450,7 @@ updateUserProfile()             // Write: users/{userId}
 ### 2. **userService.js** (User Management)
 **Firestore paths**:
 - `users/{userId}` - Individual user operations
-- Query: `users where role == "user" && deleted != true` - List active warga
+- Query: `users where role == "user" && deleted != true` - List active students
 - Query: `users where rfidWarga == ?` - Find user by RFID
 
 **Functions**:
@@ -1457,7 +1458,7 @@ updateUserProfile()             // Write: users/{userId}
 createUser()                    // Write: users/{newUserId}
 updateUser()                    // Write: users/{userId}
 deleteUser()                    // Write: users/{userId} (soft delete)
-getAllWarga()                   // Query: users collection
+getAllUsers()                   // Query: users collection
 getUserByRFID()                 // Query: users where rfidWarga == ?
 ```
 
@@ -1474,15 +1475,15 @@ updateTimeline()                // Write: active_timeline/{timelineId}
 calculateTimelinePeriods()      // Write: active_timeline/{timelineId}/periods
 ```
 
-### 4. **wargaPaymentService.js** (Warga Payment Operations)
+### 4. **waliPaymentService.js** (Parent Payment Operations)
 **Firestore paths**:
 - `payments/{timelineId}/periods/{periodKey}/warga_payments/{wargaId}` - Payment records
 - `users/{wargaId}` - Credit balance updates
 
 **Functions**:
 ```javascript
-getWargaPaymentHistory()        // Read: payments/{timelineId}/periods/*/warga_payments/{wargaId}
-updateWargaPaymentStatus()      // Write: payments/{timelineId}/periods/{periodKey}/warga_payments/{wargaId}
+getWaliPaymentHistory()         // Read: payments/{timelineId}/periods/*/warga_payments/{wargaId}
+updateWaliPaymentStatus()       // Write: payments/{timelineId}/periods/{periodKey}/warga_payments/{wargaId}
 processPaymentWithCredit()      // Write: users/{wargaId}, payments/*/*/*
 getCreditBalance()              // Read: users/{wargaId}/creditBalance
 updateCreditBalance()           // Write: users/{wargaId}/creditBalance
@@ -1491,7 +1492,7 @@ addPartialPaymentToCredit()     // Write: users/{wargaId}/creditBalance
 
 ### 5. **adminPaymentService.js** (Admin Payment Operations)
 **Firestore paths**:
-- `payments/{timelineId}/periods/{periodKey}/warga_payments/` - All warga payments in period
+- `payments/{timelineId}/periods/{periodKey}/warga_payments/` - All student payments in period
 - `users/` - All user records for payment initialization
 
 **Functions**:
@@ -1528,7 +1529,7 @@ getSeederStats()               // Query: users where email contains "user"
 
 ### 1. **app/(admin)/** (Admin Interface)
 **Primary collections**:
-- `users/` - Warga and admin management
+- `users/` - Student and admin management
 - `active_timeline/` - Timeline creation and management
 - `payments/` - Payment status monitoring and updates
 
@@ -1559,7 +1560,7 @@ getSeederStats()               // Query: users where email contains "user"
 
 ### 1. **Complex Queries**
 ```javascript
-// Get all unpaid warga for a specific period
+// Get all unpaid students for a specific period
 const paymentsRef = collection(db, 'payments', timelineId, 'periods', periodKey, 'warga_payments');
 const q = query(paymentsRef, where('status', '==', 'belum_bayar'));
 
@@ -1589,10 +1590,10 @@ onSnapshot(userRef, (doc) => {
 
 ### 3. **Batch Operations**
 ```javascript
-// Initialize payments for all warga
+// Initialize payments for all students
 const batch = writeBatch(db);
-warga.forEach(wargaData => {
-  const paymentRef = doc(db, 'payments', timelineId, 'periods', periodKey, 'warga_payments', wargaData.id);
+students.forEach(student => {
+  const paymentRef = doc(db, 'payments', timelineId, 'periods', periodKey, 'warga_payments', student.id);
   batch.set(paymentRef, paymentData);
 });
 await batch.commit();
@@ -1611,14 +1612,14 @@ users/{userId} ←→ payments/{timelineId}/periods/{periodKey}/warga_payments/{
 ```
 active_timeline/{timelineId} ←→ payments/{timelineId}/
 ```
-**Relationship**: One timeline contains all payment periods and warga payments
+**Relationship**: One timeline contains all payment periods and student payments
 **Foreign Key**: `timelineId` as document path
 
-### 3. **Period → Warga Payments**
+### 3. **Period → Student Payments**
 ```
 active_timeline/{timelineId}/periods/{periodKey} ←→ payments/{timelineId}/periods/{periodKey}/warga_payments/
 ```
-**Relationship**: One period contains payment records for all warga
+**Relationship**: One period contains payment records for all students
 **Foreign Key**: `periodKey` as document path
 
 ## Security Rules
@@ -1633,7 +1634,7 @@ match /users/{userId} {
 // Admins can read/write all user data
 match /users/{userId} {
   allow read, write: if request.auth != null && 
-    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "bendahara";
+    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
 }
 ```
 
@@ -1647,7 +1648,7 @@ match /payments/{timelineId}/periods/{periodKey}/warga_payments/{wargaId} {
 // Admins can read/write all payment records
 match /payments/{path=**} {
   allow read, write: if request.auth != null && 
-    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "bendahara";
+    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
 }
 ```
 
@@ -1729,6 +1730,6 @@ notifications/
 
 - **Hybrid Architecture**: Firestore for permanent storage, RTDB for real-time coordination
 - **Offline Support**: Firestore provides offline capabilities for mobile app
-- **Scalability**: Hierarchical structure supports thousands of warga and payment periods
+- **Scalability**: Hierarchical structure supports thousands of students and payment periods
 - **Consistency**: Foreign key relationships maintained through application logic
 - **Performance**: Optimized for common query patterns and real-time updates

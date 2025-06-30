@@ -138,7 +138,7 @@ export const listenToPairingData = (callback) => {
               callback({ success: false, error: result.error });
             }
           } catch (error) {
-            console.error('Error saving RFID to santri:', error);
+            console.error('Error saving RFID to warga:', error);
             callback({ success: false, error: error.message });
           }
         }

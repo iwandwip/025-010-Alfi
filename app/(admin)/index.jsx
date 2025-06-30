@@ -668,7 +668,7 @@ function AdminHome() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Generate Data Santri</Text>
+              <Text style={styles.modalTitle}>Generate Data Warga</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setSeederModalVisible(false)}
@@ -733,7 +733,7 @@ function AdminHome() {
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingModal}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.loadingTitle}>Generating Data Santri</Text>
+            <Text style={styles.loadingTitle}>Generating Data Warga</Text>
             <Text style={styles.loadingSubtitle}>
               Membuat {seederCount} akun dengan email sequential...
             </Text>

@@ -208,7 +208,7 @@ export default function TimelineManager() {
   const showPaymentDataOptions = () => {
     Alert.alert(
       "Opsi Data Pembayaran",
-      "Pilih tindakan untuk data pembayaran santri:",
+      "Pilih tindakan untuk data pembayaran warga:",
       [
         { text: "Batal", style: "cancel" },
         {
@@ -226,8 +226,8 @@ export default function TimelineManager() {
 
   const confirmDeleteTimeline = (deletePaymentData) => {
     const message = deletePaymentData 
-      ? `Timeline "${activeTimeline.name}" dan SEMUA data pembayaran santri akan dihapus.\n\n⚠️ PERINGATAN: Semua riwayat pembayaran santri akan hilang permanen!`
-      : `Timeline "${activeTimeline.name}" akan dihapus, tetapi data pembayaran santri akan dipertahankan untuk referensi.`;
+      ? `Timeline "${activeTimeline.name}" dan SEMUA data pembayaran warga akan dihapus.\n\n⚠️ PERINGATAN: Semua riwayat pembayaran warga akan hilang permanen!`
+      : `Timeline "${activeTimeline.name}" akan dihapus, tetapi data pembayaran warga akan dipertahankan untuk referensi.`;
 
     Alert.alert(
       "Konfirmasi Penghapusan",
@@ -244,7 +244,7 @@ export default function TimelineManager() {
             if (result.success) {
               const successMessage = deletePaymentData
                 ? "Timeline dan semua data pembayaran berhasil dihapus!"
-                : "Timeline berhasil dihapus, data pembayaran santri dipertahankan.";
+                : "Timeline berhasil dihapus, data pembayaran warga dipertahankan.";
               
               Alert.alert(
                 "Timeline Dihapus",

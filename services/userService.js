@@ -193,7 +193,7 @@ export const deleteWarga = async (wargaId) => {
     const userData = userDoc.data();
     
     if (userData.deleted) {
-      throw new Error('Santri sudah dihapus sebelumnya');
+      throw new Error('Warga sudah dihapus sebelumnya');
     }
 
     await deleteDoc(userRef);
@@ -240,7 +240,7 @@ export const restoreWarga = async (wargaId) => {
   }
 };
 
-export const getDeletedSantri = async () => {
+export const getDeletedWarga = async () => {
   try {
     if (!db) {
       return { success: true, data: [] };
@@ -254,19 +254,19 @@ export const getDeletedSantri = async () => {
     );
     const querySnapshot = await getDocs(q);
     
-    const deletedSantriList = [];
+    const deletedWargaList = [];
     querySnapshot.forEach((doc) => {
-      deletedSantriList.push({
+      deletedWargaList.push({
         id: doc.id,
         ...doc.data()
       });
     });
 
-    deletedSantriList.sort((a, b) => 
+    deletedWargaList.sort((a, b) => 
       new Date(b.deletedAt) - new Date(a.deletedAt)
     );
 
-    return { success: true, data: deletedSantriList };
+    return { success: true, data: deletedWargaList };
   } catch (error) {
     console.error('Error mengambil data warga terhapus:', error);
     return { success: false, error: error.message, data: [] };

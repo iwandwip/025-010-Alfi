@@ -108,7 +108,7 @@ export default function PaymentManager() {
   const handleMarkAsPaid = (payment) => {
     Alert.alert(
       "Tandai Lunas",
-      `Tandai pembayaran ${payment.santriName} sebagai lunas?`,
+      `Tandai pembayaran ${payment.wargaName} sebagai lunas?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -126,7 +126,7 @@ export default function PaymentManager() {
   const handleMarkAsUnpaid = (payment) => {
     Alert.alert(
       "Tandai Belum Bayar",
-      `Tandai pembayaran ${payment.santriName} sebagai belum bayar?`,
+      `Tandai pembayaran ${payment.wargaName} sebagai belum bayar?`,
       [
         { text: "Batal", style: "cancel" },
         {
@@ -218,9 +218,9 @@ export default function PaymentManager() {
   const renderPaymentItem = ({ item }) => (
     <View style={styles.paymentCard}>
       <View style={styles.paymentHeader}>
-        <View style={styles.santriInfo}>
-          <Text style={styles.santriName}>{item.santriName}</Text>
-          <Text style={styles.waliName}>Wali: {item.waliName}</Text>
+        <View style={styles.wargaInfo}>
+          <Text style={styles.wargaName}>{item.wargaName}</Text>
+          <Text style={styles.alamatText}>Alamat: {item.alamat}</Text>
         </View>
         <View
           style={[
@@ -528,16 +528,16 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 12,
   },
-  santriInfo: {
+  wargaInfo: {
     flex: 1,
   },
-  santriName: {
+  wargaName: {
     fontSize: 16,
     fontWeight: "600",
     color: "#1e293b",
     marginBottom: 4,
   },
-  waliName: {
+  alamatText: {
     fontSize: 14,
     color: "#64748b",
   },

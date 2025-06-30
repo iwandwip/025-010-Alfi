@@ -177,7 +177,7 @@ function PaymentStatus() {
               {user.namaWarga || "Nama Warga"}
             </Text>
             <Text style={[styles.parentName, { color: colors.gray600 }]}>
-              Alamat: {user.alamat || "Nama Wali"}
+              Alamat: {user.alamat || "Alamat Warga"}
             </Text>
             <Text style={[styles.userEmail, { color: colors.gray500 }]}>
               {user.email}
@@ -310,11 +310,11 @@ function PaymentStatus() {
       <View style={styles.emptyContainer}>
         <Text style={[styles.emptyIcon, { color: colors.gray400 }]}>👥</Text>
         <Text style={[styles.emptyText, { color: colors.gray600 }]}>
-          {timeline ? "Belum ada data santri" : "Belum ada timeline aktif"}
+          {timeline ? "Belum ada data warga" : "Belum ada timeline aktif"}
         </Text>
         <Text style={[styles.emptySubtext, { color: colors.gray500 }]}>
           {timeline
-            ? "Data santri akan muncul setelah ada yang mendaftar"
+            ? "Data warga akan muncul setelah ada yang mendaftar"
             : "Buat timeline terlebih dahulu"}
         </Text>
       </View>
@@ -327,7 +327,7 @@ function PaymentStatus() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[styles.loadingText, { color: colors.gray600 }]}>
-          Memuat data pembayaran santri...
+          Memuat data pembayaran warga...
         </Text>
       </View>
     ),
@@ -420,7 +420,7 @@ function PaymentStatus() {
                 color: colors.gray900,
               },
             ]}
-            placeholder="Cari nama santri, wali, atau email..."
+            placeholder="Cari nama warga, alamat, atau email..."
             placeholderTextColor={colors.gray500}
             value={searchQuery}
             onChangeText={setSearchQuery}
