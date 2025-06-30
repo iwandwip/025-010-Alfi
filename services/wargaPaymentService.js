@@ -28,7 +28,7 @@ export const getWargaPaymentHistory = async (wargaId) => {
     }
 
     if (!wargaId) {
-      return { success: false, error: 'Santri ID tidak ditemukan', payments: [], timeline: null };
+      return { success: false, error: 'Warga ID tidak ditemukan', payments: [], timeline: null };
     }
 
     let timeline;
@@ -148,7 +148,7 @@ export const getWargaPaymentHistory = async (wargaId) => {
 
     return { success: true, payments: allPayments, timeline };
   } catch (error) {
-    console.error('Error getting wali payment history:', error);
+    console.error('Error getting warga payment history:', error);
     return { success: false, error: error.message, payments: [], timeline: null };
   }
 };
@@ -215,7 +215,7 @@ export const updateWargaPaymentStatus = async (timelineId, periodKey, wargaId, u
 
     return { success: true };
   } catch (error) {
-    console.error('Error updating wali payment status:', error);
+    console.error('Error updating warga payment status:', error);
     return { success: false, error: error.message };
   }
 };

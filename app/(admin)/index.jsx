@@ -162,8 +162,8 @@ function AdminHome() {
     }
 
     Alert.alert(
-      "Generate Data Santri",
-      `Akan membuat ${count} akun wali santri baru:\n${emailList.join(
+      "Generate Data Warga",
+      `Akan membuat ${count} akun warga baru:\n${emailList.join(
         ", "
       )}\n\nLanjutkan?`,
       [
@@ -196,7 +196,7 @@ function AdminHome() {
 
                 showGeneralNotification(
                   "Seeder Berhasil",
-                  `Berhasil membuat ${result.totalCreated} akun santri baru`,
+                  `Berhasil membuat ${result.totalCreated} akun warga baru`,
                   "success",
                   { duration: 5000 }
                 );
@@ -224,11 +224,11 @@ function AdminHome() {
     );
   };
 
-  const handleTambahSantri = () => {
+  const handleTambahWarga = () => {
     router.push("/(admin)/tambah-warga");
   };
 
-  const handleDaftarSantri = () => {
+  const handleDaftarWarga = () => {
     router.push("/(admin)/daftar-warga");
   };
 
@@ -510,7 +510,7 @@ function AdminHome() {
         <View style={styles.menuSection}>
           <TouchableOpacity
             style={[styles.menuCard, { borderColor: colors.primary }]}
-            onPress={handleTambahSantri}
+            onPress={handleTambahWarga}
             activeOpacity={0.8}
           >
             <View style={[styles.menuIcon, { backgroundColor: colors.accent }]}>
@@ -535,7 +535,7 @@ function AdminHome() {
                 backgroundColor: colors.white 
               }
             ]}
-            onPress={handleDaftarSantri}
+            onPress={handleDaftarWarga}
             activeOpacity={0.8}
           >
             <View style={[styles.menuIcon, { backgroundColor: colors.accent }]}>

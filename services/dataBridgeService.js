@@ -29,8 +29,8 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { app, db } from './firebase';
-import { updateSantriRFID } from './userService';
-import { processPaymentWithCredit } from './waliPaymentService';
+import { updateWargaRFID } from './userService';
+import { processPaymentWithCredit } from './wargaPaymentService';
 
 let rtdb = null;
 
@@ -46,24 +46,24 @@ try {
 /**
  * Bridge RFID pairing data from RTDB to Firestore
  * Called when RFID is detected in pairing mode
- * @param {string} santriId - Student ID
+ * @param {string} wargaId - Warga ID
  * @param {string} rfidCode - Detected RFID code
  */
-export const bridgeRFIDPairing = async (santriId, rfidCode) => {
+export const bridgeRFIDPairing = async (wargaId, rfidCode) => {
   try {
-    if (!db || !santriId || !rfidCode) {
+    if (!db || !wargaId || !rfidCode) {
       throw new Error('Missing required parameters for RFID pairing bridge');
     }
 
     // Save to Firestore user profile (permanent storage)
-    const result = await updateSantriRFID(santriId, rfidCode);
+    const result = await updateWargaRFID(wargaId, rfidCode);
     
     if (result.success) {
-      console.log('✅ RFID Pairing bridged successfully:', { santriId, rfidCode });
+      console.log('✅ RFID Pairing bridged successfully:', { wargaId, rfidCode });
       
       // Log successful bridge operation
       await logBridgeOperation('rfid_pairing', {
-        santriId,
+        wargaId,
         rfidCode,
         status: 'success',
         bridgedAt: new Date()
@@ -78,7 +78,7 @@ export const bridgeRFIDPairing = async (santriId, rfidCode) => {
     
     // Log failed bridge operation
     await logBridgeOperation('rfid_pairing', {
-      santriId,
+      wargaId,
       rfidCode,
       status: 'failed',
       error: error.message,
@@ -186,10 +186,10 @@ export const startRFIDPairingBridge = () => {
         
         if (currentMode === 'pairing') {
           // Get additional pairing context if needed
-          // For now, we'll need the santriId from the calling component
+          // For now, we'll need the wargaId from the calling component
           console.log('🔥 RFID detected in pairing mode:', rfidCode);
           
-          // Note: In real implementation, the santriId should be passed
+          // Note: In real implementation, the wargaId should be passed
           // through the pairing context or component level bridging
         }
       } catch (error) {
@@ -381,7 +381,7 @@ export const bulkBridgeOperations = async (operations) => {
       
       switch (operation.type) {
         case 'rfid_pairing':
-          result = await bridgeRFIDPairing(operation.santriId, operation.rfidCode);
+          result = await bridgeRFIDPairing(operation.wargaId, operation.rfidCode);
           break;
           
         case 'hardware_payment':

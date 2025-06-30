@@ -30,8 +30,10 @@ export const AuthProvider = ({ children }) => {
 
   const checkAdminStatus = (user, profile) => {
     return (
+      user?.email === "bendahara@gmail.com" ||
       user?.email === "admin@gmail.com" ||
       profile?.role === "admin" ||
+      profile?.role === "bendahara" ||
       profile?.isAdmin
     );
   };

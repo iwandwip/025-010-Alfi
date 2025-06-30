@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { Colors } from './Colors';
 
 // Role-based color schemes
 export const RoleColors = {

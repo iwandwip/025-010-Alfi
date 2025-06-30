@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { Colors, Spacing, BorderRadius, Typography } from './theme';
+import { Colors } from './Colors';
+import { Spacing, BorderRadius, Typography } from './theme';
 
 export const ButtonStyles = StyleSheet.create({
   // Base button container

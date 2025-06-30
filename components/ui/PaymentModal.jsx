@@ -449,7 +449,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
       setHardwareStatus('success');
       Alert.alert(
         "Pembayaran Berhasil! 🎉",
-        `Pembayaran ${payment.periodData?.label} melalui alat Bisyaroh berhasil diproses.`,
+        `Pembayaran ${payment.periodData?.label} melalui alat Jimpitan berhasil diproses.`,
         [
           {
             text: "OK",

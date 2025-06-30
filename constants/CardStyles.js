@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
-import { Colors, Spacing, BorderRadius, Shadows, Typography } from './theme';
+import { Colors } from './Colors';
+import { Spacing, BorderRadius, Shadows, Typography } from './theme';
 
 export const CardStyles = StyleSheet.create({
   // Base card styles

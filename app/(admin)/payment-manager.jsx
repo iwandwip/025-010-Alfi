@@ -91,7 +91,7 @@ export default function PaymentManager() {
     const result = await updatePaymentStatus(
       timeline.id,
       selectedPeriod,
-      payment.santriId,
+      payment.wargaId,
       updateData
     );
 

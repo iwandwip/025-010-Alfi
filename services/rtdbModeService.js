@@ -1,7 +1,7 @@
 /**
  * REVOLUTIONARY MODE-BASED RTDB SERVICE
  * 
- * This service implements the ultra-simple mode-based architecture for Smart Bisyaroh
+ * This service implements the ultra-simple mode-based architecture for Smart Jimpitan
  * that dramatically simplifies ESP32 integration and achieves 90% code reduction.
  * 
  * Key Features:

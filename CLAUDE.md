@@ -408,12 +408,11 @@ ESP32 firmware supports:
 - `assets/images/` - App icons, illustrations, and images:
   - Multiple icon variants (adaptive-icon.png, favicon.png, icon.png)
   - Splash screen assets (splash.png, splash-icon.png)
-  - TPQ-themed icons (icon-tpq-nobg.png, icon-tpq.jpg)
+  - Money-themed icons (icon-money.png, favicon.png)
 
 ## Important Notes
 
-- All references to old terminology (santri, wali, TPQ, bisyaroh) have been completely removed
-- The system now uses consistent "warga" (resident) and "bendahara" (treasurer) terminology
+- The system uses consistent "warga" (resident) and "bendahara" (treasurer) terminology throughout
 - Database collections use "warga_payments" instead of legacy naming
 - RFID system is designed for warga identification and setoran processing
 - Credit balance system allows prepaid setoran management

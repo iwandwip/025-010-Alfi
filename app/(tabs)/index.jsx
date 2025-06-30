@@ -577,7 +577,7 @@ function StatusPembayaran() {
           ]}
         >
           <Text style={[styles.title, { color: colors.gray900 }]}>
-            Status Pembayaran Bisyaroh
+            Status Pembayaran Jimpitan
           </Text>
           {userProfile && (
             <Text style={[styles.subtitle, { color: colors.gray600 }]}>
@@ -610,7 +610,7 @@ function StatusPembayaran() {
         ]}
       >
         <Text style={[styles.title, { color: colors.gray900 }]}>
-          Status Pembayaran Bisyaroh
+          Status Pembayaran Jimpitan
         </Text>
         {userProfile && (
           <Text style={[styles.subtitle, { color: colors.gray600 }]}>
