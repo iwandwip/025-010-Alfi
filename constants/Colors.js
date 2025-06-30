@@ -63,7 +63,7 @@ export const adminTheme = {
   },
 };
 
-// Wali theme (Green)
+// Warga theme (Green)
 export const wargaTheme = {
   primary: '#059669',      // Green 600
   primaryLight: '#10b981', // Green 500

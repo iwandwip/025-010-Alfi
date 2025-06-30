@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { getActiveTimeline, calculatePaymentStatus } from './timelineService';
+import { updateUserPaymentStatus } from './adminPaymentService';
 import { toISOString } from '../utils/dateUtils';
 
 let cachedPayments = new Map();
@@ -388,7 +389,7 @@ export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, p
       notes: creditApplied > 0 ? `Credit applied: ${creditApplied}` : ''
     };
 
-    const paymentResult = await updateWaliPaymentStatus(timelineId, periodKey, wargaId, updateData);
+    const paymentResult = await updateUserPaymentStatus(timelineId, periodKey, wargaId, updateData);
     if (!paymentResult.success) {
       throw new Error('Gagal update status pembayaran');
     }
@@ -442,7 +443,7 @@ export const addPartialPaymentToCredit = async (wargaId, partialAmount) => {
     console.log(`💰 Partial payment added to credit: Rp ${partialAmount} → New balance: Rp ${newCreditBalance}`);
 
     // Clear cache to force reload
-    clearWaliCache();
+    clearWargaCache();
 
     return {
       success: true,
