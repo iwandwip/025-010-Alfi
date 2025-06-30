@@ -1,35 +1,31 @@
 import React, { useState } from "react";
 import {
-  StyleSheet,
-  Alert,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
   View,
   Text,
+  StyleSheet,
+  SafeAreaView,
+  Alert,
+  ScrollView,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
   ActivityIndicator,
 } from "react-native";
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
 import { updateUserProfile } from "../../services/userService";
-import { MaterialIcons } from '@expo/vector-icons';
-import { Shadows } from '../../constants/theme';
-import { useRoleTheme } from '../../hooks/useRoleTheme';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
+import { getThemeByRole } from "../../constants/Colors";
 
 export default function EditProfile() {
-  const { userProfile, refreshProfile } = useAuth();
-  const { colors } = useRoleTheme();
-  const styles = createStyles(colors);
+  const { userProfile, refreshProfile, isAdmin } = useAuth();
   const { theme, loading: settingsLoading } = useSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  // Using custom theme from constants
+  const colors = getThemeByRole(isAdmin);
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -95,51 +91,39 @@ export default function EditProfile() {
     setLoading(false);
   };
 
-  if (settingsLoading || !userProfile) {
+  if (settingsLoading) {
     return (
-      <LinearGradient
-        colors={[colors.primary + '20', colors.background]}
-        style={[styles.container, { paddingTop: insets.top }]}
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: colors.background, paddingTop: insets.top },
+        ]}
       >
-        <View style={[styles.header, Shadows.md]}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <MaterialIcons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>
-            Edit Profil
-          </Text>
-          <View style={styles.placeholder} />
-        </View>
-        
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>
+          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
             Memuat profil...
           </Text>
         </View>
-      </LinearGradient>
+      </SafeAreaView>
     );
   }
 
   return (
-    <LinearGradient
-      colors={[colors.primary + '20', colors.background]}
-      style={[styles.container, { paddingTop: insets.top }]}
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: colors.background, paddingTop: insets.top },
+      ]}
     >
-      <View style={[styles.header, Shadows.md]}>
+      <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => router.back()}
           style={styles.backButton}
+          onPress={() => router.back()}
         >
-          <MaterialIcons name="arrow-back" size={24} color={colors.text} />
+          <Text style={styles.backButtonText}>← Kembali</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          Edit Profil
-        </Text>
-        <View style={styles.placeholder} />
+        <Text style={styles.title}>Edit Profil</Text>
       </View>
 
       <KeyboardAvoidingView
@@ -156,137 +140,105 @@ export default function EditProfile() {
           ]}
         >
           <View style={styles.content}>
-            {/* Profile Header Card */}
-              <View style={[styles.profileCard, Shadows.lg]}>
-                <View style={styles.profileHeader}>
-                  <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
-                    <Text style={[styles.avatarText, { color: colors.textInverse }]}>
-                      {userProfile?.namaWarga?.charAt(0)?.toUpperCase() || 'W'}
-                    </Text>
-                  </View>
-                  <View style={styles.profileInfo}>
-                    <Text style={styles.profileName}>
-                      {userProfile?.namaWarga || 'Nama Warga'}
-                    </Text>
-                    <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>
-                      {userProfile?.email}
-                    </Text>
-                  </View>
-                </View>
-              </View>
+            <View style={styles.titleSection}>
+              <Text style={styles.subtitle}>
+                Edit informasi profil warga
+              </Text>
+            </View>
 
-            {/* Personal Information Form */}
-              <View style={[styles.formCard, Shadows.md]}>
-                <View style={styles.section}>
-                  <Text style={[styles.sectionTitle, { color: colors.primary }]}>Informasi Pribadi</Text>
-                  <View style={styles.divider} />
+            <View style={styles.formSection}>
+              <Input
+                label="Nama Warga"
+                placeholder="Masukkan nama lengkap warga"
+                value={formData.namaWarga}
+                onChangeText={(value) => updateFormData("namaWarga", value)}
+                autoCapitalize="words"
+                error={errors.namaWarga}
+              />
 
-                  <Input
-                    label="Nama Warga"
-                    placeholder="Masukkan nama lengkap warga"
-                    value={formData.namaWarga}
-                    onChangeText={(value) => updateFormData("namaWarga", value)}
-                    autoCapitalize="words"
-                    error={errors.namaWarga}
-                  />
+              <Input
+                label="No HP Warga"
+                placeholder="Masukkan nomor HP warga"
+                value={formData.noHpWarga}
+                onChangeText={(value) => updateFormData("noHpWarga", value)}
+                keyboardType="phone-pad"
+                error={errors.noHpWarga}
+              />
 
-                  <Input
-                    label="No HP Warga"
-                    placeholder="Masukkan nomor HP warga"
-                    value={formData.noHpWarga}
-                    onChangeText={(value) => updateFormData("noHpWarga", value)}
-                    keyboardType="phone-pad"
-                    error={errors.noHpWarga}
-                  />
-                </View>
+              <Input
+                label="Alamat"
+                placeholder="Masukkan alamat lengkap"
+                value={formData.alamat}
+                onChangeText={(value) => updateFormData("alamat", value)}
+                multiline
+                numberOfLines={3}
+                error={errors.alamat}
+              />
 
-                <View style={styles.divider} />
-
-                <View style={styles.section}>
-                  <Text style={[styles.sectionTitle, { color: colors.primary }]}>Informasi Alamat</Text>
-                  <View style={styles.divider} />
-
-                  <Input
-                    label="Alamat"
-                    placeholder="Masukkan alamat lengkap"
-                    value={formData.alamat}
-                    onChangeText={(value) => updateFormData("alamat", value)}
-                    multiline
-                    numberOfLines={3}
-                    error={errors.alamat}
-                  />
-
-                  <View style={[styles.infoCard, { backgroundColor: colors.primary + '20' }]}>
-                    <Text style={[styles.infoText, { color: colors.primary }]}>
-                      ℹ️ RFID warga hanya dapat diatur oleh bendahara
-                    </Text>
-                  </View>
-                </View>
-              </View>
+              <Text style={styles.infoText}>
+                ℹ️ RFID warga hanya dapat diatur oleh bendahara
+              </Text>
+            </View>
 
             <View style={styles.buttonSection}>
               <Button
+                title="Batal"
                 variant="outline"
                 onPress={() => router.back()}
                 style={styles.cancelButton}
                 disabled={loading}
-              >
-                Batal
-              </Button>
+              />
 
               <Button
-                variant="primary"
+                title={loading ? "Menyimpan..." : "Simpan Perubahan"}
                 onPress={handleSave}
                 disabled={loading}
-                loading={loading}
                 style={styles.saveButton}
-              >
-                {loading ? "Menyimpan..." : "Simpan Perubahan"}
-              </Button>
+              />
             </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </SafeAreaView>
   );
 }
 
-const createStyles = (colors) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    justifyContent: 'space-between',
-    backgroundColor: colors.surface,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   backButton: {
-    padding: 8,
-    borderRadius: 20,
+    alignSelf: "flex-start",
   },
-  headerTitle: {
+  backButtonText: {
+    fontSize: 16,
+    color: "#10b981",
+    fontWeight: "500",
+  },
+  title: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "bold",
+    color: "#1e293b",
     flex: 1,
-    textAlign: 'center',
-    color: colors.text,
-  },
-  placeholder: {
-    width: 48,
+    textAlign: "center",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 24,
   },
   loadingText: {
     fontSize: 16,
-    color: colors.text,
     marginTop: 16,
+    textAlign: "center",
   },
   keyboardContainer: {
     flex: 1,
@@ -295,78 +247,37 @@ const createStyles = (colors) => StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
-    paddingVertical: 24,
+    padding: 24,
   },
   content: {
     flex: 1,
   },
-  profileCard: {
-    borderRadius: 16,
-    marginBottom: 16,
-    backgroundColor: colors.surface,
-    padding: 20,
+  titleSection: {
+    alignItems: "center",
+    marginBottom: 32,
   },
-  profileHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  profileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  profileEmail: {
-    fontSize: 14,
-  },
-  formCard: {
-    borderRadius: 16,
-    marginBottom: 16,
-    backgroundColor: colors.surface,
-    padding: 20,
-  },
-  section: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
+  subtitle: {
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
+    color: "#64748b",
+    textAlign: "center",
+    lineHeight: 24,
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: 16,
-  },
-  infoCard: {
-    borderRadius: 8,
-    marginTop: 8,
-    padding: 12,
+  formSection: {
+    marginBottom: 32,
   },
   infoText: {
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 14,
+    color: "#059669",
+    textAlign: "center",
+    backgroundColor: "#dcfce7",
+    padding: 12,
+    borderRadius: 8,
+    lineHeight: 20,
+    marginTop: 16,
   },
   buttonSection: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
-    marginTop: 8,
-    marginBottom: 32,
   },
   cancelButton: {
     flex: 1,

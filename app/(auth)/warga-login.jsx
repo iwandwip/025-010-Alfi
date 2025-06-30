@@ -1,21 +1,28 @@
 import React, { useState } from "react";
-import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
 import { signInWithEmail } from "../../services/authService";
-import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
+import { getThemeByRole } from "../../constants/Colors";
 
 export default function WargaLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  // Using custom theme from constants
+  const colors = getThemeByRole(false); // Warga theme
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -29,167 +36,124 @@ export default function WargaLogin() {
     if (result.success) {
       router.replace("/(tabs)");
     } else {
-      Alert.alert("Login Gagal", result.error);
+      Alert.alert("Masuk Gagal", result.error);
     }
     setLoading(false);
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: Colors.background }]}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={styles.keyboardContainer}
       >
-        <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View>
-            <TouchableOpacity
-              onPress={() => router.push("/role-selection")}
-              style={styles.backButton}
-            >
-              <MaterialIcons name="arrow-back" size={24} color={Colors.text} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Illustration */}
-          <View 
-            style={styles.illustrationContainer}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
           >
-            <View style={[styles.illustrationSurface, Shadows.lg]}>
-              <View style={[styles.avatarIcon, { backgroundColor: Colors.secondary + '20' }]}>
-                <MaterialIcons 
-                  name="home" 
-                  size={50} 
-                  color={Colors.secondary}
-                />
-              </View>
-            </View>
-          </View>
+            <Text style={styles.backButtonText}>← Kembali</Text>
+          </TouchableOpacity>
+        </View>
 
-          {/* Welcome Text */}
-          <View 
-            style={styles.welcomeSection}
-          >
-            <Text style={[styles.welcomeTitle, { color: Colors.primary }]}>
-              Selamat Datang
+        <View style={styles.content}>
+          <View style={styles.titleSection}>
+            <Text style={styles.title}>Masuk Warga</Text>
+            <Text style={styles.subtitle}>
+              Masuk untuk memantau dan membayar jimpitan
             </Text>
-            <Text style={[styles.welcomeSubtitle, { color: Colors.textSecondary }]}>
-              Portal Warga RT 01 RW 02
+            <Text style={styles.infoText}>
+              Belum punya akun? Hubungi bendahara untuk pendaftaran
             </Text>
           </View>
 
+          <View style={styles.formSection}>
+            <Input
+              label="Email"
+              placeholder="Masukkan email Anda"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-          {/* Login Form */}
-          <View>
-            <View style={styles.formCard}>
-              <Text style={styles.formTitle}>
-                Masuk Akun Warga
-              </Text>
+            <Input
+              label="Password"
+              placeholder="Masukkan password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-              <Input
-                label="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholder="Masukkan email Anda"
-              />
-
-              <Input
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={true}
-                placeholder="Masukkan password Anda"
-              />
-
-              <Button
-                variant="primary"
-                onPress={handleLogin}
-                loading={loading}
-                disabled={loading}
-                style={styles.loginButton}
-              >
-                {loading ? "Memproses..." : "Masuk"}
-              </Button>
-            </View>
+            <Button
+              title={loading ? "Sedang Masuk..." : "Masuk"}
+              onPress={handleLogin}
+              disabled={loading}
+              style={styles.loginButton}
+            />
           </View>
-
-
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f0fdf4",
   },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+  keyboardContainer: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   backButton: {
-    alignSelf: 'flex-start',
-    marginLeft: -8,
-    padding: 8,
-    borderRadius: 20,
+    alignSelf: "flex-start",
   },
-  illustrationContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
-  },
-  illustrationSurface: {
-    padding: 20,
-    borderRadius: 80,
-    backgroundColor: Colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  welcomeSection: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  welcomeTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  welcomeSubtitle: {
+  backButtonText: {
     fontSize: 16,
-    opacity: 0.8,
-    textAlign: 'center',
+    color: "#10b981",
+    fontWeight: "500",
   },
-  formCard: {
-    borderRadius: 16,
-    marginBottom: 30,
-    backgroundColor: Colors.surface,
-    padding: 20,
-    ...Shadows.md,
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: "center",
   },
-  formTitle: {
-    fontSize: 20,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: '600',
-    color: Colors.text,
+  titleSection: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1e293b",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#64748b",
+    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  infoText: {
+    fontSize: 14,
+    color: "#059669",
+    textAlign: "center",
+    backgroundColor: "#dcfce7",
+    padding: 12,
+    borderRadius: 8,
+    lineHeight: 20,
+  },
+  formSection: {
+    marginBottom: 32,
   },
   loginButton: {
     marginTop: 8,
-    borderRadius: 24,
+    backgroundColor: "#10b981",
   },
 });

@@ -1,22 +1,28 @@
 import React, { useState } from "react";
-import { View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform, Alert, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { MaterialIcons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-// import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from "expo-router";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { Link, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
 import { signInWithEmail } from "../../services/authService";
+import { getThemeByRole } from "../../constants/Colors";
 
 export default function BendaharaLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  // Using custom theme from constants
+  const colors = getThemeByRole(true); // Bendahara theme
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -30,170 +36,130 @@ export default function BendaharaLogin() {
     if (result.success) {
       router.replace("/(admin)");
     } else {
-      Alert.alert("Login Gagal", result.error);
+      Alert.alert("Masuk Gagal", result.error);
     }
     setLoading(false);
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: Colors.background }]}>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={styles.keyboardContainer}
       >
-        <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
-            >
-              <MaterialIcons name="arrow-back" size={28} color={Colors.primary} />
-            </TouchableOpacity>
-          </View>
-
-          {/* Logo Section */}
-          <View 
-            style={styles.logoSection}
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
           >
-            <View style={[styles.logoContainer, { backgroundColor: Colors.primary }, Shadows.md]}>
-              <MaterialIcons name="business-center" size={80} color={Colors.onPrimary} />
-            </View>
-            
-            <Text style={[styles.title, { color: Colors.onView }]}>
-              Portal Bendahara
-            </Text>
-            
-            <Text style={[styles.subtitle, { color: Colors.onViewVariant }]}>
-              Sistem Pengelolaan Jimpitan RT
-            </Text>
+            <Text style={styles.backButtonText}>← Kembali</Text>
+          </TouchableOpacity>
+        </View>
 
+        <View style={styles.content}>
+          <View style={styles.titleSection}>
+            <Text style={styles.title}>Masuk Bendahara</Text>
+            <Text style={styles.subtitle}>
+              Masuk sebagai Bendahara Jimpitan Warga
+            </Text>
           </View>
 
-          {/* Login Form */}
-          <View>
-            <View style={[styles.formCard, Shadows.md, { backgroundColor: Colors.surface }]}>
-              <View style={{ padding: 20 }}>
-                <Text style={styles.formTitle}>
-                  Masuk ke Akun Anda
-                </Text>
+          <View style={styles.formSection}>
+            <Input
+              label="Email"
+              placeholder="Masukkan email bendahara"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
-                <Input
-                  label="Email Bendahara"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  style={styles.input}
-                />
+            <Input
+              label="Password"
+              placeholder="Masukkan password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+            />
 
-                <Input
-                  label="Password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={true}
-                  style={styles.input}
-                />
-
-                <Button
-                  variant="primary"
-                  onPress={handleLogin}
-                  loading={loading}
-                  disabled={loading}
-                  style={styles.loginButton}
-                >
-                  {loading ? "Memproses..." : "Masuk"}
-                </Button>
-
-              </View>
-            </View>
-          </View>
-
-          {/* Register Link */}
-          <View 
-            style={styles.registerSection}
-          >
-            <Text style={{ color: Colors.onViewVariant }}>
-              Belum punya akun bendahara?
-            </Text>
             <Button
-              variant="outline"
-              onPress={() => router.push("/(auth)/bendahara-register")}
-              style={styles.registerButton}
-            >
-              Daftar Sekarang
-            </Button>
+              title={loading ? "Sedang Masuk..." : "Masuk"}
+              onPress={handleLogin}
+              disabled={loading}
+              style={styles.loginButton}
+            />
           </View>
-        </ScrollView>
+
+          <View style={styles.registerSection}>
+            <Text style={styles.registerText}>Belum memiliki akun bendahara?</Text>
+            <Link href="/(auth)/bendahara-register" style={styles.registerLink}>
+              Daftar Sekarang
+            </Link>
+          </View>
+        </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f8fafc",
   },
-  scrollContent: {
-    flexGrow: 1,
+  keyboardContainer: {
+    flex: 1,
+  },
+  header: {
     paddingHorizontal: 24,
-    paddingBottom: 40,
+    paddingVertical: 16,
   },
   backButton: {
-    alignSelf: 'flex-start',
-    marginLeft: -8,
+    alignSelf: "flex-start",
   },
-  logoSection: {
-    alignItems: 'center',
-    marginVertical: 32,
+  backButtonText: {
+    fontSize: 16,
+    color: "#3b82f6",
+    fontWeight: "500",
   },
-  logoContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
+  content: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: "center",
+  },
+  titleSection: {
+    alignItems: "center",
+    marginBottom: 40,
   },
   title: {
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1e293b",
     marginBottom: 8,
   },
   subtitle: {
-    marginBottom: 16,
-    textAlign: 'center',
+    fontSize: 16,
+    color: "#64748b",
+    textAlign: "center",
+    lineHeight: 24,
   },
-  formCard: {
-    borderRadius: 24,
-    marginBottom: 24,
-  },
-  formTitle: {
-    marginBottom: 24,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  input: {
-    marginBottom: 16,
+  formSection: {
+    marginBottom: 32,
   },
   loginButton: {
     marginTop: 8,
-    borderRadius: 28,
-  },
-  loginButtonContent: {
-    paddingVertical: 8,
-  },
-  loginButtonLabel: {
-    fontSize: 16,
-    fontWeight: '600',
   },
   registerSection: {
-    alignItems: 'center',
-    marginTop: 16,
+    alignItems: "center",
   },
-  registerButton: {
-    marginTop: 4,
+  registerText: {
+    fontSize: 14,
+    color: "#64748b",
+    marginBottom: 8,
+  },
+  registerLink: {
+    fontSize: 14,
+    color: "#3b82f6",
+    fontWeight: "600",
   },
 });
