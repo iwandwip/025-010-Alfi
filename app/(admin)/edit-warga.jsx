@@ -30,7 +30,7 @@ export default function EditWarga() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const loadSantriData = async () => {
+  const loadWargaData = async () => {
     setLoading(true);
     const result = await getUserProfile(wargaId);
     if (result.success) {
@@ -49,7 +49,7 @@ export default function EditWarga() {
   };
 
   useEffect(() => {
-    loadSantriData();
+    loadWargaData();
   }, [wargaId]);
 
   const updateForm = (field, value) => {
@@ -62,15 +62,15 @@ export default function EditWarga() {
       return false;
     }
     if (!formData.alamat.trim()) {
-      Alert.alert("Error", "Nama wali wajib diisi");
+      Alert.alert("Error", "Alamat wajib diisi");
       return false;
     }
     if (!formData.noHpWarga.trim()) {
-      Alert.alert("Error", "No HP wali wajib diisi");
+      Alert.alert("Error", "No HP warga wajib diisi");
       return false;
     }
     if (!formData.email.trim()) {
-      Alert.alert("Error", "Email wali wajib diisi");
+      Alert.alert("Error", "Email warga wajib diisi");
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -129,7 +129,7 @@ export default function EditWarga() {
           >
             <Text style={styles.backButtonText}>← Batal</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Data Santri</Text>
+          <Text style={styles.headerTitle}>Edit Data Warga</Text>
         </View>
         <View style={styles.loadingContainer}>
           <LoadingSpinner text="Memuat data warga..." />
@@ -151,7 +151,7 @@ export default function EditWarga() {
           >
             <Text style={styles.backButtonText}>← Batal</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Data Santri</Text>
+          <Text style={styles.headerTitle}>Edit Data Warga</Text>
         </View>
 
         <ScrollView
@@ -165,15 +165,15 @@ export default function EditWarga() {
           <View style={styles.content}>
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                ⚠️ Perubahan data akan mempengaruhi akun login wali warga
+                ⚠️ Perubahan data akan mempengaruhi akun login warga
               </Text>
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Data Santri</Text>
+              <Text style={styles.sectionTitle}>Data Warga</Text>
 
               <Input
-                label="Nama Santri"
+                label="Nama Warga"
                 placeholder="Masukkan nama lengkap warga"
                 value={formData.namaWarga}
                 onChangeText={(value) => updateForm("namaWarga", value)}
@@ -182,27 +182,27 @@ export default function EditWarga() {
             </View>
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Data Wali Santri</Text>
+              <Text style={styles.sectionTitle}>Informasi Kontak</Text>
 
               <Input
-                label="Nama Wali"
-                placeholder="Masukkan nama lengkap wali"
+                label="Alamat"
+                placeholder="Masukkan alamat lengkap"
                 value={formData.alamat}
                 onChangeText={(value) => updateForm("alamat", value)}
                 autoCapitalize="words"
               />
 
               <Input
-                label="No HP Wali"
-                placeholder="Masukkan nomor HP wali"
+                label="No HP Warga"
+                placeholder="Masukkan nomor HP warga"
                 value={formData.noHpWarga}
                 onChangeText={(value) => updateForm("noHpWarga", value)}
                 keyboardType="phone-pad"
               />
 
               <Input
-                label="Email Wali"
-                placeholder="Masukkan email untuk login wali"
+                label="Email Warga"
+                placeholder="Masukkan email untuk login warga"
                 value={formData.email}
                 onChangeText={(value) => updateForm("email", value)}
                 keyboardType="email-address"
@@ -211,7 +211,7 @@ export default function EditWarga() {
 
               <View style={styles.infoBox}>
                 <Text style={styles.infoText}>
-                  ℹ️ Jika email diubah, wali warga perlu menggunakan email baru
+                  ℹ️ Jika email diubah, warga perlu menggunakan email baru
                   untuk login
                 </Text>
               </View>

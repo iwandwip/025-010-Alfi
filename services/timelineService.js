@@ -235,7 +235,7 @@ export const generatePaymentsForTimeline = async (timelineId) => {
     }
 
     const timeline = timelineResult.timeline;
-    const wargaResult = await getAllSantri();
+    const wargaResult = await getAllWarga();
     if (!wargaResult.success) {
       throw new Error('Gagal mengambil data warga');
     }
@@ -431,7 +431,7 @@ const calculateDueDate = (type, periodNumber, startDate) => {
   return dueDate.toISOString();
 };
 
-const getAllSantri = async () => {
+const getAllWarga = async () => {
   try {
     if (!db) {
       return { success: true, data: [] };

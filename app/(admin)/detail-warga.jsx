@@ -416,22 +416,22 @@ export default function DetailWarga() {
 
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nama Santri:</Text>
+              <Text style={styles.infoLabel}>Nama Warga:</Text>
               <Text style={styles.infoValue}>{warga.namaWarga}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nama Wali:</Text>
+              <Text style={styles.infoLabel}>Alamat:</Text>
               <Text style={styles.infoValue}>{warga.alamat}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>No HP Wali:</Text>
+              <Text style={styles.infoLabel}>No HP Warga:</Text>
               <Text style={styles.infoValue}>{warga.noHpWarga}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email Wali:</Text>
+              <Text style={styles.infoLabel}>Email Warga:</Text>
               <Text style={styles.infoValue}>{warga.email}</Text>
             </View>
           </View>
