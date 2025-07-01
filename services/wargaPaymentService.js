@@ -399,6 +399,9 @@ export const processPaymentWithCredit = async (timelineId, periodKey, wargaId, p
       throw new Error('Gagal update saldo credit');
     }
 
+    // Clear cache to ensure fresh data
+    clearWargaCache();
+
     return {
       success: true,
       creditApplied,
@@ -463,4 +466,5 @@ export const clearWargaCache = () => {
   cachedPayments.clear();
   cachedTimeline = null;
   cacheTimestamp = null;
+  console.log('🧹 Warga payment cache cleared');
 };

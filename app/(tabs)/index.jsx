@@ -159,62 +159,46 @@ function StatusPembayaran() {
       setUpdatingPayment(true);
 
       try {
-        // Handle partial payment (hardware_cash_partial)
-        if (paymentMethod === 'hardware_cash_partial') {
-          // For partial payment, add amount to credit balance only
-          const result = await processPaymentWithCredit(
-            timeline.id,
-            payment.periodKey,
-            userProfile.id,
-            0, // No actual payment to the period
-            'credit_only', // Special method for credit addition
-            customAmount // The partial amount to add as credit
-          );
-          
-          if (result.success) {
-            await loadData(true, false);
-            showCreditBalanceNotification(result.newCreditBalance);
-            paymentStatusManager.clearUserCache(userProfile.id);
-          }
-        } else {
-          // Normal payment processing
-          const paymentAmount = customAmount || (payment.remainingAmount || payment.amount);
-          
-          const result = await processPaymentWithCredit(
-            timeline.id,
-            payment.periodKey,
-            userProfile.id,
-            paymentAmount,
-            paymentMethod
-          );
+        // Handle all payments (including partial) the same way
+        // The processPaymentWithCredit function already handles partial payments correctly
+        
+        // Normal payment processing for all payment types
+        const paymentAmount = customAmount || (payment.remainingAmount || payment.amount);
+        
+        const result = await processPaymentWithCredit(
+          timeline.id,
+          payment.periodKey,
+          userProfile.id,
+          paymentAmount,
+          paymentMethod
+        );
 
-          if (result.success) {
-            await loadData(true, false);
-            
-            // Show appropriate notification based on result
-            if (result.excessCredit > 0) {
-              showPaymentWithCreditNotification(
-                payment, 
-                result.creditApplied, 
-                0 // remaining amount is 0 since payment is complete
-              );
-              showCreditBalanceNotification(result.newCreditBalance);
-            } else if (result.creditApplied > 0) {
-              showPaymentWithCreditNotification(
-                payment, 
-                result.creditApplied, 
-                0
-              );
-            } else {
-              showPaymentSuccessNotification(payment);
-            }
-
-            paymentStatusManager.clearUserCache(userProfile.id);
-          } else {
-            showErrorNotification(
-              "Gagal memperbarui status pembayaran: " + result.error
+        if (result.success) {
+          await loadData(true, false);
+          
+          // Show appropriate notification based on result
+          if (result.excessCredit > 0) {
+            showPaymentWithCreditNotification(
+              payment, 
+              result.creditApplied, 
+              0 // remaining amount is 0 since payment is complete
             );
+            showCreditBalanceNotification(result.newCreditBalance);
+          } else if (result.creditApplied > 0) {
+            showPaymentWithCreditNotification(
+              payment, 
+              result.creditApplied, 
+              0
+            );
+          } else {
+            showPaymentSuccessNotification(payment);
           }
+
+          paymentStatusManager.clearUserCache(userProfile.id);
+        } else {
+          showErrorNotification(
+            "Gagal memperbarui status pembayaran: " + result.error
+          );
         }
       } catch (error) {
         showErrorNotification("Terjadi kesalahan saat memperbarui pembayaran");

@@ -22,6 +22,8 @@ import {
   getMode,
   clearPaymentStatus
 } from "../../services/rtdbModeService";
+import { processPaymentWithCredit } from "../../services/wargaPaymentService";
+import { getActiveTimeline } from "../../services/timelineService";
 
 const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalance = 0, userProfile = null }) => {
   const { theme, loading: settingsLoading } = useSettings();
@@ -148,6 +150,12 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
   ];
 
   const handlePaymentSourceSelect = (source) => {
+    // Validate state before proceeding
+    if (processing || hardwarePayment) {
+      Alert.alert("Tunggu", "Pembayaran sedang diproses. Mohon tunggu hingga selesai.");
+      return;
+    }
+    
     setPaymentSource(source);
     if (source === 'hardware') {
       // Hardware payment doesn't need method/mode selection
@@ -160,11 +168,23 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
   };
 
   const handlePayNow = async () => {
+    // Validate payment state
+    if (processing) {
+      Alert.alert("Tunggu", "Pembayaran sedang diproses. Mohon tunggu hingga selesai.");
+      return;
+    }
+    
     if ((amountAfterCredit || 0) > 0 && !selectedMethod) {
       Alert.alert(
         "Pilih Metode",
         "Silakan pilih metode pembayaran terlebih dahulu"
       );
+      return;
+    }
+    
+    // Validate payment data
+    if (!payment || !userProfile) {
+      Alert.alert("Error", "Data pembayaran tidak lengkap. Silakan coba lagi.");
       return;
     }
 
@@ -186,29 +206,57 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
       ? parseInt(customAmount) 
       : (amountAfterCredit || 0);
 
-    setTimeout(() => {
-      const successMessage = (excessAmount || 0) > 0 
-        ? `Pembayaran ${payment.periodData?.label} berhasil! Kelebihan ${formatCurrency(willBecomeCredit || 0)} menjadi credit.`
-        : `Pembayaran ${payment.periodData?.label} sebesar ${formatCurrency(finalAmount || 0)} berhasil diproses.`;
-
-      Alert.alert(
-        "Pembayaran Berhasil! 🎉",
-        successMessage,
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              setProcessing(false);
-              setSelectedMethod(null);
-              setPaymentMode('exact');
-              setCustomAmount('');
-              onPaymentSuccess(payment, selectedMethod?.id || 'credit', finalAmount);
-              onClose();
-            },
-          },
-        ]
+    // Real payment processing instead of simulation
+    try {
+      // Get active timeline
+      const timelineResult = await getActiveTimeline();
+      if (!timelineResult.success) {
+        throw new Error('Timeline aktif tidak ditemukan');
+      }
+      
+      // Process payment with credit logic
+      const result = await processPaymentWithCredit(
+        timelineResult.timeline.id,
+        payment.periodKey,
+        userProfile?.id || payment.wargaId,
+        finalAmount,
+        selectedMethod?.id || 'digital_payment'
       );
-    }, 2000);
+      
+      if (result.success) {
+        const successMessage = result.excessCredit > 0 
+          ? `Pembayaran ${payment.periodData?.label} berhasil! Kelebihan ${formatCurrency(result.excessCredit)} menjadi credit.`
+          : `Pembayaran ${payment.periodData?.label} sebesar ${formatCurrency(finalAmount)} berhasil diproses.`;
+
+        Alert.alert(
+          "Pembayaran Berhasil! 🎉",
+          successMessage,
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                setProcessing(false);
+                setSelectedMethod(null);
+                setPaymentMode('exact');
+                setCustomAmount('');
+                onPaymentSuccess(payment, selectedMethod?.id || 'digital_payment', finalAmount);
+                onClose();
+              },
+            },
+          ]
+        );
+      } else {
+        throw new Error(result.error || 'Gagal memproses pembayaran');
+      }
+    } catch (error) {
+      setProcessing(false);
+      console.error('Payment processing error:', error);
+      Alert.alert(
+        "Gagal Memproses Pembayaran",
+        error.message || 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.',
+        [{ text: "OK" }]
+      );
+    }
   };
 
   const handleHardwarePayment = async () => {
@@ -322,11 +370,11 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
         const remaining = requiredAmount - detectedAmount;
         
         Alert.alert(
-          "Pembayaran Kurang 💰",
+          "Pembayaran Sebagian Diterima 💰",
           `Pembayaran diterima: ${formatCurrency(detectedAmount)}\n` +
           `Jumlah yang dibutuhkan: ${formatCurrency(requiredAmount)}\n\n` +
-          `✨ Uang Anda ditambahkan ke credit balance\n` +
-          `Sisa pembayaran: ${formatCurrency(remaining)}`,
+          `✅ Pembayaran sebagian berhasil diproses\n` +
+          `💡 Sisa pembayaran: ${formatCurrency(remaining)}`,
           [
             {
               text: "OK",
@@ -334,7 +382,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
                 setHardwarePayment(false);
                 setHardwareStatus('waiting');
                 // Pass detected amount for partial payment processing
-                onPaymentSuccess(payment, 'hardware_cash_partial', detectedAmount);
+                onPaymentSuccess(payment, 'hardware_cash', detectedAmount);
                 onClose();
               }
             }
@@ -421,25 +469,33 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
   };
 
   const cleanupModeBasedPayment = () => {
-    // Clear timeout
-    if (paymentTimeoutId) {
-      clearModeTimeout(paymentTimeoutId);
+    try {
+      // Clear timeout
+      if (paymentTimeoutId) {
+        clearModeTimeout(paymentTimeoutId);
+        setPaymentTimeoutId(null);
+      }
+      
+      // Unsubscribe from listeners
+      if (paymentProgressListener) {
+        paymentProgressListener();
+        setPaymentProgressListener(null);
+      }
+      
+      if (paymentResultsListener) {
+        paymentResultsListener();
+        setPaymentResultsListener(null);
+      }
+      
+      // Complete payment session and reset RTDB to idle
+      completePaymentSession();
+    } catch (error) {
+      console.error('Error during payment cleanup:', error);
+      // Force reset state even if cleanup fails
       setPaymentTimeoutId(null);
-    }
-    
-    // Unsubscribe from listeners
-    if (paymentProgressListener) {
-      paymentProgressListener();
       setPaymentProgressListener(null);
-    }
-    
-    if (paymentResultsListener) {
-      paymentResultsListener();
       setPaymentResultsListener(null);
     }
-    
-    // Complete payment session and reset RTDB to idle
-    completePaymentSession();
   };
 
   const simulateHardwarePayment = () => {

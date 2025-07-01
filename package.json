@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "clear": "expo start --clear",
     "reset": "expo start --clear",
-    "test": "node .\\testing\\esp32-simulator.js",
+    "test": "node testing/esp32-simulator.js",
     "cleanup": "node .\\firebase-cleanup\\cleanup.js",
     "eas:login": "eas login",
     "eas:configure": "eas build:configure",
