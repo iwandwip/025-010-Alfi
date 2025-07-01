@@ -38,6 +38,7 @@ function AdminHome() {
   const [seederLoading, setSeederLoading] = useState(false);
   const [seederModalVisible, setSeederModalVisible] = useState(false);
   const [solenoidModalVisible, setSolenoidModalVisible] = useState(false);
+  const [keuanganModalVisible, setKeuanganModalVisible] = useState(false);
   const [seederCount, setSeederCount] = useState("3");
   const [refreshing, setRefreshing] = useState(false);
   const [seederStats, setSeederStats] = useState({
@@ -150,6 +151,20 @@ function AdminHome() {
     setSolenoidModalVisible(true);
   };
 
+  const handleKeuangan = () => {
+    setKeuanganModalVisible(true);
+  };
+
+  const handlePemasukan = () => {
+    setKeuanganModalVisible(false);
+    router.push("/(admin)/payment-status");
+  };
+
+  const handlePengeluaran = () => {
+    setKeuanganModalVisible(false);
+    router.push("/(admin)/pengeluaran");
+  };
+
   const handleSeederConfirm = async () => {
     const count = parseInt(seederCount);
 
@@ -242,7 +257,7 @@ function AdminHome() {
   };
 
   const handleCekPembayaran = () => {
-    router.push("/(admin)/payment-status");
+    handleKeuangan();
   };
 
   const formatCountdownTime = (seconds) => {
@@ -515,9 +530,9 @@ function AdminHome() {
                 <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
                   <Text style={[styles.gridIconText, { color: colors.primaryDark }]}>💰</Text>
                 </View>
-                <Text style={[styles.gridTitle, { color: colors.white }]}>Status Pembayaran</Text>
+                <Text style={[styles.gridTitle, { color: colors.white }]}>Keuangan</Text>
                 <Text style={[styles.gridDesc, { color: colors.white }]}>
-                  Cek pembayaran
+                  Pemasukan & Pengeluaran
                 </Text>
               </TouchableOpacity>
             </View>
@@ -770,6 +785,83 @@ function AdminHome() {
               <Button
                 title="Tutup"
                 onPress={() => setSolenoidModalVisible(false)}
+                variant="outline"
+                style={styles.modalButton}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Keuangan Selection Modal */}
+      <Modal
+        visible={keuanganModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setKeuanganModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>💰 Manajemen Keuangan</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setKeuanganModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalContent}>
+              <Text style={styles.keuanganDescription}>
+                Pilih menu keuangan yang ingin Anda kelola:
+              </Text>
+
+              <View style={styles.keuanganOptionsContainer}>
+                <TouchableOpacity
+                  style={[styles.keuanganOptionCard, { backgroundColor: colors.success + '15', borderColor: colors.success }]}
+                  onPress={handlePemasukan}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.keuanganOptionIcon, { backgroundColor: colors.success }]}>
+                    <Text style={styles.keuanganOptionIconText}>📈</Text>
+                  </View>
+                  <Text style={[styles.keuanganOptionTitle, { color: colors.success }]}>Pemasukan</Text>
+                  <Text style={styles.keuanganOptionDesc}>
+                    Lihat status pembayaran jimpitan warga dan dashboard keuangan masuk
+                  </Text>
+                  <View style={styles.keuanganOptionFeatures}>
+                    <Text style={styles.keuanganFeatureItem}>• Status pembayaran warga</Text>
+                    <Text style={styles.keuanganFeatureItem}>• Dashboard pemasukan</Text>
+                    <Text style={styles.keuanganFeatureItem}>• Laporan pembayaran</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.keuanganOptionCard, { backgroundColor: colors.error + '15', borderColor: colors.error }]}
+                  onPress={handlePengeluaran}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.keuanganOptionIcon, { backgroundColor: colors.error }]}>
+                    <Text style={styles.keuanganOptionIconText}>📉</Text>
+                  </View>
+                  <Text style={[styles.keuanganOptionTitle, { color: colors.error }]}>Pengeluaran</Text>
+                  <Text style={styles.keuanganOptionDesc}>
+                    Kelola pengeluaran dari dana jimpitan dan lihat saldo tersisa
+                  </Text>
+                  <View style={styles.keuanganOptionFeatures}>
+                    <Text style={styles.keuanganFeatureItem}>• Catat pengeluaran dana</Text>
+                    <Text style={styles.keuanganFeatureItem}>• Monitor saldo tersisa</Text>
+                    <Text style={styles.keuanganFeatureItem}>• Laporan keuangan</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.modalFooter}>
+              <Button
+                title="Batal"
+                onPress={() => setKeuanganModalVisible(false)}
                 variant="outline"
                 style={styles.modalButton}
               />
@@ -1193,6 +1285,62 @@ const styles = StyleSheet.create({
   emergencyButton: {
     borderWidth: 2,
     borderColor: "#ef4444",
+  },
+  // Keuangan Modal Styles
+  keuanganDescription: {
+    fontSize: 16,
+    color: "#64748b",
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  keuanganOptionsContainer: {
+    gap: 16,
+  },
+  keuanganOptionCard: {
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  keuanganOptionIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  keuanganOptionIconText: {
+    fontSize: 24,
+  },
+  keuanganOptionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  keuanganOptionDesc: {
+    fontSize: 14,
+    color: "#64748b",
+    textAlign: "center",
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  keuanganOptionFeatures: {
+    alignItems: "flex-start",
+    width: "100%",
+  },
+  keuanganFeatureItem: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginBottom: 4,
+    textAlign: "left",
   },
 });
 
