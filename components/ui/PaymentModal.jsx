@@ -382,7 +382,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
                 setHardwarePayment(false);
                 setHardwareStatus('waiting');
                 // Pass detected amount for partial payment processing
-                onPaymentSuccess(payment, 'hardware_cash', detectedAmount);
+                onPaymentSuccess(payment, 'hardware_cash_partial', detectedAmount);
                 onClose();
               }
             }
