@@ -70,7 +70,7 @@ export default function CetakKeuangan() {
         setTimeline(timelineResult.timeline);
       }
 
-      // Load pemasukan data
+      // Load pemasukan data with detailed payment information
       const pemasukanResult = await getAllUsersPaymentStatus();
       let totalPaid = 0;
       let pemasukanData = [];
@@ -88,17 +88,20 @@ export default function CetakKeuangan() {
           stats.belumBayar += user.paymentSummary?.belumBayar || 0;
           stats.terlambat += user.paymentSummary?.terlambat || 0;
           
-          // Add to pemasukan list if user has paid
-          if (paidAmount > 0) {
-            pemasukanData.push({
-              namaWarga: user.namaWarga,
-              totalBayar: paidAmount,
-              lunas: user.paymentSummary?.lunas || 0,
-              belumBayar: user.paymentSummary?.belumBayar || 0,
-              terlambat: user.paymentSummary?.terlambat || 0,
-              progressPercentage: user.paymentSummary?.progressPercentage || 0
-            });
-          }
+          // Add detailed payment info for all users (not just those who paid)
+          pemasukanData.push({
+            namaWarga: user.namaWarga,
+            alamat: user.alamat || "Alamat tidak tersedia",
+            noHpWarga: user.noHpWarga || "Tidak ada",
+            totalBayar: paidAmount,
+            lunas: user.paymentSummary?.lunas || 0,
+            belumBayar: user.paymentSummary?.belumBayar || 0,
+            terlambat: user.paymentSummary?.terlambat || 0,
+            progressPercentage: user.paymentSummary?.progressPercentage || 0,
+            paymentDetails: user.paymentDetails || [],
+            totalPeriods: user.paymentSummary?.totalPeriods || 0,
+            creditBalance: user.creditBalance || 0
+          });
         });
       }
       
@@ -229,7 +232,7 @@ export default function CetakKeuangan() {
       yPos += 10;
       pdf.text(`Terlambat: ${paymentStats.terlambat}`, 20, yPos);
       
-      // Pemasukan Section
+      // Detailed Pemasukan Section
       yPos += 20;
       if (yPos > 250) {
         pdf.addPage();
@@ -238,35 +241,180 @@ export default function CetakKeuangan() {
       
       pdf.setFontSize(14);
       pdf.setFont("helvetica", "bold");
-      pdf.text("DETAIL PEMASUKAN", 20, yPos);
+      pdf.text("DETAIL PEMASUKAN WARGA", 20, yPos);
       
       yPos += 15;
-      pdf.setFontSize(10);
+      pdf.setFontSize(8);
       pdf.setFont("helvetica", "bold");
-      pdf.text("No.", 20, yPos);
-      pdf.text("Nama Warga", 35, yPos);
-      pdf.text("Total Bayar", 120, yPos);
-      pdf.text("Progress", 170, yPos);
+      pdf.text("No", 15, yPos);
+      pdf.text("Nama Warga", 25, yPos);
+      pdf.text("Alamat", 75, yPos);
+      pdf.text("No HP", 120, yPos);
+      pdf.text("Lunas", 145, yPos);
+      pdf.text("Belum", 160, yPos);
+      pdf.text("Telat", 175, yPos);
+      pdf.text("Total", 185, yPos);
       
       yPos += 5;
-      pdf.line(20, yPos, 190, yPos); // Header line
-      yPos += 10;
+      pdf.line(15, yPos, 195, yPos); // Header line
+      yPos += 8;
       
       pdf.setFont("helvetica", "normal");
       pemasukanList.forEach((item, index) => {
-        if (yPos > 270) {
+        if (yPos > 275) {
           pdf.addPage();
           yPos = 20;
+          // Reprint header on new page
+          pdf.setFontSize(8);
+          pdf.setFont("helvetica", "bold");
+          pdf.text("No", 15, yPos);
+          pdf.text("Nama Warga", 25, yPos);
+          pdf.text("Alamat", 75, yPos);
+          pdf.text("No HP", 120, yPos);
+          pdf.text("Lunas", 145, yPos);
+          pdf.text("Belum", 160, yPos);
+          pdf.text("Telat", 175, yPos);
+          pdf.text("Total", 185, yPos);
+          yPos += 5;
+          pdf.line(15, yPos, 195, yPos);
+          yPos += 8;
+          pdf.setFont("helvetica", "normal");
         }
         
-        pdf.text(`${index + 1}.`, 20, yPos);
-        pdf.text(item.namaWarga, 35, yPos);
-        pdf.text(formatCurrency(item.totalBayar), 120, yPos);
-        pdf.text(`${item.progressPercentage}%`, 170, yPos);
-        yPos += 10;
+        pdf.setFontSize(7);
+        pdf.text(`${index + 1}`, 15, yPos);
+        
+        // Truncate long names
+        const name = item.namaWarga.length > 20 ? item.namaWarga.substring(0, 20) + "..." : item.namaWarga;
+        pdf.text(name, 25, yPos);
+        
+        // Truncate long addresses
+        const address = item.alamat.length > 18 ? item.alamat.substring(0, 18) + "..." : item.alamat;
+        pdf.text(address, 75, yPos);
+        
+        // Phone number
+        const phone = item.noHpWarga.length > 12 ? item.noHpWarga.substring(0, 12) + "..." : item.noHpWarga;
+        pdf.text(phone, 120, yPos);
+        
+        // Payment stats
+        pdf.text(`${item.lunas}`, 147, yPos);
+        pdf.text(`${item.belumBayar}`, 162, yPos);
+        pdf.text(`${item.terlambat}`, 177, yPos);
+        
+        // Total payment with currency formatting
+        const totalText = item.totalBayar > 999999 ? 
+          (item.totalBayar / 1000000).toFixed(1) + "M" : 
+          item.totalBayar > 999 ? 
+          (item.totalBayar / 1000).toFixed(0) + "K" : 
+          item.totalBayar.toString();
+        pdf.text(totalText, 185, yPos);
+        
+        yPos += 8;
       });
       
-      // Pengeluaran Section
+      // Individual Payment Details Section
+      yPos += 15;
+      if (yPos > 250) {
+        pdf.addPage();
+        yPos = 20;
+      }
+      
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("DETAIL PEMBAYARAN PER WARGA", 20, yPos);
+      
+      yPos += 15;
+      
+      pemasukanList.forEach((warga, wargaIndex) => {
+        if (warga.totalBayar > 0 || warga.paymentDetails.length > 0) {
+          // Check if we need new page for warga section
+          if (yPos > 250) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          
+          pdf.setFontSize(12);
+          pdf.setFont("helvetica", "bold");
+          pdf.text(`${wargaIndex + 1}. ${warga.namaWarga}`, 20, yPos);
+          
+          yPos += 8;
+          pdf.setFontSize(9);
+          pdf.setFont("helvetica", "normal");
+          pdf.text(`Alamat: ${warga.alamat}`, 25, yPos);
+          yPos += 6;
+          pdf.text(`No HP: ${warga.noHpWarga}`, 25, yPos);
+          yPos += 6;
+          pdf.text(`Saldo Kredit: ${formatCurrency(warga.creditBalance)}`, 25, yPos);
+          yPos += 8;
+          
+          // Payment summary
+          pdf.setFontSize(10);
+          pdf.setFont("helvetica", "bold");
+          pdf.text("Ringkasan Pembayaran:", 25, yPos);
+          yPos += 6;
+          pdf.setFont("helvetica", "normal");
+          pdf.text(`• Total Periode: ${warga.totalPeriods}`, 30, yPos);
+          yPos += 5;
+          pdf.text(`• Lunas: ${warga.lunas} periode`, 30, yPos);
+          yPos += 5;
+          pdf.text(`• Belum Bayar: ${warga.belumBayar} periode`, 30, yPos);
+          yPos += 5;
+          pdf.text(`• Terlambat: ${warga.terlambat} periode`, 30, yPos);
+          yPos += 5;
+          pdf.text(`• Progress: ${warga.progressPercentage}%`, 30, yPos);
+          yPos += 5;
+          pdf.text(`• Total Dibayar: ${formatCurrency(warga.totalBayar)}`, 30, yPos);
+          yPos += 10;
+          
+          // Payment details if available
+          if (warga.paymentDetails && warga.paymentDetails.length > 0) {
+            pdf.setFontSize(9);
+            pdf.setFont("helvetica", "bold");
+            pdf.text("Detail Per Periode:", 25, yPos);
+            yPos += 6;
+            
+            pdf.setFontSize(8);
+            pdf.text("Periode", 30, yPos);
+            pdf.text("Jumlah", 70, yPos);
+            pdf.text("Status", 110, yPos);
+            pdf.text("Tgl Bayar", 140, yPos);
+            pdf.text("Metode", 170, yPos);
+            yPos += 4;
+            pdf.line(30, yPos, 190, yPos);
+            yPos += 6;
+            
+            pdf.setFont("helvetica", "normal");
+            warga.paymentDetails.forEach((detail, detailIndex) => {
+              if (yPos > 275) {
+                pdf.addPage();
+                yPos = 20;
+              }
+              
+              pdf.text(detail.periodLabel || `P${detailIndex + 1}`, 30, yPos);
+              pdf.text(formatCurrency(detail.amount || 0), 70, yPos);
+              
+              const status = detail.status === "lunas" ? "Lunas" : 
+                           detail.status === "terlambat" ? "Telat" : "Belum";
+              pdf.text(status, 110, yPos);
+              
+              const payDate = detail.paymentDate ? 
+                formatDate(detail.paymentDate) : "-";
+              pdf.text(payDate, 140, yPos);
+              
+              const method = detail.paymentMethod || "-";
+              pdf.text(method, 170, yPos);
+              
+              yPos += 6;
+            });
+          }
+          
+          yPos += 8;
+          pdf.line(20, yPos, 190, yPos); // Separator line
+          yPos += 10;
+        }
+      });
+      
+      // Detailed Pengeluaran Section
       yPos += 20;
       if (yPos > 250) {
         pdf.addPage();
@@ -278,33 +426,179 @@ export default function CetakKeuangan() {
       pdf.text("DETAIL PENGELUARAN", 20, yPos);
       
       yPos += 15;
-      pdf.setFontSize(10);
+      pdf.setFontSize(9);
       pdf.setFont("helvetica", "bold");
-      pdf.text("No.", 20, yPos);
-      pdf.text("Tanggal", 35, yPos);
-      pdf.text("Judul", 85, yPos);
-      pdf.text("Jumlah", 150, yPos);
+      pdf.text("No", 15, yPos);
+      pdf.text("Tanggal", 25, yPos);
+      pdf.text("Judul Pengeluaran", 60, yPos);
+      pdf.text("Deskripsi", 120, yPos);
+      pdf.text("Jumlah", 170, yPos);
       
       yPos += 5;
-      pdf.line(20, yPos, 190, yPos); // Header line
-      yPos += 10;
+      pdf.line(15, yPos, 195, yPos); // Header line
+      yPos += 8;
       
       pdf.setFont("helvetica", "normal");
+      let totalPengeluaranCheck = 0;
+      
       pengeluaranList.forEach((item, index) => {
         if (yPos > 270) {
           pdf.addPage();
           yPos = 20;
+          // Reprint header on new page
+          pdf.setFontSize(9);
+          pdf.setFont("helvetica", "bold");
+          pdf.text("No", 15, yPos);
+          pdf.text("Tanggal", 25, yPos);
+          pdf.text("Judul Pengeluaran", 60, yPos);
+          pdf.text("Deskripsi", 120, yPos);
+          pdf.text("Jumlah", 170, yPos);
+          yPos += 5;
+          pdf.line(15, yPos, 195, yPos);
+          yPos += 8;
+          pdf.setFont("helvetica", "normal");
         }
         
-        pdf.text(`${index + 1}.`, 20, yPos);
-        pdf.text(formatDate(item.tanggal), 35, yPos);
+        pdf.setFontSize(8);
+        pdf.text(`${index + 1}`, 15, yPos);
+        pdf.text(formatDate(item.tanggal), 25, yPos);
         
         // Truncate long titles
-        const title = item.judul.length > 25 ? item.judul.substring(0, 25) + "..." : item.judul;
-        pdf.text(title, 85, yPos);
-        pdf.text(formatCurrency(item.jumlah), 150, yPos);
-        yPos += 10;
+        const title = item.judul.length > 22 ? item.judul.substring(0, 22) + "..." : item.judul;
+        pdf.text(title, 60, yPos);
+        
+        // Truncate long descriptions
+        const desc = item.deskripsi ? 
+          (item.deskripsi.length > 20 ? item.deskripsi.substring(0, 20) + "..." : item.deskripsi) 
+          : "-";
+        pdf.text(desc, 120, yPos);
+        
+        pdf.text(formatCurrency(item.jumlah), 170, yPos);
+        
+        totalPengeluaranCheck += item.jumlah;
+        yPos += 8;
       });
+      
+      // Pengeluaran Summary
+      yPos += 10;
+      if (yPos > 270) {
+        pdf.addPage();
+        yPos = 20;
+      }
+      
+      pdf.setFontSize(12);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("RINGKASAN PENGELUARAN", 20, yPos);
+      yPos += 12;
+      
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      pdf.text(`Total Transaksi Pengeluaran: ${pengeluaranList.length}`, 20, yPos);
+      yPos += 8;
+      pdf.text(`Total Jumlah Pengeluaran: ${formatCurrency(totalPengeluaranCheck)}`, 20, yPos);
+      yPos += 8;
+      
+      // Categorize expenses if possible
+      const expensesByMonth = {};
+      pengeluaranList.forEach(expense => {
+        const month = new Date(expense.tanggal).toLocaleDateString("id-ID", { 
+          year: "numeric", 
+          month: "long" 
+        });
+        if (!expensesByMonth[month]) {
+          expensesByMonth[month] = { count: 0, total: 0 };
+        }
+        expensesByMonth[month].count += 1;
+        expensesByMonth[month].total += expense.jumlah;
+      });
+      
+      if (Object.keys(expensesByMonth).length > 0) {
+        yPos += 5;
+        pdf.setFont("helvetica", "bold");
+        pdf.text("Pengeluaran Per Bulan:", 20, yPos);
+        yPos += 8;
+        
+        pdf.setFont("helvetica", "normal");
+        Object.entries(expensesByMonth).forEach(([month, data]) => {
+          if (yPos > 275) {
+            pdf.addPage();
+            yPos = 20;
+          }
+          pdf.text(`• ${month}: ${data.count} transaksi - ${formatCurrency(data.total)}`, 25, yPos);
+          yPos += 6;
+        });
+      }
+      
+      // Financial Analysis Section
+      yPos += 15;
+      if (yPos > 250) {
+        pdf.addPage();
+        yPos = 20;
+      }
+      
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("ANALISIS KEUANGAN", 20, yPos);
+      yPos += 15;
+      
+      pdf.setFontSize(11);
+      pdf.setFont("helvetica", "normal");
+      
+      const avgExpensePerTransaction = pengeluaranList.length > 0 ? 
+        totalPengeluaranCheck / pengeluaranList.length : 0;
+      const avgIncomePerUser = pemasukanList.length > 0 ? 
+        totalPemasukan / pemasukanList.length : 0;
+      
+      pdf.text(`Rata-rata Pengeluaran per Transaksi: ${formatCurrency(avgExpensePerTransaction)}`, 20, yPos);
+      yPos += 8;
+      pdf.text(`Rata-rata Pemasukan per Warga: ${formatCurrency(avgIncomePerUser)}`, 20, yPos);
+      yPos += 8;
+      
+      // Cash flow analysis
+      const cashFlowRatio = totalPemasukan > 0 ? (totalPengeluaranCheck / totalPemasukan * 100) : 0;
+      pdf.text(`Rasio Pengeluaran terhadap Pemasukan: ${cashFlowRatio.toFixed(1)}%`, 20, yPos);
+      yPos += 8;
+      
+      if (saldoTersisa >= 0) {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(`Status Keuangan: SEHAT (Surplus ${formatCurrency(saldoTersisa)})`, 20, yPos);
+      } else {
+        pdf.setFont("helvetica", "bold");
+        pdf.text(`Status Keuangan: DEFISIT (${formatCurrency(Math.abs(saldoTersisa))})`, 20, yPos);
+      }
+      
+      yPos += 12;
+      pdf.setFont("helvetica", "normal");
+      
+      // Recommendations
+      pdf.setFontSize(12);
+      pdf.setFont("helvetica", "bold");
+      pdf.text("REKOMENDASI:", 20, yPos);
+      yPos += 10;
+      
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "normal");
+      
+      if (saldoTersisa < 0) {
+        pdf.text("• Perlu meningkatkan pemasukan atau mengurangi pengeluaran", 20, yPos);
+        yPos += 6;
+        pdf.text("• Monitor pengeluaran besar dan pastikan sesuai kebutuhan", 20, yPos);
+        yPos += 6;
+      } else if (cashFlowRatio > 80) {
+        pdf.text("• Pengeluaran cukup tinggi, pertimbangkan untuk lebih selektif", 20, yPos);
+        yPos += 6;
+      } else {
+        pdf.text("• Kondisi keuangan stabil, pertahankan pola ini", 20, yPos);
+        yPos += 6;
+      }
+      
+      const unpaidCount = paymentStats.belumBayar + paymentStats.terlambat;
+      if (unpaidCount > 0) {
+        pdf.text(`• ${unpaidCount} pembayaran belum lunas, lakukan penagihan`, 20, yPos);
+        yPos += 6;
+      }
+      
+      pdf.text("• Lakukan evaluasi berkala setiap bulan", 20, yPos);
       
       // Footer
       const pageCount = pdf.internal.getNumberOfPages();
@@ -485,16 +779,22 @@ export default function CetakKeuangan() {
                 • Ringkasan keuangan lengkap untuk timeline aktif
               </Text>
               <Text style={[styles.infoItem, { color: colors.gray600 }]}>
-                • Detail pemasukan dari setiap warga
+                • Detail pemasukan per warga (alamat, no HP, saldo kredit)
               </Text>
               <Text style={[styles.infoItem, { color: colors.gray600 }]}>
-                • Detail pengeluaran dengan tanggal dan deskripsi
+                • Riwayat pembayaran per periode (lunas, belum bayar, terlambat)
               </Text>
               <Text style={[styles.infoItem, { color: colors.gray600 }]}>
-                • Statistik pembayaran dan analisis keuangan
+                • Detail pengeluaran dengan deskripsi lengkap
               </Text>
               <Text style={[styles.infoItem, { color: colors.gray600 }]}>
-                • Format PDF siap cetak dan bagikan
+                • Analisis keuangan dan rekomendasi
+              </Text>
+              <Text style={[styles.infoItem, { color: colors.gray600 }]}>
+                • Pengeluaran per bulan dan tren keuangan
+              </Text>
+              <Text style={[styles.infoItem, { color: colors.gray600 }]}>
+                • Format PDF profesional siap cetak dan bagikan
               </Text>
             </View>
           </View>
