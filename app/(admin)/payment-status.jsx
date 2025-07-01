@@ -234,8 +234,6 @@ function PaymentStatus() {
     return "Sebagian Lunas";
   }, []);
 
-  const colors = lightTheme;
-
   const renderDashboardCard = useCallback(
     ({ title, value, subtitle, icon, color, onPress }) => (
       <TouchableOpacity

@@ -37,6 +37,7 @@ function AdminHome() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [seederLoading, setSeederLoading] = useState(false);
   const [seederModalVisible, setSeederModalVisible] = useState(false);
+  const [solenoidModalVisible, setSolenoidModalVisible] = useState(false);
   const [seederCount, setSeederCount] = useState("3");
   const [refreshing, setRefreshing] = useState(false);
   const [seederStats, setSeederStats] = useState({
@@ -143,6 +144,10 @@ function AdminHome() {
 
   const handleSeeder = () => {
     setSeederModalVisible(true);
+  };
+
+  const handleSolenoidControl = () => {
+    setSolenoidModalVisible(true);
   };
 
   const handleSeederConfirm = async () => {
@@ -452,68 +457,8 @@ function AdminHome() {
           )}
         </View>
 
-        <View style={styles.solenoidSection}>
-          <View style={[styles.solenoidCard, { backgroundColor: colors.white }]}>
-            <View style={styles.solenoidHeader}>
-              <Text style={[styles.solenoidTitle, { color: colors.gray900 }]}>Kontrol Solenoid 🔐</Text>
-              <View style={[
-                styles.statusBadge,
-                { backgroundColor: currentMode === 'solenoid' ? colors.warning + '20' : colors.primary + '20' }
-              ]}>
-                <Text style={[styles.statusText, { 
-                  color: currentMode === 'solenoid' ? colors.warning : colors.primary 
-                }]}>
-                  {currentMode === 'solenoid' ? '🔓 UNLOCK MODE' : solenoidCommand === 'unlock' ? '🔓 Unlocked' : '🔒 Locked'}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.solenoidControls}>
-              <TouchableOpacity
-                style={[
-                  styles.solenoidButton,
-                  { backgroundColor: countdownTime > 0 ? colors.warning : colors.success },
-                  solenoidLoading && { opacity: 0.7 }
-                ]}
-                onPress={handleUnlockWithDuration}
-                disabled={solenoidLoading || countdownTime > 0}
-                activeOpacity={0.8}
-              >
-                {solenoidLoading ? (
-                  <ActivityIndicator size={20} color={colors.white} />
-                ) : (
-                  <Text style={styles.solenoidButtonIcon}>🔓</Text>
-                )}
-                <Text style={[styles.solenoidButtonText, { color: colors.white }]}>
-                  {countdownTime > 0 ? `Aktif (${formatCountdownTime(countdownTime)})` : "Buka"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.solenoidButton,
-                  { backgroundColor: colors.error },
-                  solenoidLoading && { opacity: 0.7 }
-                ]}
-                onPress={handleLockSolenoid}
-                disabled={solenoidLoading}
-                activeOpacity={0.8}
-              >
-                {solenoidLoading ? (
-                  <ActivityIndicator size={20} color={colors.white} />
-                ) : (
-                  <Text style={styles.solenoidButtonIcon}>🔒</Text>
-                )}
-                <Text style={[styles.solenoidButtonText, { color: colors.white }]}>
-                  Tutup
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
         <View style={styles.menuSection}>
-          {/* Grid 2x2 Layout */}
+          {/* Grid 2x3 Layout */}
           <View style={styles.gridContainer}>
             {/* Row 1 */}
             <View style={styles.gridRow}>
@@ -576,52 +521,41 @@ function AdminHome() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
 
-          <TouchableOpacity
-            style={[
-              styles.menuCard,
-              styles.seederCard,
-              seederLoading && styles.seederCardLoading,
-            ]}
-            onPress={handleSeeder}
-            activeOpacity={0.8}
-            disabled={seederLoading}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: colors.accent }]}>
-              {seederLoading ? (
-                <ActivityIndicator size={24} color={colors.error} />
-              ) : (
-                <Text style={styles.menuIconText}>🎲</Text>
-              )}
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuTitle}>
-                {seederLoading ? "Generating Data..." : "Generate Data Warga"}
-              </Text>
-              <Text style={styles.menuDesc}>
-                {seederLoading
-                  ? "Sedang membuat akun warga dengan data sequential..."
-                  : "Buat akun warga dengan email sequential untuk testing"}
-              </Text>
-              <View style={styles.seederStats}>
-                <Text style={[styles.seederStatsText, { color: colors.error }]}>
-                  Total Warga: {seederStats.total} | Generated:{" "}
-                  {seederStats.seederUsers}
-                </Text>
-                <Text style={[styles.seederNextText, { color: colors.success }]}>
-                  Next: user{seederStats.nextUserNumber}@gmail.com
-                </Text>
-              </View>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text
-                style={[styles.arrowText, seederLoading && { opacity: 0.5 }]}
+            {/* Row 3 */}
+            <View style={styles.gridRow}>
+              <TouchableOpacity
+                style={[styles.gridCard, { borderColor: colors.warning, backgroundColor: colors.warning }]}
+                onPress={handleSolenoidControl}
+                activeOpacity={0.8}
               >
-                {seederLoading ? "⏳" : "→"}
-              </Text>
+                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                  <Text style={[styles.gridIconText, { color: colors.warning }]}>🔐</Text>
+                </View>
+                <Text style={[styles.gridTitle, { color: colors.white }]}>Kontrol Solenoid</Text>
+                <Text style={[styles.gridDesc, { color: colors.white }]}>
+                  {currentMode === 'solenoid' ? 'Mode Unlock' : solenoidCommand === 'unlock' ? 'Unlocked' : 'Locked'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.gridCard, { borderColor: colors.error, backgroundColor: colors.error }]}
+                onPress={handleSeeder}
+                activeOpacity={0.8}
+                disabled={seederLoading}
+              >
+                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                  <Text style={[styles.gridIconText, { color: colors.error }]}>
+                    {seederLoading ? "⏳" : "🎲"}
+                  </Text>
+                </View>
+                <Text style={[styles.gridTitle, { color: colors.white }]}>Generate Data</Text>
+                <Text style={[styles.gridDesc, { color: colors.white }]}>
+                  {seederLoading ? "Generating..." : "Buat data warga"}
+                </Text>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.logoutSection}>
@@ -698,6 +632,145 @@ function AdminHome() {
               <Button
                 title="Generate"
                 onPress={handleSeederConfirm}
+                style={styles.modalButton}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Solenoid Control Modal */}
+      <Modal
+        visible={solenoidModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => !solenoidLoading && setSolenoidModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>🔐 Kontrol Solenoid</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setSolenoidModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalContent}>
+              <View style={styles.solenoidStatusSection}>
+                <Text style={styles.statusSectionTitle}>Status Saat Ini:</Text>
+                <View style={[
+                  styles.statusIndicator,
+                  { 
+                    backgroundColor: currentMode === 'solenoid' ? colors.warning + '20' : 
+                                   solenoidCommand === 'unlock' ? colors.success + '20' : colors.error + '20'
+                  }
+                ]}>
+                  <Text style={[styles.statusIndicatorText, { 
+                    color: currentMode === 'solenoid' ? colors.warning : 
+                           solenoidCommand === 'unlock' ? colors.success : colors.error
+                  }]}>
+                    {currentMode === 'solenoid' ? '🔓 UNLOCK MODE AKTIF' : 
+                     solenoidCommand === 'unlock' ? '🔓 Solenoid Unlocked' : '🔒 Solenoid Locked'}
+                  </Text>
+                </View>
+                
+                {countdownTime > 0 && (
+                  <View style={styles.countdownSection}>
+                    <Text style={styles.countdownLabel}>Countdown:</Text>
+                    <Text style={[styles.countdownTime, { color: colors.warning }]}>
+                      {formatCountdownTime(countdownTime)}
+                    </Text>
+                  </View>
+                )}
+
+                <Text style={styles.modeStatusText}>
+                  Mode: {currentMode.toUpperCase()}
+                </Text>
+              </View>
+
+              <View style={styles.solenoidControlSection}>
+                <Text style={styles.controlSectionTitle}>Kontrol:</Text>
+                
+                <TouchableOpacity
+                  style={[
+                    styles.modalSolenoidButton,
+                    { backgroundColor: countdownTime > 0 ? colors.warning : colors.success },
+                    solenoidLoading && { opacity: 0.7 }
+                  ]}
+                  onPress={() => {
+                    setSolenoidModalVisible(false);
+                    handleUnlockWithDuration();
+                  }}
+                  disabled={solenoidLoading || countdownTime > 0}
+                  activeOpacity={0.8}
+                >
+                  {solenoidLoading ? (
+                    <ActivityIndicator size={20} color={colors.white} />
+                  ) : (
+                    <Text style={styles.modalSolenoidIcon}>🔓</Text>
+                  )}
+                  <Text style={[styles.modalSolenoidText, { color: colors.white }]}>
+                    {countdownTime > 0 ? `Aktif (${formatCountdownTime(countdownTime)})` : "Buka Solenoid"}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.modalSolenoidButton,
+                    { backgroundColor: colors.error },
+                    solenoidLoading && { opacity: 0.7 }
+                  ]}
+                  onPress={() => {
+                    setSolenoidModalVisible(false);
+                    handleLockSolenoid();
+                  }}
+                  disabled={solenoidLoading}
+                  activeOpacity={0.8}
+                >
+                  {solenoidLoading ? (
+                    <ActivityIndicator size={20} color={colors.white} />
+                  ) : (
+                    <Text style={styles.modalSolenoidIcon}>🔒</Text>
+                  )}
+                  <Text style={[styles.modalSolenoidText, { color: colors.white }]}>
+                    Tutup Solenoid
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.modalSolenoidButton,
+                    styles.emergencyButton,
+                    { backgroundColor: colors.primaryDark },
+                    solenoidLoading && { opacity: 0.7 }
+                  ]}
+                  onPress={() => {
+                    setSolenoidModalVisible(false);
+                    handleEmergencyUnlock();
+                  }}
+                  disabled={solenoidLoading}
+                  activeOpacity={0.8}
+                >
+                  {solenoidLoading ? (
+                    <ActivityIndicator size={20} color={colors.white} />
+                  ) : (
+                    <Text style={styles.modalSolenoidIcon}>🚨</Text>
+                  )}
+                  <Text style={[styles.modalSolenoidText, { color: colors.white }]}>
+                    Emergency Unlock
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.modalFooter}>
+              <Button
+                title="Tutup"
+                onPress={() => setSolenoidModalVisible(false)}
+                variant="outline"
                 style={styles.modalButton}
               />
             </View>
@@ -1042,57 +1115,84 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
   },
-  solenoidSection: {
+  // Solenoid Modal Styles
+  solenoidStatusSection: {
     marginBottom: 24,
+    padding: 16,
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
   },
-  solenoidCard: {
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+  statusSectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 12,
   },
-  solenoidHeader: {
+  statusIndicator: {
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  statusIndicatorText: {
+    fontSize: 16,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  countdownSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 8,
   },
-  solenoidTitle: {
-    fontSize: 18,
+  countdownLabel: {
+    fontSize: 14,
+    color: "#64748b",
+    fontWeight: "500",
+  },
+  countdownTime: {
+    fontSize: 16,
     fontWeight: "700",
   },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  statusText: {
+  modeStatusText: {
     fontSize: 12,
-    fontWeight: "600",
+    color: "#6b7280",
+    textAlign: "center",
+    fontWeight: "500",
   },
-  solenoidControls: {
-    flexDirection: "row",
+  solenoidControlSection: {
     gap: 12,
   },
-  solenoidButton: {
-    flex: 1,
+  controlSectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 12,
+  },
+  modalSolenoidButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    gap: 6,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  solenoidButtonIcon: {
-    fontSize: 18,
+  modalSolenoidIcon: {
+    fontSize: 20,
   },
-  solenoidButtonText: {
-    fontSize: 14,
+  modalSolenoidText: {
+    fontSize: 16,
     fontWeight: "600",
+  },
+  emergencyButton: {
+    borderWidth: 2,
+    borderColor: "#ef4444",
   },
 });
 
