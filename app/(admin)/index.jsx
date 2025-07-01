@@ -165,6 +165,11 @@ function AdminHome() {
     router.push("/(admin)/pengeluaran");
   };
 
+  const handleCetakKeuangan = () => {
+    setKeuanganModalVisible(false);
+    router.push("/(admin)/cetak-keuangan");
+  };
+
   const handleSeederConfirm = async () => {
     const count = parseInt(seederCount);
 
@@ -812,7 +817,11 @@ function AdminHome() {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.modalContent}>
+            <ScrollView 
+              style={styles.modalContent}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.modalScrollContent}
+            >
               <Text style={styles.keuanganDescription}>
                 Pilih menu keuangan yang ingin Anda kelola:
               </Text>
@@ -855,8 +864,27 @@ function AdminHome() {
                     <Text style={styles.keuanganFeatureItem}>• Laporan keuangan</Text>
                   </View>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.keuanganOptionCard, styles.cetakKeuanganCard, { backgroundColor: '#f0f9ff', borderColor: colors.primary }]}
+                  onPress={handleCetakKeuangan}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.keuanganOptionIcon, { backgroundColor: colors.primary }]}>
+                    <Text style={styles.keuanganOptionIconText}>🖨️</Text>
+                  </View>
+                  <Text style={[styles.keuanganOptionTitle, { color: colors.primary }]}>Cetak Hasil Keuangan</Text>
+                  <Text style={styles.keuanganOptionDesc}>
+                    Generate dan cetak laporan keuangan lengkap dalam format PDF
+                  </Text>
+                  <View style={styles.keuanganOptionFeatures}>
+                    <Text style={styles.keuanganFeatureItem}>• Laporan pemasukan timeline aktif</Text>
+                    <Text style={styles.keuanganFeatureItem}>• Laporan pengeluaran detail</Text>
+                    <Text style={styles.keuanganFeatureItem}>• Export ke PDF format</Text>
+                  </View>
+                </TouchableOpacity>
               </View>
-            </View>
+            </ScrollView>
 
             <View style={styles.modalFooter}>
               <Button
@@ -1081,6 +1109,7 @@ const styles = StyleSheet.create({
     margin: 20,
     width: "90%",
     maxWidth: 400,
+    maxHeight: "85%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -1115,8 +1144,12 @@ const styles = StyleSheet.create({
     color: "#64748b",
   },
   modalContent: {
+    maxHeight: 400,
+  },
+  modalScrollContent: {
     paddingHorizontal: 24,
     paddingVertical: 20,
+    flexGrow: 1,
   },
   inputLabel: {
     fontSize: 16,
@@ -1300,52 +1333,57 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   keuanganOptionsContainer: {
-    gap: 16,
+    gap: 12,
   },
   keuanganOptionCard: {
-    padding: 20,
-    borderRadius: 16,
+    padding: 16,
+    borderRadius: 12,
     borderWidth: 2,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 3,
   },
   keuanganOptionIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   keuanganOptionIconText: {
-    fontSize: 24,
+    fontSize: 20,
   },
   keuanganOptionTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "700",
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: "center",
   },
   keuanganOptionDesc: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#64748b",
     textAlign: "center",
-    marginBottom: 16,
-    lineHeight: 20,
+    marginBottom: 12,
+    lineHeight: 16,
   },
   keuanganOptionFeatures: {
     alignItems: "flex-start",
     width: "100%",
   },
   keuanganFeatureItem: {
-    fontSize: 12,
+    fontSize: 10,
     color: "#6b7280",
-    marginBottom: 4,
+    marginBottom: 3,
     textAlign: "left",
+  },
+  cetakKeuanganCard: {
+    marginTop: 8,
+    borderStyle: "dashed",
+    borderWidth: 2,
   },
 });
 
