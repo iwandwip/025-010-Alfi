@@ -508,99 +508,70 @@ function AdminHome() {
         </View>
 
         <View style={styles.menuSection}>
-          <TouchableOpacity
-            style={[styles.menuCard, { borderColor: colors.primary }]}
-            onPress={handleTambahWarga}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: colors.accent }]}>
-              <Text style={styles.menuIconText}>👤</Text>
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={[styles.menuTitle, { color: colors.gray900 }]}>Tambah Data Warga</Text>
-              <Text style={[styles.menuDesc, { color: colors.gray600 }]}>
-                Daftarkan warga baru ke sistem jimpitan
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={[styles.arrowText, { color: colors.gray400 }]}>→</Text>
-            </View>
-          </TouchableOpacity>
+          {/* Grid 2x2 Layout */}
+          <View style={styles.gridContainer}>
+            {/* Row 1 */}
+            <View style={styles.gridRow}>
+              <TouchableOpacity
+                style={[styles.gridCard, { borderColor: colors.primary, backgroundColor: colors.primary }]}
+                onPress={handleTambahWarga}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                  <Text style={[styles.gridIconText, { color: colors.primary }]}>👤</Text>
+                </View>
+                <Text style={[styles.gridTitle, { color: colors.white }]}>Tambah Warga</Text>
+                <Text style={[styles.gridDesc, { color: colors.white }]}>
+                  Daftarkan warga baru
+                </Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.menuCard, 
-              { 
-                borderColor: colors.primaryLight,
-                backgroundColor: colors.white 
-              }
-            ]}
-            onPress={handleDaftarWarga}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: colors.accent }]}>
-              <Text style={styles.menuIconText}>📋</Text>
+              <TouchableOpacity
+                style={[styles.gridCard, { borderColor: colors.primaryLight, backgroundColor: colors.primaryLight }]}
+                onPress={handleDaftarWarga}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                  <Text style={[styles.gridIconText, { color: colors.primaryLight }]}>📋</Text>
+                </View>
+                <Text style={[styles.gridTitle, { color: colors.white }]}>Daftar Warga</Text>
+                <Text style={[styles.gridDesc, { color: colors.white }]}>
+                  Kelola data warga
+                </Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.menuContent}>
-              <Text style={[styles.menuTitle, { color: colors.gray900 }]}>Daftar Warga</Text>
-              <Text style={[styles.menuDesc, { color: colors.gray600 }]}>
-                Lihat dan kelola data warga yang terdaftar
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={[styles.arrowText, { color: colors.gray400 }]}>→</Text>
-            </View>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.menuCard, 
-              { 
-                borderColor: colors.secondary,
-                backgroundColor: colors.white 
-              }
-            ]}
-            onPress={handleTimelineManager}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: colors.accent }]}>
-              <Text style={styles.menuIconText}>📅</Text>
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={[styles.menuTitle, { color: colors.gray900 }]}>Timeline Manager</Text>
-              <Text style={[styles.menuDesc, { color: colors.gray600 }]}>
-                Kelola timeline dan pembayaran jimpitan
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={[styles.arrowText, { color: colors.gray400 }]}>→</Text>
-            </View>
-          </TouchableOpacity>
+            {/* Row 2 */}
+            <View style={styles.gridRow}>
+              <TouchableOpacity
+                style={[styles.gridCard, { borderColor: colors.secondary, backgroundColor: colors.secondary }]}
+                onPress={handleTimelineManager}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                  <Text style={[styles.gridIconText, { color: colors.secondary }]}>📅</Text>
+                </View>
+                <Text style={[styles.gridTitle, { color: colors.white }]}>Timeline Manager</Text>
+                <Text style={[styles.gridDesc, { color: colors.white }]}>
+                  Kelola timeline
+                </Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.menuCard, 
-              { 
-                borderColor: colors.primaryDark,
-                backgroundColor: colors.white 
-              }
-            ]}
-            onPress={handleCekPembayaran}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.menuIcon, { backgroundColor: colors.accent }]}>
-              <Text style={styles.menuIconText}>💰</Text>
+              <TouchableOpacity
+                style={[styles.gridCard, { borderColor: colors.primaryDark, backgroundColor: colors.primaryDark }]}
+                onPress={handleCekPembayaran}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                  <Text style={[styles.gridIconText, { color: colors.primaryDark }]}>💰</Text>
+                </View>
+                <Text style={[styles.gridTitle, { color: colors.white }]}>Status Pembayaran</Text>
+                <Text style={[styles.gridDesc, { color: colors.white }]}>
+                  Cek pembayaran
+                </Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.menuContent}>
-              <Text style={[styles.menuTitle, { color: colors.gray900 }]}>Cek Status Pembayaran</Text>
-              <Text style={[styles.menuDesc, { color: colors.gray600 }]}>
-                Lihat status pembayaran jimpitan semua warga
-              </Text>
-            </View>
-            <View style={styles.menuArrow}>
-              <Text style={[styles.arrowText, { color: colors.gray400 }]}>→</Text>
-            </View>
-          </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={[
@@ -781,6 +752,52 @@ const styles = StyleSheet.create({
   menuSection: {
     gap: 16,
     marginBottom: 40,
+  },
+  gridContainer: {
+    marginBottom: 24,
+  },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+    marginBottom: 16,
+  },
+  gridCard: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+    borderWidth: 2,
+    minHeight: 140,
+  },
+  gridIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  gridIconText: {
+    fontSize: 20,
+    fontWeight: "600",
+  },
+  gridTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  gridDesc: {
+    fontSize: 12,
+    textAlign: 'center',
+    opacity: 0.9,
   },
   menuCard: {
     flexDirection: "row",

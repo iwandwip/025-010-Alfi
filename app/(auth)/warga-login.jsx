@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signInWithEmail } from "../../services/authService";
+import { lightTheme } from "../../constants/Colors";
 
 export default function WargaLogin() {
   const [email, setEmail] = useState("");
@@ -55,20 +56,20 @@ export default function WargaLogin() {
         </View>
 
         <View style={styles.content}>
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>Masuk Warga</Text>
-            <Text style={styles.subtitle}>
-              Masuk untuk memantau dan membayar jimpitan
-            </Text>
-            <Text style={styles.infoText}>
-              Belum punya akun? Hubungi bendahara untuk pendaftaran
-            </Text>
+          {/* Logo Section */}
+          <View style={styles.logoSection}>
+            <View style={styles.logo}>
+              <Text style={styles.logoIcon}>👨‍👩‍👧‍👦</Text>
+            </View>
+            <Text style={styles.logoTitle}>Portal Warga</Text>
+            <Text style={styles.logoSubtitle}>Masuk ke sistem jimpitan</Text>
           </View>
 
-          <View style={styles.formSection}>
+          {/* Login Form */}
+          <View style={styles.formContainer}>
             <Input
               label="Email"
-              placeholder="Masukkan email Anda"
+              placeholder="warga@email.com"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -90,6 +91,14 @@ export default function WargaLogin() {
               style={styles.loginButton}
             />
           </View>
+
+          {/* Help Section */}
+          <View style={styles.helpSection}>
+            <Text style={styles.helpText}>Belum memiliki akun?</Text>
+            <Text style={styles.helpLink}>
+              Hubungi Bendahara untuk Pendaftaran
+            </Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -99,7 +108,7 @@ export default function WargaLogin() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0fdf4",
+    backgroundColor: "#f8fafc",
   },
   keyboardContainer: {
     flex: 1,
@@ -113,45 +122,65 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#10b981",
+    color: lightTheme.secondary,
     fontWeight: "500",
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
     justifyContent: "center",
   },
-  titleSection: {
+  logoSection: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 60,
   },
-  title: {
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: lightTheme.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    shadowColor: lightTheme.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  logoIcon: {
+    fontSize: 32,
+  },
+  logoTitle: {
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#1e293b",
+    fontWeight: "700",
+    color: lightTheme.primary,
     marginBottom: 8,
   },
-  subtitle: {
+  logoSubtitle: {
     fontSize: 16,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 24,
-    marginBottom: 16,
+    color: lightTheme.gray500,
+    fontWeight: "400",
   },
-  infoText: {
-    fontSize: 14,
-    color: "#059669",
-    textAlign: "center",
-    backgroundColor: "#dcfce7",
-    padding: 12,
-    borderRadius: 8,
-    lineHeight: 20,
-  },
-  formSection: {
-    marginBottom: 32,
+  formContainer: {
+    gap: 20,
+    marginBottom: 40,
   },
   loginButton: {
+    backgroundColor: lightTheme.primary,
     marginTop: 8,
-    backgroundColor: "#10b981",
+  },
+  helpSection: {
+    alignItems: "center",
+  },
+  helpText: {
+    fontSize: 14,
+    color: lightTheme.gray500,
+    marginBottom: 8,
+  },
+  helpLink: {
+    fontSize: 14,
+    color: lightTheme.primary,
+    fontWeight: "600",
   },
 });

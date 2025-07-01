@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { lightTheme } from "../constants/Colors";
 
 export default function RoleSelection() {
   const router = useRouter();
@@ -24,56 +25,51 @@ export default function RoleSelection() {
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.content}>
-        <View style={styles.headerSection}>
-          <Text style={styles.title}>Sistem Jimpitan</Text>
-          <Text style={styles.subtitle}>
-            Sistem Pengelolaan Jimpitan Warga
-          </Text>
-        </View>
-
-        <View style={styles.logoContainer}>
-          <View style={styles.logoPlaceholder}>
-            <Text style={styles.logoText}>💰</Text>
+        {/* Simple Hero Section */}
+        <View style={styles.heroSection}>
+          <View style={styles.logoContainer}>
+            <View style={styles.logo}>
+              <Text style={styles.logoIcon}>💰</Text>
+            </View>
+            <Text style={styles.appTitle}>Alfi</Text>
+            <Text style={styles.appSubtitle}>Sistem Jimpitan Warga</Text>
           </View>
         </View>
 
-        <View style={styles.roleSection}>
-          <Text style={styles.roleTitle}>Pilih Peran Anda</Text>
-
+        {/* Simple Role Selection */}
+        <View style={styles.selectionContainer}>
+          <Text style={styles.selectionTitle}>Masuk Sebagai</Text>
+          
           <TouchableOpacity
-            style={[styles.roleCard, styles.adminCard]}
+            style={[styles.roleButton, styles.adminButton]}
             onPress={handleAdminPress}
             activeOpacity={0.8}
           >
-            <View style={styles.roleIcon}>
-              <Text style={styles.roleIconText}>👨‍💼</Text>
-            </View>
-            <View style={styles.roleContent}>
-              <Text style={styles.roleCardTitle}>Bendahara</Text>
-              <Text style={styles.roleCardDesc}>
-                Kelola data warga dan pembayaran jimpitan
-              </Text>
-            </View>
-            <View style={styles.arrowContainer}>
+            <View style={styles.buttonContent}>
+              <View style={styles.buttonIcon}>
+                <Text style={styles.iconText}>👨‍💼</Text>
+              </View>
+              <View style={styles.buttonText}>
+                <Text style={styles.roleTitle}>Bendahara</Text>
+                <Text style={styles.roleDesc}>Kelola data dan pembayaran</Text>
+              </View>
               <Text style={styles.arrow}>→</Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.roleCard, styles.wargaCard]}
+            style={[styles.roleButton, styles.wargaButton]}
             onPress={handleWargaPress}
             activeOpacity={0.8}
           >
-            <View style={styles.roleIcon}>
-              <Text style={styles.roleIconText}>👨‍👩‍👧‍👦</Text>
-            </View>
-            <View style={styles.roleContent}>
-              <Text style={styles.roleCardTitle}>Warga</Text>
-              <Text style={styles.roleCardDesc}>
-                Pantau dan bayar jimpitan warga
-              </Text>
-            </View>
-            <View style={styles.arrowContainer}>
+            <View style={styles.buttonContent}>
+              <View style={styles.buttonIcon}>
+                <Text style={styles.iconText}>👨‍👩‍👧‍👦</Text>
+              </View>
+              <View style={styles.buttonText}>
+                <Text style={styles.roleTitle}>Warga</Text>
+                <Text style={styles.roleDesc}>Bayar dan pantau jimpitan</Text>
+              </View>
               <Text style={styles.arrow}>→</Text>
             </View>
           </TouchableOpacity>
@@ -91,115 +87,117 @@ export default function RoleSelection() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#ffffff",
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: 32,
+    justifyContent: "center",
   },
-  headerSection: {
+  heroSection: {
     alignItems: "center",
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#1e293b",
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 24,
-    paddingHorizontal: 20,
+    marginBottom: 60,
   },
   logoContainer: {
     alignItems: "center",
-    marginBottom: 50,
   },
-  logoPlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "#F50057",
+  logo: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: lightTheme.primary,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
+    marginBottom: 24,
+    shadowColor: lightTheme.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 10,
+    borderWidth: 3,
+    borderColor: lightTheme.accent,
   },
-  logoText: {
-    fontSize: 48,
+  logoIcon: {
+    fontSize: 32,
   },
-  roleSection: {
-    flex: 1,
-    justifyContent: "center",
+  appTitle: {
+    fontSize: 36,
+    fontWeight: "700",
+    color: lightTheme.primary,
+    marginBottom: 8,
+    letterSpacing: 1,
   },
-  roleTitle: {
-    fontSize: 24,
+  appSubtitle: {
+    fontSize: 16,
+    color: lightTheme.gray500,
+    fontWeight: "400",
+  },
+  selectionContainer: {
+    marginBottom: 40,
+  },
+  selectionTitle: {
+    fontSize: 20,
     fontWeight: "600",
     color: "#1e293b",
     textAlign: "center",
     marginBottom: 32,
   },
-  roleCard: {
+  roleButton: {
+    backgroundColor: "#ffffff",
+    borderRadius: 20,
+    marginBottom: 20,
+    shadowColor: lightTheme.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 2,
+    transform: [{ scale: 1 }],
+  },
+  adminButton: {
+    borderColor: lightTheme.primary,
+  },
+  wargaButton: {
+    borderColor: lightTheme.primary,
+  },
+  buttonContent: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    borderWidth: 2,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
   },
-  adminCard: {
-    borderColor: "#3b82f6",
-  },
-  wargaCard: {
-    borderColor: "#10b981",
-  },
-  roleIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#f1f5f9",
+  buttonIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: lightTheme.accent,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
+    marginRight: 20,
+    borderWidth: 2,
+    borderColor: lightTheme.primary,
   },
-  roleIconText: {
-    fontSize: 24,
+  iconText: {
+    fontSize: 20,
   },
-  roleContent: {
+  buttonText: {
     flex: 1,
   },
-  roleCardTitle: {
+  roleTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#1e293b",
     marginBottom: 4,
   },
-  roleCardDesc: {
+  roleDesc: {
     fontSize: 14,
     color: "#64748b",
-    lineHeight: 20,
-  },
-  arrowContainer: {
-    marginLeft: 12,
+    lineHeight: 18,
   },
   arrow: {
     fontSize: 20,
-    color: "#94a3b8",
+    color: lightTheme.primary,
+    fontWeight: "600",
   },
   footer: {
     alignItems: "center",

@@ -215,77 +215,126 @@ export default function PaymentManager() {
     );
   };
 
-  const renderPaymentItem = ({ item }) => (
-    <View style={styles.paymentCard}>
-      <View style={styles.paymentHeader}>
-        <View style={styles.wargaInfo}>
-          <Text style={styles.wargaName}>{item.wargaName}</Text>
-          <Text style={styles.alamatText}>Alamat: {item.alamat}</Text>
-        </View>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusColor(item.status) + "20" },
-          ]}
-        >
-          <Text
-            style={[styles.statusText, { color: getStatusColor(item.status) }]}
-          >
-            {getStatusLabel(item.status)}
-          </Text>
-        </View>
+  // Kanban Card Component
+  const renderKanbanCard = (item, columnColor) => (
+    <View key={item.id} style={[styles.kanbanCard, { borderLeftColor: columnColor }]}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardWargaName} numberOfLines={1}>
+          {item.wargaName}
+        </Text>
+        <Text style={[styles.cardAmount, { color: columnColor }]}>
+          {formatCurrency(item.amount)}
+        </Text>
       </View>
-
-      <View style={styles.paymentDetails}>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Nominal:</Text>
-          <Text style={styles.detailValue}>{formatCurrency(item.amount)}</Text>
-        </View>
-
-        {item.paymentDate && (
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Tanggal Bayar:</Text>
-            <Text style={styles.detailValue}>
-              {formatDate(item.paymentDate)}
-            </Text>
-          </View>
-        )}
-
-        {item.paymentMethod && (
-          <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Metode:</Text>
-            <Text style={styles.detailValue}>{item.paymentMethod}</Text>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.paymentActions}>
+      
+      <Text style={styles.cardAlamat} numberOfLines={2}>
+        📍 {item.alamat}
+      </Text>
+      
+      {item.paymentDate && (
+        <Text style={styles.cardPaymentDate}>
+          💳 {formatDate(item.paymentDate)}
+        </Text>
+      )}
+      
+      {item.paymentMethod && (
+        <Text style={styles.cardPaymentMethod}>
+          🏦 {item.paymentMethod}
+        </Text>
+      )}
+      
+      <View style={styles.cardActions}>
         {item.status === "lunas" ? (
-          <Button
-            title="Tandai Belum Bayar"
+          <TouchableOpacity
+            style={[styles.cardActionButton, { backgroundColor: "#fee2e2" }]}
             onPress={() => handleMarkAsUnpaid(item)}
-            variant="outline"
-            style={styles.actionButton}
             disabled={updating}
-          />
+          >
+            <Text style={[styles.cardActionText, { color: "#dc2626" }]}>
+              ↩️ Batal
+            </Text>
+          </TouchableOpacity>
         ) : (
-          <Button
-            title="Tandai Lunas"
+          <TouchableOpacity
+            style={[styles.cardActionButton, { backgroundColor: "#dcfce7" }]}
             onPress={() => handleMarkAsPaid(item)}
-            style={styles.actionButton}
             disabled={updating}
-          />
+          >
+            <Text style={[styles.cardActionText, { color: "#16a34a" }]}>
+              ✅ Lunas
+            </Text>
+          </TouchableOpacity>
         )}
       </View>
+    </View>
+  );
+
+  // Kanban Column Component
+  const renderKanbanColumn = (column) => (
+    <View key={column.id} style={[styles.kanbanColumn, { backgroundColor: column.bgColor }]}>
+      <View style={[styles.columnHeader, { borderBottomColor: column.color }]}>
+        <Text style={[styles.columnTitle, { color: column.color }]}>
+          {column.title}
+        </Text>
+        <View style={[styles.columnBadge, { backgroundColor: column.color }]}>
+          <Text style={styles.columnBadgeText}>{column.count}</Text>
+        </View>
+      </View>
+      
+      <ScrollView 
+        style={styles.columnContent}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.columnContentContainer}
+      >
+        {column.payments.length === 0 ? (
+          <View style={styles.emptyColumn}>
+            <Text style={styles.emptyColumnText}>Tidak ada data</Text>
+          </View>
+        ) : (
+          column.payments.map(payment => renderKanbanCard(payment, column.color))
+        )}
+      </ScrollView>
     </View>
   );
 
   const getPaymentSummary = () => {
     const total = payments.length;
     const lunas = payments.filter((p) => p.status === "lunas").length;
-    const belumBayar = total - lunas;
+    const belumBayar = payments.filter((p) => p.status === "belum_bayar").length;
+    const terlambat = payments.filter((p) => p.status === "terlambat").length;
 
-    return { total, lunas, belumBayar };
+    return { total, lunas, belumBayar, terlambat };
+  };
+
+  // Kanban columns data
+  const getKanbanColumns = () => {
+    const summary = getPaymentSummary();
+    return [
+      {
+        id: "belum_bayar",
+        title: "💰 Belum Bayar",
+        color: "#ef4444",
+        bgColor: "#fef2f2",
+        count: summary.belumBayar,
+        payments: payments.filter((p) => p.status === "belum_bayar"),
+      },
+      {
+        id: "terlambat",
+        title: "⏰ Terlambat",
+        color: "#f59e0b",
+        bgColor: "#fffbeb",
+        count: summary.terlambat,
+        payments: payments.filter((p) => p.status === "terlambat"),
+      },
+      {
+        id: "lunas",
+        title: "✅ Lunas",
+        color: "#10b981",
+        bgColor: "#ecfdf5",
+        count: summary.lunas,
+        payments: payments.filter((p) => p.status === "lunas"),
+      },
+    ];
   };
 
   if (loading) {
@@ -312,6 +361,7 @@ export default function PaymentManager() {
 
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -319,71 +369,71 @@ export default function PaymentManager() {
         >
           <Text style={styles.backButtonText}>← Kembali</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Kelola Pembayaran</Text>
+        <Text style={styles.headerTitle}>🎯 Kanban Payment Manager</Text>
       </View>
 
+      {/* Timeline Info */}
       {timeline && (
         <View style={styles.timelineInfo}>
-          <Text style={styles.timelineName}>{timeline.name}</Text>
+          <Text style={styles.timelineName}>📋 {timeline.name}</Text>
           {selectedPeriodData && (
             <Text style={styles.periodInfo}>
-              {selectedPeriodData.label} -{" "}
-              {formatCurrency(selectedPeriodData.amount)}
+              🗓️ {selectedPeriodData.label} • {formatCurrency(selectedPeriodData.amount)}
             </Text>
           )}
         </View>
       )}
 
+      {/* Period Tabs */}
       {renderPeriodTabs()}
 
-      <View style={styles.summarySection}>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>Ringkasan Pembayaran</Text>
-          <View style={styles.summaryStats}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{summary.total}</Text>
-              <Text style={styles.statLabel}>Total</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: "#10b981" }]}>
-                {summary.lunas}
+      {/* Kanban Summary Stats */}
+      <View style={styles.kanbanSummary}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {getKanbanColumns().map((column) => (
+            <View key={column.id} style={[styles.summaryStatCard, { borderColor: column.color }]}>
+              <View style={[styles.summaryStatIcon, { backgroundColor: column.color }]}>
+                <Text style={styles.summaryStatIconText}>
+                  {column.id === "belum_bayar" ? "💰" : column.id === "terlambat" ? "⏰" : "✅"}
+                </Text>
+              </View>
+              <Text style={[styles.summaryStatNumber, { color: column.color }]}>
+                {column.count}
               </Text>
-              <Text style={styles.statLabel}>Lunas</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={[styles.statNumber, { color: "#ef4444" }]}>
-                {summary.belumBayar}
+              <Text style={styles.summaryStatLabel}>
+                {column.title.replace(/[💰⏰✅]/g, '').trim()}
               </Text>
-              <Text style={styles.statLabel}>Belum Bayar</Text>
             </View>
-          </View>
-        </View>
+          ))}
+        </ScrollView>
       </View>
 
-      <FlatList
-        data={payments}
-        renderItem={renderPaymentItem}
-        keyExtractor={(item) => item.id}
-        style={styles.paymentsList}
-        contentContainerStyle={styles.paymentsListContent}
-        showsVerticalScrollIndicator={false}
+      {/* Kanban Board */}
+      <ScrollView 
+        horizontal 
+        style={styles.kanbanBoard}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.kanbanBoardContent}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#3b82f6"]}
-            tintColor="#3b82f6"
+            colors={["#002245"]}
+            tintColor="#002245"
           />
         }
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Belum ada data pembayaran</Text>
-            <Text style={styles.emptySubtext}>
-              Generate pembayaran terlebih dahulu
+      >
+        {payments.length === 0 ? (
+          <View style={styles.emptyKanban}>
+            <Text style={styles.emptyKanbanTitle}>📭 Tidak Ada Data</Text>
+            <Text style={styles.emptyKanbanText}>
+              Generate pembayaran terlebih dahulu untuk melihat kanban board
             </Text>
           </View>
-        }
-      />
+        ) : (
+          getKanbanColumns().map(renderKanbanColumn)
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -391,28 +441,37 @@ export default function PaymentManager() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f0f8ff",
   },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomWidth: 2,
+    borderBottomColor: "#002245",
     backgroundColor: "#fff",
+    shadowColor: "#002245",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   backButton: {
     alignSelf: "flex-start",
     marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: "#e6f3ff",
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
-    fontWeight: "500",
+    color: "#002245",
+    fontWeight: "600",
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1e293b",
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#002245",
     textAlign: "center",
   },
   loadingContainer: {
@@ -425,173 +484,227 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: "#e6f3ff",
   },
   timelineName: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#002245",
     textAlign: "center",
     marginBottom: 4,
   },
   periodInfo: {
     fontSize: 14,
-    color: "#64748b",
+    color: "#4a5568",
     textAlign: "center",
+    fontWeight: "500",
   },
   periodTabs: {
     backgroundColor: "#fff",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    borderBottomColor: "#e6f3ff",
   },
   periodTab: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 10,
     marginHorizontal: 4,
-    borderRadius: 8,
-    backgroundColor: "#f8fafc",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderRadius: 20,
+    backgroundColor: "#f8fbff",
+    borderWidth: 2,
+    borderColor: "#e6f3ff",
   },
   periodTabActive: {
-    backgroundColor: "#3b82f6",
-    borderColor: "#3b82f6",
+    backgroundColor: "#002245",
+    borderColor: "#002245",
   },
   periodTabText: {
     fontSize: 12,
-    color: "#64748b",
-    fontWeight: "500",
+    color: "#4a5568",
+    fontWeight: "600",
   },
   periodTabTextActive: {
     color: "#fff",
-    fontWeight: "600",
+    fontWeight: "700",
   },
-  summarySection: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-  },
-  summaryCard: {
+  // Kanban Summary Styles
+  kanbanSummary: {
     backgroundColor: "#fff",
-    borderRadius: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e6f3ff",
+  },
+  summaryStatCard: {
+    backgroundColor: "#f8fbff",
+    borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-  },
-  summaryTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    textAlign: "center",
-    marginBottom: 12,
-  },
-  summaryStats: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  statItem: {
+    marginRight: 12,
     alignItems: "center",
+    minWidth: 100,
+    borderWidth: 2,
   },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1e293b",
+  summaryStatIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  summaryStatIconText: {
+    fontSize: 16,
+  },
+  summaryStatNumber: {
+    fontSize: 24,
+    fontWeight: "700",
     marginBottom: 4,
   },
-  statLabel: {
+  summaryStatLabel: {
     fontSize: 12,
-    color: "#64748b",
+    color: "#4a5568",
+    fontWeight: "500",
+    textAlign: "center",
   },
-  paymentsList: {
+  // Kanban Board Styles
+  kanbanBoard: {
+    flex: 1,
+    paddingTop: 16,
+  },
+  kanbanBoardContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  // Kanban Column Styles
+  kanbanColumn: {
+    width: 280,
+    marginRight: 16,
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#e6f3ff",
+    maxHeight: 600,
+  },
+  columnHeader: {
+    padding: 16,
+    borderBottomWidth: 2,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  columnTitle: {
+    fontSize: 16,
+    fontWeight: "700",
     flex: 1,
   },
-  paymentsListContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+  columnBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    minWidth: 24,
+    alignItems: "center",
   },
-  paymentCard: {
+  columnBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  columnContent: {
+    flex: 1,
+  },
+  columnContentContainer: {
+    padding: 12,
+  },
+  // Kanban Card Styles
+  kanbanCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    padding: 12,
+    marginBottom: 8,
+    borderLeftWidth: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  paymentHeader: {
+  cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  wargaInfo: {
-    flex: 1,
-  },
-  wargaName: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  alamatText: {
-    fontSize: 14,
-    color: "#64748b",
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 16,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  paymentDetails: {
-    marginBottom: 16,
-  },
-  detailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 8,
   },
-  detailLabel: {
+  cardWargaName: {
     fontSize: 14,
-    color: "#64748b",
-    fontWeight: "500",
+    fontWeight: "700",
+    color: "#002245",
+    flex: 1,
+    marginRight: 8,
   },
-  detailValue: {
-    fontSize: 14,
-    color: "#1e293b",
+  cardAmount: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  cardAlamat: {
+    fontSize: 11,
+    color: "#4a5568",
+    marginBottom: 6,
+    lineHeight: 14,
+  },
+  cardPaymentDate: {
+    fontSize: 10,
+    color: "#059669",
+    marginBottom: 4,
+  },
+  cardPaymentMethod: {
+    fontSize: 10,
+    color: "#7c3aed",
+    marginBottom: 8,
+  },
+  cardActions: {
+    alignItems: "center",
+  },
+  cardActionButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignItems: "center",
+    minWidth: 80,
+  },
+  cardActionText: {
+    fontSize: 11,
     fontWeight: "600",
   },
-  paymentActions: {
-    marginTop: 8,
+  // Empty States
+  emptyColumn: {
+    alignItems: "center",
+    paddingVertical: 20,
   },
-  actionButton: {
-    minHeight: 40,
+  emptyColumnText: {
+    fontSize: 12,
+    color: "#7a8394",
+    fontStyle: "italic",
   },
-  emptyContainer: {
+  emptyKanban: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 60,
+    paddingHorizontal: 40,
+    minWidth: 300,
   },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#64748b",
+  emptyKanbanTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#002245",
     marginBottom: 8,
     textAlign: "center",
   },
-  emptySubtext: {
+  emptyKanbanText: {
     fontSize: 14,
-    color: "#94a3b8",
+    color: "#4a5568",
     textAlign: "center",
     lineHeight: 20,
   },
 });
+

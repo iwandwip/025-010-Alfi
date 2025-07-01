@@ -422,12 +422,337 @@ export default function CreateTimeline() {
     return `${formatDate(startDate)} sampai ${formatDate(endDate)}`;
   };
 
+  // Wizard Step Components
+  const renderStepContent = () => {
+    switch (step) {
+      case 1:
+        return renderStep1();
+      case 2:
+        return renderStep2();
+      case 3:
+        return renderStep3();
+      case 4:
+        return renderStep4();
+      default:
+        return renderStep1();
+    }
+  };
+
+  const renderStep1 = () => (
+    <View style={styles.wizardStep}>
+      <Text style={styles.wizardStepTitle}>📋 Informasi Dasar</Text>
+      <Text style={styles.wizardStepDescription}>
+        Tentukan nama, tipe, dan durasi timeline pembayaran
+      </Text>
+
+      {templates.length > 0 && (
+        <View style={styles.templatesSection}>
+          <Text style={styles.templatesTitle}>🗂️ Gunakan Template:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {templates.map((template) => (
+              <TouchableOpacity
+                key={template.id}
+                style={styles.templateCard}
+                onPress={() => handleUseTemplate(template)}
+              >
+                <Text style={styles.templateName}>{template.name}</Text>
+                <Text style={styles.templateDetails}>
+                  {
+                    getTimelineTypes().find(
+                      (t) => t.value === template.type
+                    )?.label
+                  }{" "}
+                  - {template.duration} periode
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
+      <Input
+        label="Nama Timeline"
+        placeholder="Contoh: Jimpitan Bulanan 2024"
+        value={formData.name}
+        onChangeText={(value) => updateFormData("name", value)}
+      />
+
+      <View style={styles.fieldGroup}>
+        <Text style={styles.fieldLabel}>Tipe Timeline</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {getTimelineTypes().map((option) => (
+            <TouchableOpacity
+              key={option.value}
+              style={[
+                styles.typeChip,
+                formData.type === option.value && styles.typeChipActive,
+              ]}
+              onPress={() => handleTypeChange(option.value)}
+            >
+              <Text
+                style={[
+                  styles.typeChipText,
+                  formData.type === option.value &&
+                    styles.typeChipTextActive,
+                ]}
+              >
+                {option.label}
+              </Text>
+              <Text style={styles.typeChipSubtext}>
+                Max: {option.maxPeriods}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      <View style={styles.fieldRow}>
+        <View style={styles.fieldHalf}>
+          <Input
+            label={`Durasi (${getSelectedType()?.unit})`}
+            placeholder={`Jumlah ${getSelectedType()?.unit.toLowerCase()}`}
+            value={formData.duration.toString()}
+            onChangeText={handleDurationChange}
+            keyboardType="numeric"
+          />
+        </View>
+        <View style={styles.fieldHalf}>
+          <Input
+            label="Amount Per Periode"
+            placeholder="480000"
+            value={formData.baseAmount.toString()}
+            onChangeText={(value) =>
+              updateFormData("baseAmount", parseInt(value) || 0)
+            }
+            keyboardType="numeric"
+          />
+        </View>
+      </View>
+
+      <TimelinePicker
+        label={`Waktu Mulai Timeline (${getSelectedType()?.label})`}
+        value={formData.startDate}
+        onChange={(value) => updateFormData("startDate", value)}
+        timelineType={formData.type}
+        placeholder={`Pilih waktu mulai ${getSelectedType()?.label.toLowerCase()}`}
+      />
+    </View>
+  );
+
+  const renderStep2 = () => (
+    <View style={styles.wizardStep}>
+      <Text style={styles.wizardStepTitle}>⚙️ Mode Timeline</Text>
+      <Text style={styles.wizardStepDescription}>
+        Pilih mode waktu untuk timeline pembayaran
+      </Text>
+
+      <View style={styles.modeSelector}>
+        <TouchableOpacity
+          style={[
+            styles.modeCard,
+            formData.mode === "realtime" && styles.modeCardActive,
+          ]}
+          onPress={() => updateFormData("mode", "realtime")}
+        >
+          <View style={styles.modeIcon}>
+            <Text style={styles.modeIconText}>🕐</Text>
+          </View>
+          <Text style={styles.modeTitle}>Real-time</Text>
+          <Text style={styles.modeSubtitle}>Production Mode</Text>
+          <Text style={styles.modeDescription}>
+            Menggunakan waktu sekarang yang sebenarnya
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[
+            styles.modeCard,
+            formData.mode === "manual" && styles.modeCardActive,
+          ]}
+          onPress={() => updateFormData("mode", "manual")}
+        >
+          <View style={styles.modeIcon}>
+            <Text style={styles.modeIconText}>⚙️</Text>
+          </View>
+          <Text style={styles.modeTitle}>Manual</Text>
+          <Text style={styles.modeSubtitle}>Testing Mode</Text>
+          <Text style={styles.modeDescription}>
+            Bisa mengatur waktu sekarang untuk testing
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {formData.mode === "manual" && (
+        <View style={styles.manualModeSection}>
+          <TimelinePicker
+            label={`Simulasi Waktu Sekarang (${getSelectedType()?.label})`}
+            value={formData.simulationDate}
+            onChange={(value) => updateFormData("simulationDate", value)}
+            timelineType={formData.type}
+            minDate={formData.startDate}
+            maxDate={getTimelineEndDate()}
+            placeholder={`Pilih waktu simulasi dalam range timeline`}
+          />
+
+          <View style={styles.simulationPreview}>
+            <Text style={styles.simulationPreviewLabel}>
+              Waktu Simulasi yang Dipilih:
+            </Text>
+            <Text style={styles.simulationPreviewValue}>
+              {formatSimulationDisplay()}
+            </Text>
+          </View>
+        </View>
+      )}
+    </View>
+  );
+
+  const renderStep3 = () => (
+    <View style={styles.wizardStep}>
+      <Text style={styles.wizardStepTitle}>🏖️ Atur Periode Libur</Text>
+      <Text style={styles.wizardStepDescription}>
+        Pilih periode yang akan dijadikan libur (tidak ada pembayaran)
+      </Text>
+
+      <Text style={styles.periodInstructions}>
+        Tap pada nomor periode untuk menandai sebagai libur:
+      </Text>
+
+      <View style={styles.periodsGrid}>{renderPeriodSelector()}</View>
+
+      <View style={styles.holidaySummary}>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Periode Libur:</Text>
+          <Text style={styles.summaryValue}>
+            {formData.holidays.length} dari {formData.duration}
+          </Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Periode Aktif:</Text>
+          <Text style={styles.summaryValue}>
+            {formData.duration - formData.holidays.length}
+          </Text>
+        </View>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Amount per periode aktif:</Text>
+          <Text style={[styles.summaryValue, { color: "#002245" }]}>
+            {formatCurrency(calculateAmountPerPeriod())}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderStep4 = () => (
+    <View style={styles.wizardStep}>
+      <Text style={styles.wizardStepTitle}>✅ Konfirmasi & Simpan</Text>
+      <Text style={styles.wizardStepDescription}>
+        Periksa kembali semua pengaturan sebelum membuat timeline
+      </Text>
+
+      <TouchableOpacity
+        style={styles.templateToggle}
+        onPress={() =>
+          updateFormData("saveAsTemplate", !formData.saveAsTemplate)
+        }
+      >
+        <Text style={styles.templateToggleText}>
+          {formData.saveAsTemplate ? "✅" : "⬜"} Simpan sebagai template
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  // Preview Pane Component
+  const renderPreviewPane = () => (
+    <View style={styles.previewPane}>
+      <Text style={styles.previewTitle}>📄 Preview Timeline</Text>
+      
+      <View style={styles.previewCard}>
+        <View style={styles.previewSection}>
+          <Text style={styles.previewSectionTitle}>Informasi Dasar</Text>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Nama:</Text>
+            <Text style={styles.previewValue}>
+              {formData.name || "Belum diisi"}
+            </Text>
+          </View>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Tipe:</Text>
+            <Text style={styles.previewValue}>
+              {getSelectedType()?.label || "Belum dipilih"}
+            </Text>
+          </View>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Durasi:</Text>
+            <Text style={styles.previewValue}>
+              {getTotalTimelineDuration()}
+            </Text>
+          </View>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Range:</Text>
+            <Text style={styles.previewValue}>
+              {formatTimelineRange()}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.previewSection}>
+          <Text style={styles.previewSectionTitle}>Mode & Amount</Text>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Mode:</Text>
+            <Text style={styles.previewValue}>
+              {formData.mode === "realtime" ? "Real-time" : "Manual"}
+            </Text>
+          </View>
+          {formData.mode === "manual" && (
+            <View style={styles.previewItem}>
+              <Text style={styles.previewLabel}>Simulasi:</Text>
+              <Text style={styles.previewValue}>
+                {formatSimulationDisplay()}
+              </Text>
+            </View>
+          )}
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Total Amount:</Text>
+            <Text style={[styles.previewValue, { fontWeight: "bold" }]}>
+              {formatCurrency(formData.totalAmount)}
+            </Text>
+          </View>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Per Periode:</Text>
+            <Text style={[styles.previewValue, { fontWeight: "bold", color: "#002245" }]}>
+              {formatCurrency(calculateAmountPerPeriod())}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.previewSection}>
+          <Text style={styles.previewSectionTitle}>Periode Libur</Text>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Total Libur:</Text>
+            <Text style={styles.previewValue}>
+              {formData.holidays.length} periode
+            </Text>
+          </View>
+          <View style={styles.previewItem}>
+            <Text style={styles.previewLabel}>Periode Aktif:</Text>
+            <Text style={styles.previewValue}>
+              {formData.duration - formData.holidays.length} periode
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -435,355 +760,58 @@ export default function CreateTimeline() {
           >
             <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Buat Timeline Baru</Text>
+          <Text style={styles.headerTitle}>🧙‍♂️ Wizard Timeline</Text>
         </View>
 
-        <View style={styles.stepIndicator}>
-          <View style={[styles.stepDot, step >= 1 && styles.stepDotActive]} />
-          <View style={[styles.stepLine, step >= 2 && styles.stepLineActive]} />
-          <View style={[styles.stepDot, step >= 2 && styles.stepDotActive]} />
-          <View style={[styles.stepLine, step >= 3 && styles.stepLineActive]} />
-          <View style={[styles.stepDot, step >= 3 && styles.stepDotActive]} />
-          <View style={[styles.stepLine, step >= 4 && styles.stepLineActive]} />
-          <View style={[styles.stepDot, step >= 4 && styles.stepDotActive]} />
+        {/* Wizard Progress */}
+        <View style={styles.wizardProgress}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${(step / 4) * 100}%` }]} />
+          </View>
+          <Text style={styles.progressText}>Langkah {step} dari 4</Text>
         </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {step === 1 && (
-            <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Informasi Dasar</Text>
+        {/* Main Content - Split Layout */}
+        <View style={styles.splitContainer}>
+          {/* Left Side - Wizard Steps */}
+          <ScrollView style={styles.wizardContainer} showsVerticalScrollIndicator={false}>
+            {renderStepContent()}
+          </ScrollView>
 
-              {templates.length > 0 && (
-                <View style={styles.templatesSection}>
-                  <Text style={styles.templatesTitle}>Gunakan Template:</Text>
-                  {templates.map((template) => (
-                    <TouchableOpacity
-                      key={template.id}
-                      style={styles.templateCard}
-                      onPress={() => handleUseTemplate(template)}
-                    >
-                      <Text style={styles.templateName}>{template.name}</Text>
-                      <Text style={styles.templateDetails}>
-                        {
-                          getTimelineTypes().find(
-                            (t) => t.value === template.type
-                          )?.label
-                        }{" "}
-                        - {template.duration} periode
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+          {/* Right Side - Preview Pane */}
+          <ScrollView style={styles.previewContainer} showsVerticalScrollIndicator={false}>
+            {renderPreviewPane()}
+          </ScrollView>
+        </View>
 
-              <Input
-                label="Nama Timeline"
-                placeholder="Contoh: Jimpitan Bulanan 2024"
-                value={formData.name}
-                onChangeText={(value) => updateFormData("name", value)}
-              />
-
-              <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Tipe Timeline</Text>
-                {getTimelineTypes().map((option) => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[
-                      styles.typeButton,
-                      formData.type === option.value && styles.typeButtonActive,
-                    ]}
-                    onPress={() => handleTypeChange(option.value)}
-                  >
-                    <Text
-                      style={[
-                        styles.typeButtonText,
-                        formData.type === option.value &&
-                          styles.typeButtonTextActive,
-                      ]}
-                    >
-                      {option.label} (Max: {option.maxPeriods} {option.unit})
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              <Input
-                label={`Durasi (${getSelectedType()?.unit})`}
-                placeholder={`Masukkan jumlah ${getSelectedType()?.unit.toLowerCase()}`}
-                value={formData.duration.toString()}
-                onChangeText={handleDurationChange}
-                keyboardType="numeric"
-              />
-
-              <View style={styles.calculationInfo}>
-                <Text style={styles.calculationText}>
-                  Total Durasi: {getTotalTimelineDuration()}
-                </Text>
-              </View>
-
-              <Input
-                label="Amount Per Periode"
-                placeholder="480000"
-                value={formData.baseAmount.toString()}
-                onChangeText={(value) =>
-                  updateFormData("baseAmount", parseInt(value) || 0)
-                }
-                keyboardType="numeric"
-              />
-
-              <View style={styles.calculationInfo}>
-                <Text style={styles.calculationText}>
-                  Total Amount: {formatCurrency(formData.totalAmount)}
-                </Text>
-              </View>
-
-              <TimelinePicker
-                label={`Waktu Mulai Timeline (${getSelectedType()?.label})`}
-                value={formData.startDate}
-                onChange={(value) => updateFormData("startDate", value)}
-                timelineType={formData.type}
-                placeholder={`Pilih waktu mulai ${getSelectedType()?.label.toLowerCase()}`}
-              />
-
-              <View style={styles.timelineRangeInfo}>
-                <Text style={styles.timelineRangeLabel}>Range Timeline:</Text>
-                <Text style={styles.timelineRangeValue}>
-                  {formatTimelineRange()}
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {step === 2 && (
-            <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Mode Timeline</Text>
-
-              <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Mode Waktu</Text>
-
-                <TouchableOpacity
-                  style={[
-                    styles.typeButton,
-                    formData.mode === "realtime" && styles.typeButtonActive,
-                  ]}
-                  onPress={() => updateFormData("mode", "realtime")}
-                >
-                  <Text
-                    style={[
-                      styles.typeButtonText,
-                      formData.mode === "realtime" &&
-                        styles.typeButtonTextActive,
-                    ]}
-                  >
-                    🕐 Real-time (Production)
-                  </Text>
-                  <Text style={styles.typeButtonDesc}>
-                    Menggunakan waktu sekarang yang sebenarnya
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.typeButton,
-                    formData.mode === "manual" && styles.typeButtonActive,
-                  ]}
-                  onPress={() => updateFormData("mode", "manual")}
-                >
-                  <Text
-                    style={[
-                      styles.typeButtonText,
-                      formData.mode === "manual" && styles.typeButtonTextActive,
-                    ]}
-                  >
-                    ⚙️ Manual (Testing)
-                  </Text>
-                  <Text style={styles.typeButtonDesc}>
-                    Bisa mengatur "waktu sekarang" untuk testing dalam range
-                    timeline
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {formData.mode === "manual" && (
-                <View style={styles.manualModeSection}>
-                  <TimelinePicker
-                    label={`Simulasi Waktu Sekarang (${
-                      getSelectedType()?.label
-                    })`}
-                    value={formData.simulationDate}
-                    onChange={(value) =>
-                      updateFormData("simulationDate", value)
-                    }
-                    timelineType={formData.type}
-                    minDate={formData.startDate}
-                    maxDate={getTimelineEndDate()}
-                    placeholder={`Pilih waktu simulasi dalam range timeline`}
-                  />
-
-                  <View style={styles.simulationPreview}>
-                    <Text style={styles.simulationPreviewLabel}>
-                      Waktu Simulasi yang Dipilih:
-                    </Text>
-                    <Text style={styles.simulationPreviewValue}>
-                      {formatSimulationDisplay()}
-                    </Text>
-                  </View>
-
-                  <View style={styles.rangeInfoBox}>
-                    <Text style={styles.rangeInfoText}>
-                      📅 Range simulasi: {formatTimelineRange()}
-                    </Text>
-                  </View>
-                </View>
-              )}
-
-              <View style={styles.infoBox}>
-                <Text style={styles.infoText}>
-                  {formData.mode === "realtime"
-                    ? "ℹ️ Mode real-time akan menggunakan tanggal sekarang untuk menghitung status terlambat"
-                    : `ℹ️ Mode manual memungkinkan Anda mengatur waktu simulasi dengan presisi ${getSelectedType()?.label.toLowerCase()} dalam range timeline untuk testing dan demo`}
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {step === 3 && (
-            <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Atur Periode Libur</Text>
-
-              <Text style={styles.periodInstructions}>
-                Tap pada nomor periode untuk menandai sebagai libur:
-              </Text>
-
-              <View style={styles.periodsGrid}>{renderPeriodSelector()}</View>
-
-              <View style={styles.holidaySummary}>
-                <Text style={styles.holidayText}>
-                  Periode Libur: {formData.holidays.length} dari{" "}
-                  {formData.duration}
-                </Text>
-                <Text style={styles.holidayText}>
-                  Periode Aktif: {formData.duration - formData.holidays.length}
-                </Text>
-                <Text style={styles.amountPerPeriod}>
-                  Amount per periode aktif:{" "}
-                  {formatCurrency(calculateAmountPerPeriod())}
-                </Text>
-              </View>
-            </View>
-          )}
-
-          {step === 4 && (
-            <View style={styles.stepContent}>
-              <Text style={styles.stepTitle}>Konfirmasi & Simpan</Text>
-
-              <View style={styles.summaryCard}>
-                <Text style={styles.summaryTitle}>Ringkasan Timeline</Text>
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Nama:</Text>
-                  <Text style={styles.summaryValue}>{formData.name}</Text>
-                </View>
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Tipe:</Text>
-                  <Text style={styles.summaryValue}>
-                    {getSelectedType()?.label}
-                  </Text>
-                </View>
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Durasi:</Text>
-                  <Text style={styles.summaryValue}>
-                    {getTotalTimelineDuration()}
-                  </Text>
-                </View>
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Range Timeline:</Text>
-                  <Text style={styles.summaryValue}>
-                    {formatTimelineRange()}
-                  </Text>
-                </View>
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Mode:</Text>
-                  <Text style={styles.summaryValue}>
-                    {formData.mode === "realtime" ? "Real-time" : "Manual"}
-                  </Text>
-                </View>
-
-                {formData.mode === "manual" && (
-                  <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Simulasi Waktu:</Text>
-                    <Text style={styles.summaryValue}>
-                      {formatSimulationDisplay()}
-                    </Text>
-                  </View>
-                )}
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Total Amount:</Text>
-                  <Text style={styles.summaryValue}>
-                    {formatCurrency(formData.totalAmount)}
-                  </Text>
-                </View>
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Periode Libur:</Text>
-                  <Text style={styles.summaryValue}>
-                    {formData.holidays.length}
-                  </Text>
-                </View>
-
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Per Periode:</Text>
-                  <Text style={styles.summaryValue}>
-                    {formatCurrency(calculateAmountPerPeriod())}
-                  </Text>
-                </View>
-              </View>
-
-              <TouchableOpacity
-                style={styles.templateToggle}
-                onPress={() =>
-                  updateFormData("saveAsTemplate", !formData.saveAsTemplate)
-                }
-              >
-                <Text style={styles.templateToggleText}>
-                  {formData.saveAsTemplate ? "✅" : "⬜"} Simpan sebagai
-                  template
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
+        {/* Navigation Footer */}
+        <View style={styles.wizardFooter}>
           <View style={styles.navigationButtons}>
             {step > 1 && (
               <Button
-                title="Sebelumnya"
+                title="← Sebelumnya"
                 onPress={() => setStep(step - 1)}
                 variant="outline"
-                style={styles.prevButton}
+                style={styles.wizardNavButton}
               />
             )}
 
             {step < 4 ? (
               <Button
-                title="Selanjutnya"
+                title="Selanjutnya →"
                 onPress={handleNext}
-                style={styles.nextButton}
+                style={styles.wizardNavButton}
               />
             ) : (
               <Button
-                title={loading ? "Membuat..." : "Buat Timeline"}
+                title={loading ? "🔄 Membuat..." : "✨ Buat Timeline"}
                 onPress={handleCreate}
                 disabled={loading}
-                style={styles.createButton}
+                style={styles.wizardCreateButton}
               />
             )}
           </View>
-        </ScrollView>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -1111,8 +1139,31 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#3b82f6",
   },
-  createButton: {
+  // Wizard Footer Styles
+  wizardFooter: {
+    backgroundColor: "#fff",
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderTopWidth: 2,
+    borderTopColor: "#e6f3ff",
+    shadowColor: "#002245",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  navigationButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  wizardNavButton: {
     flex: 1,
-    backgroundColor: "#10b981",
+    backgroundColor: "#e6f3ff",
+    borderColor: "#002245",
+    borderWidth: 2,
+  },
+  wizardCreateButton: {
+    flex: 1,
+    backgroundColor: "#002245",
   },
 });

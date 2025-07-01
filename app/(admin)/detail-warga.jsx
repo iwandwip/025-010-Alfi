@@ -364,7 +364,7 @@ export default function DetailWarga() {
         >
           <Text style={styles.backButtonText}>← Kembali</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Detail Warga</Text>
+        <Text style={styles.headerTitle}>Profil Warga</Text>
       </View>
 
       <ScrollView
@@ -372,38 +372,23 @@ export default function DetailWarga() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 24 },
+          { paddingBottom: insets.bottom + 100 },
         ]}
       >
-        <View style={styles.profileSection}>
+        {/* Profile Header Card */}
+        <View style={styles.profileCard}>
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>👤</Text>
           </View>
-          <Text style={styles.namaWarga}>{warga.namaWarga}</Text>
-          <Text style={styles.wargaId}>ID: {warga.id}</Text>
-        </View>
-
-        <View style={styles.actionSection}>
-          <View style={styles.actionButtons}>
-            <Button
-              title="✏️ Edit Data"
-              onPress={handleEditWarga}
-              variant="secondary"
-              style={styles.editButton}
-              disabled={deleting}
-            />
-            <Button
-              title={deleting ? "Menghapus..." : "🗑️ Hapus Warga"}
-              onPress={handleDeleteWarga}
-              variant="outline"
-              style={styles.deleteButton}
-              disabled={deleting}
-            />
+          <Text style={styles.profileName}>{warga.namaWarga}</Text>
+          <Text style={styles.profileId}>ID: {warga.id}</Text>
+          <View style={styles.statusBadge}>
+            <Text style={styles.statusBadgeText}>Aktif</Text>
           </View>
         </View>
 
         {deleting && (
-          <View style={styles.deletingInfo}>
+          <View style={styles.deletingCard}>
             <Text style={styles.deletingText}>
               🔄 Menghapus data warga dari sistem...
             </Text>
@@ -411,36 +396,67 @@ export default function DetailWarga() {
           </View>
         )}
 
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Informasi Warga</Text>
-
-          <View style={styles.infoCard}>
+        {/* Personal Information Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>👤 Informasi Pribadi</Text>
+          </View>
+          <View style={styles.cardContent}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nama Warga:</Text>
+              <Text style={styles.infoLabel}>Nama Lengkap</Text>
               <Text style={styles.infoValue}>{warga.namaWarga}</Text>
             </View>
-
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Alamat:</Text>
+              <Text style={styles.infoLabel}>Alamat</Text>
               <Text style={styles.infoValue}>{warga.alamat}</Text>
             </View>
+          </View>
+        </View>
 
+        {/* Contact Information Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>📞 Informasi Kontak</Text>
+          </View>
+          <View style={styles.cardContent}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>No HP Warga:</Text>
+              <Text style={styles.infoLabel}>No. HP</Text>
               <Text style={styles.infoValue}>{warga.noHpWarga}</Text>
             </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email Warga:</Text>
+            <View style={[styles.infoRow, styles.lastRow]}>
+              <Text style={styles.infoLabel}>Email</Text>
               <Text style={styles.infoValue}>{warga.email}</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.rfidSection}>
-          <Text style={styles.sectionTitle}>Status RFID</Text>
+        {/* Account Information Card */}
+        <View style={styles.infoCard}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>💰 Informasi Akun</Text>
+          </View>
+          <View style={styles.cardContent}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Saldo Kredit</Text>
+              <Text style={styles.creditValue}>
+                Rp {(warga.creditBalance || 0).toLocaleString('id-ID')}
+              </Text>
+            </View>
+            <View style={[styles.infoRow, styles.lastRow]}>
+              <Text style={styles.infoLabel}>Status Akun</Text>
+              <View style={styles.activeStatus}>
+                <Text style={styles.activeStatusText}>Aktif</Text>
+              </View>
+            </View>
+          </View>
+        </View>
 
-          <View style={styles.rfidCard}>
+        {/* RFID Status Card */}
+        <View style={styles.rfidCard}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>📱 Status RFID</Text>
+          </View>
+          <View style={styles.cardContent}>
             <View style={styles.rfidStatus}>
               {warga.rfidWarga ? (
                 <View style={styles.rfidActive}>
@@ -516,6 +532,26 @@ export default function DetailWarga() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Floating Action Card */}
+      <View style={styles.floatingActionCard}>
+        <View style={styles.actionButtons}>
+          <Button
+            title="✏️ Edit Data"
+            onPress={handleEditWarga}
+            variant="secondary"
+            style={styles.editButton}
+            disabled={deleting}
+          />
+          <Button
+            title={deleting ? "Menghapus..." : "🗑️ Hapus Warga"}
+            onPress={handleDeleteWarga}
+            variant="outline"
+            style={styles.deleteButton}
+            disabled={deleting}
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -523,14 +559,22 @@ export default function DetailWarga() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
   },
   header: {
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    backgroundColor: "#002245",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -538,13 +582,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: "#fff",
     fontWeight: "500",
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1e293b",
+    color: "#fff",
     textAlign: "center",
   },
   loadingContainer: {
@@ -564,64 +608,91 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  profileSection: {
+  
+  // Profile Header Card
+  profileCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 16,
     alignItems: "center",
-    marginBottom: 24,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
   },
   avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#3b82f6",
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: "#002245",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 2.22,
   },
   avatarText: {
-    fontSize: 32,
+    fontSize: 36,
     color: "#fff",
   },
-  namaWarga: {
+  profileName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1e293b",
+    color: "#002245",
     marginBottom: 4,
     textAlign: "center",
   },
-  wargaId: {
+  profileId: {
     fontSize: 14,
     color: "#64748b",
     fontFamily: "monospace",
+    marginBottom: 12,
   },
-  actionSection: {
-    marginBottom: 24,
-  },
-  actionButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  editButton: {
-    flex: 1,
+  statusBadge: {
     backgroundColor: "#10b981",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
-  deleteButton: {
-    flex: 1,
-    borderColor: "#ef4444",
+  statusBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
-  deletingInfo: {
+
+  // Delete Warning Card
+  deletingCard: {
     backgroundColor: "#fef3c7",
     padding: 16,
     borderRadius: 12,
-    marginBottom: 24,
+    marginBottom: 16,
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#f59e0b",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2.22,
   },
   deletingText: {
     fontSize: 16,
@@ -636,21 +707,35 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
   },
-  infoSection: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 16,
-  },
+
+  // Information Cards
   infoCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2.22,
+  },
+  cardHeader: {
+    backgroundColor: "#002245",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  cardContent: {
     padding: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
   },
   infoRow: {
     flexDirection: "row",
@@ -659,6 +744,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
+  },
+  lastRow: {
+    borderBottomWidth: 0,
   },
   infoLabel: {
     fontSize: 14,
@@ -671,16 +759,40 @@ const styles = StyleSheet.create({
     color: "#1e293b",
     flex: 2,
     textAlign: "right",
+    fontWeight: "500",
   },
-  rfidSection: {
-    marginBottom: 32,
+  creditValue: {
+    fontSize: 14,
+    color: "#10b981",
+    flex: 2,
+    textAlign: "right",
+    fontWeight: "600",
   },
+  activeStatus: {
+    backgroundColor: "#dcfce7",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  activeStatusText: {
+    color: "#16a34a",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  // RFID Card
   rfidCard: {
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2.22,
   },
   rfidStatus: {
     marginBottom: 16,
@@ -743,21 +855,10 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   pairingButton: {
-    backgroundColor: "#10b981",
+    backgroundColor: "#002245",
   },
   cancelButton: {
     borderColor: "#ef4444",
-  },
-  infoBox: {
-    backgroundColor: "#f0f9ff",
-    padding: 12,
-    borderRadius: 8,
-  },
-  infoBoxText: {
-    fontSize: 14,
-    color: "#0369a1",
-    lineHeight: 20,
-    textAlign: "center",
   },
   rfidManagement: {
     flexDirection: "row",
@@ -769,5 +870,38 @@ const styles = StyleSheet.create({
   },
   deleteRFIDButton: {
     flex: 1,
+  },
+
+  // Floating Action Card
+  floatingActionCard: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4.84,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  editButton: {
+    flex: 1,
+    backgroundColor: "#002245",
+  },
+  deleteButton: {
+    flex: 1,
+    borderColor: "#ef4444",
   },
 });

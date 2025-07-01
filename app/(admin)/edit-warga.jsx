@@ -27,6 +27,7 @@ export default function EditWarga() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("personal");
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -138,6 +139,108 @@ export default function EditWarga() {
     );
   }
 
+  const renderTabButton = (tabKey, label, icon) => (
+    <TouchableOpacity
+      key={tabKey}
+      style={[styles.tabButton, activeTab === tabKey && styles.activeTab]}
+      onPress={() => setActiveTab(tabKey)}
+    >
+      <Text style={styles.tabIcon}>{icon}</Text>
+      <Text style={[styles.tabText, activeTab === tabKey && styles.activeTabText]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const renderPersonalTab = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Data Personal</Text>
+        <Input
+          label="Nama Warga"
+          placeholder="Masukkan nama lengkap warga"
+          value={formData.namaWarga}
+          onChangeText={(value) => updateForm("namaWarga", value)}
+          autoCapitalize="words"
+        />
+        <Button
+          title={saving ? "Menyimpan..." : "Simpan Perubahan"}
+          onPress={handleSimpan}
+          disabled={saving}
+          style={styles.saveButtonTab}
+        />
+      </View>
+    </View>
+  );
+
+  const renderContactTab = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Informasi Kontak</Text>
+        <Input
+          label="Alamat"
+          placeholder="Masukkan alamat lengkap"
+          value={formData.alamat}
+          onChangeText={(value) => updateForm("alamat", value)}
+          autoCapitalize="words"
+        />
+        <Input
+          label="No HP Warga"
+          placeholder="Masukkan nomor HP warga"
+          value={formData.noHpWarga}
+          onChangeText={(value) => updateForm("noHpWarga", value)}
+          keyboardType="phone-pad"
+        />
+        <Button
+          title={saving ? "Menyimpan..." : "Simpan Perubahan"}
+          onPress={handleSimpan}
+          disabled={saving}
+          style={styles.saveButtonTab}
+        />
+      </View>
+    </View>
+  );
+
+  const renderAccountTab = () => (
+    <View style={styles.tabContent}>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Akun Login</Text>
+        <Input
+          label="Email Warga"
+          placeholder="Masukkan email untuk login warga"
+          value={formData.email}
+          onChangeText={(value) => updateForm("email", value)}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <View style={styles.infoBox}>
+          <Text style={styles.infoText}>
+            ℹ️ Jika email diubah, warga perlu menggunakan email baru untuk login
+          </Text>
+        </View>
+        <Button
+          title={saving ? "Menyimpan..." : "Simpan Perubahan"}
+          onPress={handleSimpan}
+          disabled={saving}
+          style={styles.saveButtonTab}
+        />
+      </View>
+    </View>
+  );
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "personal":
+        return renderPersonalTab();
+      case "contact":
+        return renderContactTab();
+      case "account":
+        return renderAccountTab();
+      default:
+        return renderPersonalTab();
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
@@ -149,11 +252,42 @@ export default function EditWarga() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={styles.backButtonText}>← Batal</Text>
+            <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Edit Data Warga</Text>
         </View>
 
+        {/* Profile Preview Section */}
+        <View style={styles.profilePreview}>
+          <View style={styles.profileCard}>
+            <View style={styles.profileIconContainer}>
+              <Text style={styles.profileIcon}>👤</Text>
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>{formData.namaWarga || "Nama Warga"}</Text>
+              <Text style={styles.profileEmail}>{formData.email || "email@domain.com"}</Text>
+              <Text style={styles.profilePhone}>{formData.noHpWarga || "No HP"}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Warning Box */}
+        <View style={styles.warningContainer}>
+          <View style={styles.warningBox}>
+            <Text style={styles.warningText}>
+              ⚠️ Perubahan data akan mempengaruhi akun login warga
+            </Text>
+          </View>
+        </View>
+
+        {/* Tab Navigation */}
+        <View style={styles.tabContainer}>
+          {renderTabButton("personal", "Personal", "👤")}
+          {renderTabButton("contact", "Kontak", "📍")}
+          {renderTabButton("account", "Akun", "🔐")}
+        </View>
+
+        {/* Tab Content */}
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
@@ -162,78 +296,7 @@ export default function EditWarga() {
             { paddingBottom: insets.bottom + 32 },
           ]}
         >
-          <View style={styles.content}>
-            <View style={styles.warningBox}>
-              <Text style={styles.warningText}>
-                ⚠️ Perubahan data akan mempengaruhi akun login warga
-              </Text>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Data Warga</Text>
-
-              <Input
-                label="Nama Warga"
-                placeholder="Masukkan nama lengkap warga"
-                value={formData.namaWarga}
-                onChangeText={(value) => updateForm("namaWarga", value)}
-                autoCapitalize="words"
-              />
-            </View>
-
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Informasi Kontak</Text>
-
-              <Input
-                label="Alamat"
-                placeholder="Masukkan alamat lengkap"
-                value={formData.alamat}
-                onChangeText={(value) => updateForm("alamat", value)}
-                autoCapitalize="words"
-              />
-
-              <Input
-                label="No HP Warga"
-                placeholder="Masukkan nomor HP warga"
-                value={formData.noHpWarga}
-                onChangeText={(value) => updateForm("noHpWarga", value)}
-                keyboardType="phone-pad"
-              />
-
-              <Input
-                label="Email Warga"
-                placeholder="Masukkan email untuk login warga"
-                value={formData.email}
-                onChangeText={(value) => updateForm("email", value)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-
-              <View style={styles.infoBox}>
-                <Text style={styles.infoText}>
-                  ℹ️ Jika email diubah, warga perlu menggunakan email baru
-                  untuk login
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.buttonSection}>
-              <Button
-                title="Batal"
-                onPress={() => router.back()}
-                variant="outline"
-                style={styles.cancelButton}
-                disabled={saving}
-              />
-
-              <Button
-                title={saving ? "Menyimpan..." : "Simpan Perubahan"}
-                onPress={handleSimpan}
-                disabled={saving}
-                style={styles.saveButton}
-              />
-            </View>
-          </View>
+          {renderTabContent()}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -243,7 +306,7 @@ export default function EditWarga() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
   },
   keyboardContainer: {
     flex: 1,
@@ -252,8 +315,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    borderBottomColor: "#cbd5e1",
+    backgroundColor: "#002245",
   },
   backButton: {
     alignSelf: "flex-start",
@@ -261,13 +324,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: "#ffffff",
     fontWeight: "500",
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1e293b",
+    color: "#ffffff",
     textAlign: "center",
   },
   loadingContainer: {
@@ -275,21 +338,66 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
+  
+  // Profile Preview Styles
+  profilePreview: {
+    backgroundColor: "#ffffff",
     paddingHorizontal: 24,
-    paddingVertical: 24,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
   },
-  content: {
+  profileCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#002245",
+  },
+  profileIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#002245",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  profileIcon: {
+    fontSize: 24,
+    color: "#ffffff",
+  },
+  profileInfo: {
     flex: 1,
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#002245",
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+    color: "#64748b",
+    marginBottom: 2,
+  },
+  profilePhone: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+
+  // Warning Box Styles
+  warningContainer: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: "#ffffff",
   },
   warningBox: {
     backgroundColor: "#fef3c7",
     padding: 12,
     borderRadius: 8,
-    marginBottom: 24,
     borderWidth: 1,
     borderColor: "#f59e0b",
   },
@@ -299,41 +407,96 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: "center",
   },
-  section: {
-    marginBottom: 32,
+
+  // Tab Navigation Styles
+  tabContainer: {
+    flexDirection: "row",
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
   },
-  sectionTitle: {
+  tabButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    alignItems: "center",
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  activeTab: {
+    backgroundColor: "#002245",
+  },
+  tabIcon: {
     fontSize: 18,
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 2,
-    borderBottomColor: "#3b82f6",
+    marginBottom: 4,
   },
+  tabText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#64748b",
+  },
+  activeTabText: {
+    color: "#ffffff",
+  },
+
+  // Tab Content Styles
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#f1f5f9",
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingVertical: 24,
+  },
+  tabContent: {
+    flex: 1,
+  },
+  card: {
+    backgroundColor: "#ffffff",
+    padding: 24,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#002245",
+    marginBottom: 20,
+    paddingBottom: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: "#002245",
+  },
+
+  // Info Box Styles
   infoBox: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: "#e0f2fe",
     padding: 12,
     borderRadius: 8,
-    marginTop: 8,
+    marginTop: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#0284c7",
   },
   infoText: {
     fontSize: 14,
-    color: "#1e40af",
+    color: "#0369a1",
     lineHeight: 20,
   },
-  buttonSection: {
-    flexDirection: "row",
-    gap: 12,
+
+  // Button Styles
+  saveButtonTab: {
+    backgroundColor: "#002245",
     marginTop: 16,
-    marginBottom: 32,
-  },
-  cancelButton: {
-    flex: 1,
-    borderColor: "#64748b",
-  },
-  saveButton: {
-    flex: 1,
-    backgroundColor: "#10b981",
   },
 });

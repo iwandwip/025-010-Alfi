@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signInWithEmail } from "../../services/authService";
+import { lightTheme } from "../../constants/Colors";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -55,17 +56,20 @@ export default function AdminLogin() {
         </View>
 
         <View style={styles.content}>
-          <View style={styles.titleSection}>
-            <Text style={styles.title}>Masuk Bendahara</Text>
-            <Text style={styles.subtitle}>
-              Masuk sebagai Bendahara Sistem Jimpitan Warga
-            </Text>
+          {/* Logo Section */}
+          <View style={styles.logoSection}>
+            <View style={styles.logo}>
+              <Text style={styles.logoIcon}>👨‍💼</Text>
+            </View>
+            <Text style={styles.logoTitle}>Portal Bendahara</Text>
+            <Text style={styles.logoSubtitle}>Masuk ke sistem jimpitan</Text>
           </View>
 
-          <View style={styles.formSection}>
+          {/* Login Form */}
+          <View style={styles.formContainer}>
             <Input
               label="Email"
-              placeholder="Masukkan email admin"
+              placeholder="bendahara@gmail.com"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -88,8 +92,9 @@ export default function AdminLogin() {
             />
           </View>
 
+          {/* Register Link */}
           <View style={styles.registerSection}>
-            <Text style={styles.registerText}>Belum memiliki akun admin?</Text>
+            <Text style={styles.registerText}>Belum memiliki akun?</Text>
             <Link href="/(auth)/admin-register" style={styles.registerLink}>
               Daftar Sekarang
             </Link>
@@ -117,34 +122,52 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: lightTheme.secondary,
     fontWeight: "500",
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
     justifyContent: "center",
   },
-  titleSection: {
+  logoSection: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 60,
   },
-  title: {
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: lightTheme.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    shadowColor: lightTheme.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  logoIcon: {
+    fontSize: 32,
+  },
+  logoTitle: {
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#1e293b",
+    fontWeight: "700",
+    color: lightTheme.primary,
     marginBottom: 8,
   },
-  subtitle: {
+  logoSubtitle: {
     fontSize: 16,
-    color: "#64748b",
-    textAlign: "center",
-    lineHeight: 24,
+    color: lightTheme.gray500,
+    fontWeight: "400",
   },
-  formSection: {
-    marginBottom: 32,
+  formContainer: {
+    gap: 20,
+    marginBottom: 40,
   },
   loginButton: {
+    backgroundColor: lightTheme.primary,
     marginTop: 8,
   },
   registerSection: {
@@ -152,12 +175,12 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: "#64748b",
+    color: lightTheme.gray500,
     marginBottom: 8,
   },
   registerLink: {
     fontSize: 14,
-    color: "#3b82f6",
+    color: lightTheme.primary,
     fontWeight: "600",
   },
 });

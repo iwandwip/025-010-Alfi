@@ -400,124 +400,93 @@ function StatusPembayaran() {
       <View
         style={[
           styles.paymentCard,
-          { backgroundColor: colors.white, borderColor: colors.gray200 },
+          { backgroundColor: colors.white, borderLeftColor: colors.primary, borderLeftWidth: 4 },
         ]}
       >
-        <View style={styles.cardHeader}>
-          <View style={styles.periodInfo}>
-            <Text style={[styles.periodText, { color: colors.gray900 }]}>
-              {item.periodData.label}
-            </Text>
-            <Text style={[styles.periodNumber, { color: colors.gray500 }]}>
-              Periode {item.periodData.number}
+        {/* Modern Compact Header */}
+        <View style={styles.modernHeader}>
+          <View style={[styles.periodBadge, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.periodBadgeText, { color: colors.white }]}>
+              #{item.periodData.number}
             </Text>
           </View>
-
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getStatusColor(item.status) + "15" },
-            ]}
-          >
-            <Text style={styles.statusIcon}>{getStatusIcon(item.status)}</Text>
-            <Text
-              style={[
-                styles.statusText,
-                { color: getStatusColor(item.status) },
-              ]}
-            >
-              {getStatusLabel(item.status)}
+          <View style={styles.headerContent}>
+            <Text style={[styles.periodTitle, { color: colors.gray900 }]}>
+              {item.periodData.label}
+            </Text>
+            <Text style={[styles.amountDisplay, { color: colors.primary }]}>
+              {formatCurrency(item.amount || 0)}
+            </Text>
+          </View>
+          <View style={[styles.statusIndicator, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={[styles.statusIcon, { color: colors.white }]}>
+              {getStatusIcon(item.status)}
             </Text>
           </View>
         </View>
 
-        <View style={styles.cardContent}>
-          <View style={styles.infoRow}>
-            <Text style={[styles.labelText, { color: colors.gray600 }]}>
-              Nominal:
-            </Text>
-            <Text style={[styles.valueText, { color: colors.gray900 }]}>
-              {formatCurrency(item.amount || 0)}
-            </Text>
-          </View>
-
+        {/* Compact Info Grid */}
+        <View style={styles.infoGrid}>
           {(item.creditApplied || 0) > 0 && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.green }]}>
-                💰 Credit Applied:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.green }]}>
+            <View style={styles.infoChip}>
+              <Text style={[styles.chipLabel, { color: colors.success }]}>Credit</Text>
+              <Text style={[styles.chipValue, { color: colors.success }]}>
                 -{formatCurrency(item.creditApplied || 0)}
               </Text>
             </View>
           )}
 
           {(item.remainingAmount || 0) > 0 && (item.remainingAmount || 0) < (item.amount || 0) && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.primary }]}>
-                Sisa Bayar:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.primary }]}>
+            <View style={styles.infoChip}>
+              <Text style={[styles.chipLabel, { color: colors.warning }]}>Sisa</Text>
+              <Text style={[styles.chipValue, { color: colors.warning }]}>
                 {formatCurrency(item.remainingAmount || 0)}
               </Text>
             </View>
           )}
 
           {item.paymentDate && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Tanggal Bayar:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray900 }]}>
+            <View style={styles.infoChip}>
+              <Text style={[styles.chipLabel, { color: colors.gray600 }]}>Dibayar</Text>
+              <Text style={[styles.chipValue, { color: colors.gray800 }]}>
                 {formatDate(item.paymentDate)}
               </Text>
             </View>
           )}
 
           {item.paymentMethod && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Metode:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray900 }]}>
+            <View style={styles.infoChip}>
+              <Text style={[styles.chipLabel, { color: colors.gray600 }]}>Metode</Text>
+              <Text style={[styles.chipValue, { color: colors.gray800 }]}>
                 {item.paymentMethod === "tunai" ? "Tunai" : "Online"}
-              </Text>
-            </View>
-          )}
-
-          {item.notes && (
-            <View style={styles.infoRow}>
-              <Text style={[styles.labelText, { color: colors.gray600 }]}>
-                Catatan:
-              </Text>
-              <Text style={[styles.valueText, { color: colors.gray700 }]}>
-                {item.notes}
               </Text>
             </View>
           )}
         </View>
 
-        {item.status === "belum_bayar" && (
+        {(item.status === "belum_bayar" || item.status === "terlambat") && (
           <TouchableOpacity
-            style={[styles.payButton, { backgroundColor: colors.primary }]}
+            style={[
+              styles.compactPayButton, 
+              { 
+                backgroundColor: item.status === "terlambat" ? colors.warning : colors.primary 
+              }
+            ]}
             onPress={() => handlePayNow(item)}
             disabled={updatingPayment}
           >
-            <Text style={[styles.payButtonText, { color: colors.white }]}>
-              💳 Bayar Sekarang
-            </Text>
-          </TouchableOpacity>
-        )}
-
-        {item.status === "terlambat" && (
-          <TouchableOpacity
-            style={[styles.payButton, { backgroundColor: colors.warning }]}
-            onPress={() => handlePayNow(item)}
-            disabled={updatingPayment}
-          >
-            <Text style={[styles.payButtonText, { color: colors.white }]}>
-              ⚡ Bayar Segera
-            </Text>
+            {updatingPayment ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : (
+              <View style={styles.payButtonContent}>
+                <Text style={[styles.payButtonIcon, { color: colors.white }]}>
+                  {item.status === "terlambat" ? "⚡" : "💳"}
+                </Text>
+                <Text style={[styles.payButtonLabel, { color: colors.white }]}>
+                  Bayar {formatCurrency((item.remainingAmount || item.amount) || 0)}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         )}
       </View>
@@ -839,6 +808,42 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 12,
   },
+  modernHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 12,
+  },
+  periodBadge: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  periodBadgeText: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  headerContent: {
+    flex: 1,
+  },
+  periodTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  amountDisplay: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  statusIndicator: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   periodInfo: {
     flex: 1,
   },
@@ -868,6 +873,50 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     marginBottom: 12,
+  },
+  infoGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 12,
+  },
+  infoChip: {
+    backgroundColor: "#f8fafc",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    alignItems: "center",
+    minWidth: 80,
+  },
+  chipLabel: {
+    fontSize: 11,
+    fontWeight: "500",
+    marginBottom: 2,
+  },
+  chipValue: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  compactPayButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    marginTop: 8,
+  },
+  payButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  payButtonIcon: {
+    fontSize: 16,
+  },
+  payButtonLabel: {
+    fontSize: 14,
+    fontWeight: "600",
   },
   infoRow: {
     flexDirection: "row",

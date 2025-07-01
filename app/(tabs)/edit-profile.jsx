@@ -10,6 +10,7 @@ import {
   Platform,
   ActivityIndicator,
   SafeAreaView,
+  Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,14 +26,33 @@ export default function EditProfile() {
   const { theme, loading: settingsLoading } = useSettings();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const colors = getThemeByRole(isAdmin);
+  
+  // Use consistent blue theme
+  const blueTheme = {
+    primary: '#002245',
+    primaryLight: '#003366',
+    secondary: '#0066CC',
+    background: '#F8FAFC',
+    white: '#FFFFFF',
+    gray100: '#F1F5F9',
+    gray200: '#E2E8F0',
+    gray300: '#CBD5E1',
+    gray400: '#94A3B8',
+    gray600: '#475569',
+    gray700: '#334155',
+    gray900: '#0F172A',
+    success: '#10B981',
+    error: '#EF4444',
+  };
 
   const [loading, setLoading] = useState(false);
+  const [editingSection, setEditingSection] = useState(null);
   const [formData, setFormData] = useState({
     alamat: userProfile?.alamat || "",
     noHpWarga: userProfile?.noHpWarga || "",
     namaWarga: userProfile?.namaWarga || "",
   });
+  const [tempData, setTempData] = useState({});
   const [errors, setErrors] = useState({});
 
   const updateFormData = (field, value) => {
@@ -42,44 +62,62 @@ export default function EditProfile() {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.alamat.trim()) {
-      newErrors.alamat = "Alamat wajib diisi";
+  const updateTempData = (field, value) => {
+    setTempData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: null }));
     }
-
-    if (!formData.noHpWarga.trim()) {
-      newErrors.noHpWarga = "No HP warga wajib diisi";
-    }
-
-    if (!formData.namaWarga.trim()) {
-      newErrors.namaWarga = "Nama warga wajib diisi";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = async () => {
-    if (!validateForm()) return;
+  const startEditing = (section, fields) => {
+    setEditingSection(section);
+    const temp = {};
+    fields.forEach(field => {
+      temp[field] = formData[field];
+    });
+    setTempData(temp);
+    setErrors({});
+  };
+
+  const cancelEditing = () => {
+    setEditingSection(null);
+    setTempData({});
+    setErrors({});
+  };
+
+  const saveSection = async (section, fields) => {
+    // Validate the specific fields
+    const newErrors = {};
+    fields.forEach(field => {
+      if (!tempData[field]?.trim()) {
+        const fieldNames = {
+          namaWarga: 'Nama warga',
+          alamat: 'Alamat',
+          noHpWarga: 'No HP warga'
+        };
+        newErrors[field] = `${fieldNames[field]} wajib diisi`;
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     setLoading(true);
-
     try {
-      const result = await updateUserProfile(userProfile.id, formData);
+      const updatedData = { ...formData, ...tempData };
+      const result = await updateUserProfile(userProfile.id, updatedData);
 
       if (result.success) {
+        setFormData(updatedData);
         await refreshProfile();
+        setEditingSection(null);
+        setTempData({});
         Alert.alert(
-          "Profil Berhasil Diperbarui",
-          "Perubahan profil telah disimpan!",
-          [
-            {
-              text: "OK",
-              onPress: () => router.back(),
-            },
-          ]
+          "Berhasil Diperbarui",
+          "Perubahan telah disimpan!",
+          [{ text: "OK" }]
         );
       } else {
         Alert.alert("Gagal Memperbarui", result.error);
@@ -87,8 +125,105 @@ export default function EditProfile() {
     } catch (error) {
       Alert.alert("Gagal Memperbarui", "Terjadi kesalahan. Silakan coba lagi.");
     }
-
     setLoading(false);
+  };
+
+  const ProfilePhotoSection = () => (
+    <View style={[styles.profileSection, { backgroundColor: blueTheme.white }]}>
+      <View style={styles.profilePhotoContainer}>
+        <View style={[styles.profilePhoto, { backgroundColor: blueTheme.primary }]}>
+          <Text style={[styles.profilePhotoText, { color: blueTheme.white }]}>
+            {formData.namaWarga?.charAt(0) || userProfile?.email?.charAt(0) || '?'}
+          </Text>
+        </View>
+        <View style={styles.profileInfo}>
+          <Text style={[styles.profileName, { color: blueTheme.gray900 }]}>
+            {formData.namaWarga || 'Nama belum diatur'}
+          </Text>
+          <Text style={[styles.profileEmail, { color: blueTheme.gray600 }]}>
+            {userProfile?.email}
+          </Text>
+        </View>
+        <TouchableOpacity style={[styles.editPhotoButton, { backgroundColor: blueTheme.gray100 }]}>
+          <Text style={[styles.editPhotoText, { color: blueTheme.primary }]}>
+            Edit Foto
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const EditableSection = ({ title, fields, sectionKey, icon }) => {
+    const isEditing = editingSection === sectionKey;
+    
+    return (
+      <View style={[styles.editableSection, { backgroundColor: blueTheme.white }]}>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionTitleContainer}>
+            <Text style={styles.sectionIcon}>{icon}</Text>
+            <Text style={[styles.sectionTitle, { color: blueTheme.gray900 }]}>
+              {title}
+            </Text>
+          </View>
+          {!isEditing && (
+            <TouchableOpacity
+              style={[styles.editButton, { backgroundColor: blueTheme.primary }]}
+              onPress={() => startEditing(sectionKey, Object.keys(fields))}
+            >
+              <Text style={[styles.editButtonText, { color: blueTheme.white }]}>
+                Edit
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {!isEditing ? (
+          <View style={styles.previewContainer}>
+            {Object.entries(fields).map(([key, label]) => (
+              <View key={key} style={styles.previewItem}>
+                <Text style={[styles.previewLabel, { color: blueTheme.gray600 }]}>
+                  {label}
+                </Text>
+                <Text style={[styles.previewValue, { color: blueTheme.gray900 }]}>
+                  {formData[key] || 'Belum diatur'}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={styles.editContainer}>
+            {Object.entries(fields).map(([key, label]) => (
+              <Input
+                key={key}
+                label={label}
+                placeholder={`Masukkan ${label.toLowerCase()}`}
+                value={tempData[key] || ''}
+                onChangeText={(value) => updateTempData(key, value)}
+                autoCapitalize={key === 'alamat' || key === 'namaWarga' ? 'words' : 'none'}
+                keyboardType={key === 'noHpWarga' ? 'phone-pad' : 'default'}
+                error={errors[key]}
+              />
+            ))}
+            
+            <View style={styles.editActions}>
+              <Button
+                title="Batal"
+                onPress={cancelEditing}
+                variant="outline"
+                style={[styles.cancelButton, { borderColor: blueTheme.gray400 }]}
+                disabled={loading}
+              />
+              <Button
+                title={loading ? "Menyimpan..." : "Simpan"}
+                onPress={() => saveSection(sectionKey, Object.keys(fields))}
+                style={[styles.saveButton, { backgroundColor: blueTheme.primary }]}
+                disabled={loading}
+              />
+            </View>
+          </View>
+        )}
+      </View>
+    );
   };
 
   if (settingsLoading) {
@@ -96,15 +231,15 @@ export default function EditProfile() {
       <SafeAreaView
         style={[
           styles.container,
-          { paddingTop: insets.top, backgroundColor: colors.background },
+          { paddingTop: insets.top, backgroundColor: blueTheme.background },
         ]}
       >
         <View
           style={[
             styles.header,
             {
-              backgroundColor: colors.white,
-              borderBottomColor: colors.gray200,
+              backgroundColor: blueTheme.white,
+              borderBottomColor: blueTheme.gray200,
             },
           ]}
         >
@@ -112,17 +247,17 @@ export default function EditProfile() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={[styles.backButtonText, { color: colors.primary }]}>
+            <Text style={[styles.backButtonText, { color: blueTheme.primary }]}>
               ← Kembali
             </Text>
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
+          <Text style={[styles.headerTitle, { color: blueTheme.gray900 }]}>
             Edit Profil
           </Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
+          <ActivityIndicator size="large" color={blueTheme.primary} />
+          <Text style={[styles.loadingText, { color: blueTheme.gray600 }]}>
             Memuat profil...
           </Text>
         </View>
@@ -134,7 +269,7 @@ export default function EditProfile() {
     <SafeAreaView
       style={[
         styles.container,
-        { paddingTop: insets.top, backgroundColor: colors.background },
+        { paddingTop: insets.top, backgroundColor: blueTheme.background },
       ]}
     >
       <KeyboardAvoidingView
@@ -145,8 +280,8 @@ export default function EditProfile() {
           style={[
             styles.header,
             {
-              backgroundColor: colors.white,
-              borderBottomColor: colors.gray200,
+              backgroundColor: blueTheme.white,
+              borderBottomColor: blueTheme.gray200,
             },
           ]}
         >
@@ -154,11 +289,11 @@ export default function EditProfile() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={[styles.backButtonText, { color: colors.primary }]}>
+            <Text style={[styles.backButtonText, { color: blueTheme.primary }]}>
               ← Kembali
             </Text>
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
+          <Text style={[styles.headerTitle, { color: blueTheme.gray900 }]}>
             Edit Profil
           </Text>
         </View>
@@ -171,82 +306,36 @@ export default function EditProfile() {
             { paddingBottom: insets.bottom + 32 },
           ]}
         >
-          <View style={styles.content}>
-            <View style={styles.section}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  { color: colors.gray900, borderBottomColor: colors.primary },
-                ]}
-              >
-                Informasi Warga
-              </Text>
+          <ProfilePhotoSection />
 
-              <Input
-                label="Alamat"
-                placeholder="Masukkan alamat warga"
-                value={formData.alamat}
-                onChangeText={(value) => updateFormData("alamat", value)}
-                autoCapitalize="words"
-                error={errors.alamat}
-              />
+          <EditableSection
+            title="Informasi Pribadi"
+            fields={{ namaWarga: 'Nama Warga' }}
+            sectionKey="personal"
+            icon="👤"
+          />
 
-              <Input
-                label="No HP Warga"
-                placeholder="Masukkan nomor HP warga"
-                value={formData.noHpWarga}
-                onChangeText={(value) => updateFormData("noHpWarga", value)}
-                keyboardType="phone-pad"
-                error={errors.noHpWarga}
-              />
-            </View>
+          <EditableSection
+            title="Informasi Kontak"
+            fields={{ 
+              alamat: 'Alamat',
+              noHpWarga: 'No HP Warga'
+            }}
+            sectionKey="contact"
+            icon="📞"
+          />
 
-            <View style={styles.section}>
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  { color: colors.gray900, borderBottomColor: colors.primary },
-                ]}
-              >
-                Informasi Warga
-              </Text>
-
-              <Input
-                label="Nama Warga"
-                placeholder="Masukkan nama lengkap warga"
-                value={formData.namaWarga}
-                onChangeText={(value) => updateFormData("namaWarga", value)}
-                autoCapitalize="words"
-                error={errors.namaWarga}
-              />
-
-              <View
-                style={[
-                  styles.infoBox,
-                  { backgroundColor: colors.primary + "20" },
-                ]}
-              >
-                <Text style={[styles.infoText, { color: colors.primary }]}>
-                  ℹ️ RFID warga hanya dapat diatur oleh bendahara
+          <View style={[styles.infoSection, { backgroundColor: blueTheme.white }]}>
+            <View style={[styles.infoBox, { backgroundColor: blueTheme.primary + '20' }]}>
+              <Text style={styles.infoIcon}>🔒</Text>
+              <View style={styles.infoContent}>
+                <Text style={[styles.infoTitle, { color: blueTheme.primary }]}>
+                  Informasi RFID
+                </Text>
+                <Text style={[styles.infoText, { color: blueTheme.gray600 }]}>
+                  RFID warga hanya dapat diatur oleh bendahara melalui sistem pairing
                 </Text>
               </View>
-            </View>
-
-            <View style={styles.buttonSection}>
-              <Button
-                title="Batal"
-                onPress={() => router.back()}
-                variant="outline"
-                style={[styles.cancelButton, { borderColor: colors.gray400 }]}
-                disabled={loading}
-              />
-
-              <Button
-                title={loading ? "Menyimpan..." : "Simpan Perubahan"}
-                onPress={handleSave}
-                disabled={loading}
-                style={[styles.saveButton, { backgroundColor: colors.success }]}
-              />
             </View>
           </View>
         </ScrollView>
@@ -266,6 +355,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -295,41 +389,169 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
+    paddingVertical: 16,
+    gap: 16,
   },
-  content: {
+  
+  // Profile Photo Section
+  profileSection: {
+    marginHorizontal: 16,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  profilePhotoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profilePhoto: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  profilePhotoText: {
+    fontSize: 24,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  profileInfo: {
     flex: 1,
   },
-  section: {
-    marginBottom: 32,
+  profileName: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  profileEmail: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+  editPhotoButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  editPhotoText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+
+  // Editable Sections
+  editableSection: {
+    marginHorizontal: 16,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  sectionIcon: {
+    fontSize: 20,
+    marginRight: 12,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 2,
+    fontWeight: '600',
   },
-  infoBox: {
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 8,
+  editButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
-  infoText: {
+  editButtonText: {
     fontSize: 14,
-    lineHeight: 20,
+    fontWeight: '500',
   },
-  buttonSection: {
-    flexDirection: "row",
+
+  // Preview Container
+  previewContainer: {
+    gap: 12,
+  },
+  previewItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    paddingBottom: 12,
+  },
+  previewLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  previewValue: {
+    fontSize: 16,
+    fontWeight: '400',
+  },
+
+  // Edit Container
+  editContainer: {
+    gap: 12,
+  },
+  editActions: {
+    flexDirection: 'row',
     gap: 12,
     marginTop: 16,
-    marginBottom: 32,
   },
   cancelButton: {
     flex: 1,
   },
   saveButton: {
     flex: 1,
+  },
+
+  // Info Section
+  infoSection: {
+    marginHorizontal: 16,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  infoBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: 16,
+    borderRadius: 12,
+  },
+  infoIcon: {
+    fontSize: 20,
+    marginRight: 12,
+    marginTop: 2,
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  infoText: {
+    fontSize: 14,
+    lineHeight: 20,
   },
 });

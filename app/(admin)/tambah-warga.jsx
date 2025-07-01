@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
@@ -27,10 +28,17 @@ export default function TambahWarga() {
     noHpWarga: "",
   });
   const [loading, setLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userProfile } = useAuth();
   const colors = getThemeByRole(true); // Admin theme
+
+  const steps = [
+    { id: 1, title: "Info Personal", icon: "👤", description: "Data identitas warga" },
+    { id: 2, title: "Kontak", icon: "📞", description: "Informasi kontak" },
+    { id: 3, title: "Akun Login", icon: "🔐", description: "Kredensial akses" },
+  ];
 
   const updateForm = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -108,95 +116,294 @@ export default function TambahWarga() {
     setLoading(false);
   };
 
+  const renderStepIndicator = () => (
+    <View style={styles.stepIndicatorContainer}>
+      {steps.map((step, index) => (
+        <View key={step.id} style={styles.stepItem}>
+          <View style={styles.stepConnection}>
+            {index > 0 && (
+              <View style={[
+                styles.connectionLine,
+                { backgroundColor: currentStep > step.id ? '#002245' : '#e2e8f0' }
+              ]} />
+            )}
+          </View>
+          <View style={[
+            styles.stepCircle,
+            {
+              backgroundColor: currentStep >= step.id ? '#002245' : '#f1f5f9',
+              borderColor: currentStep >= step.id ? '#002245' : '#cbd5e1'
+            }
+          ]}>
+            <Text style={[
+              styles.stepIcon,
+              { color: currentStep >= step.id ? '#fff' : '#64748b' }
+            ]}>
+              {step.icon}
+            </Text>
+          </View>
+          <View style={styles.stepInfo}>
+            <Text style={[
+              styles.stepTitle,
+              { color: currentStep >= step.id ? '#002245' : '#64748b' }
+            ]}>
+              {step.title}
+            </Text>
+            <Text style={styles.stepDescription}>{step.description}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <View style={styles.stepContent}>
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardIcon}>👤</Text>
+                <View style={styles.cardTitleContainer}>
+                  <Text style={styles.cardTitle}>Informasi Personal</Text>
+                  <Text style={styles.cardSubtitle}>Masukkan data identitas warga</Text>
+                </View>
+              </View>
+              <View style={styles.cardContent}>
+                <Input
+                  label="Nama Lengkap Warga"
+                  placeholder="Contoh: Budi Santoso"
+                  value={formData.namaWarga}
+                  onChangeText={(value) => updateForm("namaWarga", value)}
+                  autoCapitalize="words"
+                />
+                <View style={styles.helpText}>
+                  <Text style={styles.helpTextContent}>
+                    💡 Gunakan nama lengkap sesuai KTP untuk kemudahan identifikasi
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        );
+      case 2:
+        return (
+          <View style={styles.stepContent}>
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardIcon}>📍</Text>
+                <View style={styles.cardTitleContainer}>
+                  <Text style={styles.cardTitle}>Alamat Tempat Tinggal</Text>
+                  <Text style={styles.cardSubtitle}>Lokasi domisili warga</Text>
+                </View>
+              </View>
+              <View style={styles.cardContent}>
+                <Input
+                  label="Alamat Lengkap"
+                  placeholder="Jl. Contoh No. 123, RT/RW 01/02, Kelurahan..."
+                  value={formData.alamat}
+                  onChangeText={(value) => updateForm("alamat", value)}
+                  autoCapitalize="words"
+                  multiline={true}
+                  numberOfLines={3}
+                />
+              </View>
+            </View>
+
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardIcon}>📞</Text>
+                <View style={styles.cardTitleContainer}>
+                  <Text style={styles.cardTitle}>Nomor Kontak</Text>
+                  <Text style={styles.cardSubtitle}>Informasi komunikasi</Text>
+                </View>
+              </View>
+              <View style={styles.cardContent}>
+                <Input
+                  label="Nomor HP/WhatsApp"
+                  placeholder="08123456789"
+                  value={formData.noHpWarga}
+                  onChangeText={(value) => updateForm("noHpWarga", value)}
+                  keyboardType="phone-pad"
+                />
+                <View style={styles.helpText}>
+                  <Text style={styles.helpTextContent}>
+                    💡 Pastikan nomor HP aktif untuk notifikasi pembayaran
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        );
+      case 3:
+        return (
+          <View style={styles.stepContent}>
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardIcon}>🔐</Text>
+                <View style={styles.cardTitleContainer}>
+                  <Text style={styles.cardTitle}>Akun Login</Text>
+                  <Text style={styles.cardSubtitle}>Kredensial untuk akses aplikasi</Text>
+                </View>
+              </View>
+              <View style={styles.cardContent}>
+                <Input
+                  label="Email Login"
+                  placeholder="warga@email.com"
+                  value={formData.emailWarga}
+                  onChangeText={(value) => updateForm("emailWarga", value)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <Input
+                  label="Password"
+                  placeholder="Minimal 6 karakter"
+                  value={formData.passwordWarga}
+                  onChangeText={(value) => updateForm("passwordWarga", value)}
+                  secureTextEntry
+                />
+                <View style={styles.helpText}>
+                  <Text style={styles.helpTextContent}>
+                    🔒 Password akan digunakan warga untuk login ke aplikasi
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.importantNote}>
+              <View style={styles.noteHeader}>
+                <Text style={styles.noteIcon}>ℹ️</Text>
+                <Text style={styles.noteTitle}>Informasi Penting</Text>
+              </View>
+              <Text style={styles.noteContent}>
+                RFID warga akan diatur setelah data tersimpan melalui menu Daftar Warga. 
+                Pastikan semua data sudah benar sebelum menyimpan.
+              </Text>
+            </View>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const nextStep = () => {
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1:
+        return formData.namaWarga.trim() !== "";
+      case 2:
+        return formData.alamat.trim() !== "" && formData.noHpWarga.trim() !== "";
+      case 3:
+        return formData.emailWarga.trim() !== "" && formData.passwordWarga.trim() !== "";
+      default:
+        return false;
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardContainer}
       >
-        <View style={styles.header}>
+        {/* Modern Header */}
+        <LinearGradient
+          colors={['#002245', '#003366']}
+          style={styles.header}
+        >
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={[styles.backButtonText, { color: colors.primary }]}>← Kembali</Text>
+            <Text style={styles.backButtonText}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Tambah Data Warga</Text>
-        </View>
+          <View style={styles.headerContent}>
+            <Text style={styles.headerTitle}>Tambah Data Warga</Text>
+            <Text style={styles.headerSubtitle}>
+              Langkah {currentStep} dari {steps.length}
+            </Text>
+          </View>
+        </LinearGradient>
+
+        {/* Step Indicator */}
+        {renderStepIndicator()}
 
         <ScrollView
           style={styles.scrollView}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: insets.bottom + 32 },
+            { paddingBottom: insets.bottom + 100 },
           ]}
         >
-          <View style={styles.content}>
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { borderBottomColor: colors.primary }]}>Data Warga</Text>
-
-              <Input
-                label="Nama Warga"
-                placeholder="Masukkan nama lengkap warga"
-                value={formData.namaWarga}
-                onChangeText={(value) => updateForm("namaWarga", value)}
-                autoCapitalize="words"
-              />
-
-              <View style={[styles.infoBox, { backgroundColor: colors.accent }]}>
-                <Text style={[styles.infoText, { color: colors.primaryDark }]}>
-                  ℹ️ RFID warga akan diatur setelah data tersimpan melalui menu
-                  Daftar Warga
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { borderBottomColor: colors.primary }]}>Data Warga</Text>
-
-              <Input
-                label="Alamat"
-                placeholder="Masukkan alamat warga"
-                value={formData.alamat}
-                onChangeText={(value) => updateForm("alamat", value)}
-                autoCapitalize="words"
-              />
-
-              <Input
-                label="No HP Warga"
-                placeholder="Masukkan nomor HP warga"
-                value={formData.noHpWarga}
-                onChangeText={(value) => updateForm("noHpWarga", value)}
-                keyboardType="phone-pad"
-              />
-
-              <Input
-                label="Email Warga"
-                placeholder="Masukkan email untuk login warga"
-                value={formData.emailWarga}
-                onChangeText={(value) => updateForm("emailWarga", value)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-
-              <Input
-                label="Password Warga"
-                placeholder="Buat password untuk warga (min. 6 karakter)"
-                value={formData.passwordWarga}
-                onChangeText={(value) => updateForm("passwordWarga", value)}
-                secureTextEntry
-              />
-            </View>
-
-            <Button
-              title={loading ? "Sedang Menyimpan..." : "Simpan Data"}
-              onPress={handleSimpan}
-              disabled={loading}
-              style={styles.simpanButton}
-            />
-          </View>
+          {renderStepContent()}
         </ScrollView>
+
+        {/* Navigation Footer */}
+        <View style={[styles.footer, { paddingBottom: insets.bottom }]}>
+          <View style={styles.footerButtons}>
+            {currentStep > 1 && (
+              <TouchableOpacity
+                style={styles.prevButton}
+                onPress={prevStep}
+              >
+                <Text style={styles.prevButtonText}>← Sebelumnya</Text>
+              </TouchableOpacity>
+            )}
+            
+            <View style={styles.footerMainButton}>
+              {currentStep < 3 ? (
+                <TouchableOpacity
+                  style={[
+                    styles.nextButton,
+                    !canProceed() && styles.nextButtonDisabled
+                  ]}
+                  onPress={nextStep}
+                  disabled={!canProceed()}
+                >
+                  <LinearGradient
+                    colors={canProceed() ? ['#002245', '#003366'] : ['#94a3b8', '#64748b']}
+                    style={styles.nextButtonGradient}
+                  >
+                    <Text style={styles.nextButtonText}>
+                      Lanjutkan →
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={[
+                    styles.submitButton,
+                    (!canProceed() || loading) && styles.submitButtonDisabled
+                  ]}
+                  onPress={handleSimpan}
+                  disabled={!canProceed() || loading}
+                >
+                  <LinearGradient
+                    colors={canProceed() && !loading ? ['#16a34a', '#22c55e'] : ['#94a3b8', '#64748b']}
+                    style={styles.submitButtonGradient}
+                  >
+                    <Text style={styles.submitButtonText}>
+                      {loading ? "Menyimpan..." : "✓ Simpan Data"}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -210,27 +417,91 @@ const styles = StyleSheet.create({
   keyboardContainer: {
     flex: 1,
   },
+  
+  // Modern Header Styles
   header: {
     paddingHorizontal: 24,
-    paddingVertical: 16,
+    paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
+    borderBottomColor: "rgba(255,255,255,0.1)",
   },
   backButton: {
     alignSelf: "flex-start",
-    marginBottom: 8,
+    marginBottom: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   backButtonText: {
     fontSize: 16,
     fontWeight: "500",
+    color: "#ffffff",
+  },
+  headerContent: {
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1e293b",
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#ffffff",
     textAlign: "center",
   },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "rgba(255,255,255,0.8)",
+    marginTop: 4,
+  },
+
+  // Step Indicator Styles
+  stepIndicatorContainer: {
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+  },
+  stepItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  stepConnection: {
+    position: "absolute",
+    left: 20,
+    top: -16,
+    width: 2,
+    height: 16,
+  },
+  connectionLine: {
+    flex: 1,
+    width: 2,
+  },
+  stepCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+  },
+  stepIcon: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  stepInfo: {
+    flex: 1,
+  },
+  stepTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  stepDescription: {
+    fontSize: 13,
+    color: "#64748b",
+  },
+
+  // Content Styles
   scrollView: {
     flex: 1,
   },
@@ -238,31 +509,165 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 24,
   },
-  content: {
+  stepContent: {
     flex: 1,
   },
-  section: {
-    marginBottom: 32,
+  
+  // Card Styles
+  sectionCard: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#f1f5f9",
   },
-  sectionTitle: {
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f1f5f9",
+  },
+  cardIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  cardTitleContainer: {
+    flex: 1,
+  },
+  cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 2,
+    color: "#002245",
+    marginBottom: 2,
   },
-  infoBox: {
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  infoText: {
+  cardSubtitle: {
     fontSize: 14,
+    color: "#64748b",
+  },
+  cardContent: {
+    padding: 20,
+  },
+
+  // Help Text Styles
+  helpText: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: "#002245",
+  },
+  helpTextContent: {
+    fontSize: 14,
+    color: "#475569",
     lineHeight: 20,
   },
-  simpanButton: {
-    marginTop: 16,
-    marginBottom: 32,
+
+  // Important Note Styles
+  importantNote: {
+    backgroundColor: "#fef3c7",
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: "#f59e0b",
+  },
+  noteHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  noteIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  noteTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#92400e",
+  },
+  noteContent: {
+    fontSize: 14,
+    color: "#78350f",
+    lineHeight: 20,
+  },
+
+  // Footer Navigation Styles
+  footer: {
+    backgroundColor: "#ffffff",
+    borderTopWidth: 1,
+    borderTopColor: "#e2e8f0",
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+  },
+  footerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  prevButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    backgroundColor: "#f8fafc",
+  },
+  prevButtonText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#475569",
+  },
+  footerMainButton: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  
+  // Next Button Styles
+  nextButton: {
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  nextButtonDisabled: {
+    opacity: 0.6,
+  },
+  nextButtonGradient: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  nextButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#ffffff",
+  },
+  
+  // Submit Button Styles
+  submitButton: {
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+  submitButtonGradient: {
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#ffffff",
   },
 });

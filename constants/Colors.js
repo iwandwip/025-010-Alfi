@@ -1,7 +1,10 @@
-// Base theme colors
+// Base theme colors - Alfi Blue Theme
 export const lightTheme = {
-  primary: '#F50057',
-  secondary: '#00f59e',
+  primary: '#113b62',
+  primaryLight: '#1e4a73',
+  primaryDark: '#0d2a47',
+  secondary: '#2563eb',
+  accent: '#dbeafe',
   background: '#ffffff',
   white: '#ffffff',
   black: '#000000',
@@ -21,6 +24,7 @@ export const lightTheme = {
   success: '#10b981',
   warning: '#f59e0b',
   error: '#ef4444',
+  info: '#113b62',
   
   border: '#e5e7eb',
   
@@ -31,11 +35,11 @@ export const lightTheme = {
 
 // Admin theme (Blue)
 export const adminTheme = {
-  primary: '#2563eb',      // Blue 600
-  primaryLight: '#3b82f6', // Blue 500
-  primaryDark: '#1d4ed8',  // Blue 700
-  secondary: '#60a5fa',    // Blue 400
-  accent: '#dbeafe',       // Blue 100
+  primary: '#113b62',
+  primaryLight: '#1e4a73',
+  primaryDark: '#0d2a47',
+  secondary: '#2563eb',
+  accent: '#dbeafe',
   background: '#ffffff',
   white: '#ffffff',
   black: '#000000',
@@ -55,6 +59,7 @@ export const adminTheme = {
   success: '#10b981',
   warning: '#f59e0b',
   error: '#ef4444',
+  info: '#113b62',
   
   border: '#e5e7eb',
   
@@ -63,13 +68,13 @@ export const adminTheme = {
   },
 };
 
-// Warga theme (Green)
+// Warga theme (Blue)
 export const wargaTheme = {
-  primary: '#059669',      // Green 600
-  primaryLight: '#10b981', // Green 500
-  primaryDark: '#047857',  // Green 700
-  secondary: '#34d399',    // Green 400
-  accent: '#d1fae5',       // Green 100
+  primary: '#113b62',
+  primaryLight: '#1e4a73',
+  primaryDark: '#0d2a47',
+  secondary: '#2563eb',
+  accent: '#dbeafe',
   background: '#ffffff',
   white: '#ffffff',
   black: '#000000',
@@ -89,6 +94,7 @@ export const wargaTheme = {
   success: '#10b981',
   warning: '#f59e0b',
   error: '#ef4444',
+  info: '#113b62',
   
   border: '#e5e7eb',
   
@@ -98,8 +104,11 @@ export const wargaTheme = {
 };
 
 export const darkTheme = {
-  primary: '#F50057',
-  secondary: '#00f59e',
+  primary: '#113b62',
+  primaryLight: '#1e4a73',
+  primaryDark: '#0d2a47',
+  secondary: '#2563eb',
+  accent: '#dbeafe',
   background: '#111827',
   white: '#1f2937',
   black: '#ffffff',
@@ -119,6 +128,7 @@ export const darkTheme = {
   success: '#059669',
   warning: '#d97706',
   error: '#dc2626',
+  info: '#113b62',
   
   border: '#4b5563',
   
