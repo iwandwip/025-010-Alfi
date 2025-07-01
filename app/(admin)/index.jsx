@@ -819,7 +819,7 @@ function AdminHome() {
 
               <View style={styles.keuanganOptionsContainer}>
                 <TouchableOpacity
-                  style={[styles.keuanganOptionCard, { backgroundColor: colors.success + '15', borderColor: colors.success }]}
+                  style={[styles.keuanganOptionCard, { backgroundColor: '#f0fdfa', borderColor: colors.success }]}
                   onPress={handlePemasukan}
                   activeOpacity={0.8}
                 >
@@ -838,7 +838,7 @@ function AdminHome() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.keuanganOptionCard, { backgroundColor: colors.error + '15', borderColor: colors.error }]}
+                  style={[styles.keuanganOptionCard, { backgroundColor: '#fef2f2', borderColor: colors.error }]}
                   onPress={handlePengeluaran}
                   activeOpacity={0.8}
                 >
@@ -1081,6 +1081,11 @@ const styles = StyleSheet.create({
     margin: 20,
     width: "90%",
     maxWidth: 400,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
   },
   modalHeader: {
     flexDirection: "row",
@@ -1303,10 +1308,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
   },
   keuanganOptionIcon: {
     width: 60,
