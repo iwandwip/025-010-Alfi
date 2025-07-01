@@ -1,46 +1,46 @@
 import { Platform } from 'react-native';
 import { Colors } from './Colors';
 
-// Role-based color schemes - All using Alfi Blue #002245
+// Role-based color schemes - All using Alfi Blue #113b62
 export const RoleColors = {
   // Bendahara (Admin) - Alfi Blue Theme
   bendahara: {
-    primary: '#002245',
-    primaryDark: '#001122',
-    primaryLight: '#1e3a8a',
+    primary: '#113b62',
+    primaryDark: '#0d2a47',
+    primaryLight: '#1e4a73',
     primaryContainer: '#dbeafe',
     onPrimary: '#FFFFFF',
-    onPrimaryContainer: '#1e3a8a',
+    onPrimaryContainer: '#1e4a73',
   },
   
   // Admin - Alfi Blue Theme (same as bendahara)
   admin: {
-    primary: '#002245',
-    primaryDark: '#001122',
-    primaryLight: '#1e3a8a',
+    primary: '#113b62',
+    primaryDark: '#0d2a47',
+    primaryLight: '#1e4a73',
     primaryContainer: '#dbeafe',
     onPrimary: '#FFFFFF',
-    onPrimaryContainer: '#1e3a8a',
+    onPrimaryContainer: '#1e4a73',
   },
   
   // Warga (User) - Alfi Blue Theme
   user: {
-    primary: '#002245',
-    primaryDark: '#001122',
-    primaryLight: '#1e3a8a',
+    primary: '#113b62',
+    primaryDark: '#0d2a47',
+    primaryLight: '#1e4a73',
     primaryContainer: '#dbeafe',
     onPrimary: '#FFFFFF',
-    onPrimaryContainer: '#1e3a8a',
+    onPrimaryContainer: '#1e4a73',
   },
   
   // Default fallback - Alfi Blue Theme
   default: {
-    primary: '#002245',
-    primaryDark: '#001122',
-    primaryLight: '#1e3a8a',
+    primary: '#113b62',
+    primaryDark: '#0d2a47',
+    primaryLight: '#1e4a73',
     primaryContainer: '#dbeafe',
     onPrimary: '#FFFFFF',
-    onPrimaryContainer: '#1e3a8a',
+    onPrimaryContainer: '#1e4a73',
   },
 };
 

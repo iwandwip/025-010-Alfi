@@ -19,7 +19,7 @@ import { useSettings } from "../../contexts/SettingsContext";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { updateUserProfile } from "../../services/userService";
-import { getColors, getThemeByRole } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 
 export default function EditProfile() {
   const { userProfile, refreshProfile, isAdmin } = useAuth();
@@ -27,23 +27,7 @@ export default function EditProfile() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   
-  // Use consistent blue theme
-  const blueTheme = {
-    primary: '#002245',
-    primaryLight: '#003366',
-    secondary: '#0066CC',
-    background: '#F8FAFC',
-    white: '#FFFFFF',
-    gray100: '#F1F5F9',
-    gray200: '#E2E8F0',
-    gray300: '#CBD5E1',
-    gray400: '#94A3B8',
-    gray600: '#475569',
-    gray700: '#334155',
-    gray900: '#0F172A',
-    success: '#10B981',
-    error: '#EF4444',
-  };
+  const colors = lightTheme;
 
   const [loading, setLoading] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
@@ -129,23 +113,23 @@ export default function EditProfile() {
   };
 
   const ProfilePhotoSection = () => (
-    <View style={[styles.profileSection, { backgroundColor: blueTheme.white }]}>
+    <View style={[styles.profileSection, { backgroundColor: colors.white }]}>
       <View style={styles.profilePhotoContainer}>
-        <View style={[styles.profilePhoto, { backgroundColor: blueTheme.primary }]}>
-          <Text style={[styles.profilePhotoText, { color: blueTheme.white }]}>
+        <View style={[styles.profilePhoto, { backgroundColor: colors.primary }]}>
+          <Text style={[styles.profilePhotoText, { color: colors.white }]}>
             {formData.namaWarga?.charAt(0) || userProfile?.email?.charAt(0) || '?'}
           </Text>
         </View>
         <View style={styles.profileInfo}>
-          <Text style={[styles.profileName, { color: blueTheme.gray900 }]}>
+          <Text style={[styles.profileName, { color: colors.gray900 }]}>
             {formData.namaWarga || 'Nama belum diatur'}
           </Text>
-          <Text style={[styles.profileEmail, { color: blueTheme.gray600 }]}>
+          <Text style={[styles.profileEmail, { color: colors.gray600 }]}>
             {userProfile?.email}
           </Text>
         </View>
-        <TouchableOpacity style={[styles.editPhotoButton, { backgroundColor: blueTheme.gray100 }]}>
-          <Text style={[styles.editPhotoText, { color: blueTheme.primary }]}>
+        <TouchableOpacity style={[styles.editPhotoButton, { backgroundColor: colors.gray100 }]}>
+          <Text style={[styles.editPhotoText, { color: colors.primary }]}>
             Edit Foto
           </Text>
         </TouchableOpacity>
@@ -157,20 +141,20 @@ export default function EditProfile() {
     const isEditing = editingSection === sectionKey;
     
     return (
-      <View style={[styles.editableSection, { backgroundColor: blueTheme.white }]}>
+      <View style={[styles.editableSection, { backgroundColor: colors.white }]}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleContainer}>
             <Text style={styles.sectionIcon}>{icon}</Text>
-            <Text style={[styles.sectionTitle, { color: blueTheme.gray900 }]}>
+            <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
               {title}
             </Text>
           </View>
           {!isEditing && (
             <TouchableOpacity
-              style={[styles.editButton, { backgroundColor: blueTheme.primary }]}
+              style={[styles.editButton, { backgroundColor: colors.primary }]}
               onPress={() => startEditing(sectionKey, Object.keys(fields))}
             >
-              <Text style={[styles.editButtonText, { color: blueTheme.white }]}>
+              <Text style={[styles.editButtonText, { color: colors.white }]}>
                 Edit
               </Text>
             </TouchableOpacity>
@@ -181,10 +165,10 @@ export default function EditProfile() {
           <View style={styles.previewContainer}>
             {Object.entries(fields).map(([key, label]) => (
               <View key={key} style={styles.previewItem}>
-                <Text style={[styles.previewLabel, { color: blueTheme.gray600 }]}>
+                <Text style={[styles.previewLabel, { color: colors.gray600 }]}>
                   {label}
                 </Text>
-                <Text style={[styles.previewValue, { color: blueTheme.gray900 }]}>
+                <Text style={[styles.previewValue, { color: colors.gray900 }]}>
                   {formData[key] || 'Belum diatur'}
                 </Text>
               </View>
@@ -210,13 +194,13 @@ export default function EditProfile() {
                 title="Batal"
                 onPress={cancelEditing}
                 variant="outline"
-                style={[styles.cancelButton, { borderColor: blueTheme.gray400 }]}
+                style={[styles.cancelButton, { borderColor: colors.gray400 }]}
                 disabled={loading}
               />
               <Button
                 title={loading ? "Menyimpan..." : "Simpan"}
                 onPress={() => saveSection(sectionKey, Object.keys(fields))}
-                style={[styles.saveButton, { backgroundColor: blueTheme.primary }]}
+                style={[styles.saveButton, { backgroundColor: colors.primary }]}
                 disabled={loading}
               />
             </View>
@@ -231,15 +215,15 @@ export default function EditProfile() {
       <SafeAreaView
         style={[
           styles.container,
-          { paddingTop: insets.top, backgroundColor: blueTheme.background },
+          { paddingTop: insets.top, backgroundColor: colors.background },
         ]}
       >
         <View
           style={[
             styles.header,
             {
-              backgroundColor: blueTheme.white,
-              borderBottomColor: blueTheme.gray200,
+              backgroundColor: colors.white,
+              borderBottomColor: colors.gray200,
             },
           ]}
         >
@@ -247,17 +231,17 @@ export default function EditProfile() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={[styles.backButtonText, { color: blueTheme.primary }]}>
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>
               ← Kembali
             </Text>
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: blueTheme.gray900 }]}>
+          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
             Edit Profil
           </Text>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={blueTheme.primary} />
-          <Text style={[styles.loadingText, { color: blueTheme.gray600 }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
             Memuat profil...
           </Text>
         </View>
@@ -269,7 +253,7 @@ export default function EditProfile() {
     <SafeAreaView
       style={[
         styles.container,
-        { paddingTop: insets.top, backgroundColor: blueTheme.background },
+        { paddingTop: insets.top, backgroundColor: colors.background },
       ]}
     >
       <KeyboardAvoidingView
@@ -280,8 +264,8 @@ export default function EditProfile() {
           style={[
             styles.header,
             {
-              backgroundColor: blueTheme.white,
-              borderBottomColor: blueTheme.gray200,
+              backgroundColor: colors.white,
+              borderBottomColor: colors.gray200,
             },
           ]}
         >
@@ -289,11 +273,11 @@ export default function EditProfile() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={[styles.backButtonText, { color: blueTheme.primary }]}>
+            <Text style={[styles.backButtonText, { color: colors.primary }]}>
               ← Kembali
             </Text>
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: blueTheme.gray900 }]}>
+          <Text style={[styles.headerTitle, { color: colors.gray900 }]}>
             Edit Profil
           </Text>
         </View>
@@ -325,14 +309,14 @@ export default function EditProfile() {
             icon="📞"
           />
 
-          <View style={[styles.infoSection, { backgroundColor: blueTheme.white }]}>
-            <View style={[styles.infoBox, { backgroundColor: blueTheme.primary + '20' }]}>
+          <View style={[styles.infoSection, { backgroundColor: colors.white }]}>
+            <View style={[styles.infoBox, { backgroundColor: colors.primary + '20' }]}>
               <Text style={styles.infoIcon}>🔒</Text>
               <View style={styles.infoContent}>
-                <Text style={[styles.infoTitle, { color: blueTheme.primary }]}>
+                <Text style={[styles.infoTitle, { color: colors.primary }]}>
                   Informasi RFID
                 </Text>
-                <Text style={[styles.infoText, { color: blueTheme.gray600 }]}>
+                <Text style={[styles.infoText, { color: colors.gray600 }]}>
                   RFID warga hanya dapat diatur oleh bendahara melalui sistem pairing
                 </Text>
               </View>

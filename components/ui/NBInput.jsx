@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { lightTheme } from '../../constants/Colors';
 
 const NBInput = ({
   label,
@@ -33,9 +34,9 @@ const NBInput = ({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: error ? '#F44336' : (isFocused ? '#F50057' : '#E0E0E0'),
-    backgroundColor: '#FFFFFF',
-    color: '#1A1A1A',
+    borderColor: error ? lightTheme.error : (isFocused ? lightTheme.primary : lightTheme.gray300),
+    backgroundColor: lightTheme.white,
+    color: lightTheme.gray900,
     minHeight: multiline ? numberOfLines * 20 + 24 : 48,
     textAlignVertical: multiline ? 'top' : 'center',
   });
@@ -46,10 +47,10 @@ const NBInput = ({
         <Text style={{
           fontSize: 14,
           fontWeight: '500',
-          color: '#4A4A4A',
+          color: lightTheme.gray700,
           marginBottom: 8,
         }}>
-          {label}{isRequired && <Text style={{ color: '#F44336' }}> *</Text>}
+          {label}{isRequired && <Text style={{ color: lightTheme.error }}> *</Text>}
         </Text>
       )}
       
@@ -70,7 +71,7 @@ const NBInput = ({
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
-          placeholderTextColor="#999999"
+          placeholderTextColor={lightTheme.gray400}
           secureTextEntry={secureTextEntry && !isPasswordVisible}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
@@ -100,7 +101,7 @@ const NBInput = ({
             <MaterialIcons
               name={isPasswordVisible ? 'visibility' : 'visibility-off'}
               size={20}
-              color="#999999"
+              color={lightTheme.gray400}
             />
           </TouchableOpacity>
         )}
@@ -121,7 +122,7 @@ const NBInput = ({
       {helperText && !error && (
         <Text style={{
           fontSize: 12,
-          color: '#666666',
+          color: lightTheme.gray600,
           marginTop: 4,
         }}>
           {helperText}
@@ -131,7 +132,7 @@ const NBInput = ({
       {error && (
         <Text style={{
           fontSize: 12,
-          color: '#F44336',
+          color: lightTheme.error,
           marginTop: 4,
         }}>
           {error}

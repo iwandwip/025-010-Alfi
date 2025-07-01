@@ -1,12 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSettings } from '../../contexts/SettingsContext';
-import { getColors, getThemeByRole } from '../../constants/Colors';
-import { useAuth } from '../../contexts/AuthContext';
+import { lightTheme } from '../../constants/Colors';
 
 const CreditBalance = ({ creditBalance = 0, style }) => {
-  const { isAdmin } = useAuth();
-  const colors = getThemeByRole(isAdmin);
+  const colors = lightTheme;
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('id-ID', {

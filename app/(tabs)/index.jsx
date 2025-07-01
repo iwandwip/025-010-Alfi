@@ -16,7 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import { getColors, getThemeByRole } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 import PaymentModal from "../../components/ui/PaymentModal";
 import CreditBalance from "../../components/ui/CreditBalance";
 import { formatDate } from "../../utils/dateUtils";
@@ -38,7 +38,7 @@ function StatusPembayaran() {
     showPaymentWithCreditNotification,
     showCreditBalanceNotification
   } = useNotification();
-  const colors = getThemeByRole(isAdmin);
+  const colors = lightTheme;
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
   const [timeline, setTimeline] = useState(null);
@@ -549,14 +549,21 @@ function StatusPembayaran() {
             },
           ]}
         >
-          <Text style={[styles.title, { color: colors.gray900 }]}>
-            Status Pembayaran Jimpitan
-          </Text>
-          {userProfile && (
-            <Text style={[styles.subtitle, { color: colors.gray600 }]}>
-              Warga: {userProfile.namaWarga}
-            </Text>
-          )}
+          <View style={styles.headerContent}>
+            <View style={[styles.headerIcon, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+              <Text style={styles.headerIconText}>💰</Text>
+            </View>
+            <View style={styles.headerTextContainer}>
+              <Text style={[styles.title, { color: colors.primary }]}>
+                Jimpitan Warga
+              </Text>
+              {userProfile && (
+                <Text style={[styles.subtitle, { color: colors.gray600 }]}>
+                  {userProfile.namaWarga}
+                </Text>
+              )}
+            </View>
+          </View>
         </View>
 
         <View style={styles.loadingContainer}>
@@ -582,19 +589,26 @@ function StatusPembayaran() {
           { backgroundColor: colors.white, borderBottomColor: colors.gray200 },
         ]}
       >
-        <Text style={[styles.title, { color: colors.gray900 }]}>
-          Status Pembayaran Jimpitan
-        </Text>
-        {userProfile && (
-          <Text style={[styles.subtitle, { color: colors.gray600 }]}>
-            Warga: {userProfile.namaWarga}
-          </Text>
-        )}
-        {timeline && (
-          <Text style={[styles.timelineInfo, { color: colors.primary }]}>
-            Timeline: {timeline.name}
-          </Text>
-        )}
+        <View style={styles.headerContent}>
+          <View style={[styles.headerIcon, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+            <Text style={styles.headerIconText}>💰</Text>
+          </View>
+          <View style={styles.headerTextContainer}>
+            <Text style={[styles.title, { color: colors.primary }]}>
+              Jimpitan Warga
+            </Text>
+            {userProfile && (
+              <Text style={[styles.subtitle, { color: colors.gray600 }]}>
+                {userProfile.namaWarga}
+              </Text>
+            )}
+            {timeline && (
+              <Text style={[styles.timelineInfo, { color: colors.primaryLight }]}>
+                {timeline.name}
+              </Text>
+            )}
+          </View>
+        </View>
       </View>
 
       {payments.length > 0 ? (
@@ -680,21 +694,46 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderBottomWidth: 1,
   },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 16,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: lightTheme.accent,
+  },
+  headerIconText: {
+    fontSize: 28,
+    color: "white",
+  },
+  headerTextContainer: {
+    flex: 1,
+    alignItems: "flex-start",
+  },
   title: {
-    fontSize: 20,
-    fontWeight: "600",
-    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "700",
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
-    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 2,
   },
   timelineInfo: {
-    fontSize: 12,
-    textAlign: "center",
-    marginTop: 4,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: "600",
   },
   loadingContainer: {
     flex: 1,

@@ -11,35 +11,10 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { Shadows } from '../../constants/theme';
+import { lightTheme } from '../../constants/Colors';
 
-// Theme Colors
-export const Colors = {
-  primary: '#2196F3',
-  secondary: '#1976D2',
-  success: '#2196F3',
-  error: '#F44336',
-  warning: '#FF9800',
-  info: '#2196F3',
-  white: '#FFFFFF',
-  black: '#000000',
-  gray50: '#FAFAFA',
-  gray100: '#F5F5F5',
-  gray200: '#EEEEEE',
-  gray300: '#E0E0E0',
-  gray400: '#BDBDBD',
-  gray500: '#9E9E9E',
-  gray600: '#757575',
-  gray700: '#616161',
-  gray800: '#424242',
-  gray900: '#212121',
-  green: '#2196F3',
-  blue: '#2196F3',
-  red: '#F44336',
-  orange: '#FF9800',
-  purple: '#9C27B0',
-  teal: '#009688',
-  pink: '#E91E63',
-};
+// Use lightTheme colors for consistency
+export const Colors = lightTheme;
 
 // Container Component
 export const Container = ({ children, style, ...props }) => (

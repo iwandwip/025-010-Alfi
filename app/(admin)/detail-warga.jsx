@@ -26,6 +26,7 @@ import {
   clearModeTimeout,
   resetToIdle
 } from "../../services/rtdbModeService";
+import { lightTheme } from "../../constants/Colors";
 
 export default function DetailWarga() {
   const { wargaId } = useLocalSearchParams();
@@ -566,7 +567,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     elevation: 4,
     shadowColor: "#000",
     shadowOffset: {
@@ -634,7 +635,7 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -654,7 +655,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 4,
     textAlign: "center",
   },
@@ -723,7 +724,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2.22,
   },
   cardHeader: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderTopLeftRadius: 12,
@@ -855,7 +856,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   pairingButton: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
   },
   cancelButton: {
     borderColor: "#ef4444",
@@ -898,7 +899,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     flex: 1,
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
   },
   deleteButton: {
     flex: 1,

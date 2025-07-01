@@ -6,8 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { Colors, getThemeByRole } from "../../constants/Colors";
-import { useAuth } from "../../contexts/AuthContext";
+import { lightTheme } from "../../constants/Colors";
 
 const Input = ({
   label,
@@ -23,8 +22,7 @@ const Input = ({
   numberOfLines,
   ...props
 }) => {
-  const { isAdmin } = useAuth();
-  const theme = getThemeByRole(isAdmin);
+  const theme = lightTheme;
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 

@@ -16,6 +16,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getUserProfile, updateUserProfile } from "../../services/userService";
+import { lightTheme } from "../../constants/Colors";
 
 export default function EditWarga() {
   const { wargaId } = useLocalSearchParams();
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#cbd5e1",
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -354,13 +355,13 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#002245",
+    borderColor: lightTheme.primary,
   },
   profileIconContainer: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -375,7 +376,7 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 4,
   },
   profileEmail: {
@@ -426,7 +427,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   activeTab: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
   },
   tabIcon: {
     fontSize: 18,
@@ -471,11 +472,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 20,
     paddingBottom: 12,
     borderBottomWidth: 2,
-    borderBottomColor: "#002245",
+    borderBottomColor: lightTheme.primary,
   },
 
   // Info Box Styles
@@ -496,7 +497,7 @@ const styles = StyleSheet.create({
 
   // Button Styles
   saveButtonTab: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     marginTop: 16,
   },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
+import { lightTheme } from '../../constants/Colors';
 
 const NBButton = ({
   title,
@@ -29,7 +30,7 @@ const NBButton = ({
       case 'primary':
         return {
           ...baseStyle,
-          backgroundColor: '#F50057',
+          backgroundColor: lightTheme.primary,
         };
       case 'secondary':
       case 'outline':
@@ -37,12 +38,12 @@ const NBButton = ({
           ...baseStyle,
           backgroundColor: 'transparent',
           borderWidth: 1,
-          borderColor: '#F50057',
+          borderColor: lightTheme.primary,
         };
       default:
         return {
           ...baseStyle,
-          backgroundColor: '#F50057',
+          backgroundColor: lightTheme.primary,
         };
     }
   };
@@ -57,18 +58,18 @@ const NBButton = ({
       case 'primary':
         return {
           ...baseTextStyle,
-          color: '#FFFFFF',
+          color: lightTheme.white,
         };
       case 'secondary':
       case 'outline':
         return {
           ...baseTextStyle,
-          color: '#F50057',
+          color: lightTheme.primary,
         };
       default:
         return {
           ...baseTextStyle,
-          color: '#FFFFFF',
+          color: lightTheme.white,
         };
     }
   };

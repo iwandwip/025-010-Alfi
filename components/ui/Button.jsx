@@ -1,7 +1,6 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
-import { Colors, getThemeByRole } from "../../constants/Colors";
-import { useAuth } from "../../contexts/AuthContext";
+import { lightTheme } from "../../constants/Colors";
 
 const Button = ({
   title,
@@ -11,8 +10,7 @@ const Button = ({
   style,
   textStyle,
 }) => {
-  const { isAdmin } = useAuth();
-  const theme = getThemeByRole(isAdmin);
+  const theme = lightTheme;
   
   const getButtonStyle = () => {
     const baseStyle = {

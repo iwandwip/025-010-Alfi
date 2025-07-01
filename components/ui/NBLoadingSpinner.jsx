@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, Animated, ActivityIndicator, Modal } from 'react-native';
 import { Shadows } from '../../constants/theme';
+import { lightTheme } from '../../constants/Colors';
 
 const NBLoadingSpinner = ({
   size = 'large',

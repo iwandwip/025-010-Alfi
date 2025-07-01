@@ -11,7 +11,7 @@ import {
   TextInput,
 } from "react-native";
 import { useSettings } from "../../contexts/SettingsContext";
-import { getColors } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 import Button from "./Button";
 import { 
   startHardwarePaymentWithTimeout,
@@ -27,7 +27,7 @@ import { getActiveTimeline } from "../../services/timelineService";
 
 const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalance = 0, userProfile = null }) => {
   const { theme, loading: settingsLoading } = useSettings();
-  const colors = getColors(theme);
+  const colors = lightTheme;
   
   // Main payment flow states
   const [paymentSource, setPaymentSource] = useState(null); // 'hardware' | 'app'

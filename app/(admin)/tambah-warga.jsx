@@ -16,7 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
-import { getThemeByRole } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function TambahWarga() {
@@ -32,7 +32,7 @@ export default function TambahWarga() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userProfile } = useAuth();
-  const colors = getThemeByRole(true); // Admin theme
+  const colors = lightTheme; // Consistent theme
 
   const steps = [
     { id: 1, title: "Info Personal", icon: "👤", description: "Data identitas warga" },
@@ -124,15 +124,15 @@ export default function TambahWarga() {
             {index > 0 && (
               <View style={[
                 styles.connectionLine,
-                { backgroundColor: currentStep > step.id ? '#002245' : '#e2e8f0' }
+                { backgroundColor: currentStep > step.id ? lightTheme.primary : '#e2e8f0' }
               ]} />
             )}
           </View>
           <View style={[
             styles.stepCircle,
             {
-              backgroundColor: currentStep >= step.id ? '#002245' : '#f1f5f9',
-              borderColor: currentStep >= step.id ? '#002245' : '#cbd5e1'
+              backgroundColor: currentStep >= step.id ? lightTheme.primary : '#f1f5f9',
+              borderColor: currentStep >= step.id ? lightTheme.primary : '#cbd5e1'
             }
           ]}>
             <Text style={[
@@ -145,7 +145,7 @@ export default function TambahWarga() {
           <View style={styles.stepInfo}>
             <Text style={[
               styles.stepTitle,
-              { color: currentStep >= step.id ? '#002245' : '#64748b' }
+              { color: currentStep >= step.id ? lightTheme.primary : '#64748b' }
             ]}>
               {step.title}
             </Text>
@@ -320,7 +320,7 @@ export default function TambahWarga() {
       >
         {/* Modern Header */}
         <LinearGradient
-          colors={['#002245', '#003366']}
+          colors={[lightTheme.primary, lightTheme.primaryLight]}
           style={styles.header}
         >
           <TouchableOpacity
@@ -374,7 +374,7 @@ export default function TambahWarga() {
                   disabled={!canProceed()}
                 >
                   <LinearGradient
-                    colors={canProceed() ? ['#002245', '#003366'] : ['#94a3b8', '#64748b']}
+                    colors={canProceed() ? [lightTheme.primary, lightTheme.primaryLight] : ['#94a3b8', '#64748b']}
                     style={styles.nextButtonGradient}
                   >
                     <Text style={styles.nextButtonText}>
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 2,
   },
   cardSubtitle: {
@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 12,
     borderLeftWidth: 4,
-    borderLeftColor: "#002245",
+    borderLeftColor: lightTheme.primary,
   },
   helpTextContent: {
     fontSize: 14,

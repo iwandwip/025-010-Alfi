@@ -6,11 +6,11 @@ import {
   StyleSheet,
   Animated,
 } from "react-native";
-import { Colors } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 
 const LoadingSpinner = ({
   size = "large",
-  color = Colors.primary,
+  color = lightTheme.primary,
   text = "Memuat...",
   subText = null,
   style,
@@ -102,7 +102,7 @@ const LoadingSpinner = ({
 const LoadingCard = ({
   title = "Memuat Data",
   subtitle = "Mohon tunggu sebentar...",
-  color = Colors.primary,
+  color = lightTheme.primary,
   children,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -130,7 +130,7 @@ const LoadingCard = ({
 const LoadingOverlay = ({
   visible,
   text = "Memuat...",
-  color = Colors.primary,
+  color = lightTheme.primary,
 }) => {
   if (!visible) return null;
 
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: Colors.primary,
+    backgroundColor: lightTheme.primary,
     opacity: 0.1,
   },
   text: {
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   subText: {
     marginTop: 8,
     fontSize: 14,
-    color: Colors.gray600,
+    color: lightTheme.gray600,
     textAlign: "center",
   },
   progressContainer: {
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
   progressBar: {
     width: "100%",
     height: 6,
-    backgroundColor: Colors.gray200,
+    backgroundColor: lightTheme.gray200,
     borderRadius: 3,
     overflow: "hidden",
     marginBottom: 12,
@@ -194,14 +194,14 @@ const styles = StyleSheet.create({
   },
   stepText: {
     fontSize: 14,
-    color: Colors.gray700,
+    color: lightTheme.gray700,
     fontWeight: "500",
     textAlign: "center",
     marginBottom: 4,
   },
   stepCounter: {
     fontSize: 12,
-    color: Colors.gray500,
+    color: lightTheme.gray500,
     textAlign: "center",
   },
   cardContainer: {
@@ -211,30 +211,30 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   card: {
-    backgroundColor: Colors.white,
+    backgroundColor: lightTheme.white,
     borderRadius: 20,
     padding: 40,
     alignItems: "center",
-    shadowColor: Colors.black,
+    shadowColor: lightTheme.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
     elevation: 10,
     borderWidth: 1,
-    borderColor: Colors.gray200,
+    borderColor: lightTheme.gray200,
     minWidth: 300,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: Colors.gray900,
+    color: lightTheme.gray900,
     textAlign: "center",
     marginTop: 16,
     marginBottom: 8,
   },
   cardSubtitle: {
     fontSize: 14,
-    color: Colors.gray600,
+    color: lightTheme.gray600,
     textAlign: "center",
   },
   overlay: {
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   overlayContent: {
-    backgroundColor: Colors.white,
+    backgroundColor: lightTheme.white,
     borderRadius: 16,
     padding: 32,
     alignItems: "center",

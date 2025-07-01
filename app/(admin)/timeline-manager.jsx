@@ -23,6 +23,7 @@ import {
   updateTimelineSimulationDate,
 } from "../../services/timelineService";
 import { bulkUpdatePaymentStatus } from "../../services/adminPaymentService";
+import { lightTheme } from "../../constants/Colors";
 
 const { width } = Dimensions.get('window');
 
@@ -451,8 +452,8 @@ export default function TimelineManager() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#002245"]}
-            tintColor={"#002245"}
+            colors={[lightTheme.primary]}
+            tintColor={lightTheme.primary}
             title="Memuat ulang..."
             titleColor={"#64748b"}
           />
@@ -821,13 +822,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#002245",
+    color: lightTheme.primary,
     fontWeight: "600",
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     textAlign: "center",
   },
   loadingContainer: {
@@ -843,7 +844,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 16,
   },
   sectionSubtitle: {
@@ -855,12 +856,12 @@ const styles = StyleSheet.create({
   
   // Overview Card Styles
   overviewCard: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     borderRadius: 20,
     padding: 20,
     marginBottom: 24,
     elevation: 8,
-    shadowColor: "#002245",
+    shadowColor: lightTheme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -951,7 +952,7 @@ const styles = StyleSheet.create({
     padding: 24,
     marginBottom: 16,
     elevation: 6,
-    shadowColor: "#002245",
+    shadowColor: lightTheme.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
@@ -969,7 +970,7 @@ const styles = StyleSheet.create({
   timelineName: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 4,
   },
   timelineType: {
@@ -1013,7 +1014,7 @@ const styles = StyleSheet.create({
   visualTimelineTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 12,
     textAlign: "center",
   },
@@ -1048,7 +1049,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   activePeriodCard: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
   },
   inactivePeriodCard: {
     backgroundColor: "#e2e8f0",
@@ -1134,7 +1135,7 @@ const styles = StyleSheet.create({
   },
   detailCardValue: {
     fontSize: 14,
-    color: "#002245",
+    color: lightTheme.primary,
     fontWeight: "700",
     textAlign: "center",
   },
@@ -1162,7 +1163,7 @@ const styles = StyleSheet.create({
   simulationTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
   },
   simulationSubtitle: {
     fontSize: 14,
@@ -1187,7 +1188,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   updateDateButton: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     marginBottom: 16,
   },
   simulationInfoCard: {
@@ -1233,7 +1234,7 @@ const styles = StyleSheet.create({
   actionCardTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 6,
     textAlign: "center",
   },
@@ -1245,7 +1246,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   primaryActionButton: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     minWidth: 120,
   },
   secondaryActionButton: {
@@ -1274,7 +1275,7 @@ const styles = StyleSheet.create({
   dangerZoneTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#dc2626",
+    color: lightTheme.error,
   },
   dangerZoneSubtitle: {
     fontSize: 14,
@@ -1323,7 +1324,7 @@ const styles = StyleSheet.create({
   noTimelineText: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 12,
     textAlign: "center",
   },
@@ -1335,7 +1336,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   noTimelineButton: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     minWidth: 200,
   },
   // Create Timeline Card
@@ -1364,7 +1365,7 @@ const styles = StyleSheet.create({
   createTimelineTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
   },
   createTimelineSubtitle: {
     fontSize: 14,
@@ -1383,7 +1384,7 @@ const styles = StyleSheet.create({
     borderColor: "#fed7aa",
   },
   createTimelineButton: {
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
   },
   // Templates Section
   templatesSection: {
@@ -1432,7 +1433,7 @@ const styles = StyleSheet.create({
   templateName: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 2,
   },
   templateDate: {
@@ -1485,7 +1486,7 @@ const styles = StyleSheet.create({
   noTemplatesText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 12,
     textAlign: "center",
   },

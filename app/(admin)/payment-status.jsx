@@ -18,7 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useSettings } from "../../contexts/SettingsContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import { getThemeByRole } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 import { useAuth } from "../../contexts/AuthContext";
 import { formatDate } from "../../utils/dateUtils";
 import { paymentStatusManager } from "../../services/paymentStatusManager";
@@ -30,7 +30,7 @@ function PaymentStatus() {
   const { theme, loading: settingsLoading } = useSettings();
   const { showUpdateNotification, showErrorNotification } = useNotification();
   const { userProfile } = useAuth();
-  const colors = getThemeByRole(true); // Admin theme
+  const colors = lightTheme; // Consistent theme
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [users, setUsers] = useState([]);
@@ -234,34 +234,14 @@ function PaymentStatus() {
     return "Sebagian Lunas";
   }, []);
 
-  // Blue theme colors
-  const blueTheme = {
-    primary: '#002245',
-    primaryLight: '#1e40af',
-    secondary: '#3b82f6',
-    success: '#059669',
-    warning: '#d97706',
-    error: '#dc2626',
-    background: '#f8fafc',
-    white: '#ffffff',
-    gray50: '#f9fafb',
-    gray100: '#f3f4f6',
-    gray200: '#e5e7eb',
-    gray300: '#d1d5db',
-    gray400: '#9ca3af',
-    gray500: '#6b7280',
-    gray600: '#4b5563',
-    gray700: '#374151',
-    gray800: '#1f2937',
-    gray900: '#111827',
-  };
+  const colors = lightTheme;
 
   const renderDashboardCard = useCallback(
     ({ title, value, subtitle, icon, color, onPress }) => (
       <TouchableOpacity
         style={[
           styles.dashboardCard,
-          { backgroundColor: blueTheme.white, borderLeftColor: color }
+          { backgroundColor: colors.white, borderLeftColor: color }
         ]}
         onPress={onPress}
         activeOpacity={0.7}
@@ -271,21 +251,21 @@ function PaymentStatus() {
             <Text style={[styles.cardIconText, { color }]}>{icon}</Text>
           </View>
           <View style={styles.cardData}>
-            <Text style={[styles.cardValue, { color: blueTheme.gray900 }]}>{value}</Text>
-            <Text style={[styles.cardTitle, { color: blueTheme.gray600 }]}>{title}</Text>
+            <Text style={[styles.cardValue, { color: colors.gray900 }]}>{value}</Text>
+            <Text style={[styles.cardTitle, { color: colors.gray600 }]}>{title}</Text>
             {subtitle && (
-              <Text style={[styles.cardSubtitle, { color: blueTheme.gray500 }]}>{subtitle}</Text>
+              <Text style={[styles.cardSubtitle, { color: colors.gray500 }]}>{subtitle}</Text>
             )}
           </View>
         </View>
       </TouchableOpacity>
     ),
-    [blueTheme]
+    [colors]
   );
 
   const renderProgressBar = useCallback(
     ({ percentage, color, height = 8 }) => (
-      <View style={[styles.progressBarContainer, { height, backgroundColor: blueTheme.gray200 }]}>
+      <View style={[styles.progressBarContainer, { height, backgroundColor: colors.gray200 }]}>
         <View
           style={[
             styles.progressBarFill,
@@ -298,7 +278,7 @@ function PaymentStatus() {
         />
       </View>
     ),
-    [blueTheme]
+    [colors]
   );
 
   const renderFilterChip = useCallback(
@@ -307,8 +287,8 @@ function PaymentStatus() {
         style={[
           styles.filterChip,
           {
-            backgroundColor: selectedFilter === value ? blueTheme.primary : blueTheme.white,
-            borderColor: selectedFilter === value ? blueTheme.primary : blueTheme.gray300,
+            backgroundColor: selectedFilter === value ? colors.primary : colors.white,
+            borderColor: selectedFilter === value ? colors.primary : colors.gray300,
           }
         ]}
         onPress={() => setSelectedFilter(value)}
@@ -318,7 +298,7 @@ function PaymentStatus() {
           style={[
             styles.filterChipText,
             {
-              color: selectedFilter === value ? blueTheme.white : blueTheme.gray700,
+              color: selectedFilter === value ? colors.white : colors.gray700,
             }
           ]}
         >
@@ -328,14 +308,14 @@ function PaymentStatus() {
           <View style={[
             styles.filterChipBadge,
             {
-              backgroundColor: selectedFilter === value ? blueTheme.white : blueTheme.primary,
+              backgroundColor: selectedFilter === value ? colors.white : colors.primary,
             }
           ]}>
             <Text
               style={[
                 styles.filterChipBadgeText,
                 {
-                  color: selectedFilter === value ? blueTheme.primary : blueTheme.white,
+                  color: selectedFilter === value ? colors.primary : colors.white,
                 }
               ]}
             >
@@ -345,7 +325,7 @@ function PaymentStatus() {
         )}
       </TouchableOpacity>
     ),
-    [selectedFilter, blueTheme]
+    [selectedFilter, colors]
   );
 
   const renderDashboard = useCallback(
@@ -353,7 +333,7 @@ function PaymentStatus() {
       <View style={styles.dashboardContainer}>
         {/* Overview Cards */}
         <View style={styles.overviewSection}>
-          <Text style={[styles.sectionTitle, { color: blueTheme.gray900 }]}>
+          <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
             📊 Ringkasan Pembayaran
           </Text>
           
@@ -363,7 +343,7 @@ function PaymentStatus() {
               value: dashboardStats.totalUsers.toString(),
               subtitle: "Terdaftar",
               icon: "👥",
-              color: blueTheme.primary,
+              color: colors.primary,
               onPress: () => setSelectedFilter("all"),
             })}
             
@@ -372,7 +352,7 @@ function PaymentStatus() {
               value: dashboardStats.totalLunas.toString(),
               subtitle: "Pembayaran",
               icon: "✅",
-              color: blueTheme.success,
+              color: colors.success,
               onPress: () => setSelectedFilter("lunas"),
             })}
             
@@ -381,7 +361,7 @@ function PaymentStatus() {
               value: dashboardStats.totalBelumBayar.toString(),
               subtitle: "Pembayaran",
               icon: "⏳",
-              color: blueTheme.warning,
+              color: colors.warning,
               onPress: () => setSelectedFilter("belum"),
             })}
             
@@ -390,42 +370,42 @@ function PaymentStatus() {
               value: dashboardStats.totalTerlambat.toString(),
               subtitle: "Pembayaran",
               icon: "⚠️",
-              color: blueTheme.error,
+              color: colors.error,
               onPress: () => setSelectedFilter("terlambat"),
             })}
           </View>
         </View>
 
         {/* Financial Summary */}
-        <View style={[styles.financialCard, { backgroundColor: blueTheme.white }]}>
-          <Text style={[styles.sectionTitle, { color: blueTheme.gray900 }]}>
+        <View style={[styles.financialCard, { backgroundColor: colors.white }]}>
+          <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
             💰 Ringkasan Keuangan
           </Text>
           
           <View style={styles.financialStats}>
             <View style={styles.financialRow}>
-              <Text style={[styles.financialLabel, { color: blueTheme.gray600 }]}>
+              <Text style={[styles.financialLabel, { color: colors.gray600 }]}>
                 Total yang Harus Dikumpulkan:
               </Text>
-              <Text style={[styles.financialValue, { color: blueTheme.gray900 }]}>
+              <Text style={[styles.financialValue, { color: colors.gray900 }]}>
                 {formatCurrency(dashboardStats.totalAmount)}
               </Text>
             </View>
             
             <View style={styles.financialRow}>
-              <Text style={[styles.financialLabel, { color: blueTheme.gray600 }]}>
+              <Text style={[styles.financialLabel, { color: colors.gray600 }]}>
                 Sudah Terkumpul:
               </Text>
-              <Text style={[styles.financialValue, { color: blueTheme.success }]}>
+              <Text style={[styles.financialValue, { color: colors.success }]}>
                 {formatCurrency(dashboardStats.paidAmount)}
               </Text>
             </View>
             
             <View style={styles.financialRow}>
-              <Text style={[styles.financialLabel, { color: blueTheme.gray600 }]}>
+              <Text style={[styles.financialLabel, { color: colors.gray600 }]}>
                 Belum Terkumpul:
               </Text>
-              <Text style={[styles.financialValue, { color: blueTheme.error }]}>
+              <Text style={[styles.financialValue, { color: colors.error }]}>
                 {formatCurrency(dashboardStats.unpaidAmount)}
               </Text>
             </View>
@@ -433,16 +413,16 @@ function PaymentStatus() {
 
           <View style={styles.progressSection}>
             <View style={styles.progressHeader}>
-              <Text style={[styles.progressTitle, { color: blueTheme.gray700 }]}>
+              <Text style={[styles.progressTitle, { color: colors.gray700 }]}>
                 Progress Keseluruhan
               </Text>
-              <Text style={[styles.progressPercentage, { color: blueTheme.primary }]}>
+              <Text style={[styles.progressPercentage, { color: colors.primary }]}>
                 {dashboardStats.progressPercentage}%
               </Text>
             </View>
             {renderProgressBar({
               percentage: dashboardStats.progressPercentage,
-              color: blueTheme.primary,
+              color: colors.primary,
               height: 12,
             })}
           </View>
@@ -450,7 +430,7 @@ function PaymentStatus() {
 
         {/* Filter Chips */}
         <View style={styles.filtersSection}>
-          <Text style={[styles.sectionTitle, { color: blueTheme.gray900 }]}>
+          <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
             🔍 Filter Status
           </Text>
           
@@ -488,7 +468,7 @@ function PaymentStatus() {
         </View>
       </View>
     ),
-    [dashboardStats, selectedFilter, renderDashboardCard, renderProgressBar, renderFilterChip, formatCurrency, users, blueTheme]
+    [dashboardStats, selectedFilter, renderDashboardCard, renderProgressBar, renderFilterChip, formatCurrency, users, colors]
   );
 
   const renderUserItem = useCallback(
@@ -496,7 +476,7 @@ function PaymentStatus() {
       <View
         style={[
           styles.userCard,
-          { backgroundColor: blueTheme.white, borderColor: blueTheme.gray200 },
+          { backgroundColor: colors.white, borderColor: colors.gray200 },
         ]}
       >
         <TouchableOpacity
@@ -506,13 +486,13 @@ function PaymentStatus() {
         >
           <View style={styles.userHeader}>
             <View style={styles.userInfo}>
-              <Text style={[styles.userName, { color: blueTheme.gray900 }]}>
+              <Text style={[styles.userName, { color: colors.gray900 }]}>
                 {user.namaWarga || "Nama Warga"}
               </Text>
-              <Text style={[styles.parentName, { color: blueTheme.gray600 }]}>
+              <Text style={[styles.parentName, { color: colors.gray600 }]}>
                 📍 {user.alamat || "Alamat Warga"}
               </Text>
-              <Text style={[styles.userEmail, { color: blueTheme.gray500 }]}>
+              <Text style={[styles.userEmail, { color: colors.gray500 }]}>
                 ✉️ {user.email}
               </Text>
             </View>
@@ -548,47 +528,47 @@ function PaymentStatus() {
           <View style={styles.paymentSummary}>
             <View style={styles.summaryRow}>
               <View style={styles.summaryItem}>
-                <View style={[styles.summaryBadge, { backgroundColor: `${blueTheme.success}15` }]}>
-                  <Text style={[styles.summaryNumber, { color: blueTheme.success }]}>
+                <View style={[styles.summaryBadge, { backgroundColor: `${colors.success}15` }]}>
+                  <Text style={[styles.summaryNumber, { color: colors.success }]}>
                     {user.paymentSummary.lunas}
                   </Text>
                 </View>
-                <Text style={[styles.summaryLabel, { color: blueTheme.gray600 }]}>
+                <Text style={[styles.summaryLabel, { color: colors.gray600 }]}>
                   Lunas
                 </Text>
               </View>
 
               <View style={styles.summaryItem}>
-                <View style={[styles.summaryBadge, { backgroundColor: `${blueTheme.warning}15` }]}>
-                  <Text style={[styles.summaryNumber, { color: blueTheme.warning }]}>
+                <View style={[styles.summaryBadge, { backgroundColor: `${colors.warning}15` }]}>
+                  <Text style={[styles.summaryNumber, { color: colors.warning }]}>
                     {user.paymentSummary.belumBayar}
                   </Text>
                 </View>
-                <Text style={[styles.summaryLabel, { color: blueTheme.gray600 }]}>
+                <Text style={[styles.summaryLabel, { color: colors.gray600 }]}>
                   Belum
                 </Text>
               </View>
 
               {user.paymentSummary.terlambat > 0 && (
                 <View style={styles.summaryItem}>
-                  <View style={[styles.summaryBadge, { backgroundColor: `${blueTheme.error}15` }]}>
-                    <Text style={[styles.summaryNumber, { color: blueTheme.error }]}>
+                  <View style={[styles.summaryBadge, { backgroundColor: `${colors.error}15` }]}>
+                    <Text style={[styles.summaryNumber, { color: colors.error }]}>
                       {user.paymentSummary.terlambat}
                     </Text>
                   </View>
-                  <Text style={[styles.summaryLabel, { color: blueTheme.gray600 }]}>
+                  <Text style={[styles.summaryLabel, { color: colors.gray600 }]}>
                     Terlambat
                   </Text>
                 </View>
               )}
 
               <View style={styles.summaryItem}>
-                <View style={[styles.summaryBadge, { backgroundColor: `${blueTheme.primary}15` }]}>
-                  <Text style={[styles.summaryNumber, { color: blueTheme.primary }]}>
+                <View style={[styles.summaryBadge, { backgroundColor: `${colors.primary}15` }]}>
+                  <Text style={[styles.summaryNumber, { color: colors.primary }]}>
                     {user.paymentSummary.total}
                   </Text>
                 </View>
-                <Text style={[styles.summaryLabel, { color: blueTheme.gray600 }]}>
+                <Text style={[styles.summaryLabel, { color: colors.gray600 }]}>
                   Total
                 </Text>
               </View>
@@ -596,19 +576,19 @@ function PaymentStatus() {
 
             <View style={styles.amountInfo}>
               <View style={styles.amountRow}>
-                <Text style={[styles.amountLabel, { color: blueTheme.gray600 }]}>
+                <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
                   💰 Sudah Dibayar:
                 </Text>
-                <Text style={[styles.amountValue, { color: blueTheme.success }]}>
+                <Text style={[styles.amountValue, { color: colors.success }]}>
                   {formatCurrency(user.paymentSummary.paidAmount)}
                 </Text>
               </View>
 
               <View style={styles.amountRow}>
-                <Text style={[styles.amountLabel, { color: blueTheme.gray600 }]}>
+                <Text style={[styles.amountLabel, { color: colors.gray600 }]}>
                   💸 Belum Dibayar:
                 </Text>
-                <Text style={[styles.amountValue, { color: blueTheme.error }]}>
+                <Text style={[styles.amountValue, { color: colors.error }]}>
                   {formatCurrency(user.paymentSummary.unpaidAmount)}
                 </Text>
               </View>
@@ -616,7 +596,7 @@ function PaymentStatus() {
 
             {user.paymentSummary.lastPaymentDate && (
               <View style={styles.lastPayment}>
-                <Text style={[styles.lastPaymentText, { color: blueTheme.gray500 }]}>
+                <Text style={[styles.lastPaymentText, { color: colors.gray500 }]}>
                   🕒 Terakhir bayar: {formatDate(user.paymentSummary.lastPaymentDate)}
                 </Text>
               </View>
@@ -636,17 +616,17 @@ function PaymentStatus() {
         {/* Quick Action Buttons */}
         <View style={styles.cardActions}>
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: blueTheme.primary }]}
+            style={[styles.actionButton, { backgroundColor: colors.primary }]}
             onPress={() => handleUserPress(user)}
             activeOpacity={0.7}
           >
-            <Text style={[styles.actionButtonText, { color: blueTheme.white }]}>
+            <Text style={[styles.actionButtonText, { color: colors.white }]}>
               📊 Detail
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.actionButton, { backgroundColor: blueTheme.success }]}
+            style={[styles.actionButton, { backgroundColor: colors.success }]}
             onPress={() => {
               // Handle quick payment action
               router.push({
@@ -661,7 +641,7 @@ function PaymentStatus() {
             }}
             activeOpacity={0.7}
           >
-            <Text style={[styles.actionButtonText, { color: blueTheme.white }]}>
+            <Text style={[styles.actionButtonText, { color: colors.white }]}>
               💰 Bayar
             </Text>
           </TouchableOpacity>
@@ -669,7 +649,7 @@ function PaymentStatus() {
           <View style={[styles.statusChip, { 
             backgroundColor: getStatusColor(user.paymentSummary.progressPercentage),
           }]}>
-            <Text style={[styles.statusChipText, { color: blueTheme.white }]}>
+            <Text style={[styles.statusChipText, { color: colors.white }]}>
               {getStatusText(user.paymentSummary)}
             </Text>
           </View>
@@ -677,7 +657,7 @@ function PaymentStatus() {
       </View>
     ),
     [
-      blueTheme,
+      colors,
       handleUserPress,
       getStatusColor,
       getStatusText,
@@ -692,23 +672,23 @@ function PaymentStatus() {
   const renderEmptyState = useCallback(
     () => (
       <View style={styles.emptyContainer}>
-        <View style={[styles.emptyCard, { backgroundColor: blueTheme.white }]}>
-          <Text style={[styles.emptyIcon, { color: blueTheme.gray400 }]}>👥</Text>
-          <Text style={[styles.emptyText, { color: blueTheme.gray600 }]}>
+        <View style={[styles.emptyCard, { backgroundColor: colors.white }]}>
+          <Text style={[styles.emptyIcon, { color: colors.gray400 }]}>👥</Text>
+          <Text style={[styles.emptyText, { color: colors.gray600 }]}>
             {timeline ? "Belum ada data warga" : "Belum ada timeline aktif"}
           </Text>
-          <Text style={[styles.emptySubtext, { color: blueTheme.gray500 }]}>
+          <Text style={[styles.emptySubtext, { color: colors.gray500 }]}>
             {timeline
               ? "Data warga akan muncul setelah ada yang mendaftar"
               : "Buat timeline terlebih dahulu untuk memulai"}
           </Text>
           {!timeline && (
             <TouchableOpacity
-              style={[styles.emptyButton, { backgroundColor: blueTheme.primary }]}
+              style={[styles.emptyButton, { backgroundColor: colors.primary }]}
               onPress={() => router.push("/(admin)/timeline-manager")}
               activeOpacity={0.7}
             >
-              <Text style={[styles.emptyButtonText, { color: blueTheme.white }]}>
+              <Text style={[styles.emptyButtonText, { color: colors.white }]}>
                 🗓️ Buat Timeline
               </Text>
             </TouchableOpacity>
@@ -716,24 +696,24 @@ function PaymentStatus() {
         </View>
       </View>
     ),
-    [blueTheme, timeline, router]
+    [colors, timeline, router]
   );
 
   const renderLoadingState = useCallback(
     () => (
       <View style={styles.loadingContainer}>
-        <View style={[styles.loadingCard, { backgroundColor: blueTheme.white }]}>
-          <ActivityIndicator size="large" color={blueTheme.primary} />
-          <Text style={[styles.loadingText, { color: blueTheme.gray600 }]}>
+        <View style={[styles.loadingCard, { backgroundColor: colors.white }]}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.loadingText, { color: colors.gray600 }]}>
             Memuat dashboard pembayaran...
           </Text>
-          <Text style={[styles.loadingSubtext, { color: blueTheme.gray500 }]}>
+          <Text style={[styles.loadingSubtext, { color: colors.gray500 }]}>
             Mohon tunggu sebentar
           </Text>
         </View>
       </View>
     ),
-    [blueTheme]
+    [colors]
   );
 
   const keyExtractor = useCallback((item) => item.id, []);
@@ -743,14 +723,14 @@ function PaymentStatus() {
       <SafeAreaView
         style={[
           styles.container,
-          { backgroundColor: blueTheme.background, paddingTop: insets.top },
+          { backgroundColor: colors.background, paddingTop: insets.top },
         ]}
       >
         <View
           style={[
             styles.header,
             {
-              backgroundColor: blueTheme.primary,
+              backgroundColor: colors.primary,
             },
           ]}
         >
@@ -758,11 +738,11 @@ function PaymentStatus() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={[styles.backButtonText, { color: blueTheme.white }]}>
+            <Text style={[styles.backButtonText, { color: colors.white }]}>
               ← Kembali
             </Text>
           </TouchableOpacity>
-          <Text style={[styles.title, { color: blueTheme.white }]}>
+          <Text style={[styles.title, { color: colors.white }]}>
             📊 Dashboard Pembayaran
           </Text>
         </View>
@@ -775,28 +755,28 @@ function PaymentStatus() {
     <SafeAreaView
       style={[
         styles.container,
-        { backgroundColor: blueTheme.background, paddingTop: insets.top },
+        { backgroundColor: colors.background, paddingTop: insets.top },
       ]}
     >
       <View
         style={[
           styles.header,
-          { backgroundColor: blueTheme.primary },
+          { backgroundColor: colors.primary },
         ]}
       >
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Text style={[styles.backButtonText, { color: blueTheme.white }]}>
+          <Text style={[styles.backButtonText, { color: colors.white }]}>
             ← Kembali
           </Text>
         </TouchableOpacity>
-        <Text style={[styles.title, { color: blueTheme.white }]}>
+        <Text style={[styles.title, { color: colors.white }]}>
           📊 Dashboard Pembayaran
         </Text>
         {timeline && (
-          <Text style={[styles.subtitle, { color: blueTheme.gray200 }]}>
+          <Text style={[styles.subtitle, { color: colors.gray200 }]}>
             Timeline: {timeline.name}
           </Text>
         )}
@@ -809,10 +789,10 @@ function PaymentStatus() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[blueTheme.primary]}
-            tintColor={blueTheme.primary}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
             title="Memuat ulang dashboard..."
-            titleColor={blueTheme.gray600}
+            titleColor={colors.gray600}
           />
         }
       >
@@ -825,7 +805,7 @@ function PaymentStatus() {
             style={[
               styles.searchContainer,
               {
-                backgroundColor: blueTheme.white,
+                backgroundColor: colors.white,
                 marginHorizontal: 16,
                 marginVertical: 8,
               },
@@ -835,13 +815,13 @@ function PaymentStatus() {
               style={[
                 styles.searchInput,
                 {
-                  backgroundColor: blueTheme.gray50,
-                  borderColor: blueTheme.gray300,
-                  color: blueTheme.gray900,
+                  backgroundColor: colors.gray50,
+                  borderColor: colors.gray300,
+                  color: colors.gray900,
                 },
               ]}
               placeholder="🔍 Cari nama warga, alamat, atau email..."
-              placeholderTextColor={blueTheme.gray500}
+              placeholderTextColor={colors.gray500}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
@@ -851,15 +831,15 @@ function PaymentStatus() {
         {/* Users List Section */}
         <View style={styles.usersSection}>
           <View style={styles.usersSectionHeader}>
-            <Text style={[styles.sectionTitle, { color: blueTheme.gray900 }]}>
+            <Text style={[styles.sectionTitle, { color: colors.gray900 }]}>
               👥 Daftar Warga ({filteredUsers.length})
             </Text>
             {selectedFilter !== "all" && (
               <TouchableOpacity
-                style={[styles.clearFilterButton, { backgroundColor: blueTheme.gray200 }]}
+                style={[styles.clearFilterButton, { backgroundColor: colors.gray200 }]}
                 onPress={() => setSelectedFilter("all")}
               >
-                <Text style={[styles.clearFilterText, { color: blueTheme.gray700 }]}>
+                <Text style={[styles.clearFilterText, { color: colors.gray700 }]}>
                   ✕ Hapus Filter
                 </Text>
               </TouchableOpacity>

@@ -15,7 +15,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { useSettings } from "../../contexts/SettingsContext";
 import Button from "../../components/ui/Button";
 import { signOutUser } from "../../services/authService";
-import { getColors, getThemeByRole } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 
 function Profile() {
   const { currentUser, userProfile, isAdmin } = useAuth();
@@ -23,30 +23,7 @@ function Profile() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [loggingOut, setLoggingOut] = useState(false);
-  // Use consistent blue theme (#002245)
-  const colors = {
-    primary: "#002245",
-    primaryLight: "#1E40AF",
-    secondary: "#3B82F6",
-    background: "#F8FAFC",
-    white: "#FFFFFF",
-    gray50: "#F9FAFB",
-    gray100: "#F3F4F6",
-    gray200: "#E5E7EB",
-    gray300: "#D1D5DB",
-    gray400: "#9CA3AF",
-    gray500: "#6B7280",
-    gray600: "#4B5563",
-    gray700: "#374151",
-    gray800: "#1F2937",
-    gray900: "#111827",
-    success: "#10B981",
-    warning: "#F59E0B",
-    error: "#EF4444",
-    shadow: {
-      color: "#000000",
-    },
-  };
+  const colors = lightTheme;
 
   const handleLogout = async () => {
     Alert.alert("Konfirmasi Logout", "Apakah Anda yakin ingin keluar?", [

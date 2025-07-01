@@ -16,7 +16,7 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
-import { getThemeByRole } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 import Button from "../../components/ui/Button";
 import { signOutUser } from "../../services/authService";
 import { seederService } from "../../services/seederService";
@@ -33,7 +33,7 @@ function AdminHome() {
   const { showGeneralNotification } = useNotification();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const colors = getThemeByRole(true); // Admin theme
+  const colors = lightTheme;
   const [loggingOut, setLoggingOut] = useState(false);
   const [seederLoading, setSeederLoading] = useState(false);
   const [seederModalVisible, setSeederModalVisible] = useState(false);
@@ -438,10 +438,15 @@ function AdminHome() {
         }
       >
         <View style={styles.headerSection}>
-          <Text style={[styles.title, { color: colors.gray900 }]}>Dashboard Bendahara</Text>
-          <Text style={[styles.subtitle, { color: colors.gray600 }]}>Sistem Jimpitan Warga</Text>
+          <View style={styles.logoContainer}>
+            <View style={[styles.logo, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+              <Text style={styles.logoIcon}>💰</Text>
+            </View>
+          </View>
+          <Text style={[styles.title, { color: colors.primary }]}>Dashboard Bendahara</Text>
+          <Text style={[styles.subtitle, { color: colors.gray500 }]}>Sistem Jimpitan Warga</Text>
           {userProfile && (
-            <Text style={[styles.welcomeText, { color: colors.primary }]}>
+            <Text style={[styles.welcomeText, { color: colors.primaryLight }]}>
               Selamat datang, {userProfile.nama}
             </Text>
           )}
@@ -734,20 +739,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 40,
   },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  logo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+    borderWidth: 3,
+    borderColor: lightTheme.accent,
+  },
+  logoIcon: {
+    fontSize: 32,
+    color: "white",
+  },
   title: {
     fontSize: 28,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 4,
+    fontWeight: "700",
+    marginBottom: 8,
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
-    color: "#64748b",
     marginBottom: 12,
+    textAlign: "center",
   },
   welcomeText: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
+    textAlign: "center",
   },
   menuSection: {
     gap: 16,
@@ -766,38 +793,42 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-    borderWidth: 2,
-    minHeight: 140,
+    borderRadius: 20,
+    padding: 24,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 0,
+    minHeight: 160,
   },
   gridIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 16,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   gridIconText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "600",
   },
   gridTitle: {
     fontSize: 16,
     fontWeight: "700",
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   gridDesc: {
-    fontSize: 12,
+    fontSize: 13,
     textAlign: 'center',
-    opacity: 0.9,
+    opacity: 0.95,
+    fontWeight: "500",
   },
   menuCard: {
     flexDirection: "row",

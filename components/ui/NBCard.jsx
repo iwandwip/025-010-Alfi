@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Shadows } from "../../constants/theme";
+import { lightTheme } from "../../constants/Colors";
 
 const NBCard = ({
   title,
@@ -19,8 +20,8 @@ const NBCard = ({
   px = 16,
   py = 16,
   m = 8,
-  bg = "#FFFFFF",
-  borderColor = "#E5E5E5",
+  bg = lightTheme.white,
+  borderColor = lightTheme.gray200,
   shadow = "md",
   style,
   ...props
@@ -68,13 +69,13 @@ const NBCard = ({
   const getBadgeColor = (colorScheme) => {
     switch (colorScheme) {
       case "success":
-        return { backgroundColor: "#D4EDDA", color: "#155724" };
+        return { backgroundColor: lightTheme.success + "20", color: lightTheme.success };
       case "warning":
-        return { backgroundColor: "#FFF3CD", color: "#856404" };
+        return { backgroundColor: lightTheme.warning + "20", color: lightTheme.warning };
       case "danger":
-        return { backgroundColor: "#F8D7DA", color: "#721C24" };
+        return { backgroundColor: lightTheme.error + "20", color: lightTheme.error };
       default:
-        return { backgroundColor: "#FCE4EC", color: "#F50057" };
+        return { backgroundColor: lightTheme.primary + "20", color: lightTheme.primary };
     }
   };
 
@@ -109,7 +110,7 @@ const NBCard = ({
             >
               {icon && (
                 <View style={{ marginRight: 8 }}>
-                  <MaterialIcons name={icon} size={24} color="#F50057" />
+                  <MaterialIcons name={icon} size={24} color={lightTheme.primary} />
                 </View>
               )}
 
@@ -119,7 +120,7 @@ const NBCard = ({
                     style={{
                       fontSize: 18,
                       fontWeight: "600",
-                      color: "#1A1A1A",
+                      color: lightTheme.gray900,
                       marginBottom: subtitle ? 2 : 0,
                     }}
                   >
@@ -131,7 +132,7 @@ const NBCard = ({
                   <Text
                     style={{
                       fontSize: 14,
-                      color: "#666666",
+                      color: lightTheme.gray600,
                     }}
                   >
                     {subtitle}
@@ -168,7 +169,7 @@ const NBCard = ({
 
       {showDivider && (title || subtitle) && children && (
         <View
-          style={{ height: 1, backgroundColor: "#E5E5E5", marginBottom: 12 }}
+          style={{ height: 1, backgroundColor: lightTheme.gray200, marginBottom: 12 }}
         />
       )}
 
@@ -179,7 +180,7 @@ const NBCard = ({
           <View
             style={{
               height: 1,
-              backgroundColor: "#E5E5E5",
+              backgroundColor: lightTheme.gray200,
               marginTop: 12,
               marginBottom: 12,
             }}
@@ -217,7 +218,7 @@ export const NBInfoCard = ({
   title,
   value,
   icon,
-  color = "#F50057",
+  color = lightTheme.primary,
   ...props
 }) => (
   <NBCard variant="elevated" px={16} py={20} {...props}>
@@ -232,7 +233,7 @@ export const NBInfoCard = ({
         <Text
           style={{
             fontSize: 14,
-            color: "#666666",
+            color: lightTheme.gray600,
             marginBottom: 4,
           }}
         >
@@ -242,7 +243,7 @@ export const NBInfoCard = ({
           style={{
             fontSize: 24,
             fontWeight: "bold",
-            color: "#1A1A1A",
+            color: lightTheme.gray900,
           }}
         >
           {value}
@@ -273,7 +274,7 @@ export const NBListCard = ({ items, onItemPress, ...props }) => (
           onPress={() => onItemPress && onItemPress(item)}
           activeOpacity={0.7}
           style={{
-            backgroundColor: index % 2 === 1 ? "#F8F8F8" : "transparent",
+            backgroundColor: index % 2 === 1 ? lightTheme.gray50 : "transparent",
           }}
         >
           <View
@@ -284,7 +285,7 @@ export const NBListCard = ({ items, onItemPress, ...props }) => (
               paddingHorizontal: 16,
               paddingVertical: 12,
               borderBottomWidth: index < items.length - 1 ? 1 : 0,
-              borderBottomColor: "#E5E5E5",
+              borderBottomColor: lightTheme.gray200,
             }}
           >
             <View
@@ -295,7 +296,7 @@ export const NBListCard = ({ items, onItemPress, ...props }) => (
                   <MaterialIcons
                     name={item.icon}
                     size={20}
-                    color={item.iconColor || "#666666"}
+                    color={item.iconColor || lightTheme.gray600}
                   />
                 </View>
               )}
@@ -304,7 +305,7 @@ export const NBListCard = ({ items, onItemPress, ...props }) => (
                 <Text
                   style={{
                     fontSize: 16,
-                    color: "#1A1A1A",
+                    color: lightTheme.gray900,
                   }}
                 >
                   {item.title}
@@ -313,7 +314,7 @@ export const NBListCard = ({ items, onItemPress, ...props }) => (
                   <Text
                     style={{
                       fontSize: 14,
-                      color: "#666666",
+                      color: lightTheme.gray600,
                     }}
                   >
                     {item.subtitle}
@@ -326,7 +327,7 @@ export const NBListCard = ({ items, onItemPress, ...props }) => (
               <Text
                 style={{
                   fontSize: 14,
-                  color: "#4A4A4A",
+                  color: lightTheme.gray700,
                   fontWeight: "500",
                 }}
               >
@@ -335,7 +336,7 @@ export const NBListCard = ({ items, onItemPress, ...props }) => (
             )}
 
             {onItemPress && (
-              <MaterialIcons name="chevron-right" size={20} color="#CCCCCC" />
+              <MaterialIcons name="chevron-right" size={20} color={lightTheme.gray400} />
             )}
           </View>
         </TouchableOpacity>

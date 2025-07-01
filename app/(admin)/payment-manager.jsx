@@ -13,6 +13,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import { lightTheme } from "../../constants/Colors";
 import {
   getActiveTimeline,
   getPaymentsByPeriod,
@@ -250,7 +251,7 @@ export default function PaymentManager() {
             onPress={() => handleMarkAsUnpaid(item)}
             disabled={updating}
           >
-            <Text style={[styles.cardActionText, { color: "#dc2626" }]}>
+            <Text style={[styles.cardActionText, { color: lightTheme.error }]}>
               ↩️ Batal
             </Text>
           </TouchableOpacity>
@@ -418,8 +419,8 @@ export default function PaymentManager() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#002245"]}
-            tintColor="#002245"
+            colors={[lightTheme.primary]}
+            tintColor={lightTheme.primary}
           />
         }
       >
@@ -447,9 +448,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 2,
-    borderBottomColor: "#002245",
+    borderBottomColor: lightTheme.primary,
     backgroundColor: "#fff",
-    shadowColor: "#002245",
+    shadowColor: lightTheme.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -465,13 +466,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#002245",
+    color: lightTheme.primary,
     fontWeight: "600",
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     textAlign: "center",
   },
   loadingContainer: {
@@ -489,7 +490,7 @@ const styles = StyleSheet.create({
   timelineName: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     textAlign: "center",
     marginBottom: 4,
   },
@@ -515,8 +516,8 @@ const styles = StyleSheet.create({
     borderColor: "#e6f3ff",
   },
   periodTabActive: {
-    backgroundColor: "#002245",
-    borderColor: "#002245",
+    backgroundColor: lightTheme.primary,
+    borderColor: lightTheme.primary,
   },
   periodTabText: {
     fontSize: 12,
@@ -637,7 +638,7 @@ const styles = StyleSheet.create({
   cardWargaName: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     flex: 1,
     marginRight: 8,
   },
@@ -696,7 +697,7 @@ const styles = StyleSheet.create({
   emptyKanbanTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#002245",
+    color: lightTheme.primary,
     marginBottom: 8,
     textAlign: "center",
   },

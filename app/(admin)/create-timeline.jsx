@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import TimelinePicker from "../../components/ui/TimelinePicker";
+import { lightTheme } from "../../constants/Colors";
 import {
   createTimelineTemplate,
   createActiveTimeline,
@@ -635,7 +636,7 @@ export default function CreateTimeline() {
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Amount per periode aktif:</Text>
-          <Text style={[styles.summaryValue, { color: "#002245" }]}>
+          <Text style={[styles.summaryValue, { color: lightTheme.primary }]}>
             {formatCurrency(calculateAmountPerPeriod())}
           </Text>
         </View>
@@ -721,7 +722,7 @@ export default function CreateTimeline() {
           </View>
           <View style={styles.previewItem}>
             <Text style={styles.previewLabel}>Per Periode:</Text>
-            <Text style={[styles.previewValue, { fontWeight: "bold", color: "#002245" }]}>
+            <Text style={[styles.previewValue, { fontWeight: "bold", color: lightTheme.primary }]}>
               {formatCurrency(calculateAmountPerPeriod())}
             </Text>
           </View>
@@ -1146,7 +1147,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderTopWidth: 2,
     borderTopColor: "#e6f3ff",
-    shadowColor: "#002245",
+    shadowColor: lightTheme.primary,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -1159,11 +1160,11 @@ const styles = StyleSheet.create({
   wizardNavButton: {
     flex: 1,
     backgroundColor: "#e6f3ff",
-    borderColor: "#002245",
+    borderColor: lightTheme.primary,
     borderWidth: 2,
   },
   wizardCreateButton: {
     flex: 1,
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
   },
 });

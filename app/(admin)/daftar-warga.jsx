@@ -15,7 +15,7 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { getAllWarga } from "../../services/userService";
-import { getThemeByRole } from "../../constants/Colors";
+import { lightTheme } from "../../constants/Colors";
 import { useAuth } from "../../contexts/AuthContext";
 
 const { width } = Dimensions.get('window');
@@ -31,7 +31,7 @@ export default function DaftarWarga() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userProfile } = useAuth();
-  const colors = getThemeByRole(true); // Admin theme
+  const colors = lightTheme;
 
   const loadWarga = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
@@ -161,14 +161,19 @@ export default function DaftarWarga() {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.white, borderBottomColor: colors.gray200 }]}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={styles.backButtonText}>← Kembali</Text>
+            <Text style={[styles.backButtonText, { color: colors.secondary }]}>← Kembali</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Daftar Warga</Text>
+          <View style={styles.headerContent}>
+            <View style={[styles.headerIcon, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+              <Text style={styles.headerIconText}>👥</Text>
+            </View>
+            <Text style={[styles.headerTitle, { color: colors.primary }]}>Daftar Warga</Text>
+          </View>
         </View>
         <View style={styles.loadingContainer}>
           <LoadingSpinner text="Memuat data warga..." />
@@ -180,14 +185,19 @@ export default function DaftarWarga() {
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.white, borderBottomColor: colors.gray200 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Text style={styles.backButtonText}>← Kembali</Text>
+          <Text style={[styles.backButtonText, { color: colors.secondary }]}>← Kembali</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Daftar Warga</Text>
+        <View style={styles.headerContent}>
+          <View style={[styles.headerIcon, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
+            <Text style={styles.headerIconText}>👥</Text>
+          </View>
+          <Text style={[styles.headerTitle, { color: colors.primary }]}>Daftar Warga</Text>
+        </View>
       </View>
 
       {/* Horizontal Toolbar with Search and Filters */}
@@ -263,8 +273,8 @@ export default function DaftarWarga() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                colors={['#002245']}
-                tintColor="#002245"
+                colors={[colors.primary]}
+                tintColor={colors.primary}
               />
             }
           />
@@ -292,23 +302,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
   },
   backButton: {
     alignSelf: "flex-start",
-    marginBottom: 8,
+    marginBottom: 12,
   },
   backButtonText: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#002245",
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+    borderWidth: 2,
+    borderColor: lightTheme.accent,
+  },
+  headerIconText: {
+    fontSize: 20,
+    color: "white",
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#002245",
-    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "700",
   },
   loadingContainer: {
     flex: 1,
@@ -353,8 +381,8 @@ const styles = StyleSheet.create({
     borderColor: "#e2e8f0",
   },
   filterButtonActive: {
-    backgroundColor: "#002245",
-    borderColor: "#002245",
+    backgroundColor: lightTheme.primary,
+    borderColor: lightTheme.primary,
   },
   filterButtonText: {
     fontSize: 14,
@@ -395,7 +423,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
@@ -462,7 +490,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: "#002245",
+    backgroundColor: lightTheme.primary,
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: "center",
@@ -470,7 +498,7 @@ const styles = StyleSheet.create({
   actionButtonSecondary: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#002245",
+    borderColor: lightTheme.primary,
   },
   actionText: {
     fontSize: 12,
@@ -478,24 +506,26 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   actionTextSecondary: {
-    color: "#002245",
+    color: lightTheme.primary,
   },
 
   // Floating Action Button
   fab: {
     position: "absolute",
     right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#002245",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: lightTheme.primary,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
+    shadowColor: lightTheme.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 10,
+    borderWidth: 3,
+    borderColor: lightTheme.accent,
   },
   fabText: {
     fontSize: 24,
