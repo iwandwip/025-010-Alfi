@@ -20,7 +20,8 @@
     "build:all:preview": "eas build --platform all --profile preview",
     "build:development": "eas build --profile development --platform android",
     "submit:android": "eas submit --platform android",
-    "submit:ios": "eas submit --platform ios"
+    "submit:ios": "eas submit --platform ios",
+    "lint": "expo lint"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.1.2",
@@ -51,7 +52,9 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~9.2.0"
   },
   "private": true,
   "expo": {
