@@ -624,7 +624,7 @@ export default function TimelineManager() {
 
                   <View style={styles.simulationInfoCard}>
                     <Text style={styles.simulationInfoText}>
-                      💡 Mengubah waktu simulasi akan mempengaruhi perhitungan status "terlambat" 
+                      💡 Mengubah waktu simulasi akan mempengaruhi perhitungan status &quot;terlambat&quot; 
                       untuk semua pembayaran berdasarkan timeline {getTypeLabel(activeTimeline.type).toLowerCase()}
                     </Text>
                   </View>
@@ -789,7 +789,7 @@ export default function TimelineManager() {
               <Text style={styles.noTemplatesText}>Belum ada template tersimpan</Text>
               <Text style={styles.noTemplatesDesc}>
                 Template akan tersimpan otomatis saat Anda membuat timeline dan memilih 
-                opsi "Simpan sebagai template"
+                opsi &quot;Simpan sebagai template&quot;
               </Text>
             </View>
           )}

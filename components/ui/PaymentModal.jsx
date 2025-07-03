@@ -893,7 +893,7 @@ const PaymentModal = ({ visible, payment, onClose, onPaymentSuccess, creditBalan
                         Menunggu Konfirmasi
                       </Text>
                       <Text style={[styles.hardwareStatusText, { color: colors.gray700 }]}>
-                        Klik "Mulai" untuk memulai sesi pembayaran
+                        Klik &quot;Mulai&quot; untuk memulai sesi pembayaran
                       </Text>
                     </>
                   )}

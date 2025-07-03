@@ -864,7 +864,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
   },
-  headerContent: {
+  periodCardContent: {
     flex: 1,
   },
   periodTitle: {

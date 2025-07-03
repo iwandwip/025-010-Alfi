@@ -1153,7 +1153,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  navigationButtons: {
+  wizardNavigationButtons: {
     flexDirection: "row",
     gap: 12,
   },

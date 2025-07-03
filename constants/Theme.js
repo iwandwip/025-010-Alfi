@@ -109,8 +109,8 @@ export const BaseColors = {
   terlambat: '#F44336',
 };
 
-// Default Colors (backward compatibility) - will be overridden by theme context
-export const Colors = {
+// Default Theme Colors (backward compatibility) - will be overridden by theme context
+export const ThemeColors = {
   primary: '#F50057',
   primaryDark: '#C51162',
   primaryLight: '#FF5983',

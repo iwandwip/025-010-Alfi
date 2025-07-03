@@ -553,7 +553,7 @@ export default function Pengeluaran() {
                 Belum ada pengeluaran tercatat
               </Text>
               <Text style={[styles.emptySubtext, { color: colors.gray500 }]}>
-                Tekan tombol "Tambah" untuk mencatat pengeluaran pertama
+                Tekan tombol &quot;Tambah&quot; untuk mencatat pengeluaran pertama
               </Text>
             </View>
           ) : (

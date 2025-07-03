@@ -12,9 +12,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LinearGradient } from "expo-linear-gradient";
 import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
 import { signUpWithEmail } from "../../services/authService";
 import { lightTheme } from "../../constants/Colors";
 import { useAuth } from "../../contexts/AuthContext";
@@ -31,7 +29,7 @@ export default function TambahWarga() {
   const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userProfile } = useAuth();
+  // const { userProfile } = useAuth(); // Unused
   const colors = lightTheme; // Consistent theme
 
   const steps = [
