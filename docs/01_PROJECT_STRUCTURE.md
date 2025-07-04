@@ -1,6 +1,6 @@
 # ALFI APP - PROJECT STRUCTURE & DATABASE SCHEMA
 
-**Alfi App** - React Native mobile application untuk "Sistem Pengelolaan Jimpitan Warga" (community savings management system). Sistem manajemen setoran jimpitan berbasis IoT yang mengintegrasikan mobile app dengan ESP32 hardware, menggunakan algoritma K-Nearest Neighbors untuk deteksi mata uang otomatis dan RFID untuk identifikasi warga.
+**Alfi App** - React Native mobile application untuk "Sistem Pengelolaan Jimpitan Warga" (Smart Community Savings Management System). Sistem manajemen setoran jimpitan berbasis IoT yang mengintegrasikan mobile app dengan ESP32 hardware, menggunakan algoritma K-Nearest Neighbors untuk deteksi mata uang otomatis dan RFID untuk identifikasi warga.
 
 ```
    +=============================================================================+
@@ -30,8 +30,8 @@
 
 ## 1.1 Application Architecture
 
-### **Role-Based System Architecture**
-Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara** (admin) dan **Warga** (user). Sistem ini dirancang khusus untuk pengelolaan jimpitan komunitas dengan fitur-fitur enterprise level.
+### **Revolutionary IoT-Based Community Payment System**
+Alfi App menggunakan role-based architecture dengan **Bendahara** (admin) dan **Warga** (user) roles. Sistem ini dirancang khusus untuk pengelolaan jimpitan komunitas Indonesia dengan fitur enterprise-level dan innovative mode-based ESP32 integration.
 
 ```
   ----------------------------------------------------------------------------+
@@ -53,7 +53,7 @@ Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara*
 |  |  👤 Role-Based Access      💰 Advanced Payment System              |  |
 |  |  🏷️  RFID Integration       📊 Timeline Management                  |  |
 |  |  🧠 KNN Currency Detection  💳 Credit Balance System               |  |
-|  |  📱 Dynamic Role Theming    📈 Data Visualization                  |  |
+|  |  🎨 Unified Theme System    📈 Data Visualization                  |  |
 |  |  🔒 Hardware Integration    📄 PDF/Excel Export                    |  |
 |  |  ⚡ Mode-Based Architecture 🔄 Real-time Synchronization           |  |
 |    --------------------------------------------------------------------+   |
@@ -61,11 +61,12 @@ Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara*
 ```
 
 ### **Key Architectural Principles**
-- **Role-Based Access Control**: Bendahara dan Warga memiliki interface dan permission berbeda
-- **Revolutionary Mode-Based RTDB**: 90% ESP32 code reduction dengan ultra-simple coordination
+- **Mode-Based ESP32 Integration**: Revolutionary 90% code reduction dengan ultra-simple string operations
+- **Unified Theme System**: Consistent Alfi Blue (#113b62) design across all user roles
 - **Service Layer Separation**: Business logic terpisah dari UI components
-- **Context-based State Management**: Global state via React Context dengan role-based theming
+- **Context-based State Management**: Global state via React Context dengan intelligent caching
 - **Data Bridge Architecture**: RTDB untuk real-time, Firestore untuk permanent storage
+- **Performance Optimization**: Smart caching, throttling, dan memory management
 
 ## 1.2 Technology Stack
 
@@ -83,8 +84,8 @@ Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara*
 |  | Expo Router 5.1.0         | • Authentication         | • WiFi      |  |
 |  |                           | • Cloud Storage          |             |  |
 |  | UI Framework:             |                          | Sensors:    |  |
-|  | • Custom Components       | Development:             | • MFRC522   |  |
-|  | • Role-based Theming      | • Firebase Admin         | • TCS3200   |  |
+|  | • CoreComponents.jsx      | Development:             | • MFRC522   |  |
+|  | • Unified Theming         | • Firebase Admin         | • TCS3200   |  |
 |  | • React Native SVG        | • Interactive CLI        | • LCD 16x2  |  |
 |  | • Chart Kit               | • Testing Framework      | • RTC DS3231|  |
 |    ----------------+             ----------------+           ------------+  |
@@ -95,13 +96,14 @@ Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara*
 ```json
 {
   "react-native": "0.79.3",
-  "expo": "~53.0.11",
+  "expo": "53.0.11",
   "react": "19.0.0",
   "firebase": "^10.14.0",
   "firebase-admin": "^13.4.0",
   "expo-router": "~5.1.0",
   "react-native-chart-kit": "^6.12.0",
   "react-native-svg": "15.11.2",
+  "react-native-keyboard-aware-scroll-view": "^0.9.5",
   "jspdf": "^2.5.1",
   "jspdf-autotable": "^3.8.2",
   "xlsx": "^0.18.5",
@@ -193,10 +195,10 @@ Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara*
 |  | • RFID Card Status      | • RFID Pairing System       |                |
 |    ----------------+         ----------------+                            |
 |                                                                           |
-|  🎨 DYNAMIC THEMING                                                       |
-|    • Warga: Blue theme (#2563EB) untuk user-friendly interface           |
-|    • Bendahara: Red theme (#DC2626) untuk administrative authority       |
-|    • useRoleTheme hook untuk automatic color adaptation                   |
+|  🎨 UNIFIED THEME SYSTEM                                                  |
+|    • All roles: Alfi Blue (#113b62) untuk consistency                    |
+|    • Payment status colors: lunas, belum_bayar, terlambat               |
+|    • Modern UI dengan shadows, rounded corners, professional design      |
   ----------------------------------------------------------------------------+
 ```
 
@@ -214,7 +216,7 @@ Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara*
 |  | • login, register, logout                                             |
 |  | • password reset                                                      |
 |  | • role-based authentication                                           |
-|  | • bendahara@gmail.com auto-detection                                  |
+|  | • admin@gmail.com auto-detection                                      |
 |  |                                                                       |
 |  | userService.js           ← Warga profile management                    |
 |  | • CRUD operations dengan getAllWarga function                         |
@@ -226,28 +228,6 @@ Alfi App menggunakan role-based architecture dengan dua role utama: **Bendahara*
 |  | • database initialization                                             |
 |  | • realtime DB setup                                                   |
 |  | • authentication config                                               |
-|    ----------------+                                                      |
-|                                                                           |
-|  📊 ADVANCED PAYMENT SERVICES                                             |
-|    ----------------+                                                      |
-|  | adminPaymentService.js   ← COMPREHENSIVE admin payment management     |
-|  | • getAllUsersPaymentStatus dengan detailed analytics                  |
-|  | • Timeline-based payment processing                                   |
-|  | • Bulk payment operations                                             |
-|  | • Financial reporting dan export capabilities                         |
-|  |                                                                       |
-|  | wargaPaymentService.js   ← Warga payment operations                   |
-|  | • getWargaPaymentHistory dengan filtering                             |
-|  | • processPaymentWithCredit untuk advanced payment logic              |
-|  | • Credit balance management dengan automatic allocation               |
-|  | • Payment method support (cash, transfer, credit)                     |
-|  |                                                                       |
-|  | paymentStatusManager.js  ← ENTERPRISE-LEVEL status management        |
-|  | • Smart caching system dengan 5-minute user throttling               |
-|  | • Background sync capabilities                                        |
-|  | • Event-driven notifications                                          |
-|  | • Payment deadline monitoring dengan automatic alerts                 |
-|  | • Performance optimization dengan intelligent throttling              |
 |    ----------------+                                                      |
   ----------------------------------------------------------------------------+
 ```
@@ -295,7 +275,7 @@ const dataBridgeService = {
   
   // Bridge successful payments from RTDB to Firestore
   bridgeHardwarePayment: async (paymentData) => {
-    // Process payment with credit system integration
+    // Process payment dengan credit system integration
   },
   
   // Automatic listeners untuk real-time bridging
@@ -304,6 +284,37 @@ const dataBridgeService = {
     'startHardwarePaymentBridge()'
   ]
 };
+```
+
+### **Advanced Payment Services**
+```
+  ----------------------------------------------------------------------------+
+                     ADVANCED PAYMENT SERVICES                           |
+  ----------------------------------------------------------------------------+
+                                                                          |
+|  📊 PAYMENT STATUS MANAGER                                                |
+|    ----------------+                                                      |
+|  | paymentStatusManager.js  ← ENTERPRISE-LEVEL status management         |
+|  | • Smart caching system dengan 5-minute user throttling               |
+|  | • Background sync capabilities                                        |
+|  | • Event-driven notifications                                          |
+|  | • Payment deadline monitoring dengan automatic alerts                 |
+|  | • Performance optimization dengan intelligent throttling              |
+|  | • In-memory cache dengan timestamp-based invalidation                 |
+|  |                                                                       |
+|  | adminPaymentService.js   ← COMPREHENSIVE admin payment management     |
+|  | • getAllUsersPaymentStatus dengan detailed analytics                  |
+|  | • Timeline-based payment processing                                   |
+|  | • Bulk payment operations                                             |
+|  | • Financial reporting dan export capabilities                         |
+|  |                                                                       |
+|  | wargaPaymentService.js   ← Warga payment operations                   |
+|  | • getWargaPaymentHistory dengan filtering                             |
+|  | • processPaymentWithCredit untuk advanced payment logic              |
+|  | • Credit balance management dengan automatic allocation               |
+|  | • Payment method support (cash, transfer, credit, hardware)           |
+|    ----------------+                                                      |
+  ----------------------------------------------------------------------------+
 ```
 
 ### **Specialized Services**
@@ -371,7 +382,8 @@ const dataBridgeService = {
     registeredBy: string,     // Admin who registered this user
     rfidPairedAt: timestamp,  // RFID pairing timestamp
     totalPayments: number,    // Total payments made
-    totalCredit: number       // Total credit earned
+    totalCredit: number,      // Total credit earned
+    loginCount: number        // Login count tracking
   }
 }
 ```
@@ -462,6 +474,23 @@ const dataBridgeService = {
 }
 ```
 
+#### **Collection: `credit_transactions`** (Credit System Audit Trail)
+```javascript
+{
+  wargaId: string,         // User reference
+  wargaName: string,       // Cached warga name
+  type: string,            // "credit_added" | "credit_used"
+  amount: number,          // Credit amount
+  previousBalance: number, // Previous credit balance
+  newBalance: number,      // New credit balance
+  source: string,          // "overpayment" | "payment" | "manual"
+  description: string,     // Human-readable description
+  paymentContext: object,  // Related payment context (if applicable)
+  createdAt: timestamp,    // Transaction time
+  processedBy: string      // Admin who processed (if manual)
+}
+```
+
 ### **Firebase Realtime Database Structure (Mode-Based Architecture)**
 ```
 root/
@@ -505,6 +534,10 @@ root/
 |      ├── Composite: [wargaId, status, dueDate]                          |
 |      └── Single: [paymentMethod, processedBy]                            |
 |                                                                           |
+|    credit_transactions/                                                   |
+|      ├── Composite: [wargaId, createdAt]                                |
+|      └── Single: [type, source, processedBy]                            |
+|                                                                           |
 |  🔄 RTDB PERFORMANCE                                                       |
 |    • Single mode field prevents race conditions                          |
 |    • Direct path access (no JSON parsing needed)                         |
@@ -538,7 +571,7 @@ root/
 │   │   └── logout.jsx                     # Logout functionality
 │   └── (admin)/                           # Admin/Bendahara panel
 │       ├── _layout.jsx                    # Admin layout
-│       ├── index.jsx                      # Admin dashboard
+│       ├── index.jsx                      # Admin dashboard dengan hardware control
 │       ├── daftar-warga.jsx               # Warga list management
 │       ├── daftar-warga-COMPLETED.jsx     # Archived warga listing
 │       ├── tambah-warga.jsx               # Add new warga
@@ -587,7 +620,7 @@ root/
 │   ├── AuthContext.jsx                    # User authentication & session
 │   ├── SettingsContext.jsx                # App settings with Firebase sync
 │   ├── NotificationContext.jsx            # Toast notifications & alerts
-│   └── ThemeContext.jsx                   # Theme management with role-based colors
+│   └── ThemeContext.jsx                   # Theme management with unified colors
 
 ├── services/                               # 💼 Business Logic Layer
 │   ├── firebase.js                        # Firebase initialization & config
@@ -614,7 +647,7 @@ root/
 
 ├── constants/                              # 📐 App Constants
 │   ├── Colors.js                          # Color scheme & theme definitions
-│   ├── theme.js                           # 🆕 Advanced theme with role-based colors
+│   ├── theme.js                           # 🆕 Advanced theme with unified colors
 │   ├── ButtonStyles.js                    # 🆕 Button styling system
 │   ├── CardStyles.js                      # 🆕 Card component styling
 │   └── fonts.js                           # Font definitions
@@ -683,6 +716,11 @@ root/
 │   └── serviceAccountKey.json             # Firebase admin service account
 
 ├── 📚 DOCUMENTATION
+├── docs/                                  # Complete project documentation
+│   ├── README.md                          # Documentation index
+│   ├── 01_PROJECT_STRUCTURE.md            # This file - project structure
+│   ├── 02_SYSTEM_FLOWS.md                 # System flows & data architecture
+│   └── 03_VERSION_HISTORY.md              # Version history & changelog
 ├── README.md                              # Main project documentation
 ├── CLAUDE.md                              # Claude Code development guide
 ├── SYSTEM_FLOWS.md                        # System documentation & flows
@@ -702,25 +740,20 @@ root/
 
 ## 1.7 UI Interface Design & Theme System
 
-### **Advanced Role-Based Theme System**
+### **Unified Theme System**
 ```
   ----------------------------------------------------------------------------+
-                            ROLE-BASED DESIGN SYSTEM                      |
+                            UNIFIED DESIGN SYSTEM                          |
   ----------------------------------------------------------------------------+
                                                                           |
-|  🎨 DYNAMIC COLOR SCHEMES                                                 |
+|  🎨 ALFI BLUE THEME (Universal)                                           |
 |    ----------------+                                                      |
-|  | 👨‍💼 BENDAHARA THEME (Administrative Authority)                          |
-|  | Primary: #DC2626      ← Red-600 untuk admin functions                |
-|  | Secondary: #EF4444    ← Red-500 untuk highlights                     |
-|  | Accent: #F87171       ← Red-400 untuk accents                        |
-|  | Background: #FEF2F2   ← Red-50 untuk backgrounds                     |
-|  |                                                                       |
-|  | 👤 WARGA THEME (User-Friendly Interface)                              |
-|  | Primary: #2563EB      ← Blue-600 untuk user functions                |
-|  | Secondary: #3B82F6    ← Blue-500 untuk highlights                    |
-|  | Accent: #60A5FA       ← Blue-400 untuk accents                       |
-|  | Background: #EFF6FF   ← Blue-50 untuk backgrounds                    |
+|  | Primary: #113b62        ← Alfi Blue untuk semua roles                |
+|  | Secondary: #ffffff      ← White backgrounds                          |
+|  | Success: #4caf50        ← Green untuk status lunas                   |
+|  | Warning: #ff9800        ← Orange untuk terlambat                     |
+|  | Error: #f44336          ← Red untuk belum_bayar                      |
+|  | Info: #2196f3           ← Blue untuk informational                   |
 |    ----------------+                                                      |
 |                                                                           |
 |  📱 RESPONSIVE LAYOUT                                                     |
@@ -728,8 +761,8 @@ root/
 |  | Mobile-First Design   ← Optimized untuk mobile screens                |
 |  | Adaptive Typography   ← Scalable text sizes dengan Poppins           |
 |  | Touch-Friendly UI     ← 44px minimum touch targets                    |
-|  | Role-Based Navigation ← Different layouts untuk different roles       |
-|  | Dynamic Theming       ← useRoleTheme hook untuk automatic adaptation |
+|  | Consistent Navigation ← Same layout untuk all roles                   |
+|  | Professional Shadows  ← Consistent elevation system                   |
 |    ----------------+                                                      |
   ----------------------------------------------------------------------------+
 ```
@@ -746,7 +779,7 @@ const CoreComponents = {
   Center: ({ children, ...props }) => <View style={centerStyles} {...props}>{children}</View>,
   
   // Typography Components
-  Text: ({ children, variant, ...props }) => <RNText style={getTextStyle(variant)} {...props}>{children}</RNText>,
+  CustomText: ({ children, variant, ...props }) => <RNText style={getTextStyle(variant)} {...props}>{children}</RNText>,
   Heading: ({ children, size, ...props }) => <RNText style={getHeadingStyle(size)} {...props}>{children}</RNText>,
   
   // Form Components
@@ -765,23 +798,54 @@ const CoreComponents = {
   )
 };
 
-// useRoleTheme.js - Dynamic role-based theming
+// useRoleTheme.js - Simplified theming hook
 const useRoleTheme = () => {
   const { user } = useAuth();
-  const isBendahara = user?.role === 'bendahara' || user?.role === 'admin';
   
   return {
-    colors: isBendahara ? BendaharaColors : WargaColors,
-    theme: isBendahara ? 'bendahara' : 'warga',
-    isDark: false, // Could be extended untuk dark mode
-    getColor: (colorKey) => isBendahara ? BendaharaColors[colorKey] : WargaColors[colorKey]
+    colors: theme.colors, // Unified theme untuk all roles
+    theme: theme,
+    getColor: (colorKey) => theme.colors[colorKey] || colorKey,
+    getSpacing: (size) => theme.spacing[size] || size * 4,
+    getShadow: (level) => theme.shadows[level] || theme.shadows.sm
   };
 };
 ```
 
-### **Screen Layout Mockups**
+### **Advanced Payment Interface**
+```javascript
+// PaymentModal.jsx - Enterprise-level payment processing
+const PaymentModal = {
+  // Hardware payment mode dengan ESP32 integration
+  hardwareMode: {
+    features: [
+      "Real-time ESP32 communication via RTDB",
+      "Mode-based coordination (payment mode)",
+      "RFID validation dengan expected card",
+      "KNN currency detection untuk IDR 2K/5K/10K",
+      "Automatic partial payment → credit conversion",
+      "App-managed timeouts (5 minutes)",
+      "Real-time progress tracking dengan status updates"
+    ]
+  },
+  
+  // App-based payment mode dengan manual entry
+  appMode: {
+    features: [
+      "Multiple payment methods (transfer, e-wallet, QRIS)",
+      "Custom amount entry dengan validation",
+      "Credit balance integration",
+      "Excess amount handling (max 3x nominal)",
+      "Instant payment processing",
+      "Receipt generation dengan transaction details"
+    ]
+  }
+};
+```
 
-#### **Warga Dashboard (Tab Interface)**
+### **Screen Layout Examples**
+
+#### **Warga Dashboard (Enhanced)**
 ```
 ┌─────────────────────────────────────────────┐
 │  💰 Jimpitan Dashboard - Warga              │
@@ -791,17 +855,18 @@ const useRoleTheme = () => {
 ├─────────────────────────────────────────────┤
 │  📅 Status Setoran Minggu Ini              │
 │  ┌───────────────────────────────────────┐  │
-│  │ Minggu 1    │ ✅ Lunas    │ Rp 5.000  │  │
-│  │ Minggu 2    │ ⏳ Belum    │ Rp 5.000  │  │
-│  │ Minggu 3    │ ⏳ Belum    │ Rp 5.000  │  │
-│  │ Minggu 4    │ ⏳ Belum    │ Rp 5.000  │  │
+│  │ Minggu 1    │ ✅ LUNAS    │ Rp 5.000  │  │
+│  │ Minggu 2    │ ⏳ BELUM    │ Rp 5.000  │  │
+│  │ Minggu 3    │ ⏳ BELUM    │ Rp 5.000  │  │
+│  │ Minggu 4    │ ⏳ BELUM    │ Rp 5.000  │  │
 │  └───────────────────────────────────────┘  │
 ├─────────────────────────────────────────────┤
 │  📊 Riwayat Pembayaran │ 🏷️ RFID: Active    │
+│  ↻ Pull to refresh     │ [Reload Cache]     │
 └─────────────────────────────────────────────┘
 ```
 
-#### **Bendahara Admin Panel**
+#### **Admin Dashboard (Hardware Integrated)**
 ```
 ┌─────────────────────────────────────────────┐
 │  🏛️ Panel Bendahara - Sistem Jimpitan      │
@@ -810,98 +875,97 @@ const useRoleTheme = () => {
 │  Total Warga: 45 │ Setoran Bulan: Rp 2.5M  │
 │  Active: 42       │ Kredit Tertunda: Rp 150K│
 ├─────────────────────────────────────────────┤
+│  🔌 Hardware Control                        │
+│  ┌─────────────┐   ┌─────────────┐        │
+│  │ Mode: IDLE  │   │ 🔓 Emergency│        │
+│  │ Status: ●   │   │    Unlock   │        │
+│  └─────────────┘   └─────────────┘        │
+├─────────────────────────────────────────────┤
 │  🚀 Quick Actions                           │
 │  ┌─────────────┐   ┌─────────────┐        │
 │  │ 👥 Kelola   │   │ 🏷️ Pairing  │        │
 │  │    Warga    │   │    RFID     │        │
 │  └─────────────┘   └─────────────┘        │
 │  ┌─────────────┐   ┌─────────────┐        │
-│  │ 💰 Proses   │   │ 📊 Laporan  │        │
-│  │   Payment   │   │  Keuangan   │        │
+│  │ 💰 Payment  │   │ 📊 Laporan  │        │
+│  │   Manager   │   │  Keuangan   │        │
 │  └─────────────┘   └─────────────┘        │
-├─────────────────────────────────────────────┤
-│  📈 Status Pembayaran Terkini               │
-│  • 15 warga sudah bayar minggu ini          │
-│  • 3 pembayaran terlambat                   │
-│  • 5 pending approval                       │
 └─────────────────────────────────────────────┘
 ```
 
-#### **Hardware Payment Interface**
+#### **Hardware Payment Interface (Advanced)**
 ```
 ┌─────────────────────────────────────────────┐
 │  🔌 Hardware Payment - Mode Active          │
 ├─────────────────────────────────────────────┤
 │  Step 1: RFID Detection                     │
 │  ┌───────────────────────────────────────┐  │
-│  │  🏷️ Tap your RFID card...             │  │
-│  │      [●○○] Waiting...                 │  │
+│  │  🏷️ Expected: ****1234               │  │
+│  │      [●○○] Waiting for card...        │  │
 │  └───────────────────────────────────────┘  │
 │                                             │
 │  Step 2: Currency Detection                 │
 │  ┌───────────────────────────────────────┐  │
-│  │  💵 Insert money into device...        │  │
-│  │      KNN Algorithm Ready               │  │
+│  │  💵 KNN Algorithm Ready               │  │
+│  │      Insert IDR 2K/5K/10K...          │  │
 │  └───────────────────────────────────────┘  │
 │                                             │
 │  📊 Session Info:                           │
-│  Expected: Rp 5.000 | RFID: ****1234       │
-│  Status: Waiting for payment                │
+│  Expected: Rp 5.000 | Timeout: 04:23       │
+│  Status: Waiting for RFID + payment        │
 │                                             │
-│  [Cancel Session] [Reset]                   │
+│  [Cancel Session] [Reset] [Force Complete] │
 └─────────────────────────────────────────────┘
 ```
 
-### **Visual Design System**
+### **Advanced UI Features**
 
-#### **Component Hierarchy**
-```
-🎨 COMPONENT DESIGN HIERARCHY
-
-Level 1: CoreComponents (Foundation)
-├── Layout: Container, Box, VStack, HStack, Center
-├── Typography: Text, Heading dengan Poppins font
-├── Forms: Button, Input dengan role-based styling
-└── Utilities: LoadingSpinner, SafeArea, CustomModal
-
-Level 2: Specialized Components  
-├── PaymentModal: Advanced payment interface
-├── CreditBalance: Credit display dengan formatting
-├── DataTable: Sophisticated table dengan pagination
-└── TimelinePicker: Timeline selection interface
-
-Level 3: Business Components
-├── AuthForm: Authentication dengan role detection
-├── WargaCard: Warga information display
-├── PaymentStatusCard: Payment status dengan color coding
-└── HardwareStatusIndicator: Real-time hardware status
-
-Level 4: Screen-Specific Components
-├── AdminDashboard: Complete admin interface
-├── WargaDashboard: User-friendly warga interface
-├── PaymentManagerInterface: Advanced payment management
-└── TimelineManagerInterface: Timeline creation & management
+#### **Payment Status Manager Integration**
+```javascript
+// Enhanced payment status dengan intelligent caching
+const PaymentStatusComponent = {
+  features: [
+    "5-minute user-specific caching",
+    "Background app state handling",
+    "Automatic overdue detection",
+    "Real-time status updates",
+    "Performance throttling",
+    "Event-driven notifications"
+  ],
+  
+  cacheStrategy: {
+    userPayments: "5 minutes",
+    pageData: "2 minutes", 
+    backgroundResume: "30 minutes"
+  }
+};
 ```
 
-#### **Interactive Elements & States**
-```
-🔵 PRIMARY ACTIONS (Role-based colors)
-- Warga: Blue buttons untuk user actions
-- Bendahara: Red buttons untuk admin actions
-- Success: Green untuk completed actions
-- Warning: Orange untuk pending actions
-
-📱 TOUCH FEEDBACK
-- Haptic feedback pada important interactions
-- Visual feedback dengan scale animations
-- Loading states dengan role-themed spinners
-- Toast notifications dengan contextual colors
-
-🔄 REAL-TIME UPDATES
-- Payment status dengan live sync indicators
-- Hardware connection status dengan pulsing icons
-- Credit balance updates dengan smooth transitions
-- Timeline progress dengan animated progress bars
+#### **Performance Optimizations**
+```javascript
+// Advanced performance patterns
+const PerformanceFeatures = {
+  listRendering: [
+    "FlatList dengan getItemLayout optimization",
+    "Memoized payment card components",
+    "Smart pagination dengan windowing",
+    "Optimistic UI updates"
+  ],
+  
+  dataManagement: [
+    "In-memory cache dengan LRU eviction",
+    "Intelligent background sync",
+    "Debounced user interactions",
+    "Selective component re-renders"
+  ],
+  
+  hardwareIntegration: [
+    "Mode-based ESP32 communication",
+    "App-managed timeouts",
+    "Real-time progress tracking",
+    "Automatic cleanup patterns"
+  ]
+};
 ```
 
 ---

@@ -1,6 +1,6 @@
 # ALFI APP - SYSTEM FLOWS & DATA ARCHITECTURE
 
-**Sistem Data Flow dan Processing Logic** untuk Alfi App - Revolutionary mode-based hardware integration, intelligent payment processing, dan real-time community savings management system.
+**Sistem Data Flow dan Processing Logic** untuk Alfi App - Revolutionary mode-based hardware integration, intelligent payment processing, dan real-time community savings management system dengan enterprise-level performance optimization.
 
 ```
    +=============================================================================+
@@ -22,7 +22,7 @@
 - [2.2 Advanced Payment Processing Flow](#22-advanced-payment-processing-flow)
 - [2.3 RFID Pairing & Hardware Integration Flow](#23-rfid-pairing-hardware-integration-flow)
 - [2.4 Data Bridge & Synchronization Flow](#24-data-bridge-synchronization-flow)
-- [2.5 Timeline Management & Credit System Flow](#25-timeline-management-credit-system-flow)
+- [2.5 Performance Optimization & Caching Flow](#25-performance-optimization-caching-flow)
 - [2.6 Authentication & Role-Based Access Flow](#26-authentication-role-based-access-flow)
 
 ---
@@ -41,7 +41,7 @@
 |  | React Native |<--->| Mode-Based     |<--->| Ultra-Simple   |       |
 |  | Service      |     | Architecture   |     | Implementation |       |
 |  | Layer        |     |                |     |                |       |
-|  |              |     | mode: "idle"   |     | String读取      |       |
+|  |              |     | mode: "idle"   |     | String読取      |       |
 |  | setMode()    |-----| "pairing"      |---->| No JSON parsing|       |
 |  | getMode()    |     | "payment"      |     | Direct commands|       |
 |  | subscribe()  |     | "solenoid"     |     | 1-second check |       |
@@ -220,7 +220,7 @@ const hardwareCommunicationFlow = {
 
 ## 2.2 Advanced Payment Processing Flow
 
-### **Credit-Based Payment System Architecture**
+### **Enterprise-Level Payment System Architecture**
 ```
   ----------------------------------------------------------------------------+
                    ADVANCED PAYMENT PROCESSING FLOW                      |
@@ -245,6 +245,106 @@ const hardwareCommunicationFlow = {
 |  1. Payment Input → 2. Amount Validation → 3. Credit Check →             |
 |  4. Smart Allocation → 5. Status Update → 6. Receipt Generation          |
   ----------------------------------------------------------------------------+
+```
+
+### **PaymentModal - Dual Payment Processing**
+```javascript
+// PaymentModal.jsx - Enterprise-level payment interface
+const PaymentModal = {
+  // Hardware payment mode dengan ESP32 integration
+  hardwareMode: {
+    features: [
+      "Real-time ESP32 communication via RTDB",
+      "Mode-based coordination (payment mode)",
+      "RFID validation dengan expected card",
+      "KNN currency detection untuk IDR 2K/5K/10K",
+      "Automatic partial payment → credit conversion",
+      "App-managed timeouts (5 minutes)",
+      "Real-time progress tracking dengan status updates"
+    ],
+    
+    processFlow: async (paymentData) => {
+      // 1. Set payment mode dengan session data
+      const result = await rtdbModeService.startHardwarePayment(
+        paymentData.rfidCode,
+        paymentData.amount,
+        paymentData.userId,
+        paymentData.timelineId,
+        paymentData.periodKey
+      );
+      
+      // 2. Subscribe untuk real-time progress
+      const unsubscribe = rtdbModeService.subscribeToPaymentProgress((progress) => {
+        updateProgressUI(progress);
+      });
+      
+      // 3. Subscribe untuk final results
+      const resultUnsubscribe = rtdbModeService.subscribeToPaymentResults((results) => {
+        if (results.status === 'completed') {
+          // Bridge to Firestore via dataBridgeService
+          processFinalPayment(results);
+        } else if (results.status === 'rfid_salah') {
+          showRFIDError();
+        }
+      });
+      
+      // 4. App-managed timeout (5 minutes)
+      setTimeout(() => {
+        if (currentMode === 'payment') {
+          rtdbModeService.resetToIdle();
+          showTimeoutError();
+        }
+      }, 300000);
+    }
+  },
+  
+  // App-based payment mode dengan manual entry
+  appMode: {
+    features: [
+      "Multiple payment methods (transfer, e-wallet, QRIS)",
+      "Custom amount entry dengan validation",
+      "Credit balance integration",
+      "Excess amount handling (max 3x nominal)",
+      "Instant payment processing",
+      "Receipt generation dengan transaction details"
+    ],
+    
+    processFlow: async (paymentData) => {
+      // 1. Validate payment amount
+      const maxAmount = paymentData.requiredAmount * 3;
+      if (paymentData.customAmount > maxAmount) {
+        throw new Error(`Maksimal pembayaran: Rp${maxAmount.toLocaleString('id-ID')}`);
+      }
+      
+      // 2. Process payment dengan credit system
+      const result = await wargaPaymentService.processPaymentWithCredit(
+        paymentData.timelineId,
+        paymentData.periodKey,
+        paymentData.wargaId,
+        paymentData.customAmount,
+        paymentData.method
+      );
+      
+      // 3. Handle different scenarios
+      if (result.success) {
+        if (result.excess > 0) {
+          // Excess converted to credit
+          showSuccessWithCredit(result);
+        } else {
+          // Exact or partial payment
+          showPaymentSuccess(result);
+        }
+      }
+      
+      // 4. Update payment status manager cache
+      await paymentStatusManager.updateUserPaymentStatus(
+        paymentData.wargaId, 
+        true, 
+        'payment_processed'
+      );
+    }
+  }
+};
 ```
 
 ### **Smart Payment Allocation Algorithm**
@@ -277,12 +377,23 @@ const paymentAllocationFlow = {
           paymentMethod: method,
           amountPaid: amount,
           creditUsed: creditUsed,
+          excess: excess,
           notes: `Lunas: Cash Rp${cashUsed.toLocaleString('id-ID')}${creditUsed > 0 ? `, Credit Rp${creditUsed.toLocaleString('id-ID')}` : ''}`
         });
         
         // Update user credit balance
         const newCreditBalance = creditBalance - creditUsed + excess;
         await updateUserCredit(wargaId, newCreditBalance);
+        
+        // Log credit transaction untuk audit trail
+        if (excess > 0) {
+          await addCreditTransaction(wargaId, {
+            type: 'credit_added',
+            amount: excess,
+            source: 'overpayment',
+            description: `Kelebihan pembayaran: Rp${excess.toLocaleString('id-ID')}`
+          });
+        }
         
         return {
           success: true,
@@ -295,6 +406,14 @@ const paymentAllocationFlow = {
         // SCENARIO B: Insufficient funds - add to credit
         const newCreditBalance = creditBalance + amount;
         await updateUserCredit(wargaId, newCreditBalance);
+        
+        // Log credit addition
+        await addCreditTransaction(wargaId, {
+          type: 'credit_added',
+          amount: amount,
+          source: 'partial_payment',
+          description: `Pembayaran parsial: Rp${amount.toLocaleString('id-ID')}`
+        });
         
         return {
           success: true,
@@ -310,116 +429,74 @@ const paymentAllocationFlow = {
     }
   },
   
-  // Batch payment processing untuk multiple periods
-  processBatchPayments: async (wargaId, payments) => {
-    const results = [];
-    let currentCreditBalance = (await getUserById(wargaId)).creditBalance || 0;
-    
-    // Sort payments by due date (oldest first)
-    const sortedPayments = payments.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-    
-    for (const payment of sortedPayments) {
-      if (currentCreditBalance >= payment.amount) {
-        // Process payment dengan credit
-        const result = await processPaymentWithCredit(
-          payment.timelineId, payment.periodKey, wargaId, 
-          0, 'credit' // Use 0 cash, pure credit payment
-        );
-        
-        if (result.success) {
-          currentCreditBalance = result.newCreditBalance;
-          results.push({ payment, result: 'processed', method: 'credit' });
-        }
-      } else {
-        results.push({ payment, result: 'insufficient_credit', needed: payment.amount - currentCreditBalance });
-      }
-    }
-    
-    return { success: true, processed: results, finalCreditBalance: currentCreditBalance };
-  }
-};
-```
-
-### **Payment Status Management with Caching**
-```javascript
-// paymentStatusManager.js - Enterprise-level status management
-const paymentStatusManager = {
-  // Smart caching system dengan throttling
-  cache: new Map(),
-  throttleSettings: {
-    perUser: 5 * 60 * 1000,     // 5 minutes per user
-    perPage: 2 * 60 * 1000,     // 2 minutes per page
-    backgroundResume: 30 * 60 * 1000 // 30 minutes background resume
-  },
-  
-  // Update user payment status dengan intelligent caching
-  updateUserPaymentStatus: async (userId, forceUpdate = false, source = 'manual') => {
-    const key = `user_payments_${userId}`;
-    
-    // Check throttling rules
-    if (!forceUpdate && this.shouldSkipUpdate('user_payments', userId)) {
-      console.log(`⚡ Skipping update for ${userId} due to throttling`);
-      const cached = await this.getFromCache(key);
-      if (cached) return { success: true, data: cached, fromCache: true };
-    }
-    
-    // Prevent duplicate updates
-    if (this.isUpdating.has(key)) {
-      return { success: false, error: 'Update in progress' };
-    }
-    
+  // Auto-apply credit untuk outstanding payments
+  autoApplyCredit: async (wargaId) => {
     try {
-      this.isUpdating.add(key);
-      console.log(`🔄 Updating payment status for user ${userId} (source: ${source})`);
+      const user = await getUserById(wargaId);
+      const creditBalance = user.creditBalance || 0;
       
-      // Get fresh data dari wargaPaymentService
-      const result = await getWargaPaymentHistory(userId);
-      
-      if (result.success) {
-        // Cache result dan update timestamps
-        this.setCache(key, result);
-        this.markUpdateTime('user_payments', userId);
-        
-        // Notify listeners untuk real-time UI updates
-        this.notifyListeners('user_payment_updated', {
-          userId, data: result, source
-        });
-        
-        // Check untuk overdue payments dan upcoming deadlines
-        const overduePayments = this.checkForOverduePayments(result.payments || []);
-        const upcomingPayments = this.checkForUpcomingPayments(result.payments || []);
-        
-        // Trigger notifications jika ada overdue/upcoming payments
-        if (overduePayments.length > 0) {
-          this.notifyListeners('payments_overdue', {
-            userId, payments: overduePayments, count: overduePayments.length
-          });
-        }
-        
-        return { success: true, data: result, source };
+      if (creditBalance === 0) {
+        return { success: true, message: 'No credit balance to apply' };
       }
       
-    } finally {
-      this.isUpdating.delete(key);
-    }
-  },
-  
-  // Background app state handling
-  handleAppStateChange: async (nextAppState, userId = null) => {
-    if (nextAppState === 'active') {
-      const now = Date.now();
-      const timeSinceBackground = this.backgroundTime ? now - this.backgroundTime : 0;
+      // Get outstanding payments (sorted by due date)
+      const outstandingPayments = await getOutstandingPaymentsForWarga(wargaId);
       
-      // Update after long background period
-      if (timeSinceBackground > this.throttleSettings.backgroundResume) {
-        console.log('📱 App resumed after long background, updating payment status');
-        
-        if (userId) {
-          await this.updateUserPaymentStatus(userId, false, 'app_resume');
+      if (outstandingPayments.length === 0) {
+        return { success: true, message: 'No outstanding payments found' };
+      }
+      
+      let remainingCredit = creditBalance;
+      const appliedPayments = [];
+      
+      for (const payment of outstandingPayments) {
+        if (remainingCredit >= payment.amount) {
+          // Full payment dengan credit
+          const result = await processPaymentWithCredit(
+            payment.timelineId, payment.period, wargaId,
+            0, 'auto_credit' // 0 cash, pure credit
+          );
+          
+          if (result.success) {
+            remainingCredit -= payment.amount;
+            appliedPayments.push({
+              payment: payment,
+              creditUsed: payment.amount,
+              status: 'completed'
+            });
+          }
+        } else if (remainingCredit > 0) {
+          // Partial payment dengan remaining credit
+          const result = await processPaymentWithCredit(
+            payment.timelineId, payment.period, wargaId,
+            remainingCredit, 'auto_credit_partial'
+          );
+          
+          if (result.success) {
+            appliedPayments.push({
+              payment: payment,
+              creditUsed: remainingCredit,
+              status: 'partial'
+            });
+            remainingCredit = 0;
+          }
+          break; // No more credit to apply
         }
       }
-    } else if (nextAppState === 'background') {
-      this.backgroundTime = Date.now();
+      
+      console.log(`💳 Auto-applied credit: ${appliedPayments.length} payments processed`);
+      
+      return {
+        success: true,
+        paymentsProcessed: appliedPayments.length,
+        totalCreditUsed: creditBalance - remainingCredit,
+        remainingCredit: remainingCredit,
+        appliedPayments: appliedPayments
+      };
+      
+    } catch (error) {
+      console.error('Error auto-applying credit:', error);
+      return { success: false, error: error.message };
     }
   }
 };
@@ -511,7 +588,7 @@ const rfidPairingFlow = {
           await updatePairingSession({
             rfidCode: rfidCode,
             status: 'completed',
-            receivedTime: serverTimestamp()
+            completedAt: serverTimestamp()
           });
           
           // Complete session dan reset ke idle
@@ -534,7 +611,7 @@ const rfidPairingFlow = {
             // Timeout - cancel session
             await updatePairingSession({
               status: 'cancelled',
-              cancelledTime: serverTimestamp(),
+              cancelledAt: serverTimestamp(),
               cancelReason: 'timeout'
             });
             
@@ -565,7 +642,11 @@ const rfidPairingFlow = {
     try {
       await updateDoc(doc(db, 'rfid_pairing', 'current_session'), {
         ...updates,
-        lastActivity: serverTimestamp()
+        metadata: {
+          ...updates.metadata,
+          lastActivity: serverTimestamp()
+        },
+        updatedAt: serverTimestamp()
       });
     } catch (error) {
       console.error('Error updating pairing session:', error);
@@ -578,7 +659,7 @@ const rfidPairingFlow = {
       // Update session sebagai cancelled
       await updatePairingSession({
         status: 'cancelled',
-        cancelledTime: serverTimestamp(),
+        cancelledAt: serverTimestamp(),
         cancelReason: reason
       });
       
@@ -725,7 +806,7 @@ const dataBridgeFlow = {
       const result = await processPaymentWithCredit(
         timelineId, periodKey, userId,
         parseInt(amountDetected),
-        'mode_based_hardware'
+        'hardware_payment'
       );
       
       if (result.success) {
@@ -831,518 +912,337 @@ const dataBridgeFlow = {
 };
 ```
 
-### **Data Consistency & Validation**
+## 2.5 Performance Optimization & Caching Flow
+
+### **PaymentStatusManager - Enterprise Caching System**
+```
+  ----------------------------------------------------------------------------+
+                    PERFORMANCE OPTIMIZATION & CACHING FLOW               |
+  ----------------------------------------------------------------------------+
+                                                                          |
+|  📊 PAYMENT STATUS MANAGER                                                |
+                                                                          |
+|    ----------------+       ----------------+       ----------------+       |
+|  | In-Memory Cache |<--->| Intelligent     |<--->| Background Sync |       |
+|  | • User Payment  |     | Throttling      |     | • App State     |       |
+|  | • Timeline Data |     | System          |     | • Auto Resume   |       |
+|  | • Credit Info   |     |                 |     | • Performance   |       |
+|  |                 |     | Throttle Rules: |     |                 |       |
+|  | Cache Strategy: |     | • 5min per user |     | Sync Strategy:  |       |
+|  | • LRU Eviction  |---->| • 2min per page |---->| • 30min resume  |       |
+|  | • TTL based     |     | • Background    |     | • Smart refresh |       |
+|  | • Event driven  |     | • Force update  |     | • Selective     |       |
+|    ----------------+       ----------------+       ----------------+       |
+|                                                                           |
+|  ⚡ PERFORMANCE FEATURES:                                                  |
+|  • Event-driven cache invalidation • Automatic overdue detection          |
+|  • Smart background synchronization • Memory-efficient data structures    |
+|  • Intelligent throttling system    • Performance metrics tracking        |
+  ----------------------------------------------------------------------------+
+```
+
+### **PaymentStatusManager Implementation**
 ```javascript
-// Data consistency validation patterns
-const dataConsistencyFlow = {
-  // Validate RFID pairing consistency between RTDB dan Firestore
-  validateRFIDConsistency: async (wargaId) => {
-    try {
-      // Check Firestore user profile
-      const userDoc = await getDoc(doc(db, 'users', wargaId));
-      if (!userDoc.exists()) {
-        return { consistent: false, reason: 'user_not_found' };
-      }
-      
-      const userData = userDoc.data();
-      const firestoreRFID = userData.rfidWarga;
-      
-      // Check if RFID is properly assigned
-      if (firestoreRFID && firestoreRFID !== '') {
-        console.log('✅ RFID consistency validated for:', wargaId);
-        return { consistent: true, rfidCode: firestoreRFID };
-      } else {
-        return { consistent: false, reason: 'rfid_not_assigned' };
-      }
-      
-    } catch (error) {
-      console.error('Error validating RFID consistency:', error);
-      return { consistent: false, error: error.message };
-    }
+// paymentStatusManager.js - Enterprise-level status management
+const paymentStatusManager = {
+  // Smart caching system dengan throttling
+  cache: new Map(),
+  isUpdating: new Set(),
+  lastUpdateTimes: new Map(),
+  listeners: new Map(),
+  
+  throttleSettings: {
+    perUser: 5 * 60 * 1000,     // 5 minutes per user
+    perPage: 2 * 60 * 1000,     // 2 minutes per page
+    backgroundResume: 30 * 60 * 1000 // 30 minutes background resume
   },
   
-  // Validate payment consistency between RTDB dan Firestore
-  validatePaymentConsistency: async (timelineId, periodKey, wargaId) => {
+  // Update user payment status dengan intelligent caching
+  updateUserPaymentStatus: async (userId, forceUpdate = false, source = 'manual') => {
+    const key = `user_payments_${userId}`;
+    
+    // Check throttling rules
+    if (!forceUpdate && this.shouldSkipUpdate('user_payments', userId)) {
+      console.log(`⚡ Skipping update for ${userId} due to throttling`);
+      const cached = await this.getFromCache(key);
+      if (cached) return { success: true, data: cached, fromCache: true };
+    }
+    
+    // Prevent duplicate updates
+    if (this.isUpdating.has(key)) {
+      return { success: false, error: 'Update in progress' };
+    }
+    
     try {
-      // Check Firestore payment record
-      const paymentDoc = await getDoc(doc(
-        db, 'payments', timelineId, 'periods', periodKey, 'warga_payments', wargaId
-      ));
+      this.isUpdating.add(key);
+      console.log(`🔄 Updating payment status for user ${userId} (source: ${source})`);
       
-      if (paymentDoc.exists()) {
-        const paymentData = paymentDoc.data();
+      // Get fresh data dari wargaPaymentService
+      const result = await getWargaPaymentHistory(userId);
+      
+      if (result.success) {
+        // Cache result dan update timestamps
+        this.setCache(key, result);
+        this.markUpdateTime('user_payments', userId);
         
-        console.log('✅ Payment consistency validated:', {
-          timelineId, periodKey, wargaId,
-          status: paymentData.status,
-          amount: paymentData.amountPaid
+        // Notify listeners untuk real-time UI updates
+        this.notifyListeners('user_payment_updated', {
+          userId, data: result, source
         });
         
-        return { consistent: true, paymentData };
-      } else {
-        return { consistent: false, reason: 'payment_not_found' };
-      }
-      
-    } catch (error) {
-      console.error('Error validating payment consistency:', error);
-      return { consistent: false, error: error.message };
-    }
-  },
-  
-  // Cleanup orphaned RTDB data
-  cleanupOrphanedData: async () => {
-    try {
-      const currentMode = await get(ref(rtdb, 'mode'));
-      
-      // If mode is idle but session data exists, cleanup
-      if (currentMode.val() === 'idle') {
-        const pairingData = await get(ref(rtdb, 'pairing_mode'));
-        const paymentData = await get(ref(rtdb, 'payment_mode'));
+        // Check untuk overdue payments dan upcoming deadlines
+        const overduePayments = this.checkForOverduePayments(result.payments || []);
+        const upcomingPayments = this.checkForUpcomingPayments(result.payments || []);
         
-        if (pairingData.val() && pairingData.val() !== '') {
-          await set(ref(rtdb, 'pairing_mode'), '');
-          console.log('🧹 Cleaned orphaned pairing data');
-        }
-        
-        const paymentSession = paymentData.val();
-        if (paymentSession && (paymentSession.get || paymentSession.set)) {
-          await set(ref(rtdb, 'payment_mode'), {
-            get: { rfid_code: '', amount_required: '', user_id: '', timeline_id: '', period_key: '' },
-            set: { amount_detected: '', status: '' }
+        // Trigger notifications jika ada overdue/upcoming payments
+        if (overduePayments.length > 0) {
+          this.notifyListeners('payments_overdue', {
+            userId, payments: overduePayments, count: overduePayments.length
           });
-          console.log('🧹 Cleaned orphaned payment data');
         }
-      }
-      
-      return { success: true, message: 'Cleanup completed' };
-    } catch (error) {
-      console.error('Error cleaning orphaned data:', error);
-      return { success: false, error: error.message };
-    }
-  }
-};
-```
-
-## 2.5 Timeline Management & Credit System Flow
-
-### **Advanced Timeline Management Architecture**
-```
-  ----------------------------------------------------------------------------+
-                    TIMELINE MANAGEMENT & CREDIT SYSTEM                  |
-  ----------------------------------------------------------------------------+
-                                                                          |
-|  📅 TIMELINE CREATION    💳 CREDIT SYSTEM        📊 STATUS TRACKING         |
-                                                                          |
-|    ----------------+       ----------------+       ----------------+       |
-|  | Admin Interface |---->| Credit Engine   |---->| Real-time       |       |
-|  | • Flexible      |     | • Auto Balance  |     | Monitoring      |       |
-|  | Scheduling      |     | • Smart Alloc   |     |                 |       |
-|  |                 |     |                 |     | • Payment Status|       |
-|  | Timeline Types  |     | Balance Tracking|     | • Overdue Alerts|       |
-|  | • Daily         |---->| • Overpayment   |---->| • Credit Usage  |       |
-|  | • Weekly        |     | • Partial       |     | • Progress Track|       |
-|  | • Monthly       |     | • Automatic     |     |                 |       |
-|  | • Yearly        |     |                 |     | Analytics       |       |
-|  |                 |     | Credit Features |     | • Payment Trends|       |
-|  | Holiday Exclude |     | • Prepayment    |     | • Financial     |       |
-|  | • Auto Skip     |     | • Emergency     |     |   Reports       |       |
-|  | • Date Logic    |     | • Refund        |     |                 |       |
-|    ----------------+       ----------------+       ----------------+       |
-  ----------------------------------------------------------------------------+
-```
-
-### **Timeline Creation Flow**
-```javascript
-// Advanced timeline management dengan flexible scheduling
-const timelineManagementFlow = {
-  // Create comprehensive timeline dengan smart period generation
-  createAdvancedTimeline: async (timelineData) => {
-    try {
-      const {
-        timelineName, description, paymentAmount, frequency,
-        startDate, endDate, excludeHolidays, customSettings
-      } = timelineData;
-      
-      // Generate periods berdasarkan frequency dan date range
-      const periods = generateTimelinePeriods({
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        frequency: frequency, // "daily" | "weekly" | "monthly" | "yearly"
-        amount: paymentAmount,
-        excludeHolidays: excludeHolidays
-      });
-      
-      // Create timeline document di Firestore
-      const timelineRef = doc(collection(db, 'active_timeline'));
-      const timelineId = timelineRef.id;
-      
-      await setDoc(timelineRef, {
-        id: timelineId,
-        timelineName: timelineName,
-        description: description,
-        paymentAmount: paymentAmount,
-        frequency: frequency,
-        startDate: startDate,
-        endDate: endDate,
-        isActive: true,
-        excludeHolidays: excludeHolidays,
-        metadata: {
-          totalPeriods: periods.length,
-          completedPeriods: 0,
-          totalWarga: 0, // Will be updated when warga enrolls
-          createdBy: currentUser.uid,
-          activatedAt: serverTimestamp(),
-          lastUpdated: serverTimestamp()
-        },
-        periods: periods.reduce((acc, period) => {
-          acc[period.periodKey] = period;
-          return acc;
-        }, {}),
-        customSettings: customSettings || {}
-      });
-      
-      // Auto-enroll all active warga ke timeline ini
-      const allWarga = await getAllWarga();
-      const activeWarga = allWarga.filter(w => !w.deleted);
-      
-      let enrolledCount = 0;
-      for (const warga of activeWarga) {
-        const enrollResult = await enrollWargaToTimeline(timelineId, warga.id, periods);
-        if (enrollResult.success) enrolledCount++;
-      }
-      
-      // Update total warga count
-      await updateDoc(timelineRef, {
-        'metadata.totalWarga': enrolledCount
-      });
-      
-      console.log(`✅ Timeline created: ${timelineName} with ${periods.length} periods, ${enrolledCount} warga enrolled`);
-      
-      return {
-        success: true,
-        timelineId: timelineId,
-        periodsCreated: periods.length,
-        wargaEnrolled: enrolledCount
-      };
-      
-    } catch (error) {
-      console.error('Error creating timeline:', error);
-      return { success: false, error: error.message };
-    }
-  },
-  
-  // Generate periods berdasarkan frequency
-  generateTimelinePeriods: ({ startDate, endDate, frequency, amount, excludeHolidays }) => {
-    const periods = [];
-    let currentDate = new Date(startDate);
-    let periodCounter = 1;
-    
-    const indonesianHolidays = [
-      '2024-01-01', '2024-02-10', '2024-03-11', '2024-03-29', 
-      '2024-04-10', '2024-05-01', '2024-05-09', '2024-05-23',
-      '2024-06-01', '2024-06-17', '2024-08-17', '2024-12-25'
-      // Add more holidays as needed
-    ];
-    
-    while (currentDate <= endDate) {
-      const dateString = currentDate.toISOString().split('T')[0];
-      
-      // Skip holidays if excludeHolidays is true
-      if (excludeHolidays && indonesianHolidays.includes(dateString)) {
-        // Move to next period without creating entry
-        moveToNextPeriod();
-        continue;
-      }
-      
-      // Create period entry
-      const periodKey = `period_${periodCounter}`;
-      const periodLabel = formatPeriodLabel(frequency, periodCounter, currentDate);
-      
-      periods.push({
-        periodKey: periodKey,
-        periodLabel: periodLabel,
-        dueDate: currentDate.toISOString(),
-        amount: amount,
-        status: 'active',
-        metadata: {
-          frequency: frequency,
-          periodNumber: periodCounter,
-          weekOfYear: getWeekOfYear(currentDate),
-          monthOfYear: currentDate.getMonth() + 1,
-          yearOfPeriod: currentDate.getFullYear()
-        }
-      });
-      
-      periodCounter++;
-      moveToNextPeriod();
-    }
-    
-    function moveToNextPeriod() {
-      switch (frequency) {
-        case 'daily':
-          currentDate.setDate(currentDate.getDate() + 1);
-          break;
-        case 'weekly':
-          currentDate.setDate(currentDate.getDate() + 7);
-          break;
-        case 'monthly':
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          break;
-        case 'yearly':
-          currentDate.setFullYear(currentDate.getFullYear() + 1);
-          break;
-      }
-    }
-    
-    return periods;
-  },
-  
-  // Enroll warga ke timeline dengan create payment documents
-  enrollWargaToTimeline: async (timelineId, wargaId, periods) => {
-    try {
-      const user = await getUserById(wargaId);
-      if (!user) throw new Error('Warga not found');
-      
-      // Create payment documents untuk each period
-      const batch = writeBatch(db);
-      
-      for (const period of periods) {
-        const paymentDocRef = doc(
-          db, 'payments', timelineId, 'periods', period.periodKey, 'warga_payments', wargaId
-        );
         
-        batch.set(paymentDocRef, {
-          id: `${wargaId}_${period.periodKey}`,
-          wargaId: wargaId,
-          wargaName: user.namaWarga,
-          timelineId: timelineId,
-          period: period.periodKey,
-          periodLabel: period.periodLabel,
-          amount: period.amount,
-          dueDate: period.dueDate,
-          status: 'belum_bayar',
-          paymentDate: null,
-          paymentMethod: '',
-          amountPaid: 0,
-          creditUsed: 0,
-          excess: 0,
-          notes: '',
-          processedBy: '',
-          metadata: {
-            source: 'timeline_enrollment',
-            rfidUsed: '',
-            hardwareSessionId: '',
-            retryCount: 0,
-            lastStatusUpdate: serverTimestamp()
-          },
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
+        return { success: true, data: result, source };
       }
       
-      await batch.commit();
-      
-      console.log(`✅ Enrolled warga ${user.namaWarga} to timeline with ${periods.length} periods`);
-      return { success: true, periodsCreated: periods.length };
-      
-    } catch (error) {
-      console.error('Error enrolling warga to timeline:', error);
-      return { success: false, error: error.message };
+    } finally {
+      this.isUpdating.delete(key);
     }
+  },
+  
+  // Check if update should be skipped due to throttling
+  shouldSkipUpdate: (type, identifier) => {
+    const key = `${type}_${identifier}`;
+    const lastUpdate = this.lastUpdateTimes.get(key);
+    
+    if (!lastUpdate) return false;
+    
+    const timeSinceUpdate = Date.now() - lastUpdate;
+    const throttleLimit = this.throttleSettings[type] || this.throttleSettings.perUser;
+    
+    return timeSinceUpdate < throttleLimit;
+  },
+  
+  // Cache management methods
+  setCache: (key, data) => {
+    this.cache.set(key, {
+      data: data,
+      timestamp: Date.now(),
+      ttl: 5 * 60 * 1000 // 5 minutes TTL
+    });
+  },
+  
+  getFromCache: (key) => {
+    const cached = this.cache.get(key);
+    if (!cached) return null;
+    
+    // Check TTL
+    if (Date.now() - cached.timestamp > cached.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return cached.data;
+  },
+  
+  // Mark update time untuk throttling
+  markUpdateTime: (type, identifier) => {
+    const key = `${type}_${identifier}`;
+    this.lastUpdateTimes.set(key, Date.now());
+  },
+  
+  // Event listener system untuk real-time updates
+  addListener: (event, callback) => {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event).add(callback);
+    
+    // Return unsubscribe function
+    return () => {
+      const eventListeners = this.listeners.get(event);
+      if (eventListeners) {
+        eventListeners.delete(callback);
+      }
+    };
+  },
+  
+  notifyListeners: (event, data) => {
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      eventListeners.forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error(`Error in listener for event ${event}:`, error);
+        }
+      });
+    }
+  },
+  
+  // Background app state handling
+  handleAppStateChange: async (nextAppState, userId = null) => {
+    if (nextAppState === 'active') {
+      const now = Date.now();
+      const timeSinceBackground = this.backgroundTime ? now - this.backgroundTime : 0;
+      
+      // Update after long background period
+      if (timeSinceBackground > this.throttleSettings.backgroundResume) {
+        console.log('📱 App resumed after long background, updating payment status');
+        
+        if (userId) {
+          await this.updateUserPaymentStatus(userId, false, 'app_resume');
+        }
+      }
+    } else if (nextAppState === 'background') {
+      this.backgroundTime = Date.now();
+    }
+  },
+  
+  // Check for overdue payments
+  checkForOverduePayments: (payments) => {
+    const now = new Date();
+    return payments.filter(payment => {
+      if (payment.status === 'lunas') return false;
+      const dueDate = new Date(payment.dueDate);
+      return dueDate < now;
+    });
+  },
+  
+  // Check for upcoming payments (within 3 days)
+  checkForUpcomingPayments: (payments) => {
+    const now = new Date();
+    const threeDaysFromNow = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000));
+    
+    return payments.filter(payment => {
+      if (payment.status === 'lunas') return false;
+      const dueDate = new Date(payment.dueDate);
+      return dueDate >= now && dueDate <= threeDaysFromNow;
+    });
+  },
+  
+  // Clear cache (for debugging or force refresh)
+  clearCache: () => {
+    this.cache.clear();
+    this.lastUpdateTimes.clear();
+    console.log('🧹 Payment status manager cache cleared');
+  },
+  
+  // Get cache statistics for monitoring
+  getCacheStats: () => {
+    return {
+      cacheSize: this.cache.size,
+      updateTimes: this.lastUpdateTimes.size,
+      activeUpdates: this.isUpdating.size,
+      listeners: Array.from(this.listeners.keys()).map(event => ({
+        event,
+        listenerCount: this.listeners.get(event).size
+      }))
+    };
   }
 };
 ```
 
-### **Credit System Implementation**
+### **Performance Optimization Patterns**
 ```javascript
-// Advanced credit system dengan intelligent balance management
-const creditSystemFlow = {
-  // Process overpayment ke credit balance
-  addOverpaymentToCredit: async (wargaId, overpaymentAmount, source = 'overpayment') => {
-    try {
-      const user = await getUserById(wargaId);
-      const currentBalance = user.creditBalance || 0;
-      const newBalance = currentBalance + overpaymentAmount;
+// Advanced performance patterns untuk UI components
+const performanceOptimizations = {
+  // FlatList optimization untuk payment lists
+  paymentListOptimization: {
+    // Memoized payment card component
+    PaymentCard: React.memo(({ payment, onPress }) => {
+      const { colors } = useRoleTheme();
       
-      // Update credit balance di user document
-      await updateDoc(doc(db, 'users', wargaId), {
-        creditBalance: newBalance,
-        updatedAt: serverTimestamp(),
-        'metadata.lastCreditUpdate': serverTimestamp(),
-        'metadata.totalCredit': (user.metadata?.totalCredit || 0) + overpaymentAmount
-      });
-      
-      // Log credit transaction untuk audit trail
-      await addDoc(collection(db, 'credit_transactions'), {
-        wargaId: wargaId,
-        wargaName: user.namaWarga,
-        type: 'credit_added',
-        amount: overpaymentAmount,
-        previousBalance: currentBalance,
-        newBalance: newBalance,
-        source: source,
-        description: `Saldo credit ditambah: Rp${overpaymentAmount.toLocaleString('id-ID')}`,
-        createdAt: serverTimestamp(),
-        processedBy: currentUser?.uid || 'system'
-      });
-      
-      console.log(`💳 Credit added: Rp${overpaymentAmount.toLocaleString('id-ID')} untuk ${user.namaWarga}`);
-      
-      return {
-        success: true,
-        previousBalance: currentBalance,
-        newBalance: newBalance,
-        creditAdded: overpaymentAmount
-      };
-      
-    } catch (error) {
-      console.error('Error adding overpayment to credit:', error);
-      return { success: false, error: error.message };
-    }
-  },
-  
-  // Use credit untuk payment
-  useCredit: async (wargaId, creditAmount, paymentContext) => {
-    try {
-      const user = await getUserById(wargaId);
-      const currentBalance = user.creditBalance || 0;
-      
-      if (currentBalance < creditAmount) {
-        throw new Error(`Insufficient credit: Available Rp${currentBalance.toLocaleString('id-ID')}, Required Rp${creditAmount.toLocaleString('id-ID')}`);
-      }
-      
-      const newBalance = currentBalance - creditAmount;
-      
-      // Update credit balance
-      await updateDoc(doc(db, 'users', wargaId), {
-        creditBalance: newBalance,
-        updatedAt: serverTimestamp(),
-        'metadata.lastCreditUpdate': serverTimestamp()
-      });
-      
-      // Log credit usage
-      await addDoc(collection(db, 'credit_transactions'), {
-        wargaId: wargaId,
-        wargaName: user.namaWarga,
-        type: 'credit_used',
-        amount: creditAmount,
-        previousBalance: currentBalance,
-        newBalance: newBalance,
-        source: 'payment',
-        description: `Credit digunakan untuk pembayaran: ${paymentContext.periodLabel}`,
-        paymentContext: paymentContext,
-        createdAt: serverTimestamp(),
-        processedBy: currentUser?.uid || 'system'
-      });
-      
-      console.log(`💳 Credit used: Rp${creditAmount.toLocaleString('id-ID')} untuk ${user.namaWarga}`);
-      
-      return {
-        success: true,
-        previousBalance: currentBalance,
-        newBalance: newBalance,
-        creditUsed: creditAmount
-      };
-      
-    } catch (error) {
-      console.error('Error using credit:', error);
-      return { success: false, error: error.message };
-    }
-  },
-  
-  // Auto-apply credit untuk outstanding payments
-  autoApplyCredit: async (wargaId) => {
-    try {
-      const user = await getUserById(wargaId);
-      const creditBalance = user.creditBalance || 0;
-      
-      if (creditBalance === 0) {
-        return { success: true, message: 'No credit balance to apply' };
-      }
-      
-      // Get outstanding payments (sorted by due date)
-      const outstandingPayments = await getOutstandingPaymentsForWarga(wargaId);
-      
-      if (outstandingPayments.length === 0) {
-        return { success: true, message: 'No outstanding payments found' };
-      }
-      
-      let remainingCredit = creditBalance;
-      const appliedPayments = [];
-      
-      for (const payment of outstandingPayments) {
-        if (remainingCredit >= payment.amount) {
-          // Full payment dengan credit
-          const result = await processPaymentWithCredit(
-            payment.timelineId, payment.period, wargaId,
-            0, 'auto_credit' // 0 cash, pure credit
-          );
-          
-          if (result.success) {
-            remainingCredit -= payment.amount;
-            appliedPayments.push({
-              payment: payment,
-              creditUsed: payment.amount,
-              status: 'completed'
-            });
-          }
-        } else if (remainingCredit > 0) {
-          // Partial payment dengan remaining credit
-          const result = await processPaymentWithCredit(
-            payment.timelineId, payment.period, wargaId,
-            remainingCredit, 'auto_credit_partial'
-          );
-          
-          if (result.success) {
-            appliedPayments.push({
-              payment: payment,
-              creditUsed: remainingCredit,
-              status: 'partial'
-            });
-            remainingCredit = 0;
-          }
-          break; // No more credit to apply
+      const statusColor = useMemo(() => {
+        switch (payment.status) {
+          case 'lunas': return colors.success;
+          case 'terlambat': return colors.warning;
+          default: return colors.error;
         }
-      }
+      }, [payment.status, colors]);
       
-      console.log(`💳 Auto-applied credit: ${appliedPayments.length} payments processed`);
-      
-      return {
-        success: true,
-        paymentsProcessed: appliedPayments.length,
-        totalCreditUsed: creditBalance - remainingCredit,
-        remainingCredit: remainingCredit,
-        appliedPayments: appliedPayments
-      };
-      
-    } catch (error) {
-      console.error('Error auto-applying credit:', error);
-      return { success: false, error: error.message };
+      return (
+        <TouchableOpacity onPress={() => onPress(payment)} style={styles.card}>
+          <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
+          <Text>{payment.periodLabel}</Text>
+          <Text>{formatCurrency(payment.amount)}</Text>
+        </TouchableOpacity>
+      );
+    }),
+    
+    // FlatList optimization props
+    flatListProps: {
+      removeClippedSubviews: true,
+      maxToRenderPerBatch: 10,
+      updateCellsBatchingPeriod: 50,
+      initialNumToRender: 10,
+      windowSize: 10,
+      getItemLayout: (data, index) => ({
+        length: 80,
+        offset: 80 * index,
+        index,
+      }),
+      keyExtractor: (item) => `${item.timelineId}_${item.period}`,
     }
+  },
+  
+  // Debounced search untuk warga lists
+  debouncedSearch: useMemo(() => 
+    debounce((searchTerm) => {
+      setFilteredWarga(
+        allWarga.filter(warga => 
+          warga.namaWarga.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      );
+    }, 300), [allWarga]
+  ),
+  
+  // Background sync optimization
+  backgroundSyncOptimization: {
+    // Smart refresh control
+    onRefresh: useCallback(async () => {
+      setRefreshing(true);
+      try {
+        // Only refresh if last update was > 2 minutes ago
+        const shouldRefresh = paymentStatusManager.shouldSkipUpdate('user_payments', userId);
+        if (!shouldRefresh) {
+          await paymentStatusManager.updateUserPaymentStatus(userId, true, 'pull_refresh');
+        }
+      } finally {
+        setRefreshing(false);
+      }
+    }, [userId]),
+    
+    // Memory cleanup on unmount
+    useEffect(() => {
+      return () => {
+        // Cleanup listeners and cache entries
+        paymentStatusManager.clearUserCache(userId);
+      };
+    }, [userId])
   }
 };
 ```
 
 ## 2.6 Authentication & Role-Based Access Flow
 
-### **Role-Based Authentication System**
+### **Simplified Authentication System**
 ```
   ----------------------------------------------------------------------------+
                   AUTHENTICATION & ROLE-BASED ACCESS FLOW                |
   ----------------------------------------------------------------------------+
                                                                           |
-|  🔐 LOGIN PROCESS        👨‍💼 ROLE DETECTION       🎨 DYNAMIC THEMING        |
+|  🔐 LOGIN PROCESS        👨‍💼 ROLE DETECTION       🎨 UNIFIED THEMING        |
                                                                           |
 |    ----------------+       ----------------+       ----------------+       |
-|  | Firebase Auth   |---->| Auto Role       |---->| useRoleTheme    |       |
-|  | • Email/Pass    |     | Detection       |     | Hook            |       |
+|  | Firebase Auth   |---->| Auto Role       |---->| Unified Theme   |       |
+|  | • Email/Pass    |     | Detection       |     | System          |       |
 |  | • Session Mgmt  |     |                 |     |                 |       |
 |  |                 |     | Special Emails: |     | Theme Colors:   |       |
-|  | Security        |     | • bendahara@    |     | • Bendahara: Red|       |
-|  | • Route Guards  |---->|   gmail.com     |---->| • Warga: Blue   |       |
-|  | • AuthGuard     |     | • admin@        |     | • Dynamic UI    |       |
-|  | • Context       |     |   gmail.com     |     | • Role-based    |       |
-|  |                 |     |                 |     |   Navigation    |       |
+|  | Security        |     | • admin@        |     | • All roles:    |       |
+|  | • Route Guards  |---->|   gmail.com     |---->|   Alfi Blue     |       |
+|  | • AuthGuard     |     | • bendahara@    |     | • Status colors |       |
+|  | • Context       |     |   gmail.com     |     | • Professional  |       |
+|  |                 |     |                 |     |   Design        |       |
 |  | Password Reset  |     | Role Assignment |     | Adaptive Layout |       |
 |  | • Email Link    |     | • Automatic     |     | • Touch-friendly|       |
 |  | • Secure        |     | • Context-aware |     | • Responsive    |       |
@@ -1428,8 +1328,8 @@ const authenticationFlow = {
   // Determine user role berdasarkan email patterns
   determineUserRole: (email) => {
     const adminEmails = [
-      'bendahara@gmail.com',
-      'admin@gmail.com'
+      'admin@gmail.com',
+      'bendahara@gmail.com'
     ];
     
     if (adminEmails.includes(email.toLowerCase())) {
@@ -1557,49 +1457,88 @@ const authenticationFlow = {
 };
 ```
 
-### **Role-Based Theme System Implementation**
+### **Unified Theme System Implementation**
 ```javascript
-// useRoleTheme.js - Dynamic role-based theming hook
-const roleBasedThemingFlow = {
-  // Dynamic theme hook berdasarkan user role
+// useRoleTheme.js - Simplified unified theming hook
+const unifiedThemingFlow = {
+  // Unified theme hook (role-independent)
   useRoleTheme: () => {
     const { user, profile } = useAuth();
     const [currentTheme, setCurrentTheme] = useState(null);
     
     useEffect(() => {
       if (profile) {
-        const isBendahara = profile.role === 'bendahara' || profile.role === 'admin';
-        
-        const themeColors = isBendahara ? {
-          // Bendahara/Admin Theme (Red - Authority)
-          primary: '#DC2626',     // Red-600
-          secondary: '#EF4444',   // Red-500
-          accent: '#F87171',      // Red-400
-          background: '#FEF2F2',  // Red-50
-          surface: '#FFFFFF',
-          text: '#1F2937',        // Gray-800
-          success: '#10B981',     // Emerald-500
-          warning: '#F59E0B',     // Amber-500
-          error: '#EF4444',       // Red-500
-          info: '#3B82F6'         // Blue-500
-        } : {
-          // Warga/User Theme (Blue - User-Friendly)
-          primary: '#2563EB',     // Blue-600
-          secondary: '#3B82F6',   // Blue-500
-          accent: '#60A5FA',      // Blue-400
-          background: '#EFF6FF',  // Blue-50
-          surface: '#FFFFFF',
-          text: '#1F2937',        // Gray-800
-          success: '#10B981',     // Emerald-500
-          warning: '#F59E0B',     // Amber-500
-          error: '#EF4444',       // Red-500
-          info: '#3B82F6'         // Blue-500
-        };
-        
-        setCurrentTheme({
-          colors: themeColors,
-          role: profile.role,
-          isDark: false, // Could be extended untuk dark mode
+        // Unified theme for all roles (Alfi Blue)
+        const unifiedTheme = {
+          colors: {
+            // Primary Alfi Blue theme
+            primary: '#113b62',       // Alfi Blue untuk all roles
+            secondary: '#ffffff',     // White backgrounds
+            surface: '#f8f9fa',       // Light gray surfaces
+            
+            // Status colors (consistent across roles)
+            success: '#4caf50',       // Green untuk lunas
+            warning: '#ff9800',       // Orange untuk terlambat
+            error: '#f44336',         // Red untuk belum_bayar
+            info: '#2196f3',          // Blue untuk informational
+            
+            // Text colors
+            text: '#212529',          // Dark text
+            textSecondary: '#6c757d', // Secondary text
+            textLight: '#ffffff',     // Light text
+            
+            // Border and divider colors
+            border: '#dee2e6',        // Light borders
+            divider: '#e9ecef',       // Dividers
+            
+            // Background variants
+            background: '#ffffff',    // Main background
+            backgroundSecondary: '#f8f9fa', // Secondary background
+            backgroundTertiary: '#e9ecef'   // Tertiary background
+          },
+          
+          spacing: {
+            xs: 4,
+            sm: 8,
+            md: 16,
+            lg: 24,
+            xl: 32,
+            '2xl': 48,
+            '3xl': 64
+          },
+          
+          borderRadius: {
+            sm: 4,
+            md: 8,
+            lg: 12,
+            xl: 16,
+            full: 9999
+          },
+          
+          shadows: {
+            sm: {
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.05,
+              shadowRadius: 2,
+              elevation: 1,
+            },
+            md: {
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 2,
+            },
+            lg: {
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.15,
+              shadowRadius: 8,
+              elevation: 4,
+            }
+          },
+          
           typography: {
             fontFamily: 'Poppins',
             sizes: {
@@ -1609,24 +1548,20 @@ const roleBasedThemingFlow = {
               lg: 18,
               xl: 20,
               '2xl': 24,
-              '3xl': 30
+              '3xl': 30,
+              '4xl': 36
+            },
+            weights: {
+              light: '300',
+              regular: '400',
+              medium: '500',
+              semibold: '600',
+              bold: '700'
             }
-          },
-          spacing: {
-            xs: 4,
-            sm: 8,
-            md: 16,
-            lg: 24,
-            xl: 32,
-            '2xl': 48
-          },
-          borderRadius: {
-            sm: 4,
-            md: 8,
-            lg: 12,
-            xl: 16
           }
-        });
+        };
+        
+        setCurrentTheme(unifiedTheme);
       }
     }, [profile]);
     
@@ -1635,20 +1570,23 @@ const roleBasedThemingFlow = {
       colors: currentTheme?.colors,
       isLoading: !currentTheme,
       isBendahara: profile?.role === 'bendahara' || profile?.role === 'admin',
-      getColor: (colorKey) => currentTheme?.colors[colorKey],
-      getSpacing: (sizeKey) => currentTheme?.spacing[sizeKey],
-      getTypography: (sizeKey) => currentTheme?.typography.sizes[sizeKey]
+      getColor: (colorKey) => currentTheme?.colors[colorKey] || colorKey,
+      getSpacing: (sizeKey) => currentTheme?.spacing[sizeKey] || sizeKey,
+      getBorderRadius: (sizeKey) => currentTheme?.borderRadius[sizeKey] || sizeKey,
+      getShadow: (sizeKey) => currentTheme?.shadows[sizeKey] || currentTheme?.shadows.sm,
+      getTypography: (sizeKey) => currentTheme?.typography.sizes[sizeKey] || 16
     };
   },
   
-  // Component styling dengan role-based colors
+  // Component styling dengan unified colors
   getButtonStyle: (variant = 'primary', size = 'md', theme) => {
     const baseStyle = {
       paddingHorizontal: theme.spacing[size],
       paddingVertical: theme.spacing.sm,
       borderRadius: theme.borderRadius.md,
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      minHeight: size === 'sm' ? 36 : size === 'lg' ? 56 : 48
     };
     
     switch (variant) {
@@ -1656,11 +1594,7 @@ const roleBasedThemingFlow = {
         return {
           ...baseStyle,
           backgroundColor: theme.colors.primary,
-          shadowColor: theme.colors.primary,
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.25,
-          shadowRadius: 4,
-          elevation: 4
+          ...theme.shadows.md
         };
       case 'secondary':
         return {
@@ -1689,19 +1623,26 @@ const roleBasedThemingFlow = {
     }
   },
   
-  // Navigation styling berdasarkan role
-  getNavigationTheme: (theme) => {
-    return {
-      dark: false,
-      colors: {
-        primary: theme.colors.primary,
-        background: theme.colors.background,
-        card: theme.colors.surface,
-        text: theme.colors.text,
-        border: theme.colors.accent,
-        notification: theme.colors.error
-      }
-    };
+  // Status-based styling untuk payment cards
+  getPaymentStatusStyle: (status, theme) => {
+    switch (status) {
+      case 'lunas':
+        return {
+          backgroundColor: theme.colors.success,
+          textColor: theme.colors.textLight
+        };
+      case 'terlambat':
+        return {
+          backgroundColor: theme.colors.warning,
+          textColor: theme.colors.textLight
+        };
+      case 'belum_bayar':
+      default:
+        return {
+          backgroundColor: theme.colors.error,
+          textColor: theme.colors.textLight
+        };
+    }
   }
 };
 ```

@@ -810,7 +810,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: "#113b62",
     fontWeight: "500",
   },
   headerTitle: {
@@ -833,7 +833,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e2e8f0",
   },
   stepDotActive: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#113b62",
   },
   stepLine: {
     width: 30,
@@ -842,7 +842,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
   },
   stepLineActive: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#113b62",
   },
   content: {
     flex: 1,
@@ -904,8 +904,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   typeButtonActive: {
-    borderColor: "#3b82f6",
-    backgroundColor: "#dbeafe",
+    borderColor: "#113b62",
+    backgroundColor: "#e2e8f0",
   },
   typeButtonText: {
     fontSize: 14,
@@ -914,7 +914,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   typeButtonTextActive: {
-    color: "#3b82f6",
+    color: "#113b62",
   },
   typeButtonDesc: {
     fontSize: 12,
@@ -930,7 +930,7 @@ const styles = StyleSheet.create({
   },
   calculationText: {
     fontSize: 14,
-    color: "#0369a1",
+    color: "#113b62",
     fontWeight: "500",
   },
   timelineRangeInfo: {
@@ -953,26 +953,26 @@ const styles = StyleSheet.create({
   manualModeSection: {
     marginTop: 16,
     padding: 16,
-    backgroundColor: "#f0f9ff",
+    backgroundColor: "#f1f5f9",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#bfdbfe",
+    borderColor: "#cbd5e1",
   },
   simulationPreview: {
     marginTop: 12,
     padding: 12,
-    backgroundColor: "#dbeafe",
+    backgroundColor: "#e2e8f0",
     borderRadius: 8,
   },
   simulationPreviewLabel: {
     fontSize: 12,
-    color: "#1e40af",
+    color: "#113b62",
     fontWeight: "500",
     marginBottom: 4,
   },
   simulationPreviewValue: {
     fontSize: 14,
-    color: "#1e40af",
+    color: "#113b62",
     fontWeight: "600",
   },
   rangeInfoBox: {
@@ -987,14 +987,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   infoBox: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: "#e2e8f0",
     padding: 12,
     borderRadius: 8,
     marginTop: 16,
   },
   infoText: {
     fontSize: 14,
-    color: "#1e40af",
+    color: "#113b62",
     lineHeight: 20,
   },
   periodInstructions: {
@@ -1109,7 +1109,7 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     flex: 1,
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#113b62",
   },
   createButton: {
     flex: 1,

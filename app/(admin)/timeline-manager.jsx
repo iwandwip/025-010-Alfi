@@ -448,8 +448,8 @@ export default function TimelineManager() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={["#3b82f6"]}
-            tintColor={"#3b82f6"}
+            colors={["#113b62"]}
+            tintColor={"#113b62"}
             title="Memuat ulang..."
             titleColor={"#64748b"}
           />
@@ -703,7 +703,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: "#3b82f6",
+    color: "#113b62",
     fontWeight: "500",
   },
   headerTitle: {
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   simulationSection: {
-    backgroundColor: "#f0f9ff",
+    backgroundColor: "#f1f5f9",
     padding: 16,
     borderRadius: 12,
     marginBottom: 20,
@@ -799,40 +799,40 @@ const styles = StyleSheet.create({
   simulationTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0369a1",
+    color: "#113b62",
     marginBottom: 16,
     textAlign: "center",
   },
   currentSimulationInfo: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: "#e2e8f0",
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
   },
   currentSimulationLabel: {
     fontSize: 12,
-    color: "#1e40af",
+    color: "#113b62",
     fontWeight: "500",
     marginBottom: 4,
   },
   currentSimulationValue: {
     fontSize: 14,
-    color: "#1e40af",
+    color: "#113b62",
     fontWeight: "600",
   },
   updateDateButton: {
-    backgroundColor: "#0369a1",
+    backgroundColor: "#113b62",
     marginBottom: 12,
   },
   infoBox: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: "#e2e8f0",
     padding: 12,
     borderRadius: 8,
     marginBottom: 8,
   },
   infoText: {
     fontSize: 12,
-    color: "#1e40af",
+    color: "#113b62",
     lineHeight: 16,
   },
   rangeInfoBox: {
@@ -849,7 +849,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   manageButton: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#113b62",
   },
   updateButton: {
     backgroundColor: "#059669",
