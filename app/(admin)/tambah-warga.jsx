@@ -317,10 +317,7 @@ export default function TambahWarga() {
         style={styles.keyboardContainer}
       >
         {/* Modern Header */}
-        <LinearGradient
-          colors={[lightTheme.primary, lightTheme.primaryLight]}
-          style={styles.header}
-        >
+        <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -333,7 +330,7 @@ export default function TambahWarga() {
               Langkah {currentStep} dari {steps.length}
             </Text>
           </View>
-        </LinearGradient>
+        </View>
 
         {/* Step Indicator */}
         {renderStepIndicator()}
@@ -371,14 +368,14 @@ export default function TambahWarga() {
                   onPress={nextStep}
                   disabled={!canProceed()}
                 >
-                  <LinearGradient
-                    colors={canProceed() ? [lightTheme.primary, lightTheme.primaryLight] : ['#94a3b8', '#64748b']}
-                    style={styles.nextButtonGradient}
-                  >
+                  <View style={[
+                    styles.nextButtonGradient,
+                    { backgroundColor: canProceed() ? lightTheme.primary : '#94a3b8' }
+                  ]}>
                     <Text style={styles.nextButtonText}>
                       Lanjutkan →
                     </Text>
-                  </LinearGradient>
+                  </View>
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
@@ -389,14 +386,14 @@ export default function TambahWarga() {
                   onPress={handleSimpan}
                   disabled={!canProceed() || loading}
                 >
-                  <LinearGradient
-                    colors={canProceed() && !loading ? ['#16a34a', '#22c55e'] : ['#94a3b8', '#64748b']}
-                    style={styles.submitButtonGradient}
-                  >
+                  <View style={[
+                    styles.submitButtonGradient,
+                    { backgroundColor: canProceed() && !loading ? '#16a34a' : '#94a3b8' }
+                  ]}>
                     <Text style={styles.submitButtonText}>
                       {loading ? "Menyimpan..." : "✓ Simpan Data"}
                     </Text>
-                  </LinearGradient>
+                  </View>
                 </TouchableOpacity>
               )}
             </View>
@@ -418,6 +415,7 @@ const styles = StyleSheet.create({
   
   // Modern Header Styles
   header: {
+    backgroundColor: lightTheme.primary,
     paddingHorizontal: 24,
     paddingVertical: 20,
     borderBottomWidth: 1,
