@@ -8,7 +8,6 @@ import {
   ScrollView,
   Alert,
   RefreshControl,
-  Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -23,9 +22,6 @@ import {
   updateTimelineSimulationDate,
 } from "../../services/timelineService";
 import { bulkUpdatePaymentStatus } from "../../services/adminPaymentService";
-import { lightTheme } from "../../constants/Colors";
-
-const { width } = Dimensions.get('window');
 
 export default function TimelineManager() {
   const [activeTimeline, setActiveTimeline] = useState(null);
@@ -452,161 +448,97 @@ export default function TimelineManager() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[lightTheme.primary]}
-            tintColor={lightTheme.primary}
+            colors={["#3b82f6"]}
+            tintColor={"#3b82f6"}
             title="Memuat ulang..."
             titleColor={"#64748b"}
           />
         }
       >
-        {/* Timeline Overview Card */}
-        {activeTimeline && (
-          <View style={styles.overviewCard}>
-            <View style={styles.overviewHeader}>
-              <View style={styles.overviewIcon}>
-                <Text style={styles.overviewIconText}>📊</Text>
-              </View>
-              <View style={styles.overviewInfo}>
-                <Text style={styles.overviewTitle}>Timeline Overview</Text>
-                <Text style={styles.overviewSubtitle}>Ringkasan timeline aktif</Text>
-              </View>
-              <View style={styles.statusIndicator}>
-                <View style={styles.activeStatusDot} />
-                <Text style={styles.activeStatusText}>Aktif</Text>
-              </View>
-            </View>
-            
-            <View style={styles.statsContainer}>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{getActivePeriods(activeTimeline)}</Text>
-                <Text style={styles.statLabel}>Periode Aktif</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{activeTimeline.duration}</Text>
-                <Text style={styles.statLabel}>Total Periode</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{formatCurrency(activeTimeline.amountPerPeriod)}</Text>
-                <Text style={styles.statLabel}>Per Periode</Text>
-              </View>
-            </View>
-          </View>
-        )}
-
         <View style={styles.activeTimelineSection}>
-          <Text style={styles.sectionTitle}>🎯 Timeline Aktif</Text>
+          <Text style={styles.sectionTitle}>Timeline Aktif</Text>
 
           {activeTimeline ? (
             <View style={styles.timelineCard}>
               <View style={styles.timelineHeader}>
-                <View style={styles.timelineHeaderLeft}>
-                  <Text style={styles.timelineName}>{activeTimeline.name}</Text>
-                  <Text style={styles.timelineType}>
-                    {getTypeLabel(activeTimeline.type)} • {getTotalTimelineDuration(activeTimeline)}
-                  </Text>
-                </View>
-                <View style={styles.timelineBadges}>
-                  <View style={styles.statusBadge}>
-                    <Text style={styles.statusText}>🟢 Aktif</Text>
-                  </View>
-                  <View style={styles.modeBadge}>
-                    <Text style={styles.modeText}>
-                      {activeTimeline.mode === "manual" ? "⚙️ Manual" : "🕐 Real-time"}
-                    </Text>
-                  </View>
+                <Text style={styles.timelineName}>{activeTimeline.name}</Text>
+                <View style={styles.statusBadge}>
+                  <Text style={styles.statusText}>🟢 Aktif</Text>
                 </View>
               </View>
 
-              {/* Visual Timeline Display */}
-              <View style={styles.visualTimelineContainer}>
-                <Text style={styles.visualTimelineTitle}>📅 Visual Timeline</Text>
-                <View style={styles.timelineRange}>
-                  <Text style={styles.timelineRangeText}>
+              <View style={styles.timelineDetails}>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Tipe:</Text>
+                  <Text style={styles.detailValue}>
+                    {getTypeLabel(activeTimeline.type)}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Durasi:</Text>
+                  <Text style={styles.detailValue}>
+                    {getTotalTimelineDuration(activeTimeline)}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Range Timeline:</Text>
+                  <Text style={styles.detailValue}>
                     {formatTimelineRange(activeTimeline)}
                   </Text>
                 </View>
-                
-                {/* Timeline Periods Display */}
-                <ScrollView 
-                  horizontal 
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.periodsScrollView}
-                  contentContainerStyle={styles.periodsContainer}
-                >
-                  {activeTimeline.periods && Object.entries(activeTimeline.periods).map(([key, period], index) => (
-                    <View key={key} style={styles.periodCardContainer}>
-                      <View style={[
-                        styles.periodCard,
-                        period.active ? styles.activePeriodCard : styles.inactivePeriodCard
-                      ]}>
-                        <Text style={[
-                          styles.periodNumber,
-                          period.active ? styles.activePeriodNumber : styles.inactivePeriodNumber
-                        ]}>
-                          {index + 1}
-                        </Text>
-                        <Text style={[
-                          styles.periodLabel,
-                          period.active ? styles.activePeriodLabel : styles.inactivePeriodLabel
-                        ]}>
-                          {period.label}
-                        </Text>
-                        <View style={[
-                          styles.periodStatus,
-                          period.active ? styles.activePeriodStatus : styles.inactivePeriodStatus
-                        ]}>
-                          <Text style={[
-                            styles.periodStatusText,
-                            period.active ? styles.activePeriodStatusText : styles.inactivePeriodStatusText
-                          ]}>
-                            {period.active ? '●' : '○'}
-                          </Text>
-                        </View>
-                      </View>
-                      {index < Object.keys(activeTimeline.periods).length - 1 && (
-                        <View style={styles.periodConnector} />
-                      )}
-                    </View>
-                  ))}
-                </ScrollView>
-              </View>
 
-              {/* Timeline Details Grid */}
-              <View style={styles.detailsGrid}>
-                <View style={styles.detailCard}>
-                  <Text style={styles.detailCardIcon}>💰</Text>
-                  <Text style={styles.detailCardLabel}>Total Amount</Text>
-                  <Text style={styles.detailCardValue}>{formatCurrency(activeTimeline.totalAmount)}</Text>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Periode Aktif:</Text>
+                  <Text style={styles.detailValue}>
+                    {getActivePeriods(activeTimeline)} periode
+                  </Text>
                 </View>
-                <View style={styles.detailCard}>
-                  <Text style={styles.detailCardIcon}>📅</Text>
-                  <Text style={styles.detailCardLabel}>Per Periode</Text>
-                  <Text style={styles.detailCardValue}>{formatCurrency(activeTimeline.amountPerPeriod)}</Text>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Mode:</Text>
+                  <Text style={styles.detailValue}>
+                    {activeTimeline.mode === "manual"
+                      ? "⚙️ Manual"
+                      : "🕐 Real-time"}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Total Amount:</Text>
+                  <Text style={styles.detailValue}>
+                    {formatCurrency(activeTimeline.totalAmount)}
+                  </Text>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Per Periode:</Text>
+                  <Text style={styles.detailValue}>
+                    {formatCurrency(activeTimeline.amountPerPeriod)}
+                  </Text>
                 </View>
               </View>
 
-              {/* Manual Simulation Control Card */}
               {activeTimeline.mode === "manual" && (
-                <View style={styles.simulationCard}>
-                  <View style={styles.simulationHeader}>
-                    <Text style={styles.simulationIcon}>⚙️</Text>
-                    <View style={styles.simulationHeaderText}>
-                      <Text style={styles.simulationTitle}>Kontrol Waktu Manual</Text>
-                      <Text style={styles.simulationSubtitle}>Atur waktu simulasi timeline</Text>
-                    </View>
-                  </View>
+                <View style={styles.simulationSection}>
+                  <Text style={styles.simulationTitle}>
+                    🕐 Kontrol Waktu Manual
+                  </Text>
 
-                  <View style={styles.currentSimulationCard}>
-                    <Text style={styles.currentSimulationLabel}>Waktu Simulasi Saat Ini</Text>
+                  <View style={styles.currentSimulationInfo}>
+                    <Text style={styles.currentSimulationLabel}>
+                      Waktu Simulasi Saat Ini:
+                    </Text>
                     <Text style={styles.currentSimulationValue}>
                       {formatSimulationDateTime(activeTimeline.simulationDate)}
                     </Text>
                   </View>
 
                   <TimelinePicker
-                    label={`Atur Waktu Simulasi (${getTypeLabel(activeTimeline.type)})`}
+                    label={`Atur Waktu Simulasi (${getTypeLabel(
+                      activeTimeline.type
+                    )})`}
                     value={simulationDateTime}
                     onChange={setSimulationDateTime}
                     timelineType={activeTimeline.type}
@@ -616,60 +548,50 @@ export default function TimelineManager() {
                   />
 
                   <Button
-                    title={updating ? "Memperbarui..." : "⚡ Update Waktu Simulasi"}
+                    title={
+                      updating ? "Memperbarui..." : "Update Waktu Simulasi"
+                    }
                     onPress={handleUpdateSimulationDateTime}
                     disabled={updating}
                     style={styles.updateDateButton}
                   />
 
-                  <View style={styles.simulationInfoCard}>
-                    <Text style={styles.simulationInfoText}>
-                      💡 Mengubah waktu simulasi akan mempengaruhi perhitungan status &quot;terlambat&quot; 
-                      untuk semua pembayaran berdasarkan timeline {getTypeLabel(activeTimeline.type).toLowerCase()}
+                  <View style={styles.infoBox}>
+                    <Text style={styles.infoText}>
+                      ℹ️ Mengubah waktu simulasi akan mempengaruhi perhitungan
+                      status "terlambat" untuk semua pembayaran berdasarkan
+                      timeline {getTypeLabel(activeTimeline.type).toLowerCase()}
+                    </Text>
+                  </View>
+
+                  <View style={styles.rangeInfoBox}>
+                    <Text style={styles.rangeInfoText}>
+                      📅 Range simulasi yang diizinkan:{" "}
+                      {formatTimelineRange(activeTimeline)}
                     </Text>
                   </View>
                 </View>
               )}
 
-              {/* Action Cards */}
-              <View style={styles.actionCardsContainer}>
-                <View style={styles.primaryActionCard}>
-                  <Text style={styles.actionCardIcon}>💼</Text>
-                  <Text style={styles.actionCardTitle}>Kelola Pembayaran</Text>
-                  <Text style={styles.actionCardDesc}>Lihat dan kelola status pembayaran warga</Text>
-                  <Button
-                    title="Buka Payment Manager"
-                    onPress={handleManagePayments}
-                    style={styles.primaryActionButton}
-                  />
-                </View>
+              <View style={styles.timelineActions}>
+                <Button
+                  title="Kelola Pembayaran"
+                  onPress={handleManagePayments}
+                  style={styles.manageButton}
+                />
 
-                <View style={styles.secondaryActionCard}>
-                  <Text style={styles.actionCardIcon}>🔄</Text>
-                  <Text style={styles.actionCardTitle}>Update Status</Text>
-                  <Text style={styles.actionCardDesc}>Perbarui status pembayaran otomatis</Text>
-                  <Button
-                    title={updating ? "Memperbarui..." : "Update Sekarang"}
-                    onPress={handleBulkUpdateStatus}
-                    disabled={updating}
-                    style={styles.secondaryActionButton}
-                  />
-                </View>
-              </View>
+                <Button
+                  title={
+                    updating ? "Memperbarui..." : "🔄 Update Status Pembayaran"
+                  }
+                  onPress={handleBulkUpdateStatus}
+                  disabled={updating}
+                  style={styles.updateButton}
+                />
 
-              {/* Danger Zone Card */}
-              <View style={styles.dangerZoneCard}>
-                <View style={styles.dangerZoneHeader}>
-                  <Text style={styles.dangerZoneIcon}>⚠️</Text>
-                  <View>
-                    <Text style={styles.dangerZoneTitle}>Danger Zone</Text>
-                    <Text style={styles.dangerZoneSubtitle}>Tindakan berisiko tinggi</Text>
-                  </View>
-                </View>
-                
                 <View style={styles.dangerActions}>
                   <Button
-                    title={resetting ? "Mereset..." : "🔄 Reset Pembayaran"}
+                    title={resetting ? "Mereset..." : "Reset Pembayaran"}
                     onPress={handleResetPayments}
                     variant="outline"
                     style={styles.resetButton}
@@ -688,108 +610,72 @@ export default function TimelineManager() {
             </View>
           ) : (
             <View style={styles.noTimelineCard}>
-              <View style={styles.noTimelineIconContainer}>
-                <Text style={styles.noTimelineIcon}>📅</Text>
-              </View>
-              <Text style={styles.noTimelineText}>Belum ada timeline aktif</Text>
-              <Text style={styles.noTimelineDesc}>
-                Buat timeline baru untuk mulai mengelola pembayaran jimpitan warga
+              <Text style={styles.noTimelineIcon}>📅</Text>
+              <Text style={styles.noTimelineText}>
+                Belum ada timeline aktif
               </Text>
-              <Button
-                title="🚀 Buat Timeline Pertama"
-                onPress={handleCreateTimeline}
-                style={styles.noTimelineButton}
-              />
+              <Text style={styles.noTimelineDesc}>
+                Buat timeline baru untuk mulai mengelola pembayaran bisyaroh
+              </Text>
             </View>
           )}
         </View>
 
-        {/* Create Timeline Action Card */}
-        {activeTimeline && (
-          <View style={styles.createTimelineCard}>
-            <View style={styles.createTimelineHeader}>
-              <Text style={styles.createTimelineIcon}>➕</Text>
-              <View>
-                <Text style={styles.createTimelineTitle}>Buat Timeline Baru</Text>
-                <Text style={styles.createTimelineSubtitle}>Gantikan timeline aktif saat ini</Text>
-              </View>
-            </View>
-            
-            <Text style={styles.createTimelineWarning}>
-              ⚠️ Membuat timeline baru akan mengganti timeline aktif saat ini
-            </Text>
-            
-            <Button
-              title="🎯 Buat Timeline Baru"
-              onPress={handleCreateTimeline}
-              style={styles.createTimelineButton}
-            />
-          </View>
-        )}
+        <View style={styles.actionsSection}>
+          <Button
+            title={
+              activeTimeline ? "Buat Timeline Baru" : "Buat Timeline Pertama"
+            }
+            onPress={handleCreateTimeline}
+            style={styles.createButton}
+          />
 
-        {/* Template Library Section */}
+          {activeTimeline && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                ⚠️ Membuat timeline baru akan mengganti timeline aktif saat ini
+              </Text>
+            </View>
+          )}
+        </View>
+
         <View style={styles.templatesSection}>
-          <View style={styles.templatesSectionHeader}>
-            <Text style={styles.sectionTitle}>📚 Template Library</Text>
-            <Text style={styles.sectionSubtitle}>Template timeline tersimpan</Text>
-          </View>
+          <Text style={styles.sectionTitle}>Template Tersimpan</Text>
 
           {templates.length > 0 ? (
-            <View style={styles.templatesGrid}>
-              {templates.map((template) => (
-                <View key={template.id} style={styles.templateCard}>
-                  <View style={styles.templateCardHeader}>
-                    <View style={styles.templateIconContainer}>
-                      <Text style={styles.templateIcon}>📋</Text>
-                    </View>
-                    <View style={styles.templateInfo}>
-                      <Text style={styles.templateName}>{template.name}</Text>
-                      <Text style={styles.templateDate}>
-                        {new Date(template.createdAt?.toDate()).toLocaleDateString("id-ID")}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.templateMetrics}>
-                    <View style={styles.templateMetric}>
-                      <Text style={styles.templateMetricIcon}>⏱️</Text>
-                      <Text style={styles.templateMetricText}>
-                        {getTypeLabel(template.type)}
-                      </Text>
-                    </View>
-                    <View style={styles.templateMetric}>
-                      <Text style={styles.templateMetricIcon}>📊</Text>
-                      <Text style={styles.templateMetricText}>
-                        {template.duration} periode
-                      </Text>
-                    </View>
-                    <View style={styles.templateMetric}>
-                      <Text style={styles.templateMetricIcon}>💰</Text>
-                      <Text style={styles.templateMetricText}>
-                        {formatCurrency(template.baseAmount)}
-                      </Text>
-                    </View>
-                    {template.holidays && template.holidays.length > 0 && (
-                      <View style={styles.templateMetric}>
-                        <Text style={styles.templateMetricIcon}>🏖️</Text>
-                        <Text style={styles.templateMetricText}>
-                          {template.holidays.length} libur
-                        </Text>
-                      </View>
+            templates.map((template) => (
+              <View key={template.id} style={styles.templateCard}>
+                <View style={styles.templateHeader}>
+                  <Text style={styles.templateName}>{template.name}</Text>
+                  <Text style={styles.templateDate}>
+                    {new Date(template.createdAt?.toDate()).toLocaleDateString(
+                      "id-ID"
                     )}
-                  </View>
+                  </Text>
                 </View>
-              ))}
-            </View>
+
+                <View style={styles.templateDetails}>
+                  <Text style={styles.templateType}>
+                    {getTypeLabel(template.type)} - {template.duration} periode
+                  </Text>
+                  <Text style={styles.templateAmount}>
+                    Base: {formatCurrency(template.baseAmount)}
+                  </Text>
+                  {template.holidays && template.holidays.length > 0 && (
+                    <Text style={styles.templateHolidays}>
+                      Libur: {template.holidays.length} periode
+                    </Text>
+                  )}
+                </View>
+              </View>
+            ))
           ) : (
             <View style={styles.noTemplatesCard}>
-              <View style={styles.noTemplatesIconContainer}>
-                <Text style={styles.noTemplatesIcon}>📋</Text>
-              </View>
-              <Text style={styles.noTemplatesText}>Belum ada template tersimpan</Text>
+              <Text style={styles.noTemplatesIcon}>📋</Text>
+              <Text style={styles.noTemplatesText}>Belum ada template</Text>
               <Text style={styles.noTemplatesDesc}>
-                Template akan tersimpan otomatis saat Anda membuat timeline dan memilih 
-                opsi &quot;Simpan sebagai template&quot;
+                Template akan tersimpan saat Anda membuat timeline dan memilih
+                opsi "Simpan sebagai template"
               </Text>
             </View>
           )}
@@ -802,7 +688,7 @@ export default function TimelineManager() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f1f5f9",
+    backgroundColor: "#f8fafc",
   },
   header: {
     paddingHorizontal: 24,
@@ -810,11 +696,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
     backgroundColor: "#fff",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   backButton: {
     alignSelf: "flex-start",
@@ -822,13 +703,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: lightTheme.primary,
-    fontWeight: "600",
+    color: "#3b82f6",
+    fontWeight: "500",
   },
   headerTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: lightTheme.primary,
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1e293b",
     textAlign: "center",
   },
   loadingContainer: {
@@ -838,449 +719,140 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: 24,
+    paddingTop: 16,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: lightTheme.primary,
-    marginBottom: 16,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: -12,
-    marginBottom: 16,
-  },
-  
-  // Overview Card Styles
-  overviewCard: {
-    backgroundColor: lightTheme.primary,
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 24,
-    elevation: 8,
-    shadowColor: lightTheme.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  overviewHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  overviewIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  overviewIconText: {
-    fontSize: 24,
-  },
-  overviewInfo: {
-    flex: 1,
-  },
-  overviewTitle: {
     fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-  },
-  overviewSubtitle: {
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.8)",
-    marginTop: 2,
-  },
-  statusIndicator: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(34, 197, 94, 0.2)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  activeStatusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#22c55e",
-    marginRight: 6,
-  },
-  activeStatusText: {
-    fontSize: 12,
     fontWeight: "600",
-    color: "#22c55e",
+    color: "#1e293b",
+    marginBottom: 16,
   },
-  statsContainer: {
-    flexDirection: "row",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 16,
-    padding: 16,
-  },
-  statItem: {
-    flex: 1,
-    alignItems: "center",
-  },
-  statNumber: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#fff",
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "rgba(255, 255, 255, 0.8)",
-    textAlign: "center",
-  },
-  statDivider: {
-    width: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    marginHorizontal: 16,
-  },
-  
   activeTimelineSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   timelineCard: {
     backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 24,
-    marginBottom: 16,
-    elevation: 6,
-    shadowColor: lightTheme.primary,
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   timelineHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 20,
-  },
-  timelineHeaderLeft: {
-    flex: 1,
-    marginRight: 16,
+    alignItems: "center",
+    marginBottom: 16,
   },
   timelineName: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "700",
-    color: lightTheme.primary,
-    marginBottom: 4,
-  },
-  timelineType: {
-    fontSize: 14,
-    color: "#64748b",
-    fontWeight: "500",
-  },
-  timelineBadges: {
-    alignItems: "flex-end",
-    gap: 8,
+    color: "#1e293b",
+    flex: 1,
   },
   statusBadge: {
     backgroundColor: "#dcfce7",
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingVertical: 4,
+    borderRadius: 16,
   },
   statusText: {
     fontSize: 12,
     fontWeight: "600",
     color: "#16a34a",
   },
-  modeBadge: {
-    backgroundColor: "#dbeafe",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  modeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#1d4ed8",
-  },
-  // Visual Timeline Display
-  visualTimelineContainer: {
-    backgroundColor: "#f8fafc",
-    borderRadius: 16,
-    padding: 20,
+  timelineDetails: {
     marginBottom: 20,
   },
-  visualTimelineTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: lightTheme.primary,
-    marginBottom: 12,
-    textAlign: "center",
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f1f5f9",
   },
-  timelineRange: {
-    backgroundColor: "#dbeafe",
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  timelineRangeText: {
+  detailLabel: {
     fontSize: 14,
-    color: "#1e40af",
-    fontWeight: "600",
-    textAlign: "center",
-  },
-  periodsScrollView: {
-    maxHeight: 120,
-  },
-  periodsContainer: {
-    paddingHorizontal: 4,
-    alignItems: "center",
-  },
-  periodCardContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  periodCard: {
-    width: 80,
-    padding: 12,
-    borderRadius: 12,
-    alignItems: "center",
-    marginHorizontal: 4,
-  },
-  activePeriodCard: {
-    backgroundColor: lightTheme.primary,
-  },
-  inactivePeriodCard: {
-    backgroundColor: "#e2e8f0",
-  },
-  periodNumber: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 4,
-  },
-  activePeriodNumber: {
-    color: "#fff",
-  },
-  inactivePeriodNumber: {
     color: "#64748b",
-  },
-  periodLabel: {
-    fontSize: 10,
     fontWeight: "500",
-    textAlign: "center",
-    marginBottom: 6,
-  },
-  activePeriodLabel: {
-    color: "rgba(255, 255, 255, 0.9)",
-  },
-  inactivePeriodLabel: {
-    color: "#94a3b8",
-  },
-  periodStatus: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  activePeriodStatus: {
-    backgroundColor: "rgba(34, 197, 94, 0.3)",
-  },
-  inactivePeriodStatus: {
-    backgroundColor: "rgba(148, 163, 184, 0.3)",
-  },
-  periodStatusText: {
-    fontSize: 10,
-    fontWeight: "700",
-  },
-  activePeriodStatusText: {
-    color: "#22c55e",
-  },
-  inactivePeriodStatusText: {
-    color: "#94a3b8",
-  },
-  periodConnector: {
-    width: 16,
-    height: 2,
-    backgroundColor: "#cbd5e1",
-    marginHorizontal: 0,
-  },
-  
-  // Details Grid
-  detailsGrid: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 20,
-  },
-  detailCard: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+  },
+  detailValue: {
+    fontSize: 14,
+    color: "#1e293b",
+    fontWeight: "600",
+    flex: 1.5,
+    textAlign: "right",
+  },
+  simulationSection: {
+    backgroundColor: "#f0f9ff",
     padding: 16,
     borderRadius: 12,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-  },
-  detailCardIcon: {
-    fontSize: 20,
-    marginBottom: 8,
-  },
-  detailCardLabel: {
-    fontSize: 12,
-    color: "#64748b",
-    fontWeight: "500",
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  detailCardValue: {
-    fontSize: 14,
-    color: lightTheme.primary,
-    fontWeight: "700",
-    textAlign: "center",
-  },
-  // Simulation Control Card
-  simulationCard: {
-    backgroundColor: "#f0f9ff",
-    borderRadius: 16,
-    padding: 20,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#bfdbfe",
-  },
-  simulationHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  simulationIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  simulationHeaderText: {
-    flex: 1,
   },
   simulationTitle: {
     fontSize: 16,
-    fontWeight: "700",
-    color: lightTheme.primary,
+    fontWeight: "600",
+    color: "#0369a1",
+    marginBottom: 16,
+    textAlign: "center",
   },
-  simulationSubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  currentSimulationCard: {
+  currentSimulationInfo: {
     backgroundColor: "#dbeafe",
-    padding: 16,
-    borderRadius: 12,
+    padding: 12,
+    borderRadius: 8,
     marginBottom: 16,
   },
   currentSimulationLabel: {
     fontSize: 12,
     color: "#1e40af",
     fontWeight: "500",
-    marginBottom: 6,
+    marginBottom: 4,
   },
   currentSimulationValue: {
-    fontSize: 16,
+    fontSize: 14,
     color: "#1e40af",
-    fontWeight: "700",
+    fontWeight: "600",
   },
   updateDateButton: {
-    backgroundColor: lightTheme.primary,
-    marginBottom: 16,
-  },
-  simulationInfoCard: {
-    backgroundColor: "#ecfef9",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#a7f3d0",
-  },
-  simulationInfoText: {
-    fontSize: 14,
-    color: "#065f46",
-    lineHeight: 20,
-  },
-  // Action Cards
-  actionCardsContainer: {
-    flexDirection: "row",
-    gap: 16,
-    marginBottom: 20,
-  },
-  primaryActionCard: {
-    flex: 1,
-    backgroundColor: "#f0f9ff",
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#bfdbfe",
-    alignItems: "center",
-  },
-  secondaryActionCard: {
-    flex: 1,
-    backgroundColor: "#f0fdf4",
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#bbf7d0",
-    alignItems: "center",
-  },
-  actionCardIcon: {
-    fontSize: 32,
+    backgroundColor: "#0369a1",
     marginBottom: 12,
   },
-  actionCardTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: lightTheme.primary,
-    marginBottom: 6,
-    textAlign: "center",
+  infoBox: {
+    backgroundColor: "#dbeafe",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
   },
-  actionCardDesc: {
+  infoText: {
     fontSize: 12,
-    color: "#64748b",
-    textAlign: "center",
-    marginBottom: 16,
+    color: "#1e40af",
     lineHeight: 16,
   },
-  primaryActionButton: {
-    backgroundColor: lightTheme.primary,
-    minWidth: 120,
+  rangeInfoBox: {
+    backgroundColor: "#ecfdf5",
+    padding: 10,
+    borderRadius: 6,
   },
-  secondaryActionButton: {
+  rangeInfoText: {
+    fontSize: 12,
+    color: "#047857",
+    textAlign: "center",
+  },
+  timelineActions: {
+    gap: 12,
+  },
+  manageButton: {
+    backgroundColor: "#3b82f6",
+  },
+  updateButton: {
     backgroundColor: "#059669",
-    minWidth: 120,
-  },
-  
-  // Danger Zone Card
-  dangerZoneCard: {
-    backgroundColor: "#fef2f2",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#fecaca",
-  },
-  dangerZoneHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  dangerZoneIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  dangerZoneTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: lightTheme.error,
-  },
-  dangerZoneSubtitle: {
-    fontSize: 14,
-    color: "#991b1b",
-    marginTop: 2,
   },
   dangerActions: {
     flexDirection: "row",
@@ -1294,205 +866,121 @@ const styles = StyleSheet.create({
     flex: 1,
     borderColor: "#ef4444",
   },
-  // No Timeline Card
   noTimelineCard: {
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 40,
-    alignItems: "center",
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: "#e2e8f0",
-    borderStyle: "dashed",
-  },
-  noTimelineIconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#f1f5f9",
-    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
   },
   noTimelineIcon: {
-    fontSize: 40,
+    fontSize: 48,
+    marginBottom: 16,
   },
   noTimelineText: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: lightTheme.primary,
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#64748b",
+    marginBottom: 8,
     textAlign: "center",
   },
   noTimelineDesc: {
-    fontSize: 16,
-    color: "#64748b",
+    fontSize: 14,
+    color: "#94a3b8",
     textAlign: "center",
-    lineHeight: 24,
-    marginBottom: 24,
+    lineHeight: 20,
   },
-  noTimelineButton: {
-    backgroundColor: lightTheme.primary,
-    minWidth: 200,
+  actionsSection: {
+    marginBottom: 32,
   },
-  // Create Timeline Card
-  createTimelineCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 24,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
+  createButton: {
+    backgroundColor: "#10b981",
+    marginBottom: 12,
   },
-  createTimelineHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  createTimelineIcon: {
-    fontSize: 24,
-    marginRight: 16,
-  },
-  createTimelineTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: lightTheme.primary,
-  },
-  createTimelineSubtitle: {
-    fontSize: 14,
-    color: "#64748b",
-    marginTop: 2,
-  },
-  createTimelineWarning: {
-    fontSize: 14,
-    color: "#f59e0b",
-    backgroundColor: "#fffbeb",
+  warningBox: {
+    backgroundColor: "#fef3c7",
     padding: 12,
     borderRadius: 8,
-    marginBottom: 16,
-    textAlign: "center",
     borderWidth: 1,
-    borderColor: "#fed7aa",
+    borderColor: "#f59e0b",
   },
-  createTimelineButton: {
-    backgroundColor: lightTheme.primary,
+  warningText: {
+    fontSize: 14,
+    color: "#92400e",
+    textAlign: "center",
+    lineHeight: 18,
   },
-  // Templates Section
   templatesSection: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
-  templatesSectionHeader: {
-    marginBottom: 16,
-  },
-  templatesGrid: {
-    gap: 16,
-  },
-  // Template Cards
   templateCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#e2e8f0",
-    elevation: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  templateCardHeader: {
+  templateHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
-  },
-  templateIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#f1f5f9",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  templateIcon: {
-    fontSize: 20,
-  },
-  templateInfo: {
-    flex: 1,
+    marginBottom: 8,
   },
   templateName: {
     fontSize: 16,
-    fontWeight: "700",
-    color: lightTheme.primary,
-    marginBottom: 2,
+    fontWeight: "600",
+    color: "#1e293b",
+    flex: 1,
   },
   templateDate: {
     fontSize: 12,
     color: "#94a3b8",
-    fontWeight: "500",
   },
-  templateMetrics: {
-    gap: 8,
+  templateDetails: {
+    gap: 4,
   },
-  templateMetric: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f8fafc",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  templateMetricIcon: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  templateMetricText: {
+  templateType: {
     fontSize: 14,
     color: "#64748b",
+  },
+  templateAmount: {
+    fontSize: 14,
+    color: "#059669",
     fontWeight: "500",
   },
-  // No Templates Card
+  templateHolidays: {
+    fontSize: 12,
+    color: "#f59e0b",
+  },
   noTemplatesCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 32,
-    alignItems: "center",
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: "#e2e8f0",
-    borderStyle: "dashed",
-  },
-  noTemplatesIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#f1f5f9",
-    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 16,
   },
   noTemplatesIcon: {
-    fontSize: 28,
+    fontSize: 32,
+    marginBottom: 12,
   },
   noTemplatesText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: lightTheme.primary,
-    marginBottom: 12,
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#64748b",
+    marginBottom: 8,
     textAlign: "center",
   },
   noTemplatesDesc: {
     fontSize: 14,
-    color: "#64748b",
+    color: "#94a3b8",
     textAlign: "center",
     lineHeight: 20,
   },

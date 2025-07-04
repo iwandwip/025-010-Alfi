@@ -253,8 +253,8 @@ export const generatePaymentsForTimeline = async (timelineId) => {
           const paymentData = {
             id: paymentId,
             wargaId: warga.id,
-            wargaName: warga.namaWarga,
-            alamat: warga.alamat,
+            namaWarga: warga.namaWarga || '',
+            alamat: warga.alamat || '',
             period: periodKey,
             periodLabel: period.label,
             amount: period.amount,
