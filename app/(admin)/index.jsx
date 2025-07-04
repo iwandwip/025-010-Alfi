@@ -11,9 +11,11 @@ import {
   Modal,
   TextInput,
   RefreshControl,
+  Switch,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotification } from "../../contexts/NotificationContext";
 import { lightTheme } from "../../constants/Colors";
@@ -52,10 +54,20 @@ function AdminHome() {
   const [solenoidLoading, setSolenoidLoading] = useState(false);
   const [countdownTime, setCountdownTime] = useState(0); // Countdown timer in seconds
   const [countdownInterval, setCountdownInterval] = useState(null);
+  const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+  const [menuVisibility, setMenuVisibility] = useState({
+    tambahWarga: true,
+    daftarWarga: true,
+    timelineManager: true,
+    keuangan: true,
+    solenoidControl: true,
+    generateData: true,
+  });
 
   useEffect(() => {
     loadSeederStats();
     loadSolenoidCommand();
+    loadMenuVisibility();
     
     // Revolutionary mode-based subscriptions
     const unsubscribeSolenoid = subscribeToSolenoidCommand((command) => {
@@ -96,6 +108,43 @@ function AdminHome() {
     } catch (error) {
       console.error("Error loading solenoid command:", error);
     }
+  };
+
+  const loadMenuVisibility = async () => {
+    try {
+      const saved = await AsyncStorage.getItem('adminMenuVisibility');
+      if (saved) {
+        setMenuVisibility(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error('Error loading menu visibility:', error);
+    }
+  };
+
+  const saveMenuVisibility = async (newVisibility) => {
+    try {
+      await AsyncStorage.setItem('adminMenuVisibility', JSON.stringify(newVisibility));
+      setMenuVisibility(newVisibility);
+    } catch (error) {
+      console.error('Error saving menu visibility:', error);
+      showGeneralNotification(
+        "Error",
+        "Gagal menyimpan pengaturan menu",
+        "error"
+      );
+    }
+  };
+
+  const toggleMenuVisibility = (menuKey) => {
+    const newVisibility = {
+      ...menuVisibility,
+      [menuKey]: !menuVisibility[menuKey]
+    };
+    saveMenuVisibility(newVisibility);
+  };
+
+  const handleSettings = () => {
+    setSettingsModalVisible(true);
   };
 
   const onRefresh = async () => {
@@ -463,6 +512,14 @@ function AdminHome() {
         }
       >
         <View style={styles.headerSection}>
+          <TouchableOpacity 
+            style={styles.settingsButton}
+            onPress={handleSettings}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.settingsIcon, { color: colors.primary }]}>⚙️</Text>
+          </TouchableOpacity>
+          
           <View style={styles.logoContainer}>
             <View style={[styles.logo, { backgroundColor: colors.primary, shadowColor: colors.primary }]}>
               <Text style={styles.logoIcon}>💰</Text>
@@ -478,104 +535,133 @@ function AdminHome() {
         </View>
 
         <View style={styles.menuSection}>
-          {/* Grid 2x3 Layout */}
-          <View style={styles.gridContainer}>
+          {/* Check if any menu is visible */}
+          {Object.values(menuVisibility).some(visible => visible) ? (
+            <View style={styles.gridContainer}>
             {/* Row 1 */}
             <View style={styles.gridRow}>
-              <TouchableOpacity
-                style={[styles.gridCard, { borderColor: colors.primary, backgroundColor: colors.primary }]}
-                onPress={handleTambahWarga}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
-                  <Text style={[styles.gridIconText, { color: colors.primary }]}>👤</Text>
-                </View>
-                <Text style={[styles.gridTitle, { color: colors.white }]}>Tambah Warga</Text>
-                <Text style={[styles.gridDesc, { color: colors.white }]}>
-                  Daftarkan warga baru
-                </Text>
-              </TouchableOpacity>
+              {menuVisibility.tambahWarga && (
+                <TouchableOpacity
+                  style={[styles.gridCard, { borderColor: colors.primary, backgroundColor: colors.primary }]}
+                  onPress={handleTambahWarga}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                    <Text style={[styles.gridIconText, { color: colors.primary }]}>👤</Text>
+                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.white }]}>Tambah Warga</Text>
+                  <Text style={[styles.gridDesc, { color: colors.white }]}>
+                    Daftarkan warga baru
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-              <TouchableOpacity
-                style={[styles.gridCard, { borderColor: colors.primaryLight, backgroundColor: colors.primaryLight }]}
-                onPress={handleDaftarWarga}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
-                  <Text style={[styles.gridIconText, { color: colors.primaryLight }]}>📋</Text>
-                </View>
-                <Text style={[styles.gridTitle, { color: colors.white }]}>Daftar Warga</Text>
-                <Text style={[styles.gridDesc, { color: colors.white }]}>
-                  Kelola data warga
-                </Text>
-              </TouchableOpacity>
+              {menuVisibility.daftarWarga && (
+                <TouchableOpacity
+                  style={[styles.gridCard, { borderColor: colors.primaryLight, backgroundColor: colors.primaryLight }]}
+                  onPress={handleDaftarWarga}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                    <Text style={[styles.gridIconText, { color: colors.primaryLight }]}>📋</Text>
+                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.white }]}>Daftar Warga</Text>
+                  <Text style={[styles.gridDesc, { color: colors.white }]}>
+                    Kelola data warga
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Row 2 */}
             <View style={styles.gridRow}>
-              <TouchableOpacity
-                style={[styles.gridCard, { borderColor: colors.secondary, backgroundColor: colors.secondary }]}
-                onPress={handleTimelineManager}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
-                  <Text style={[styles.gridIconText, { color: colors.secondary }]}>📅</Text>
-                </View>
-                <Text style={[styles.gridTitle, { color: colors.white }]}>Timeline Manager</Text>
-                <Text style={[styles.gridDesc, { color: colors.white }]}>
-                  Kelola timeline
-                </Text>
-              </TouchableOpacity>
+              {menuVisibility.timelineManager && (
+                <TouchableOpacity
+                  style={[styles.gridCard, { borderColor: colors.secondary, backgroundColor: colors.secondary }]}
+                  onPress={handleTimelineManager}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                    <Text style={[styles.gridIconText, { color: colors.secondary }]}>📅</Text>
+                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.white }]}>Timeline Manager</Text>
+                  <Text style={[styles.gridDesc, { color: colors.white }]}>
+                    Kelola timeline
+                  </Text>
+                </TouchableOpacity>
+              )}
 
-              <TouchableOpacity
-                style={[styles.gridCard, { borderColor: colors.primaryDark, backgroundColor: colors.primaryDark }]}
-                onPress={handleCekPembayaran}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
-                  <Text style={[styles.gridIconText, { color: colors.primaryDark }]}>💰</Text>
-                </View>
-                <Text style={[styles.gridTitle, { color: colors.white }]}>Keuangan</Text>
-                <Text style={[styles.gridDesc, { color: colors.white }]}>
-                  Pemasukan & Pengeluaran
-                </Text>
-              </TouchableOpacity>
+              {menuVisibility.keuangan && (
+                <TouchableOpacity
+                  style={[styles.gridCard, { borderColor: colors.primaryDark, backgroundColor: colors.primaryDark }]}
+                  onPress={handleCekPembayaran}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                    <Text style={[styles.gridIconText, { color: colors.primaryDark }]}>💰</Text>
+                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.white }]}>Keuangan</Text>
+                  <Text style={[styles.gridDesc, { color: colors.white }]}>
+                    Pemasukan & Pengeluaran
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* Row 3 */}
             <View style={styles.gridRow}>
-              <TouchableOpacity
-                style={[styles.gridCard, { borderColor: colors.warning, backgroundColor: colors.warning }]}
-                onPress={handleSolenoidControl}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
-                  <Text style={[styles.gridIconText, { color: colors.warning }]}>🔐</Text>
-                </View>
-                <Text style={[styles.gridTitle, { color: colors.white }]}>Kontrol Solenoid</Text>
-                <Text style={[styles.gridDesc, { color: colors.white }]}>
-                  {currentMode === 'solenoid' ? 'Mode Unlock' : solenoidCommand === 'unlock' ? 'Unlocked' : 'Locked'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.gridCard, { borderColor: colors.error, backgroundColor: colors.error }]}
-                onPress={handleSeeder}
-                activeOpacity={0.8}
-                disabled={seederLoading}
-              >
-                <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
-                  <Text style={[styles.gridIconText, { color: colors.error }]}>
-                    {seederLoading ? "⏳" : "🎲"}
+              {menuVisibility.solenoidControl && (
+                <TouchableOpacity
+                  style={[styles.gridCard, { borderColor: colors.warning, backgroundColor: colors.warning }]}
+                  onPress={handleSolenoidControl}
+                  activeOpacity={0.8}
+                >
+                  <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                    <Text style={[styles.gridIconText, { color: colors.warning }]}>🔐</Text>
+                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.white }]}>Kontrol Solenoid</Text>
+                  <Text style={[styles.gridDesc, { color: colors.white }]}>
+                    {currentMode === 'solenoid' ? 'Mode Unlock' : solenoidCommand === 'unlock' ? 'Unlocked' : 'Locked'}
                   </Text>
-                </View>
-                <Text style={[styles.gridTitle, { color: colors.white }]}>Generate Data</Text>
-                <Text style={[styles.gridDesc, { color: colors.white }]}>
-                  {seederLoading ? "Generating..." : "Buat data warga"}
-                </Text>
+                </TouchableOpacity>
+              )}
+
+              {menuVisibility.generateData && (
+                <TouchableOpacity
+                  style={[styles.gridCard, { borderColor: colors.error, backgroundColor: colors.error }]}
+                  onPress={handleSeeder}
+                  activeOpacity={0.8}
+                  disabled={seederLoading}
+                >
+                  <View style={[styles.gridIcon, { backgroundColor: colors.white }]}>
+                    <Text style={[styles.gridIconText, { color: colors.error }]}>
+                      {seederLoading ? "⏳" : "🎲"}
+                    </Text>
+                  </View>
+                  <Text style={[styles.gridTitle, { color: colors.white }]}>Generate Data</Text>
+                  <Text style={[styles.gridDesc, { color: colors.white }]}>
+                    {seederLoading ? "Generating..." : "Buat data warga"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            </View>
+          ) : (
+            <View style={styles.noMenuContainer}>
+              <Text style={styles.noMenuIcon}>📱</Text>
+              <Text style={styles.noMenuTitle}>Tidak Ada Menu Aktif</Text>
+              <Text style={styles.noMenuDesc}>
+                Semua menu telah dinonaktifkan. Gunakan tombol pengaturan ⚙️ di pojok kanan atas untuk mengaktifkan menu.
+              </Text>
+              <TouchableOpacity
+                style={[styles.activateMenuButton, { backgroundColor: colors.primary }]}
+                onPress={handleSettings}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.activateMenuText}>⚙️ Buka Pengaturan</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          )}
         </View>
 
         <View style={styles.logoutSection}>
@@ -898,6 +984,212 @@ function AdminHome() {
         </View>
       </Modal>
 
+      {/* Settings Modal */}
+      <Modal
+        visible={settingsModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setSettingsModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>⚙️ Pengaturan Menu</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setSettingsModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView 
+              style={styles.modalContent}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.modalScrollContent}
+            >
+              <Text style={styles.settingsDescription}>
+                Atur menu mana saja yang ingin ditampilkan di dashboard:
+              </Text>
+
+              <View style={styles.settingsOptionsContainer}>
+                <View style={styles.settingOption}>
+                  <View style={styles.settingOptionInfo}>
+                    <Text style={styles.settingOptionIcon}>👤</Text>
+                    <View style={styles.settingOptionText}>
+                      <Text style={styles.settingOptionTitle}>Tambah Warga</Text>
+                      <Text style={styles.settingOptionDesc}>Daftarkan warga baru ke sistem</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={menuVisibility.tambahWarga}
+                    onValueChange={() => toggleMenuVisibility('tambahWarga')}
+                    trackColor={{ false: colors.gray300, true: colors.primary + '40' }}
+                    thumbColor={menuVisibility.tambahWarga ? colors.primary : colors.gray400}
+                  />
+                </View>
+
+                <View style={styles.settingOption}>
+                  <View style={styles.settingOptionInfo}>
+                    <Text style={styles.settingOptionIcon}>📋</Text>
+                    <View style={styles.settingOptionText}>
+                      <Text style={styles.settingOptionTitle}>Daftar Warga</Text>
+                      <Text style={styles.settingOptionDesc}>Kelola dan edit data warga</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={menuVisibility.daftarWarga}
+                    onValueChange={() => toggleMenuVisibility('daftarWarga')}
+                    trackColor={{ false: colors.gray300, true: colors.primaryLight + '40' }}
+                    thumbColor={menuVisibility.daftarWarga ? colors.primaryLight : colors.gray400}
+                  />
+                </View>
+
+                <View style={styles.settingOption}>
+                  <View style={styles.settingOptionInfo}>
+                    <Text style={styles.settingOptionIcon}>📅</Text>
+                    <View style={styles.settingOptionText}>
+                      <Text style={styles.settingOptionTitle}>Timeline Manager</Text>
+                      <Text style={styles.settingOptionDesc}>Kelola timeline pembayaran</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={menuVisibility.timelineManager}
+                    onValueChange={() => toggleMenuVisibility('timelineManager')}
+                    trackColor={{ false: colors.gray300, true: colors.secondary + '40' }}
+                    thumbColor={menuVisibility.timelineManager ? colors.secondary : colors.gray400}
+                  />
+                </View>
+
+                <View style={styles.settingOption}>
+                  <View style={styles.settingOptionInfo}>
+                    <Text style={styles.settingOptionIcon}>💰</Text>
+                    <View style={styles.settingOptionText}>
+                      <Text style={styles.settingOptionTitle}>Keuangan</Text>
+                      <Text style={styles.settingOptionDesc}>Pemasukan, pengeluaran & laporan</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={menuVisibility.keuangan}
+                    onValueChange={() => toggleMenuVisibility('keuangan')}
+                    trackColor={{ false: colors.gray300, true: colors.primaryDark + '40' }}
+                    thumbColor={menuVisibility.keuangan ? colors.primaryDark : colors.gray400}
+                  />
+                </View>
+
+                <View style={styles.settingOption}>
+                  <View style={styles.settingOptionInfo}>
+                    <Text style={styles.settingOptionIcon}>🔐</Text>
+                    <View style={styles.settingOptionText}>
+                      <Text style={styles.settingOptionTitle}>Kontrol Solenoid</Text>
+                      <Text style={styles.settingOptionDesc}>Kontrol perangkat keras IoT</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={menuVisibility.solenoidControl}
+                    onValueChange={() => toggleMenuVisibility('solenoidControl')}
+                    trackColor={{ false: colors.gray300, true: colors.warning + '40' }}
+                    thumbColor={menuVisibility.solenoidControl ? colors.warning : colors.gray400}
+                  />
+                </View>
+
+                <View style={styles.settingOption}>
+                  <View style={styles.settingOptionInfo}>
+                    <Text style={styles.settingOptionIcon}>🎲</Text>
+                    <View style={styles.settingOptionText}>
+                      <Text style={styles.settingOptionTitle}>Generate Data</Text>
+                      <Text style={styles.settingOptionDesc}>Buat data warga untuk testing</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={menuVisibility.generateData}
+                    onValueChange={() => toggleMenuVisibility('generateData')}
+                    trackColor={{ false: colors.gray300, true: colors.error + '40' }}
+                    thumbColor={menuVisibility.generateData ? colors.error : colors.gray400}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.settingsActions}>
+                <TouchableOpacity
+                  style={[styles.settingsActionButton, { backgroundColor: colors.success + '20', borderColor: colors.success }]}
+                  onPress={() => {
+                    const allVisible = {
+                      tambahWarga: true,
+                      daftarWarga: true,
+                      timelineManager: true,
+                      keuangan: true,
+                      solenoidControl: true,
+                      generateData: true,
+                    };
+                    saveMenuVisibility(allVisible);
+                    showGeneralNotification(
+                      "Pengaturan Disimpan",
+                      "Semua menu berhasil diaktifkan",
+                      "success"
+                    );
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.settingsActionText, { color: colors.success }]}>✓ Aktifkan Semua</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.settingsActionButton, { backgroundColor: colors.error + '20', borderColor: colors.error }]}
+                  onPress={() => {
+                    Alert.alert(
+                      "Nonaktifkan Semua Menu?",
+                      "Ini akan menyembunyikan semua menu. Anda masih bisa mengakses pengaturan untuk mengaktifkannya kembali.",
+                      [
+                        { text: "Batal", style: "cancel" },
+                        {
+                          text: "Nonaktifkan",
+                          style: "destructive",
+                          onPress: () => {
+                            const allHidden = {
+                              tambahWarga: false,
+                              daftarWarga: false,
+                              timelineManager: false,
+                              keuangan: false,
+                              solenoidControl: false,
+                              generateData: false,
+                            };
+                            saveMenuVisibility(allHidden);
+                            showGeneralNotification(
+                              "Pengaturan Disimpan",
+                              "Semua menu berhasil dinonaktifkan",
+                              "warning"
+                            );
+                          }
+                        }
+                      ]
+                    );
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.settingsActionText, { color: colors.error }]}>✕ Nonaktifkan Semua</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <Button
+                title="Selesai"
+                onPress={() => {
+                  setSettingsModalVisible(false);
+                  showGeneralNotification(
+                    "Pengaturan Disimpan",
+                    "Pengaturan menu berhasil disimpan",
+                    "success"
+                  );
+                }}
+                style={styles.modalButton}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {seederLoading && (
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingModal}>
@@ -931,6 +1223,27 @@ const styles = StyleSheet.create({
   headerSection: {
     alignItems: "center",
     marginBottom: 40,
+    position: "relative",
+  },
+  settingsButton: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    zIndex: 10,
+  },
+  settingsIcon: {
+    fontSize: 24,
   },
   logoContainer: {
     alignItems: "center",
@@ -1144,7 +1457,7 @@ const styles = StyleSheet.create({
     color: "#64748b",
   },
   modalContent: {
-    maxHeight: 400,
+    maxHeight: 450,
   },
   modalScrollContent: {
     paddingHorizontal: 24,
@@ -1323,6 +1636,7 @@ const styles = StyleSheet.create({
   emergencyButton: {
     borderWidth: 2,
     borderColor: "#ef4444",
+    marginTop: 8,
   },
   // Keuangan Modal Styles
   keuanganDescription: {
@@ -1336,7 +1650,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   keuanganOptionCard: {
-    padding: 16,
+    padding: 14,
     borderRadius: 12,
     borderWidth: 2,
     alignItems: "center",
@@ -1347,28 +1661,28 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   keuanganOptionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
+    marginBottom: 10,
   },
   keuanganOptionIconText: {
     fontSize: 20,
   },
   keuanganOptionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
-    marginBottom: 6,
+    marginBottom: 5,
     textAlign: "center",
   },
   keuanganOptionDesc: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#64748b",
     textAlign: "center",
-    marginBottom: 12,
-    lineHeight: 16,
+    marginBottom: 10,
+    lineHeight: 15,
   },
   keuanganOptionFeatures: {
     alignItems: "flex-start",
@@ -1377,13 +1691,121 @@ const styles = StyleSheet.create({
   keuanganFeatureItem: {
     fontSize: 10,
     color: "#6b7280",
-    marginBottom: 3,
+    marginBottom: 2,
     textAlign: "left",
   },
   cetakKeuanganCard: {
     marginTop: 8,
     borderStyle: "dashed",
     borderWidth: 2,
+  },
+  // Settings Modal Styles
+  settingsDescription: {
+    fontSize: 16,
+    color: "#64748b",
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  settingsOptionsContainer: {
+    gap: 16,
+    marginBottom: 24,
+  },
+  settingOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  settingOptionInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  settingOptionIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  settingOptionText: {
+    flex: 1,
+  },
+  settingOptionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1e293b",
+    marginBottom: 2,
+  },
+  settingOptionDesc: {
+    fontSize: 12,
+    color: "#64748b",
+    lineHeight: 16,
+  },
+  settingsActions: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  settingsActionButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  settingsActionText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  // No Menu Active Styles
+  noMenuContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 24,
+    backgroundColor: "#f8fafc",
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#e2e8f0",
+    borderStyle: "dashed",
+  },
+  noMenuIcon: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  noMenuTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#374151",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  noMenuDesc: {
+    fontSize: 14,
+    color: "#64748b",
+    textAlign: "center",
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  activateMenuButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  activateMenuText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#ffffff",
   },
 });
 
