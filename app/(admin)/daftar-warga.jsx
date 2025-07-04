@@ -19,7 +19,6 @@ import { lightTheme } from "../../constants/Colors";
 import { useAuth } from "../../contexts/AuthContext";
 
 const { width } = Dimensions.get('window');
-const cardWidth = (width - 48) / 2 - 8;
 
 export default function DaftarWarga() {
   const [wargaList, setWargaList] = useState([]);
@@ -98,41 +97,44 @@ export default function DaftarWarga() {
     });
   };
 
-  const renderWargaCard = ({ item, index }) => (
+  const renderWargaCard = ({ item }) => (
     <TouchableOpacity
-      style={[styles.wargaCard, { marginRight: index % 2 === 0 ? 8 : 0, marginLeft: index % 2 === 1 ? 8 : 0 }]}
+      style={styles.wargaCard}
       onPress={() => handleWargaPress(item)}
       activeOpacity={0.8}
     >
-      {/* Profile Photo Placeholder */}
-      <View style={styles.profilePhoto}>
-        <Text style={styles.profileInitial}>
-          {item.namaWarga.charAt(0).toUpperCase()}
-        </Text>
-      </View>
+      <View style={styles.cardRow}>
+        {/* Profile Photo */}
+        <View style={styles.profilePhoto}>
+          <Text style={styles.profileInitial}>
+            {item.namaWarga.charAt(0).toUpperCase()}
+          </Text>
+        </View>
 
-      {/* Card Content */}
-      <View style={styles.cardContent}>
-        <Text style={styles.cardName} numberOfLines={1}>
-          {item.namaWarga}
-        </Text>
-        <Text style={styles.cardEmail} numberOfLines={1}>
-          {item.email}
-        </Text>
-        <Text style={styles.cardPhone} numberOfLines={1}>
-          {item.noHpWarga || 'No HP belum diisi'}
-        </Text>
-
-        {/* Status Badge */}
-        <View style={[
-          styles.statusBadge, 
-          item.rfidWarga ? styles.statusActive : styles.statusInactive
-        ]}>
-          <Text style={[
-            styles.statusText,
-            item.rfidWarga ? styles.statusActiveText : styles.statusInactiveText
-          ]}>
-            {item.rfidWarga ? '✓ RFID Aktif' : '⚠ Belum RFID'}
+        {/* Card Content */}
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardName} numberOfLines={1}>
+              {item.namaWarga}
+            </Text>
+            <View style={[
+              styles.statusBadge, 
+              item.rfidWarga ? styles.statusActive : styles.statusInactive
+            ]}>
+              <Text style={[
+                styles.statusText,
+                item.rfidWarga ? styles.statusActiveText : styles.statusInactiveText
+              ]}>
+                {item.rfidWarga ? '✓ RFID' : '⚠ No RFID'}
+              </Text>
+            </View>
+          </View>
+          
+          <Text style={styles.cardEmail} numberOfLines={1}>
+            {item.email}
+          </Text>
+          <Text style={styles.cardPhone} numberOfLines={1}>
+            {item.noHpWarga || 'No HP belum diisi'}
           </Text>
         </View>
 
@@ -263,10 +265,9 @@ export default function DaftarWarga() {
             data={filteredWarga}
             renderItem={renderWargaCard}
             keyExtractor={(item) => item.id}
-            numColumns={2}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
-              styles.gridContent,
+              styles.listContent,
               { paddingBottom: insets.bottom + 80 },
             ]}
             refreshControl={
@@ -399,16 +400,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 16,
   },
-  gridContent: {
+  listContent: {
     paddingBottom: 24,
   },
 
-  // Card Grid Styles
+  // Card List Styles
   wargaCard: {
     backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    marginHorizontal: 16,
     borderWidth: 1,
     borderColor: "#e2e8f0",
     shadowColor: "#000",
@@ -416,54 +417,59 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    width: cardWidth,
-    minHeight: 220,
+  },
+  cardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
   },
   profilePhoto: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: lightTheme.primary,
     justifyContent: "center",
     alignItems: "center",
-    alignSelf: "center",
-    marginBottom: 12,
+    marginRight: 12,
   },
   profileInitial: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#fff",
   },
   cardContent: {
     flex: 1,
+    marginRight: 12,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
   cardName: {
     fontSize: 16,
     fontWeight: "600",
     color: "#1e293b",
-    textAlign: "center",
-    marginBottom: 4,
+    flex: 1,
   },
   cardEmail: {
     fontSize: 12,
     color: "#64748b",
-    textAlign: "center",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   cardPhone: {
     fontSize: 12,
     color: "#64748b",
-    textAlign: "center",
-    marginBottom: 12,
+    marginBottom: 4,
   },
 
   // Status Badge Styles
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 8,
     alignItems: "center",
-    marginBottom: 12,
   },
   statusActive: {
     backgroundColor: "#dcfce7",
@@ -472,7 +478,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fef3c7",
   },
   statusText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: "600",
   },
   statusActiveText: {
@@ -484,16 +490,16 @@ const styles = StyleSheet.create({
 
   // Card Actions Styles
   cardActions: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
+    flexDirection: "column",
+    gap: 6,
   },
   actionButton: {
-    flex: 1,
     backgroundColor: lightTheme.primary,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
     alignItems: "center",
+    minWidth: 60,
   },
   actionButtonSecondary: {
     backgroundColor: "transparent",
@@ -501,7 +507,7 @@ const styles = StyleSheet.create({
     borderColor: lightTheme.primary,
   },
   actionText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
     color: "#fff",
   },

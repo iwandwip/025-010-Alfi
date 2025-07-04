@@ -116,41 +116,40 @@ export default function TambahWarga() {
 
   const renderStepIndicator = () => (
     <View style={styles.stepIndicatorContainer}>
-      {steps.map((step, index) => (
-        <View key={step.id} style={styles.stepItem}>
-          <View style={styles.stepConnection}>
-            {index > 0 && (
+      <View style={styles.horizontalStepContainer}>
+        {steps.map((step, index) => (
+          <React.Fragment key={step.id}>
+            <View style={styles.horizontalStepItem}>
               <View style={[
-                styles.connectionLine,
+                styles.horizontalStepCircle,
+                {
+                  backgroundColor: currentStep >= step.id ? lightTheme.primary : '#f1f5f9',
+                  borderColor: currentStep >= step.id ? lightTheme.primary : '#cbd5e1'
+                }
+              ]}>
+                <Text style={[
+                  styles.horizontalStepIcon,
+                  { color: currentStep >= step.id ? '#fff' : '#64748b' }
+                ]}>
+                  {step.icon}
+                </Text>
+              </View>
+              <Text style={[
+                styles.horizontalStepTitle,
+                { color: currentStep >= step.id ? lightTheme.primary : '#64748b' }
+              ]}>
+                {step.title}
+              </Text>
+            </View>
+            {index < steps.length - 1 && (
+              <View style={[
+                styles.horizontalConnectionLine,
                 { backgroundColor: currentStep > step.id ? lightTheme.primary : '#e2e8f0' }
               ]} />
             )}
-          </View>
-          <View style={[
-            styles.stepCircle,
-            {
-              backgroundColor: currentStep >= step.id ? lightTheme.primary : '#f1f5f9',
-              borderColor: currentStep >= step.id ? lightTheme.primary : '#cbd5e1'
-            }
-          ]}>
-            <Text style={[
-              styles.stepIcon,
-              { color: currentStep >= step.id ? '#fff' : '#64748b' }
-            ]}>
-              {step.icon}
-            </Text>
-          </View>
-          <View style={styles.stepInfo}>
-            <Text style={[
-              styles.stepTitle,
-              { color: currentStep >= step.id ? lightTheme.primary : '#64748b' }
-            ]}>
-              {step.title}
-            </Text>
-            <Text style={styles.stepDescription}>{step.description}</Text>
-          </View>
-        </View>
-      ))}
+          </React.Fragment>
+        ))}
+      </View>
     </View>
   );
 
@@ -416,19 +415,19 @@ const styles = StyleSheet.create({
   // Modern Header Styles
   header: {
     backgroundColor: lightTheme.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.1)",
   },
   backButton: {
     alignSelf: "flex-start",
-    marginBottom: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    marginBottom: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
   },
   backButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: "#ffffff",
   },
@@ -436,65 +435,57 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "700",
     color: "#ffffff",
     textAlign: "center",
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: "rgba(255,255,255,0.8)",
-    marginTop: 4,
+    marginTop: 2,
   },
 
-  // Step Indicator Styles
+  // Step Indicator Styles - Horizontal
   stepIndicatorContainer: {
     backgroundColor: "#ffffff",
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
   },
-  stepItem: {
+  horizontalStepContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    justifyContent: "space-between",
   },
-  stepConnection: {
-    position: "absolute",
-    left: 20,
-    top: -16,
-    width: 2,
-    height: 16,
-  },
-  connectionLine: {
+  horizontalStepItem: {
+    alignItems: "center",
     flex: 1,
-    width: 2,
   },
-  stepCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  horizontalStepCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     borderWidth: 2,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
+    marginBottom: 6,
   },
-  stepIcon: {
-    fontSize: 16,
+  horizontalStepIcon: {
+    fontSize: 12,
     fontWeight: "600",
   },
-  stepInfo: {
-    flex: 1,
-  },
-  stepTitle: {
-    fontSize: 16,
+  horizontalStepTitle: {
+    fontSize: 10,
     fontWeight: "600",
-    marginBottom: 2,
+    textAlign: "center",
   },
-  stepDescription: {
-    fontSize: 13,
-    color: "#64748b",
+  horizontalConnectionLine: {
+    height: 2,
+    flex: 0.3,
+    marginHorizontal: 4,
+    marginBottom: 12,
   },
 
   // Content Styles
@@ -502,8 +493,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingVertical: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   stepContent: {
     flex: 1,
@@ -512,8 +503,8 @@ const styles = StyleSheet.create({
   // Card Styles
   sectionCard: {
     backgroundColor: "#ffffff",
-    borderRadius: 16,
-    marginBottom: 20,
+    borderRadius: 10,
+    marginBottom: 6,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -525,45 +516,45 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
   },
   cardIcon: {
-    fontSize: 24,
-    marginRight: 12,
+    fontSize: 20,
+    marginRight: 10,
   },
   cardTitleContainer: {
     flex: 1,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: lightTheme.primary,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   cardSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#64748b",
   },
   cardContent: {
-    padding: 20,
+    padding: 12,
   },
 
   // Help Text Styles
   helpText: {
     backgroundColor: "#f8fafc",
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 12,
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 8,
     borderLeftWidth: 4,
     borderLeftColor: lightTheme.primary,
   },
   helpTextContent: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#475569",
-    lineHeight: 20,
+    lineHeight: 16,
   },
 
   // Important Note Styles
