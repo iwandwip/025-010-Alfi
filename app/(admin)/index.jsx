@@ -1421,7 +1421,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     margin: 20,
     width: "90%",
-    maxWidth: 400,
+    maxWidth: 420,
     maxHeight: "85%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
@@ -1460,8 +1460,8 @@ const styles = StyleSheet.create({
     maxHeight: 450,
   },
   modalScrollContent: {
-    paddingHorizontal: 24,
-    paddingVertical: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     flexGrow: 1,
   },
   inputLabel: {
@@ -1560,10 +1560,11 @@ const styles = StyleSheet.create({
   },
   // Solenoid Modal Styles
   solenoidStatusSection: {
-    marginBottom: 24,
+    marginBottom: 20,
     padding: 16,
     backgroundColor: "#f8fafc",
     borderRadius: 12,
+    marginHorizontal: 4,
   },
   statusSectionTitle: {
     fontSize: 16,
@@ -1604,7 +1605,8 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   solenoidControlSection: {
-    gap: 12,
+    gap: 14,
+    paddingHorizontal: 12,
   },
   controlSectionTitle: {
     fontSize: 16,
@@ -1616,27 +1618,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 12,
     gap: 8,
+    marginHorizontal: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    minHeight: 52,
   },
   modalSolenoidIcon: {
     fontSize: 20,
   },
   modalSolenoidText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "600",
+    textAlign: "center",
+    flex: 1,
   },
   emergencyButton: {
     borderWidth: 2,
     borderColor: "#ef4444",
-    marginTop: 8,
+    marginTop: 12,
   },
   // Keuangan Modal Styles
   keuanganDescription: {
