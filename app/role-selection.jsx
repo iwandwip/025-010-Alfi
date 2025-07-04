@@ -31,8 +31,8 @@ export default function RoleSelection() {
             <View style={styles.logo}>
               <Text style={styles.logoIcon}>💰</Text>
             </View>
-            <Text style={styles.appTitle}>Alfi</Text>
-            <Text style={styles.appSubtitle}>Sistem Jimpitan Warga</Text>
+            <Text style={styles.appTitle}>Smart Jimpitan</Text>
+            <Text style={styles.appSubtitle}>Sistem Jimpitan Warga RT41 RW03 Desa Jatikerto</Text>
           </View>
         </View>
 
@@ -76,8 +76,8 @@ export default function RoleSelection() {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Sistem Jimpitan</Text>
-          <Text style={styles.footerSubtext}>Pengelolaan Keuangan Warga</Text>
+          <Text style={styles.footerText}>Smart Jimpitan</Text>
+          <Text style={styles.footerSubtext}>RT41 RW03 Desa Jatikerto</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -128,9 +128,11 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   appSubtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: lightTheme.gray500,
     fontWeight: "400",
+    textAlign: "center",
+    lineHeight: 20,
   },
   selectionContainer: {
     marginBottom: 40,
